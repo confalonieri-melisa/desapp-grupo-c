@@ -1,50 +1,76 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Constitución del Proyecto: Sistema de Valoración de Mercado de Jugadores de Fútbol
 
-## Core Principles
+## Datos del Documento
+- **Versión:** 1.0.0
+- **Fecha de creación:** 2026-09-08
+- **Última actualización:** 2026-09-08
+- **Modelo de desarrollo:** Spec-Driven Development (SDD)
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+---
+## Contexto Tecnológico (Tech Stack)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### Frontend
+- **Framework:** Next.js (con TypeScript)
+- **Estilos:** CSS
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### Backend / Base de Datos
+- **Lenguaje / Runtime:** TypeScript / Node.js
+- **ORM / Query Builder:** Drizzle ORM
+- **Base de Datos:** PostgreSQL
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### Testing
+- **Framework de Test:** Vitest
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+## Principios Fundamentales
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+### I. Requisitos, Alcance e Integridad del Dominio
+- La implementación debe seguir los requisitos definidos por el enunciado del Trabajo Práctico y el alcance explícitamente aprobado para cada entrega.
+- El agente no debe inventar funcionalidades, reglas de negocio ni ampliar el alcance de forma silenciosa.
+- Los requisitos explícitamente indicados por el enunciado del Trabajo Práctico tienen precedencia sobre suposiciones, convenciones o preferencias de implementación.
+- La implementación debe preservar el significado y la terminología del dominio del problema.
+- Cuando los requisitos sean ambiguos, contradictorios o incompletos, la ambigüedad debe identificarse y plantearse antes de tomar una decisión de negocio o arquitectónica significativa.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### II. Especificación Primero (Specification First)
+- Todo cambio no trivial que modifique comportamiento, reglas de negocio, contratos públicos o arquitectura debe contar con una especificación aprobada antes de su implementación.
+- Las especificaciones deben describir el comportamiento observable, las reglas de negocio relevantes, las restricciones, los escenarios alternativos y los criterios de aceptación.
+- El flujo de desarrollo debería seguir el siguiente orden: Contexto $\rightarrow$ Alcance de la Entrega $\rightarrow$ Specification $\rightarrow$ Plan $\rightarrow$ Implementación $\rightarrow$ Tests $\rightarrow$ Validación.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### III. Arquitectura en Capas y Modelo de Dominio Rico
+- El sistema debe mantener una separación clara de responsabilidades entre Controladores, Servicios, Modelo de Dominio, Repositorios / Persistencia y Adaptadores para sistemas externos.
+- Los controladores se comunican únicamente con los servicios.
+- Los servicios orquestan las operaciones de aplicación y transaccionales entre el dominio y la persistencia.
+- El Modelo de Dominio contiene las principales reglas de negocio y no debe depender de aspectos de infraestructura (frameworks, persistencia, APIs externas).
+- Los repositorios y adaptadores encapsulan la persistencia y la comunicación externa, respectivamente.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### IV. Validación por Responsabilidad
+- La validación debe realizarse estrictamente en el nivel adecuado sin duplicación innecesaria:
+  - **Capa de Request / DTO:** estructura, tipos, formato, normalización de entradas (trimming) y sanitización.
+  - **Capa de Servicio:** existencia de recursos, resolución de identificadores y viabilidad operacional en el contexto actual.
+  - **Modelo de Dominio:** invariantes del dominio, reglas intrínsecas y excepciones específicas del dominio.
 
-## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+### V. Tests, Comportamiento Verificable y Ciclo de Vida de las Pruebas
+- Todo requisito implementado debe contar con un camino de verificación claro que cubra escenarios positivos, negativos y límites en el nivel apropiado:
+  - **Tests unitarios de dominio:** aislados de Spring y de las bases de datos, enfocados en el comportamiento e invariantes del dominio.
+  - **Tests de integración:** servicios y repositorios probados contra una instancia real de PostgreSQL utilizando Testcontainers.
+  - **Tests end-to-end (E2E):** comportamiento de la API probado mediante MockMvc en su propio paquete de tests.
+- **Regla de integridad de los tests:** Los tests existentes no deben eliminarse. Cualquier modificación a los tests existentes debe estar estrictamente justificada por la evolución de la especificación y los requisitos de la funcionalidad, nunca como un artificio para forzar que pasen en verde.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+### VI. Calidad Operacional, Resiliencia y Auditabilidad
+- El sistema debe satisfacer los requisitos operacionales transversales: registro estructurado (structured logging), identificadores de correlación (correlation IDs), health checks, métricas de aplicación, autenticación y autorización seguras, y resiliencia ante fallos de APIs externas (utilizando datos locales o caché).
+- Las operaciones financieras deben preservar registros de auditoría inmutables que capturen quién realizó la operación, la marca de tiempo, los cambios realizados y los estados previo y resultante.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+### VII. Desarrollo Incremental
+- El sistema debe desarrollarse de forma incremental, construyéndose estrictamente sobre los estados previamente validados dentro del alcance aprobado de la entrega actual.
+- El comportamiento validado existente no debe modificarse sin un requisito explícito o una decisión documentada, y los requisitos futuros no deben implementarse de forma anticipada.
+
+### VIII. Simplicidad y Diseño Justificado
+- El proyecto debe favorecer el diseño más simple que satisfaga los requisitos actuales.
+- Toda nueva abstracción, patrón arquitectónico, tecnología o infraestructura requiere una justificación concreta. 
+
+### IX. Definición de Terminado (Definition of Done)
+- Un requisito o funcionalidad se considera completo cuando:
+  - La implementación satisface su Specification aprobada.
+  - Se han implementado y superado exitosamente los tests automatizados aplicables que cubren escenarios positivos, negativos y de límite.
+  - La aplicación compila y se inicia correctamente con la configuración local.
+  - Los cambios que afecten el comportamiento público de la API mantienen sincronizada y actualizada la documentación OpenAPI/Swagger y las colecciones de Postman, verificando su correcta ejecución.
+  - **La Project Owner ha revisado explícitamente y otorgado su aprobación formal para la entrega o funcionalidad.**
