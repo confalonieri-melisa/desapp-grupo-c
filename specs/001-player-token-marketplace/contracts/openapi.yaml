@@ -1,0 +1,414 @@
+openapi: 3.0.3
+info:
+  title: Player Token Marketplace API
+  description: >
+    API REST para la plataforma de valuación y mercado de tokens de jugadores de fútbol
+    (Entrega 1: Core CI/CD, Modelo Mínimo, Autenticación y Catálogo).
+  version: 1.0.0
+  contact:
+    name: DesApp Grupo C
+servers:
+  - url: http://localhost:3000/api
+    description: Local Development Server
+
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Endpoint público para verificar la disponibilidad y estado del servicio y la base de datos.
+      tags:
+        - System
+      responses:
+        '200':
+          description: Servicio saludable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /auth/register:
+    post:
+      summary: Registro de Usuario Inversor
+      description: >
+        Crea una nueva cuenta de usuario inversor, hashea la contraseña,
+        asigna automáticamente 1.000 créditos de bienvenida y confirma el registro.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Usuario registrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Datos de entrada inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: El email ya se encuentra registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      summary: Autenticación de Usuario
+      description: >
+        Valida credenciales de usuario y retorna un token JWT válido por 24 horas
+        para consumir los endpoints protegidos vía el header `Authorization: Bearer <token>`.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login exitoso y emisión de token JWT
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Credenciales inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /players:
+    get:
+      summary: Catálogo de Jugadores
+      description: >
+        Retorna la lista paginada de jugadores de las 5 ligas europeas oficiales.
+        Permite filtrar de manera combinada por liga, equipo y posición.
+        Requiere autenticación JWT.
+      tags:
+        - Players
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: league
+          in: query
+          required: false
+          description: Filtro por liga oficial
+          schema:
+            $ref: '#/components/schemas/LeagueEnum'
+        - name: team
+          in: query
+          required: false
+          description: Filtro por nombre de equipo
+          schema:
+            type: string
+        - name: position
+          in: query
+          required: false
+          description: Filtro por posición en el campo
+          schema:
+            $ref: '#/components/schemas/PositionEnum'
+        - name: page
+          in: query
+          required: false
+          description: Número de página (comienza en 1)
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: limit
+          in: query
+          required: false
+          description: Cantidad de elementos por página (máximo 100)
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Lista paginada de jugadores
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPlayersResponse'
+        '401':
+          description: No autorizado - Token JWT ausente, inválido o expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /players/{id}:
+    get:
+      summary: Detalle de Jugador
+      description: >
+        Retorna la ficha biográfica y métricas completas de un jugador por su identificador único.
+        Requiere autenticación JWT.
+      tags:
+        - Players
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Identificador UUID del jugador
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Detalle del jugador
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlayerDetailResponse'
+        '401':
+          description: No autorizado - Token JWT ausente o inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Jugador no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Ingrese su token JWT emitido por `/auth/login` (válido por 24 horas).
+
+  schemas:
+    LeagueEnum:
+      type: string
+      enum:
+        - PREMIER_LEAGUE
+        - BUNDESLIGA
+        - LA_LIGA
+        - SERIE_A
+        - LIGUE_1
+      example: LA_LIGA
+
+    PositionEnum:
+      type: string
+      enum:
+        - GOALKEEPER
+        - DEFENDER
+        - MIDFIELDER
+        - FORWARD
+      example: FORWARD
+
+    UserRoleEnum:
+      type: string
+      enum:
+        - INVESTOR
+        - SUPERUSER
+      example: INVESTOR
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - name
+      properties:
+        email:
+          type: string
+          format: email
+          example: inversor@ejemplo.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          example: SecurePass123!
+        name:
+          type: string
+          minLength: 2
+          example: Juan Perez
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: inversor@ejemplo.com
+        password:
+          type: string
+          format: password
+          example: SecurePass123!
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d
+        email:
+          type: string
+          format: email
+          example: inversor@ejemplo.com
+        name:
+          type: string
+          example: Juan Perez
+        role:
+          $ref: '#/components/schemas/UserRoleEnum'
+        creditBalance:
+          type: number
+          format: float
+          example: 1000.00
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-09-12T17:00:00.000Z"
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        expiresIn:
+          type: string
+          example: 24h
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    PlayerSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 98765432-1234-5678-9abc-def012345678
+        name:
+          type: string
+          example: Kylian Mbappé
+        team:
+          type: string
+          example: Real Madrid
+        league:
+          $ref: '#/components/schemas/LeagueEnum'
+        position:
+          $ref: '#/components/schemas/PositionEnum'
+        currentQuote:
+          type: number
+          format: float
+          example: 1.00
+        totalTokens:
+          type: integer
+          example: 100
+
+    PlayerDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 98765432-1234-5678-9abc-def012345678
+        name:
+          type: string
+          example: Kylian Mbappé
+        team:
+          type: string
+          example: Real Madrid
+        league:
+          $ref: '#/components/schemas/LeagueEnum'
+        position:
+          $ref: '#/components/schemas/PositionEnum'
+        statistics:
+          type: object
+          additionalProperties: true
+          example:
+            matches: 28
+            minutes: 2450
+            goals: 24
+            assists: 8
+            rating: 8.12
+        currentQuote:
+          type: number
+          format: float
+          example: 1.00
+        totalTokens:
+          type: integer
+          example: 100
+        createdAt:
+          type: string
+          format: date-time
+
+    PaginationMeta:
+      type: object
+      properties:
+        total:
+          type: integer
+          example: 15
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 20
+        totalPages:
+          type: integer
+          example: 1
+
+    PaginatedPlayersResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlayerSummary'
+        pagination:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: ok
+        uptime:
+          type: number
+          example: 124.5
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-09-12T17:00:00.000Z"
+        database:
+          type: string
+          example: connected
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthorized
+        message:
+          type: string
+          example: Missing or invalid authorization token
+        statusCode:
+          type: integer
+          example: 401
