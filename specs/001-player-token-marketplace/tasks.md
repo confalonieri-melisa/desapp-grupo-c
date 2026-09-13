@@ -44,11 +44,11 @@
 
 **Purpose**: Core infrastructure that must be ready before any business or domain logic is executed.
 
-- [ ] T006 Implement PostgreSQL database client connection pooling in [src/db/index.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/db/index.ts)
-- [ ] T007 [P] Implement password hashing and verification utility using bcrypt in [src/utils/hash.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/utils/hash.ts)
-- [ ] T008 [P] Implement JWT issuance and verification utility with 24-hour expiration in [src/utils/jwt.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/utils/jwt.ts)
-- [ ] T009 [P] Implement structured JSON logging utility with correlation ID support in [src/middlewares/logger.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/middlewares/logger.ts)
-- [ ] T010 Implement standard domain error classes and HTTP error response mapping in [src/models/errors.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/models/errors.ts)
+- [x] T006 Implement PostgreSQL database client connection pooling in [src/db/index.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/db/index.ts)
+- [x] T007 [P] Implement password hashing and verification utility using bcrypt in [src/utils/hash.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/utils/hash.ts)
+- [x] T008 [P] Implement JWT issuance and verification utility with 24-hour expiration in [src/utils/jwt.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/utils/jwt.ts)
+- [x] T009 [P] Implement structured JSON logging utility with correlation ID support in [src/middlewares/logger.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/middlewares/logger.ts)
+- [x] T010 Implement standard domain error classes and HTTP error response mapping in [src/models/errors.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/models/errors.ts)
 
 **Checkpoint**: Foundation ready. User story implementations can now proceed.
 
