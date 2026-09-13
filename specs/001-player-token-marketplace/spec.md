@@ -1,6 +1,8 @@
-# Feature Specification: Entrega 1 - Core CI/CD, Modelo Mínimo, AutenticaciÃ³n y Catálogo de Jugadores
+# Feature Specification: Entrega 1 - Core CI/CD, Modelo Mínimo, Autenticación y Catálogo de Jugadores
 
-**Feature Branch**: `001-player-token-marketplace`
+**Feature Branch**: `feature/001-player-token-marketplace`
+
+**Integration Base Branch**: `dev`
 
 **Created**: 2026-09-12
 
