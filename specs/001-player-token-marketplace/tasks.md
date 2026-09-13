@@ -15,6 +15,8 @@
 > 2. Al completar cada tarea individual y antes de proceder con el commit o la siguiente tarea, **el agente debe pausar la ejecución y pedir confirmación explícita al usuario**.
 > 3. No se continuará con la siguiente tarea ni se realizarán commits adicionales sin la aprobación explícita del usuario en el chat.
 > 4. Los commits deben ser granulares y atómicos respetando la convención de GitFlow establecida.
+> 5. **Apertura y Publicación de Pull Requests**: Al cerrar una fase o hito, el agente tiene la responsabilidad de abrir y publicar el Pull Request en GitHub hacia la rama `dev` con descripción concisa de los cambios. La aprobación y merge corresponden **exclusivamente a los Project Owners** (el agente no puede aprobar ni mergear).
+> 6. **Pipeline Desacoplado (Sin seguimiento activo)**: El pipeline de GitHub Actions se dispara de forma automática ante cada PR y push evaluando lint, pruebas con cobertura y Quality Gate de SonarCloud. El agente no debe realizar seguimiento activo ni polling de su ejecución; si surge un error en el pipeline, será informado para su correspondiente solución.
 
 ---
 
@@ -30,11 +32,11 @@
 
 **Purpose**: Initialize dependencies, project directory structure, test runners and quality tooling.
 
-- [ ] T001 Initialize project runtime and dev dependencies in [package.json](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/package.json) (`drizzle-orm`, `postgres`, `bcryptjs`, `@types/bcryptjs`, `jsonwebtoken`, `@types/jsonwebtoken`, `zod`, `vitest`, `@vitest/coverage-v8`, `swagger-ui-dist`, `yaml`, `dotenv`)
-- [ ] T002 [P] Configure Vitest runner with TypeScript path aliases and coverage thresholds in [vitest.config.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/vitest.config.ts)
-- [ ] T003 [P] Configure SonarCloud static analysis properties in [sonar-project.properties](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/sonar-project.properties)
-- [ ] T004 [P] Configure Drizzle ORM Kit settings in [drizzle.config.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/drizzle.config.ts)
-- [ ] T005 [P] Setup environment variable schema and validator in [src/config/env.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/config/env.ts)
+- [x] T001 Initialize project runtime and dev dependencies in [package.json](file:///C:/Users/meluk/UNQ/desapp-grupo-c/package.json) (`drizzle-orm`, `postgres`, `bcryptjs`, `@types/bcryptjs`, `jsonwebtoken`, `@types/jsonwebtoken`, `zod`, `vitest`, `@vitest/coverage-v8`, `swagger-ui-dist`, `yaml`, `dotenv`)
+- [x] T002 [P] Configure Vitest runner with TypeScript path aliases and coverage thresholds in [vitest.config.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/vitest.config.ts)
+- [x] T003 [P] Configure SonarCloud static analysis properties in [sonar-project.properties](file:///C:/Users/meluk/UNQ/desapp-grupo-c/sonar-project.properties)
+- [x] T004 [P] Configure Drizzle ORM Kit settings in [drizzle.config.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/drizzle.config.ts)
+- [x] T005 [P] Setup environment variable schema and validator in [src/config/env.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/config/env.ts)
 
 ---
 
@@ -68,7 +70,7 @@
 - [ ] T012 [P] [US1] Create health controller in [src/controllers/health.controller.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/controllers/health.controller.ts)
 - [ ] T013 [US1] Implement route handler `GET /api/health` in [src/app/api/health/route.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/app/api/health/route.ts)
 - [ ] T014 [P] [US1] Implement Swagger OpenAPI UI route handler exposing `contracts/openapi.yaml` in [src/app/api/docs/route.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/app/api/docs/route.ts)
-- [ ] T015 [US1] Configure GitHub Actions CI workflow pipeline (lint, TypeScript build, Vitest coverage, SonarCloud scan) in [.github/workflows/ci.yml](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/.github/workflows/ci.yml)
+- [x] T015 [US1] Configure GitHub Actions CI workflow pipeline (lint, TypeScript build, Vitest coverage, SonarCloud scan) in [.github/workflows/ci.yml](file:///C:/Users/meluk/UNQ/desapp-grupo-c/.github/workflows/ci.yml)
 
 **Checkpoint**: User Story 1 complete. Health, OpenAPI documentation, and automated CI pipeline are operational.
 
