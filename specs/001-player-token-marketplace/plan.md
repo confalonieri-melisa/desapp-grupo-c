@@ -21,13 +21,15 @@ Para el desarrollo del proyecto se adopta estrictamente el siguiente flujo de tr
    - Convención de nombres: `feature/<identificador>-<nombre-corto>` (Ejemplo: `feature/001-player-token-marketplace`).
 3. **Prohibición de Trabajo Directo**: Queda terminantemente prohibido desarrollar o commitear directamente sobre `dev` o `main`.
 4. **Commits Granulares**: Los commits deben ser pequeños, atómicos, coherentes y con mensajes/títulos claros y descriptivos.
-5. **Permisos y Creación de Pull Requests (PRs)**:
-   - El agente tiene autorización para crear ramas de trabajo, realizar commits, hacer push al repositorio remoto y abrir Pull Requests.
-   - Al finalizar y validar la implementación con tests automáticos y cobertura, se crea un PR con destino a `dev`.
-   - El PR debe incluir una descripción clara y concisa que detalle qué se implementó y qué Requisitos/Especificación satisface.
+5. **Apertura y Publicación de Pull Requests (PRs)**:
+   - El agente tiene autorización y la responsabilidad de crear ramas de trabajo, realizar commits, hacer push al repositorio remoto y abrir/publicar Pull Requests directamente hacia `dev`.
+   - El PR debe incluir un título convencional y una descripción clara y concisa que detalle qué se implementó y qué requisitos de la especificación/plan satisface.
 6. **Aprobación y Merge Exclusivos de Project Owners**:
    - **El agente NO puede aprobar ni mergear Pull Requests**. La revisión, aprobación y el merge corresponden de forma exclusiva a los Project Owners.
-7. **Resolución de Conflictos o Decisiones Funcionales**:
+7. **Pipeline Automatizado en GitHub Actions (Sin Polling Activo)**:
+   - Toda apertura o actualización de PR dispara de forma automática el pipeline en GitHub Actions (`.github/workflows/ci.yml`), el cual compila, ejecuta linter, corre tests con cobertura y evalúa el Quality Gate en SonarCloud.
+   - El agente **no** debe realizar seguimiento activo ni bloquearse haciendo polling del pipeline; cualquier fallo reportado por el CI/CD será informado para su oportuna resolución.
+8. **Resolución de Conflictos o Decisiones Funcionales**:
    - Ante cualquier conflicto de integración o decisión que pueda alterar el comportamiento funcional del sistema, se debe consultar a los Project Owners antes de proceder.
 
 ---

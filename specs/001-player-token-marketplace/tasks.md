@@ -15,6 +15,8 @@
 > 2. Al completar cada tarea individual y antes de proceder con el commit o la siguiente tarea, **el agente debe pausar la ejecución y pedir confirmación explícita al usuario**.
 > 3. No se continuará con la siguiente tarea ni se realizarán commits adicionales sin la aprobación explícita del usuario en el chat.
 > 4. Los commits deben ser granulares y atómicos respetando la convención de GitFlow establecida.
+> 5. **Apertura y Publicación de Pull Requests**: Al cerrar una fase o hito, el agente tiene la responsabilidad de abrir y publicar el Pull Request en GitHub hacia la rama `dev` con descripción concisa de los cambios. La aprobación y merge corresponden **exclusivamente a los Project Owners** (el agente no puede aprobar ni mergear).
+> 6. **Pipeline Desacoplado (Sin seguimiento activo)**: El pipeline de GitHub Actions se dispara de forma automática ante cada PR y push evaluando lint, pruebas con cobertura y Quality Gate de SonarCloud. El agente no debe realizar seguimiento activo ni polling de su ejecución; si surge un error en el pipeline, será informado para su correspondiente solución.
 
 ---
 
