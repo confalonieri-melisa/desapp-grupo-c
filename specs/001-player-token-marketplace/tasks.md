@@ -30,7 +30,7 @@
 
 **Purpose**: Initialize dependencies, project directory structure, test runners and quality tooling.
 
-- [ ] T001 Initialize project runtime and dev dependencies in [package.json](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/package.json) (`drizzle-orm`, `postgres`, `bcryptjs`, `@types/bcryptjs`, `jsonwebtoken`, `@types/jsonwebtoken`, `zod`, `vitest`, `@vitest/coverage-v8`, `swagger-ui-dist`, `yaml`, `dotenv`)
+- [x] T001 Initialize project runtime and dev dependencies in [package.json](file:///C:/Users/meluk/UNQ/desapp-grupo-c/package.json) (`drizzle-orm`, `postgres`, `bcryptjs`, `@types/bcryptjs`, `jsonwebtoken`, `@types/jsonwebtoken`, `zod`, `vitest`, `@vitest/coverage-v8`, `swagger-ui-dist`, `yaml`, `dotenv`)
 - [ ] T002 [P] Configure Vitest runner with TypeScript path aliases and coverage thresholds in [vitest.config.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/vitest.config.ts)
 - [ ] T003 [P] Configure SonarCloud static analysis properties in [sonar-project.properties](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/sonar-project.properties)
 - [ ] T004 [P] Configure Drizzle ORM Kit settings in [drizzle.config.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/drizzle.config.ts)
