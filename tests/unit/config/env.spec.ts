@@ -36,4 +36,15 @@ describe("Environment Configuration (env.ts)", () => {
     const result = envSchema.safeParse(invalidConfig);
     expect(result.success).toBe(false);
   });
+
+  it("should throw an error when parseEnv fails validation", () => {
+    const invalidConfig = {
+      DATABASE_URL: "postgresql://localhost:5432/db",
+      JWT_SECRET: "short",
+      NODE_ENV: "development",
+      PORT: 3000,
+    };
+
+    expect(() => parseEnv(invalidConfig)).toThrow("Invalid environment configuration");
+  });
 });
