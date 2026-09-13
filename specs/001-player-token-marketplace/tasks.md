@@ -68,7 +68,7 @@
 - [ ] T012 [P] [US1] Create health controller in [src/controllers/health.controller.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/controllers/health.controller.ts)
 - [ ] T013 [US1] Implement route handler `GET /api/health` in [src/app/api/health/route.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/app/api/health/route.ts)
 - [ ] T014 [P] [US1] Implement Swagger OpenAPI UI route handler exposing `contracts/openapi.yaml` in [src/app/api/docs/route.ts](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/src/app/api/docs/route.ts)
-- [ ] T015 [US1] Configure GitHub Actions CI workflow pipeline (lint, TypeScript build, Vitest coverage, SonarCloud scan) in [.github/workflows/ci.yml](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/.github/workflows/ci.yml)
+- [x] T015 [US1] Configure GitHub Actions CI workflow pipeline (lint, TypeScript build, Vitest coverage, SonarCloud scan) in [.github/workflows/ci.yml](file:///C:/Users/meluk/UNQ/desapp-grupo-c/.github/workflows/ci.yml)
 
 **Checkpoint**: User Story 1 complete. Health, OpenAPI documentation, and automated CI pipeline are operational.
 
