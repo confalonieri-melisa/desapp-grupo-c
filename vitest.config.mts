@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
+    passWithNoTests: true,
     include: ["tests/**/*.spec.ts", "tests/**/*.test.ts"],
     coverage: {
       provider: "v8",
@@ -13,6 +14,7 @@ export default defineConfig({
       include: ["src/**/*.ts"],
       exclude: [
         "src/app/**",
+        "src/config/env.ts",
         "src/db/seeds/**",
         "src/db/migrations/**",
         "node_modules/**",

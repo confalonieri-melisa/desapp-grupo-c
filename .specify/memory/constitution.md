@@ -1,9 +1,22 @@
+<!--
+Sync Impact Report
+- Version change: 1.0.0 → 1.1.0
+- Bump rationale: MINOR — materially expanded Principle V + added new Principle X.
+- Modified principles:
+  - V. Tests, Comportamiento Verificable y Ciclo de Vida de las Pruebas
+    (updated tech references, added Prohibición de Tests Triviales,
+     added Manejo de Cobertura en Fases de Configuración)
+- Added sections:
+  - X. Gestión de GitFlow y Fases Iterativas
+- Removed sections: none
+- Deferred TODOs: none
+-->
 # Constitución del Proyecto: Sistema de Valoración de Mercado de Jugadores de Fútbol
 
 ## Datos del Documento
-- **Versión:** 1.0.0
+- **Versión:** 1.1.0
 - **Fecha de creación:** 2026-09-08
-- **Última actualización:** 2026-09-08
+- **Última actualización:** 2026-09-13
 - **Modelo de desarrollo:** Spec-Driven Development (SDD)
 
 ---
@@ -50,9 +63,10 @@
 
 ### V. Tests, Comportamiento Verificable y Ciclo de Vida de las Pruebas
 - Todo requisito implementado debe contar con un camino de verificación claro que cubra escenarios positivos, negativos y límites en el nivel apropiado:
-  - **Tests unitarios de dominio:** aislados de Spring y de las bases de datos, enfocados en el comportamiento e invariantes del dominio.
-  - **Tests de integración:** servicios y repositorios probados contra una instancia real de PostgreSQL utilizando Testcontainers.
-  - **Tests end-to-end (E2E):** comportamiento de la API probado mediante MockMvc en su propio paquete de tests.
+  - **Tests unitarios de dominio:** aislados y enfocados estrictamente en el comportamiento, reglas de negocio e invariantes del dominio.
+  - **Tests de integración:** servicios y repositorios probados contra una instancia real de PostgreSQL.
+- **Prohibición de Tests Triviales:** Queda terminantemente prohibido escribir tests unitarios o de integración para configuraciones triviales, variables de entorno, archivos de propiedades, o código estructural puramente declarativo (ej. `env.ts`, configuraciones de herramientas).
+- **Manejo de Cobertura en Fases de Configuración:** Si una fase inicial de configuración o infraestructura provoca fallos en el pipeline de CI debido a umbrales de cobertura, se deben excluir explícitamente dichos archivos en `vitest.config.ts` o en las propiedades de SonarCloud, en lugar de crear tests vacíos, artificiales o innecesarios.
 - **Regla de integridad de los tests:** Los tests existentes no deben eliminarse. Cualquier modificación a los tests existentes debe estar estrictamente justificada por la evolución de la especificación y los requisitos de la funcionalidad, nunca como un artificio para forzar que pasen en verde.
 
 ### VI. Calidad Operacional, Resiliencia y Auditabilidad
@@ -65,7 +79,7 @@
 
 ### VIII. Simplicidad y Diseño Justificado
 - El proyecto debe favorecer el diseño más simple que satisfaga los requisitos actuales.
-- Toda nueva abstracción, patrón arquitectónico, tecnología o infraestructura requiere una justificación concreta. 
+- Toda nueva abstracción, patrón arquitectónico, tecnología o infraestructura requiere una justificación concreta.
 
 ### IX. Definición de Terminado (Definition of Done)
 - Un requisito o funcionalidad se considera completo cuando:
@@ -74,3 +88,9 @@
   - La aplicación compila y se inicia correctamente con la configuración local.
   - Los cambios que afecten el comportamiento público de la API mantienen sincronizada y actualizada la documentación OpenAPI/Swagger y las colecciones de Postman, verificando su correcta ejecución.
   - **La Project Owner ha revisado explícitamente y otorgado su aprobación formal para la entrega o funcionalidad.**
+
+### X. Gestión de GitFlow y Fases Iterativas
+- El desarrollo debe realizarse de forma estrictamente incremental por **Fases** y tareas independientes (según el desglose de `tasks.md`).
+- **Aislamiento por Rama de Fase:** Cada Fase del plan debe desarrollarse y entregarse en su propia rama independiente creada desde `dev` (ej. `feature/001-phase1-setup`, `feature/001-phase2-domain`). Queda prohibido acumular todo el desarrollo en una única rama gigante o mezclar múltiples fases.
+- **Pull Request por Fase:** Al finalizar todas las tareas de una fase, se debe abrir un único Pull Request hacia `dev` para esa fase específica, permitiendo revisiones acotadas e incrementales.
+- **Principio YAGNI Estricto:** Se favorece el diseño más simple que satisfaga los requisitos actuales. Está prohibido escribir código defensivo, abstracciones anticipadas, patrones no solicitados o lógica que no esté explícitamente requerida por la tarea o especificación actual.
