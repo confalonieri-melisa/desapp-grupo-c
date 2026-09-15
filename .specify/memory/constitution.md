@@ -91,6 +91,6 @@ Sync Impact Report
 
 ### X. Gestión de GitFlow y Fases Iterativas
 - El desarrollo debe realizarse de forma estrictamente incremental por **Fases** y tareas independientes (según el desglose de `tasks.md`).
-- **Aislamiento por Rama de Fase:** Cada Fase del plan debe desarrollarse y entregarse en su propia rama independiente creada desde `dev` (ej. `feature/001-phase1-setup`, `feature/001-phase2-domain`). Queda prohibido acumular todo el desarrollo en una única rama gigante o mezclar múltiples fases.
-- **Pull Request por Fase:** Al finalizar todas las tareas de una fase, se debe abrir un único Pull Request hacia `dev` para esa fase específica, permitiendo revisiones acotadas e incrementales.
+- **Aislamiento por Rama de Fase:** Cada Fase del plan debe desarrollarse y entregarse en su propia rama independiente creada desde `main` (ej. `feature/001-phase1-setup`, `feature/001-phase2-domain`). Queda prohibido acumular todo el desarrollo en una única rama gigante o mezclar múltiples fases.
+- **Pull Request por Fase:** Al finalizar todas las tareas de una fase, se debe abrir un único Pull Request hacia `main` para esa fase específica, permitiendo revisiones acotadas e incrementales.
 - **Principio YAGNI Estricto:** Se favorece el diseño más simple que satisfaga los requisitos actuales. Está prohibido escribir código defensivo, abstracciones anticipadas, patrones no solicitados o lógica que no esté explícitamente requerida por la tarea o especificación actual.

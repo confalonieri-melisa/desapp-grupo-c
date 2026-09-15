@@ -1,7 +1,7 @@
 # Tasks: Entrega 1 - Core CI/CD, Modelo Mínimo, Autenticación y Catálogo de Jugadores
 
 **Feature Branch**: `feature/001-player-token-marketplace`  
-**Integration Base Branch**: `dev`  
+**Integration Base Branch**: `main`  
 **Input**: Design documents from `specs/001-player-token-marketplace/` (`plan.md`, `spec.md`, `data-model.md`, `research.md`, `contracts/openapi.yaml`, `contracts/postman_collection.json`)  
 **Status**: Ready for Implementation  
 
@@ -156,7 +156,7 @@
 **Purpose**: Documentation updates and Pull Request preparation for Project Owner review.
 
 - [ ] T044 Update quickstart execution documentation in [specs/001-player-token-marketplace/quickstart.md](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/specs/001-player-token-marketplace/quickstart.md) and project [README.md](file:///C:/Users/Usuario/Desktop/Facu/desapp-grupo-c/README.md)
-- [ ] T045 Create Pull Request from `feature/001-player-token-marketplace` into `dev` branch with structured summary for Project Owner review and approval
+- [ ] T045 Create Pull Request from `feature/001-player-token-marketplace` into `main` branch with structured summary for Project Owner review and approval
 
 ---
 
