@@ -2,7 +2,7 @@
 
 **Feature Branch**: `feature/001-player-token-marketplace`
 
-F**Integration Base Branch**: `main`
+**Integration Base Branch**: `main`
 
 **Created**: 2026-09-12
 

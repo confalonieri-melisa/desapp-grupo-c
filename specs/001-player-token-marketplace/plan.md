@@ -1,7 +1,7 @@
 # Implementation Plan: Entrega 1 - Core CI/CD, Modelo Mínimo, Autenticación y Catálogo de Jugadores
 
 **Feature Branch**: `feature/001-player-token-marketplace`  
-**Base Integration Branch**: `dev`  
+**Base Integration Branch**: `main`  
 **Specification**: [spec.md](./spec.md)  
 **Research**: [research.md](./research.md)  
 **Data Model**: [data-model.md](./data-model.md)  
@@ -14,15 +14,16 @@
 
 ## 1. Protocolo GitFlow y Flujo de Trabajo
 
-Para el desarrollo del proyecto se adopta estrictamente el siguiente flujo de trabajo GitFlow:
+Para el desarrollo del proyecto se adopta estrictamente el siguiente flujo de trabajo GitFlow, alineado con la Constitución v1.2.0:
 
-1. **Rama de Integración**: `dev` es la rama base de integración continua.
-2. **Creación de Ramas por Feature**: Cada feature se desarrolla en su propia rama creada a partir de `dev`.
-   - Convención de nombres: `feature/<identificador>-<nombre-corto>` (Ejemplo: `feature/001-player-token-marketplace`).
-3. **Prohibición de Trabajo Directo**: Queda terminantemente prohibido desarrollar o commitear directamente sobre `dev` o `main`.
+1. **Rama base de integración**: `main` es la única rama base de integración continua del proyecto.
+2. **Creación de Ramas por Feature**: Cada feature o incremento productivo se desarrolla en su propia rama creada a partir de `main`.
+   - Convención de nombres: `feature/<id>-<nombre-corto-descriptivo>` (Ejemplo: `feature/001-domain-model`, `feature/002-auth-jwt`, `feature/003-player-catalog`).
+   - El nombre debe reflejar el contenido concreto de la feature, no el número de fase genérico.
+3. **Prohibición de Trabajo Directo**: Queda terminantemente prohibido desarrollar o commitear directamente sobre `main`.
 4. **Commits Granulares**: Los commits deben ser pequeños, atómicos, coherentes y con mensajes/títulos claros y descriptivos.
 5. **Apertura y Publicación de Pull Requests (PRs)**:
-   - El agente tiene autorización y la responsabilidad de crear ramas de trabajo, realizar commits, hacer push al repositorio remoto y abrir/publicar Pull Requests directamente hacia `dev`.
+   - El agente tiene autorización y la responsabilidad de crear ramas de trabajo, realizar commits, hacer push al repositorio remoto y abrir/publicar Pull Requests directamente hacia `main`.
    - El PR debe incluir un título convencional y una descripción clara y concisa que detalle qué se implementó y qué requisitos de la especificación/plan satisface.
 6. **Aprobación y Merge Exclusivos de Project Owners**:
    - **El agente NO puede aprobar ni mergear Pull Requests**. La revisión, aprobación y el merge corresponden de forma exclusiva a los Project Owners.
@@ -154,54 +155,78 @@ desapp-grupo-c/
 
 ---
 
-## 5. Fases de Implementación y Commits Granulares
+## 5. Features de Implementación (Ramas Productivas Pequeñas)
 
-Cada fase se implementa mediante commits pequeños, atómicos y bien documentados en la rama `feature/001-player-token-marketplace`:
+Cada feature se implementa en su propia rama creada desde `main`, con commits granulares y PR independiente hacia `main` al completar.
 
-### Fase 1: Setup de Tooling, Dependencias y Configuración
-- Instalar dependencias de runtime y desarrollo (`drizzle-orm`, `postgres`, `bcryptjs`, `jsonwebtoken`, `zod`, `vitest`, `@vitest/coverage-v8`, `swagger-ui-dist`).
-- Configurar `vitest.config.ts` (ESM, path aliases, reporte de cobertura) y `sonar-project.properties`.
-- *Commit*: `chore: configure vitest, drizzle and sonarcloud tooling`
+> **Principio:** Cada rama representa un incremento autónomo y verificable. Queda prohibido acumular múltiples features en una sola rama gigante.
 
-### Fase 2: Modelo de Dominio Rico y Tests Unitarios (TDD)
-- **Implementar `src/models/enums.ts`**: `League` (Premier League, Bundesliga, La Liga, Serie A, Ligue 1), `Position`, `UserRole`.
-- **Implementar entidad `User`**: Reglas de negocio e invariantes (email válido, 1.000 créditos iniciales para inversor).
-- **Implementar entidad `Player`**: Reglas de negocio e invariantes (validación estricta de las 5 ligas oficiales, métricas).
-- **Implementar entidad `TokenHolding`**: Invariante de 100 tokens emitidos en $t_0$.
-- **Escribir tests unitarios en `tests/unit/models/`** validando todas las reglas e invariantes de dominio.
-- *Commit*: `feat(domain): implement rich domain models and invariants with unit tests`
+### Feature A: CI/CD Pipeline y Health Check
+**Rama**: `feature/001-ci-pipeline-health`  
+**Contenido**:
+- Configurar `.github/workflows/ci.yml` ejecutando `lint`, `test:coverage`, `build` y el escaneo de SonarCloud con umbral <10 issues y Quality Gate aprobado.
+- Implementar el endpoint público `GET /api/health` con su controlador y ruta.
+- *Commit*: `ci: add github actions pipeline and health check endpoint`
+- *PR hacia*: `main`
 
-### Fase 3: Persistencia con Drizzle ORM y Seeding
+### Feature B: Modelo de Dominio Rico y Tests Unitarios
+**Rama**: `feature/002-domain-model`  
+**Contenido**:
+- **Implementar `src/models/enums.ts`**: `League` (5 ligas), `Position`, `UserRole`.
+- **Implementar entidad `User`**: invariantes (email válido, 1.000 créditos para inversor).
+- **Implementar entidad `Player`**: invariante estricta de 5 ligas oficiales.
+- **Implementar entidad `TokenHolding`**: invariante de 100 tokens emitidos en $t_0$.
+- **Implementar `src/models/errors.ts`**: errores de dominio tipados.
+- **Tests unitarios en `tests/unit/models/`** cubriendo todas las reglas e invariantes.
+- *Commit*: `feat(domain): rich domain models with invariants and unit tests`
+- *PR hacia*: `main`
+
+### Feature C: Persistencia con Drizzle ORM y Seeding
+**Rama**: `feature/003-persistence-drizzle`  
+**Dependencia**: Feature B mergeada en `main`  
+**Contenido**:
 - Definir esquemas en `src/db/schema.ts` (`users`, `players`, `token_holdings`, `quote_history`, `audit_logs`).
-- Implementar `UserRepository` y `PlayerRepository` mapeando entre tablas de Drizzle y las entidades del modelo.
-- Crear script de seed `src/db/seeds/seed.ts` con 15 jugadores (3 por liga para las 5 ligas) y 100 tokens iniciales asignados al superusuario a cotización base de 1 crédito.
-- *Commit*: `feat(db): add drizzle schema, repositories and initial dataset seeder`
+- Implementar conexión PostgreSQL en `src/db/index.ts`.
+- Implementar `UserRepository` y `PlayerRepository`.
+- Crear script `src/db/seeds/seed.ts` con 15 jugadores (3 por liga) y superusuario.
+- *Commit*: `feat(db): drizzle schema, repositories and initial dataset seeder`
+- *PR hacia*: `main`
 
-### Fase 4: Servicios Orquestadores de Aplicación
-- Implementar `AuthService` (orquesta validación de unicidad, creación de `User`, hasheo de clave y emisión JWT de 24h).
-- Implementar `PlayerService` (orquesta filtros por liga/equipo/posición y paginación con límite default 20).
-- Escribir tests unitarios de servicios en `tests/unit/services/` con mocks de repositorios.
-- *Commit*: `feat(services): implement auth and player orchestrator services with unit tests`
-
-### Fase 5: Controladores HTTP, Middleware JWT y Swagger Docs
-- Implementar `auth.middleware.ts` para verificar `Authorization: Bearer <token>` y rechazar con `401 Unauthorized` si no está autenticado.
-- Implementar controladores en `src/controllers/` y conectar con las rutas de Next.js App Router:
+### Feature D: Autenticación y Control de Acceso (JWT)
+**Rama**: `feature/004-auth-jwt`  
+**Dependencia**: Feature C mergeada en `main`  
+**Contenido**:
+- Implementar utilidades: `src/utils/hash.ts` (bcrypt), `src/utils/jwt.ts` (JWT 24h).
+- Implementar `AuthService` (registro, login, emisión de JWT).
+- Implementar `auth.middleware.ts` (validación de Bearer JWT, rechazo 401).
+- Implementar `AuthController` con validación Zod y rutas Next.js:
   - `POST /api/auth/register`
   - `POST /api/auth/login`
+- Implementar logger estructurado con Correlation IDs (`src/middlewares/logger.ts`).
+- Tests unitarios de `AuthService` con mocks y tests de integración de rutas auth.
+- *Commit*: `feat(auth): registration, login, JWT middleware and auth routes`
+- *PR hacia*: `main`
+
+### Feature E: Catálogo de Jugadores (Endpoint Protegido)
+**Rama**: `feature/005-player-catalog`  
+**Dependencia**: Feature D mergeada en `main`  
+**Contenido**:
+- Implementar `PlayerService` (filtros por liga/equipo/posición, paginación default 20, max 100).
+- Implementar `PlayerController` con validación Zod y rutas Next.js:
   - `GET /api/players` (protegido)
   - `GET /api/players/[id]` (protegido)
-  - `GET /api/health` (público)
-  - `/api/docs` (Swagger UI interactivo)
-- *Commit*: `feat(api): add auth and players route handlers, auth guard and swagger docs`
+- Tests unitarios de `PlayerService` y tests de integración de rutas.
+- *Commit*: `feat(catalog): player service, catalog endpoints and integration tests`
+- *PR hacia*: `main`
 
-### Fase 6: Pipeline CI/CD GitHub Actions y SonarCloud
-- Configurar `.github/workflows/ci.yml` ejecutando `lint`, `test:coverage`, `build` y el escaneo de SonarCloud con umbral $<10$ issues y Quality Gate aprobado.
-- *Commit*: `ci: add github actions workflow for build, tests coverage and sonarcloud`
-
-### Fase 7: Verificación con Colección de Postman y Creación de PR
-- Validar el flujo completo usando la colección [`contracts/postman_collection.json`](./contracts/postman_collection.json).
-- Push de la rama `feature/001-player-token-marketplace` al repositorio remoto.
-- Creación del **Pull Request hacia `dev`** con descripción detallada de los requisitos satisfechos, dejando la aprobación y merge a los Project Owners.
+### Feature F: Documentación OpenAPI / Swagger
+**Rama**: `feature/006-swagger-docs`  
+**Dependencia**: Feature E mergeada en `main` (todos los endpoints estables)  
+**Contenido**:
+- Implementar ruta `GET /api/docs` exponiendo Swagger UI con el contrato `contracts/openapi.yaml`.
+- Actualizar `README.md` y `quickstart.md` con instrucciones de ejecución completas.
+- *Commit*: `feat(docs): swagger ui at /api/docs and updated quickstart`
+- *PR hacia*: `main`
 
 ---
 
@@ -216,4 +241,4 @@ Cada fase se implementa mediante commits pequeños, atómicos y bien documentado
 | **Catálogo con Filtros y Paginación** | `src/services/player.service.ts` | Filtra por liga/equipo/posición con límite por defecto 20. |
 | **CI Build SUCCESS & SonarCloud < 10** | `.github/workflows/ci.yml` | Workflow en GitHub Actions pasa al 100%. |
 | **Verificación Manual** | `postman_collection.json` | Ejecución completa en Postman de todos los endpoints. |
-| **GitFlow & PR a `dev`** | Pull Request hacia `dev` | PR creado desde `feature/001-player-token-marketplace` para revisión de POs. |
+| **GitFlow & PR a `main`** | Pull Requests hacia `main` | 6 PRs independientes creados desde ramas `feature/001-*` al `feature/006-*` para revisión de POs. |
