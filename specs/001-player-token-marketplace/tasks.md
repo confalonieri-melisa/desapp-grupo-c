@@ -57,8 +57,8 @@
 
 #### Implementation para Feature A
 - [x] T006 [US1] Configure GitHub Actions CI workflow pipeline (lint, TypeScript build, Vitest coverage, SonarCloud scan) in [.github/workflows/ci.yml](file:///C:/Users/meluk/UNQ/desapp-grupo-c/.github/workflows/ci.yml)
-- [ ] T007 [P] [US1] Create health controller returning system status in [src/controllers/health.controller.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/controllers/health.controller.ts)
-- [ ] T008 [US1] Implement route handler `GET /api/health` in [src/app/api/health/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/health/route.ts)
+- [x] T007 [P] [US1] Create health controller returning system status in [src/controllers/health.controller.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/controllers/health.controller.ts)
+- [x] T008 [US1] Implement route handler `GET /api/health` in [src/app/api/health/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/health/route.ts)
 
 **Checkpoint Feature A**: Abrir PR `feature/001-ci-pipeline-health` → `main`.
 
