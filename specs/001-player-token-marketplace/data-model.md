@@ -23,6 +23,8 @@ erDiagram
 
     PLAYER {
         uuid id PK
+        varchar source
+        varchar external_id
         varchar name
         varchar team
         varchar league "PREMIER_LEAGUE | BUNDESLIGA | LA_LIGA | SERIE_A | LIGUE_1"
@@ -41,29 +43,8 @@ erDiagram
         timestamp updated_at
     }
 
-    QUOTE_HISTORY {
-        uuid id PK
-        uuid player_id FK
-        decimal value "1.00 at t0"
-        varchar strategy_name "Default 'INITIAL_BASE_STRATEGY'"
-        varchar strategy_version "v1.0.0"
-        timestamp calculated_at
-    }
-
-    AUDIT_LOG {
-        uuid id PK
-        uuid user_id FK
-        varchar action
-        jsonb previous_state
-        jsonb new_state
-        varchar correlation_id
-        timestamp created_at
-    }
-
     USER ||--o{ TOKEN_HOLDING : "holds"
     PLAYER ||--o{ TOKEN_HOLDING : "has tokens held in"
-    PLAYER ||--o{ QUOTE_HISTORY : "has price snapshots"
-    USER ||--o{ AUDIT_LOG : "triggers audit events"
 ```
 
 ---
@@ -97,15 +78,18 @@ Represents footballers from the 5 European leagues.
 | Column | Type | Constraints | Default | Description |
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | `uuid` | `PRIMARY KEY`, not null | `gen_random_uuid()` | Unique identifier for the player. |
+| `source` | `varchar(50)` | not null | - | External source identifier, e.g. `WHOSCORED`. |
+| `external_id` | `varchar(100)` | not null | - | Player identifier supplied by the external source. |
 | `name` | `varchar(150)` | not null | - | Player full name. |
 | `team` | `varchar(100)` | not null | - | Official club team name. |
 | `league` | `varchar(50)` | not null | - | League enum: `PREMIER_LEAGUE`, `BUNDESLIGA`, `LA_LIGA`, `SERIE_A`, `LIGUE_1`. |
 | `position` | `varchar(30)` | not null | - | Position enum: `GOALKEEPER`, `DEFENDER`, `MIDFIELDER`, `FORWARD`. |
-| `statistics` | `jsonb` | not null | `'{}'::jsonb` | Extensible sports metrics: matches, minutes, goals, assists, rating, etc. |
+| `statistics` | `jsonb` | not null | `'{}'::jsonb` | Minimal metrics: appearances, minutesPlayed, rating, goals, assists, shotsPerGame, tacklesPerGame, interceptionsPerGame, foulsPerGame, yellowCards and redCards. |
 | `created_at` | `timestamp with time zone` | not null | `now()` | Ingestion timestamp. |
 | `updated_at` | `timestamp with time zone` | not null | `now()` | Last statistics update timestamp. |
 
 **Indexes**:
+- `uq_players_source_external_id` ON `players (source, external_id)` (Unique for idempotent manual re-imports)
 - `idx_players_league_team_pos` ON `players (league, team, position)` (Composite for catalog filters)
 - `idx_players_team` ON `players (team)`
 - `idx_players_league` ON `players (league)`
@@ -131,7 +115,9 @@ Tracks token ownership per user per player (maintains the 100 fixed tokens conse
 
 ---
 
-### 2.4 Table `quote_history`
+### 2.4 Table `quote_history` (Deferred)
+
+This table is intentionally deferred. It belongs to the delivery that introduces token quotations and valuation strategies; it is not part of the minimal Feature C schema.
 
 Temporal snapshots of player valuations.
 
@@ -149,7 +135,9 @@ Temporal snapshots of player valuations.
 
 ---
 
-### 2.5 Table `audit_logs`
+### 2.5 Table `audit_logs` (Deferred)
+
+This table is intentionally deferred until there are financial operations and state transitions that require an audit trail.
 
 Immutable audit log for financial and critical actions.
 
@@ -157,7 +145,7 @@ Immutable audit log for financial and critical actions.
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | `uuid` | `PRIMARY KEY`, not null | `gen_random_uuid()` | Audit event ID. |
 | `user_id` | `uuid` | `FOREIGN KEY (users.id)`, nullable | - | Author ID if user-triggered. |
-| `action` | `varchar(100)` | not null | - | E.g. `USER_REGISTERED`, `INITIAL_SEED`. |
+| `action` | `varchar(100)` | not null | - | E.g. `USER_REGISTERED`, `PLAYER_IMPORTED`. |
 | `previous_state` | `jsonb` | nullable | - | Snapshot before change. |
 | `new_state` | `jsonb` | nullable | - | Snapshot after change. |
 | `correlation_id` | `varchar(100)` | nullable | - | Correlation ID from request. |
