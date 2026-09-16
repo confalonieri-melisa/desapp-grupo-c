@@ -1,26 +1,140 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* 1. Use a more-intuitive box-sizing model */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* 2. Remove default margin */
+*:not(dialog) {
+  margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* 3. Enable keyword animations */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  /* 4. Increase line-height */
+  line-height: 1.5;
+  /* 5. Improve text rendering */
+  -webkit-font-smoothing: antialiased;
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 6. Improve media defaults */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 7. Inherit fonts for form controls */
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* 8. Avoid text overflows */
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* 9. Improve line wrapping */
+p {
+  text-wrap: pretty;
+}
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+/*
+  10. Create a root stacking context
+*/
+#root, #__next {
+  isolation: isolate;
+}
+
+.bg{
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(43deg, rgb(214 66 130 / 0.8) 0%, rgb(214 66 83 / 0.8) 30%, rgb(252 120 54 / 0.8) 70%, rgb(252 132 57 / 0.8) 100%);
+  background-size: 300% 300%;
+  animation: gradient 7s ease infinite;
+}
+
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.card{
+    background: white;
+    width: 30%;
+    height: 400px;
+    border-radius: 30px;
+    box-shadow: 0px 0px 10px rgb(105 1 27 / 0.12);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    transition: all 0.6s ease;
+    will-change: transform;
+    padding: 20px 0px;
+}
+
+.card:hover{
+    box-shadow: 0px 0px 20px rgb(105 1 27 / 0.22);
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+.form-inputs{
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.input-wrapper {
+    --padding: 10px;
+    --focus-color: rgb(214 66 130);
+    --placeholder-color:rgb(214 66 130 / 0.6);
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+input {
+    padding: var(--padding);
+    border: 2px solid var(--placeholder-color);
+    outline: none;
+    border-radius: 20px;
+}
+
+.placeholder {
+    position: absolute;
+    background-color: white;
+    color: var(--placeholder-color);
+    left: var(--padding);
+    padding: 0 4px;
+    transition: all 0.3s ease-in;
+}
+
+input:is(:focus, :valid) {
+    border: 2px solid var(--focus-color);
+}
+
+input:is(:focus, :valid) + .placeholder {
+    transform: translatey(calc(-1 * var(--padding) - 12px));
+    font-size: 14px;
+    color: var(--focus-color);
 }
