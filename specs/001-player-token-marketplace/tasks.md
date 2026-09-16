@@ -79,16 +79,16 @@
 - Cobertura ≥ 80% en lógica de negocio pura.
 
 #### Tests para Feature B
-- [ ] T009 [P] [US2] Unit tests for `User` domain model invariants (email validation, role assignment, 1,000 initial credits) in [tests/unit/models/User.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/User.spec.ts)
-- [ ] T010 [P] [US2] Unit tests for `Player` domain model invariants (official 5 leagues enforcement, metrics validation) in [tests/unit/models/Player.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/Player.spec.ts)
-- [ ] T011 [P] [US2] Unit tests for `TokenHolding` domain model invariants (100 token emission at base price 1.00) in [tests/unit/models/TokenHolding.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/TokenHolding.spec.ts)
+- [x] T009 [P] [US2] Unit tests for `User` domain model invariants (role assignment, 1,000 initial credits, and balance rules) in [tests/unit/models/User.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/User.spec.ts)
+- [x] T010 [P] [US2] Unit tests for `Player` domain model invariants (official 5 leagues enforcement, metrics validation) in [tests/unit/models/Player.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/Player.spec.ts)
+- [x] T011 [P] [US2] Unit tests for `TokenHolding` domain model invariants (100 token emission at base price 1.00) in [tests/unit/models/TokenHolding.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/TokenHolding.spec.ts)
 
 #### Implementation para Feature B
-- [ ] T012 [P] [US2] Define domain enums (`League`, `Position`, `UserRole`) in [src/models/enums.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/enums.ts)
-- [ ] T013 [P] [US2] Implement standard domain error classes (`InvalidLeagueError`, `DomainValidationError`) in [src/models/errors.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/errors.ts)
-- [ ] T014 [P] [US2] Implement rich `User` domain entity with business methods and balance rules in [src/models/User.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/User.ts)
-- [ ] T015 [P] [US2] Implement rich `Player` domain entity enforcing the 5 official leagues invariant in [src/models/Player.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/Player.ts)
-- [ ] T016 [P] [US2] Implement `TokenHolding` domain entity for fixed 100-token tracking in [src/models/TokenHolding.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/TokenHolding.ts)
+- [x] T012 [P] [US2] Define domain enums (`League`, `Position`, `UserRole`) in [src/models/enums.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/enums.ts)
+- [x] T013 [P] [US2] Implement standard domain error classes (`InvalidLeagueError`, `DomainValidationError`) in [src/models/errors.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/errors.ts)
+- [x] T014 [P] [US2] Implement rich `User` domain entity with business methods and balance rules in [src/models/User.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/User.ts)
+- [x] T015 [P] [US2] Implement rich `Player` domain entity enforcing the 5 official leagues invariant in [src/models/Player.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/Player.ts)
+- [x] T016 [P] [US2] Implement `TokenHolding` domain entity for fixed 100-token tracking in [src/models/TokenHolding.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/TokenHolding.ts)
 
 **Checkpoint Feature B**: Abrir PR `feature/002-domain-model` → `main`.
 
