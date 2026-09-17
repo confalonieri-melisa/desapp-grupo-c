@@ -53,13 +53,20 @@ h1, h2, h3, h4, h5, h6 {
 #root, #__next {
   isolation: isolate;
 }
+:root{
+    --rose-punch: #D64282;
+    --rose-punch-50: rgb(214 66 130 / 0.5);
+    --watermelon: #EC4255;
+    --tangerine: #FC8439;
+}
+
 
 .bg{
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(43deg, rgb(214 66 130 / 0.8) 0%, rgb(214 66 83 / 0.8) 30%, rgb(252 120 54 / 0.8) 70%, rgb(252 132 57 / 0.8) 100%);
+  background: linear-gradient(43deg, var(--rose-punch) 0%, var(--watermelon) 50%, var(--tangerine) 70%);
   background-size: 300% 300%;
   animation: gradient 7s ease infinite;
 }
@@ -79,8 +86,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .card{
     background: white;
-    width: 30%;
-    height: 400px;
+    width: 500px;
+    height: 600px;
     border-radius: 30px;
     box-shadow: 0px 0px 10px rgb(105 1 27 / 0.12);
     display: flex;
@@ -89,7 +96,7 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     transition: all 0.6s ease;
     will-change: transform;
-    padding: 20px 0px;
+    padding: 48px;
 }
 
 .card:hover{
@@ -97,27 +104,53 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(-5px);
     transition: all 0.3s ease;
 }
+.card-title{
+    font-size: 2.25rem;
+    font-weight: 700;
+    text-align: initial;
+    width: 100%;
+}
+
+.card-title-span{
+    background: -webkit-linear-gradient(135deg, var(--rose-punch) 0%, var(--watermelon) 30%, var(--tangerine) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.card-text{
+    font-size: 1rem;
+    color: #6B6B6B;
+    align-self: flex-start;
+    text-align: initial;
+    width: 70%;
+    text-wrap: pretty;
+    padding-top: 1rem;
+}
 
 .form-inputs{
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 30px;
+  width: 100% ;
 }
 
 .input-wrapper {
     --padding: 10px;
-    --focus-color: rgb(214 66 130);
-    --placeholder-color:rgb(214 66 130 / 0.6);
+    --focus-color: var(--rose-punch);
+    --placeholder-color:var(--rose-punch-50);
     position: relative;
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
 input {
     padding: var(--padding);
     border: 2px solid var(--placeholder-color);
     outline: none;
-    border-radius: 20px;
+    border-radius: 15px;
+    width: 100%;
 }
 
 .placeholder {
@@ -137,4 +170,33 @@ input:is(:focus, :valid) + .placeholder {
     transform: translatey(calc(-1 * var(--padding) - 12px));
     font-size: 14px;
     color: var(--focus-color);
+}
+
+.login-btn{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    border-radius: 15px;
+    padding:10px;
+    background: linear-gradient(270deg, var(--rose-punch) 0%, var(--watermelon) 50%, var(--tangerine) 100%);
+    background-size: 200% 200%;
+    color: white;
+    border: 2px solid white;
+}
+
+.login-btn:hover, .login-btn:focus{
+    animation: gradient 5s ease infinite;
+    cursor: pointer;
+}
+
+.login-btn:focus-visible{
+    outline: var(--rose-punch) solid 2px;
+}
+.action-text{
+    font-weight: 600;
+}
+.action-link{
+    color:  var(--rose-punch);
+    text-decoration: none;
 }
