@@ -45,6 +45,7 @@ OUTPUT_FIELDS = [
 ]
 
 FIELD_ALIASES = {
+    "position": {"position", "pos"},
     "appearances": {"appearances", "apps", "app"},
     "minutesPlayed": {"minutesplayed", "minutes", "mins"},
     "rating": {"rating", "average rating", "av rating"},
@@ -134,12 +135,13 @@ async def extract_player_table(page: Page) -> list[dict[str, str]]:
             const playerLink = row.querySelector('a[href*="/players/"]');
             const teamLink = row.querySelector('a[href*="/teams/"]');
             const playerCellText = rowCells[0]?.innerText || '';
+            const rowText = row.innerText || '';
             const values = rowCells.map(cell => cell.innerText.trim().replace(/\\s+/g, ' '));
             const playerHref = playerLink?.getAttribute('href') || '';
             const teamHref = teamLink?.getAttribute('href') || '';
             const playerId = playerHref.match(/\\/players\\/(\\d+)/i)?.[1] || '';
             const leagueKey = teamHref.match(/\\/(england|germany|spain|italy|france)-/i)?.[1]?.toLowerCase() || '';
-            const positionMatch = playerCellText.replace(/\\s+/g, ' ').match(/,\\s*\\d+\\s*,\\s*([^,]+)$/);
+            const positionMatch = `${playerCellText} ${rowText}`.replace(/\\s+/g, ' ').match(/\\b(GK|DF|D|MF|M|AM|FW|F|ST)\\b/i);
             const result = { externalId: playerId, player: playerLink?.innerText.trim() || '', team: teamLink?.innerText.trim() || '', leagueKey, positionText: positionMatch?.[1]?.trim() || '', __headers: headers };
             headers.forEach((header, index) => result[header] = values[index] || '');
             return result;
@@ -337,7 +339,7 @@ def merge_player_rows(target: dict[str, dict[str, str]], rows: list[dict[str, st
         if not key:
             continue
         record = target.setdefault(key, {field: "" for field in OUTPUT_FIELDS})
-        record["player"] = key
+        record["player"] = re.sub(r"^\d+\s+", "", key)
         record["team"] = record["team"] or clean(row.get("team"))
         record["externalId"] = record["externalId"] or clean(row.get("externalId"))
         league_key = clean(row.get("leagueKey"))
@@ -352,6 +354,16 @@ def merge_player_rows(target: dict[str, dict[str, str]], rows: list[dict[str, st
             record["position"] = "MIDFIELDER"
         elif "FW" in position or position.startswith("F") or position.startswith("ST"):
             record["position"] = "FORWARD"
+        if not record["position"]:
+            raw_position = clean(row.get("position")).upper()
+            if "GK" in raw_position:
+                record["position"] = "GOALKEEPER"
+            elif raw_position.startswith("D"):
+                record["position"] = "DEFENDER"
+            elif raw_position.startswith("M") or raw_position.startswith("AM"):
+                record["position"] = "MIDFIELDER"
+            elif "FW" in raw_position or raw_position.startswith("F") or raw_position.startswith("ST"):
+                record["position"] = "FORWARD"
         for header, value in row.items():
             if header == "__headers":
                 continue

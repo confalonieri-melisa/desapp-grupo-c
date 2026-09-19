@@ -14,10 +14,15 @@ export const whoScoredPlayerRecordSchema = z.object({
   ...Object.fromEntries(SCRAPED_PLAYER_STATISTICS.map((metric) => [metric, rawStatistic])) as Record<string, z.ZodTypeAny>,
 }).strict();
 
-export const whoScoredStatisticSchema = z.coerce
+export const whoScoredStatisticSchema = z.preprocess(
+  (value) => typeof value === "string"
+    ? value.replace(",", ".").replace(/\([^)]*\)/g, "").trim()
+    : value,
+  z.coerce
   .number()
   .nonnegative()
-  .refine(Number.isFinite, "Statistic must be finite");
+  .refine(Number.isFinite, "Statistic must be finite"),
+);
 
 export type WhoScoredPlayerRecord = z.infer<typeof whoScoredPlayerRecordSchema>;
 
