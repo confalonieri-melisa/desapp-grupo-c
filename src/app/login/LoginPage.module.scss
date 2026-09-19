@@ -38,7 +38,7 @@
 }
 
 .card:hover{
-  transform: translateY(-5px);
+  transform: translateY(-3px);
 }
 
 .card:hover::before {
@@ -71,8 +71,7 @@
   color: #6B6B6B;
   align-self: flex-start;
   text-align: initial;
-  width: 70%;
-  text-wrap: pretty;
+  width: 75%;
   padding-top: 1rem;
 }
 

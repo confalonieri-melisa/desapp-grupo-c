@@ -15,7 +15,7 @@ export default function LoginPage() {
           </p>
         </div>
         <div className={styles['form-inputs']}>
-          <FormInput type="text" label="Nombre de usuario" />
+          <FormInput type="text" label="E-mail" />
           <FormInput type="password" label="Contraseña" />
         </div>
         <ActionButton />
