@@ -15,6 +15,7 @@ export function isOfficialLeague(value: unknown): value is League {
 
 /** Supported player positions. */
 export enum Position {
+  UNKNOWN = "UNKNOWN",
   GOALKEEPER = "GOALKEEPER",
   DEFENDER = "DEFENDER",
   MIDFIELDER = "MIDFIELDER",

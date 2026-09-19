@@ -21,7 +21,7 @@ Extrae las métricas actualmente necesarias para el catálogo:
 - rating;
 - tackles, intercepciones y faltas por partido.
 
-También convierte las posiciones y las ligas de WhoScored al enum interno de la aplicación.
+También convierte las posiciones y las ligas de WhoScored al enum interno de la aplicación. Si una fila no expone posición, utiliza `UNKNOWN` explícitamente para no descartar el jugador ni inventar un valor.
 
 El proceso produce un array JSON de filas con `externalId`, `player`, `team`, `league`, `position` y las métricas. No conoce la base de datos ni las clases de dominio. El runner Node valida esas filas antes de entregar registros al adapter.
 

@@ -364,6 +364,8 @@ def merge_player_rows(target: dict[str, dict[str, str]], rows: list[dict[str, st
                 record["position"] = "MIDFIELDER"
             elif "FW" in raw_position or raw_position.startswith("F") or raw_position.startswith("ST"):
                 record["position"] = "FORWARD"
+        if not record["position"]:
+            record["position"] = "UNKNOWN"
         for header, value in row.items():
             if header == "__headers":
                 continue
