@@ -9,9 +9,8 @@ export interface UserProps {
   email: string;
   role?: UserRole;
   creditBalance?: number;
-  passwordHash?: string;
+  password: string;
   createdAt?: Date;
-  updatedAt?: Date;
 }
 
 /** User aggregate with account and balance invariants. */
@@ -20,10 +19,9 @@ export class User {
   readonly name: string;
   readonly email: string;
   readonly role: UserRole;
-  readonly passwordHash?: string;
+  readonly password: string;
   readonly createdAt: Date;
   private _creditBalance: number;
-  private _updatedAt: Date;
 
   constructor(props: UserProps) {
     const role = props.role ?? UserRole.INVESTOR;
@@ -39,10 +37,9 @@ export class User {
     this.name = props.name;
     this.email = props.email;
     this.role = role;
-    this.passwordHash = props.passwordHash;
+    this.password = props.password;
     this._creditBalance = creditBalance;
     this.createdAt = props.createdAt ?? new Date();
-    this._updatedAt = props.updatedAt ?? this.createdAt;
   }
 
   get creditBalance(): number {
@@ -62,17 +59,11 @@ export class User {
     }
 
     this._creditBalance -= amount;
-    this.touch();
   }
 
   credit(amount: number): void {
     User.validatePositiveAmount(amount);
     this._creditBalance += amount;
-    this.touch();
-  }
-
-  private touch(): void {
-    this._updatedAt = new Date();
   }
 
   private static validateBalance(balance: number): void {

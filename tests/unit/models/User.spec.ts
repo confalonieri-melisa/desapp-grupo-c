@@ -8,6 +8,7 @@ describe("User", () => {
     new User({
       name: "Alice Investor",
       email: "Alice@example.com",
+      password: "secret",
     });
 
   it("creates an investor with the initial credit balance", () => {
@@ -24,6 +25,7 @@ describe("User", () => {
         new User({
           name: "Alice",
           email: "alice@example.com",
+          password: "secret",
           role: "ADMIN" as UserRole,
         }),
     ).toThrow(DomainValidationError);
@@ -35,6 +37,7 @@ describe("User", () => {
         new User({
           name: "Alice",
           email: "alice@example.com",
+          password: "secret",
           creditBalance: -1,
         }),
     ).toThrow(DomainValidationError);
