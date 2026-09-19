@@ -81,7 +81,7 @@ npm run db:sync-whoscored
 La interfaz web de pgAdmin queda disponible en `http://localhost:5050` con:
 
 ```text
-Email: admin@desapp.local
+Email: admin@example.com
 Password: admin
 ```
 
