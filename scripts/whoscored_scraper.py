@@ -26,8 +26,11 @@ LOGGER = logging.getLogger("whoscored_scraper")
 
 
 OUTPUT_FIELDS = [
+    "externalId",
     "player",
     "team",
+    "league",
+    "position",
     "appearances",
     "minutesPlayed",
     "rating",
@@ -60,6 +63,14 @@ FIELD_ALIASES = {
     "foulsPerGame": {"foulspergame", "fouls per game", "fouls/game", "fouls pg", "fouls"},
     "yellowCards": {"yellowcards", "yellow cards", "yc", "yel"},
     "redCards": {"redcards", "red cards", "rc", "red"},
+}
+
+LEAGUE_BY_TEAM_PATH = {
+    "england": "PREMIER_LEAGUE",
+    "germany": "BUNDESLIGA",
+    "spain": "LA_LIGA",
+    "italy": "SERIE_A",
+    "france": "LIGUE_1",
 }
 
 
@@ -122,8 +133,14 @@ async def extract_player_table(page: Page) -> list[dict[str, str]]:
             const rowCells = cells(row);
             const playerLink = row.querySelector('a[href*="/players/"]');
             const teamLink = row.querySelector('a[href*="/teams/"]');
+            const playerCellText = rowCells[0]?.innerText || '';
             const values = rowCells.map(cell => cell.innerText.trim().replace(/\\s+/g, ' '));
-            const result = { player: playerLink?.innerText.trim() || '', team: teamLink?.innerText.trim() || '', __headers: headers };
+            const playerHref = playerLink?.getAttribute('href') || '';
+            const teamHref = teamLink?.getAttribute('href') || '';
+            const playerId = playerHref.match(/\\/players\\/(\\d+)/i)?.[1] || '';
+            const leagueKey = teamHref.match(/\\/(england|germany|spain|italy|france)-/i)?.[1]?.toLowerCase() || '';
+            const positionMatch = playerCellText.replace(/\\s+/g, ' ').match(/,\\s*\\d+\\s*,\\s*([^,]+)$/);
+            const result = { externalId: playerId, player: playerLink?.innerText.trim() || '', team: teamLink?.innerText.trim() || '', leagueKey, positionText: positionMatch?.[1]?.trim() || '', __headers: headers };
             headers.forEach((header, index) => result[header] = values[index] || '');
             return result;
           }).filter(row => row.player);
@@ -322,6 +339,19 @@ def merge_player_rows(target: dict[str, dict[str, str]], rows: list[dict[str, st
         record = target.setdefault(key, {field: "" for field in OUTPUT_FIELDS})
         record["player"] = key
         record["team"] = record["team"] or clean(row.get("team"))
+        record["externalId"] = record["externalId"] or clean(row.get("externalId"))
+        league_key = clean(row.get("leagueKey"))
+        if league_key in LEAGUE_BY_TEAM_PATH:
+            record["league"] = LEAGUE_BY_TEAM_PATH[league_key]
+        position = clean(row.get("positionText")).upper()
+        if "GK" in position:
+            record["position"] = "GOALKEEPER"
+        elif position.startswith("D"):
+            record["position"] = "DEFENDER"
+        elif position.startswith("M") or position.startswith("AM"):
+            record["position"] = "MIDFIELDER"
+        elif "FW" in position or position.startswith("F") or position.startswith("ST"):
+            record["position"] = "FORWARD"
         for header, value in row.items():
             if header == "__headers":
                 continue

@@ -2,17 +2,17 @@
 
 ## Objetivo
 
-La aplicación obtiene información de jugadores desde la página de estadísticas de WhoScored y la persiste en PostgreSQL. La aplicación Node no realiza scraping HTML directamente: ejecuta un proceso Python con Selenium y consume su salida JSON.
+La aplicación obtiene información de jugadores desde la página de estadísticas de WhoScored y la persiste en PostgreSQL. La aplicación Node no realiza scraping HTML directamente: ejecuta un proceso Python con Playwright y consume el archivo JSON generado por el proceso.
 
 ```text
-WhoScored → Selenium/Python → JSON → Node → Adapter → Service → Repository → PostgreSQL
+WhoScored → Playwright/Python → JSON → Node → Adapter → Service → Repository → PostgreSQL
 ```
 
 ## Componentes
 
-### `scripts/whoscored_browser_scraper.py`
+### `scripts/whoscored_scraper.py`
 
-Es el scraper browser-based. Abre Chrome, navega a la página de estadísticas, selecciona las pestañas `Summary` y `Defensive`, recorre sus páginas y une las métricas por el ID externo del jugador.
+Es el scraper browser-based activo. Abre Chrome, navega a la página de estadísticas, selecciona las pestañas `Summary` y `Defensive`, recorre sus páginas y une las métricas por el ID externo del jugador.
 
 Extrae las métricas actualmente necesarias para el catálogo:
 
@@ -23,11 +23,11 @@ Extrae las métricas actualmente necesarias para el catálogo:
 
 También convierte las posiciones y las ligas de WhoScored al enum interno de la aplicación.
 
-El proceso produce un envelope JSON versionado (`schemaVersion`, `source`, `scrapedAt`, `players`). No conoce la base de datos ni las clases de dominio. El runner Node valida ese envelope antes de entregar registros al adapter.
+El proceso produce un array JSON de filas con `externalId`, `player`, `team`, `league`, `position` y las métricas. No conoce la base de datos ni las clases de dominio. El runner Node valida esas filas antes de entregar registros al adapter.
 
 ### `src/adapters/whoscored.scraper.ts`
 
-Ejecuta el proceso Python mediante `child_process`, lee `stdout` y valida el envelope versionado usando `whoScoredPayloadSchema`.
+Ejecuta el proceso Python mediante `child_process`, lee el archivo JSON temporal generado con `--output` y valida sus filas usando `whoScoredPayloadSchema`.
 
 Este límite permite testear Node con un `commandRunner` mockeado sin abrir Chrome ni acceder a internet.
 
@@ -63,7 +63,7 @@ Configurar, si hace falta:
 
 ```env
 WHOSCORED_PYTHON_PATH=python
-WHOSCORED_SCRIPT_PATH=scripts/whoscored_browser_scraper.py
+WHOSCORED_SCRIPT_PATH=scripts/whoscored_scraper.py
 WHOSCORED_URL=https://www.whoscored.com/Statistics
 WHOSCORED_MAX_PAGES=140
 WHOSCORED_HEADLESS=false
