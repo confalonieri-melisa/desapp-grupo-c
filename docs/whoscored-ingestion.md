@@ -78,6 +78,15 @@ npm run db:migrate
 npm run db:sync-whoscored
 ```
 
+La interfaz web de pgAdmin queda disponible en `http://localhost:5050` con:
+
+```text
+Email: admin@desapp.local
+Password: admin
+```
+
+Desde pgAdmin, agregá un servidor con host `postgres`, puerto `5432`, usuario `postgres`, contraseña `postgres` y base `desapp_db`. El host es `postgres` porque pgAdmin y PostgreSQL están dentro de la misma red de Docker.
+
 Para una prueba pequeña:
 
 ```powershell
