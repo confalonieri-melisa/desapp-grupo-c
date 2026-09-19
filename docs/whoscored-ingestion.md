@@ -73,6 +73,7 @@ WHOSCORED_HEADLESS=false
 Aplicar las migraciones y ejecutar la ingesta:
 
 ```powershell
+npm run db:up
 npm run db:migrate
 npm run db:sync-whoscored
 ```
