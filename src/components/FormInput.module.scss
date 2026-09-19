@@ -1,0 +1,36 @@
+.input-wrapper {
+  --padding: 10px;
+  --focus-color: var(--rose-punch);
+  --placeholder-color: var(--rose-punch-50);
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+
+  input {
+    padding: var(--padding);
+    border: 2px solid var(--placeholder-color);
+    outline: none;
+    border-radius: 15px;
+    width: 100%;
+
+    &:is(:focus, :valid) {
+      border: 2px solid var(--focus-color);
+
+      + .placeholder {
+        transform: translateY(calc(-1 * var(--padding) - 12px));
+        font-size: 14px;
+        color: var(--focus-color);
+      }
+    }
+  }
+
+  .placeholder {
+    position: absolute;
+    background-color: white;
+    color: var(--placeholder-color);
+    left: var(--padding);
+    padding: 0 4px;
+    transition: all 0.3s ease-in;
+  }
+}

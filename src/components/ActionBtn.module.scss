@@ -1,0 +1,36 @@
+.action-btn{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  border-radius: 15px;
+  padding:10px;
+  background: var(--background-gradient);
+  background-size: 200% 200%;
+  color: white;
+  border: 2px solid white;
+  transition: transform 0.6s ease;
+}
+
+.action-btn:hover, .action-btn:focus{
+  animation: gradient 6s ease infinite;
+  cursor: pointer;
+  transform: scale(1.01);
+  transition: transform 0.3s ease;
+}
+
+.action-btn:focus-visible{
+  outline: var(--rose-punch) solid 2px;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
