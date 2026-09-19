@@ -56,4 +56,26 @@ describe("Player", () => {
         }),
     ).toThrow(DomainValidationError);
   });
+
+  it("rejects incomplete player identity data", () => {
+    expect(
+      () =>
+        new Player({
+          name: " ",
+          team: "Team",
+          league: League.SERIE_A,
+          position: Position.DEFENDER,
+        }),
+    ).toThrow(DomainValidationError);
+
+    expect(
+      () =>
+        new Player({
+          name: "Player",
+          team: "Team",
+          league: League.SERIE_A,
+          position: "INVALID" as Position,
+        }),
+    ).toThrow(DomainValidationError);
+  });
 });

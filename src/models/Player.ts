@@ -1,4 +1,4 @@
-import { isOfficialLeague, League, Position } from "./enums";
+import { isOfficialLeague, isPosition, League, Position } from "./enums";
 import { DomainValidationError, InvalidLeagueError } from "./errors";
 
 export type PlayerStatistics = Record<string, number>;
@@ -26,16 +26,24 @@ export class Player {
   readonly updatedAt: Date;
 
   constructor(props: PlayerProps) {
+    if (!props.name.trim() || !props.team.trim()) {
+      throw new DomainValidationError("Player name and team are required");
+    }
+
     if (!isOfficialLeague(props.league)) {
       throw new InvalidLeagueError(String(props.league));
+    }
+
+    if (!isPosition(props.position)) {
+      throw new DomainValidationError("Invalid player position");
     }
 
     const statistics = props.statistics ?? {};
     Player.validateStatistics(statistics);
 
     this.id = props.id ?? crypto.randomUUID();
-    this.name = props.name;
-    this.team = props.team;
+    this.name = props.name.trim();
+    this.team = props.team.trim();
     this.league = props.league;
     this.position = props.position;
     this.statistics = { ...statistics };

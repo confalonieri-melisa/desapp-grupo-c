@@ -18,7 +18,24 @@ export const envSchema = z.object({
     .coerce
     .number()
     .default(3000),
+  WHOSCORED_PYTHON_PATH: z.string().trim().min(1).default("python"),
+  WHOSCORED_SCRIPT_PATH: z.string().trim().min(1).default("scripts/whoscored_scraper.py"),
+  WHOSCORED_URL: z.string().url().default("https://www.whoscored.com/Statistics"),
+  WHOSCORED_MAX_PAGES: z.coerce.number().int().positive().max(140).default(140),
+  WHOSCORED_HEADLESS: z.preprocess(
+    parseBooleanEnvironmentValue,
+    z.boolean().default(false),
+  ),
 });
+
+function parseBooleanEnvironmentValue(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+
+  const normalizedValue = value.toLowerCase();
+  if (normalizedValue === "true") return true;
+  if (normalizedValue === "false") return false;
+  return value;
+}
 
 export const parseEnv = (override?: Record<string, unknown>) => {
   const result = envSchema.safeParse(override || process.env);

@@ -21,6 +21,12 @@ export enum Position {
   FORWARD = "FORWARD",
 }
 
+const positions = new Set<string>(Object.values(Position));
+
+export function isPosition(value: unknown): value is Position {
+  return typeof value === "string" && positions.has(value);
+}
+
 /** Roles that can act in the marketplace. */
 export enum UserRole {
   INVESTOR = "INVESTOR",
