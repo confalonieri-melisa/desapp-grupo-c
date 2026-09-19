@@ -13,6 +13,20 @@ jobs:
   build-and-test:
     name: Build, Lint, Test & SonarCloud
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: desapp_db
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d desapp_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - name: Checkout repository
@@ -32,12 +46,18 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Run Database Migrations
+        run: npm run db:migrate
+        env:
+          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/desapp_db"
+
       - name: Run Tests with Coverage
         run: npm run test:coverage
         env:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/desapp_db"
           JWT_SECRET: "secret-jwt-key-desapp-grupo-c-min-32-chars"
           NODE_ENV: "test"
+          RUN_DB_INTEGRATION_TESTS: "true"
 
       - name: Build Next.js Application
         run: npm run build
