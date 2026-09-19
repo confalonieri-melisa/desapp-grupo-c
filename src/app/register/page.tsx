@@ -3,27 +3,28 @@ import FormInput from "@/components/FormInput";
 import ActionButton from "@/components/ActionButton";
 import Link from "next/link";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <Card>
       <div>
         <CardTitle>
-          ¡Bienvenida <CardTitleSpan>de vuelta!</CardTitleSpan>
+          ¡Crea tu <CardTitleSpan>cuenta!</CardTitleSpan>
         </CardTitle>
         <CardText>
-          Inicia sesión para continuar explorando el mercado de valoración de jugadores.
+          Regístrate para comenzar a explorar el mercado de valoración de jugadores.
         </CardText>
       </div>
 
       <CardInputs>
-        <FormInput type="text" label="Nombre de usuario" />
+        <FormInput type="text" label="Nombre completo" />
+        <FormInput type="email" label="Correo electrónico" />
         <FormInput type="password" label="Contraseña" />
       </CardInputs>
 
-      <ActionButton text="Iniciar sesión" />
+      <ActionButton text="Registrarse" />
 
       <CardFooter>
-        ¿No tienes cuenta? <Link href="/register">Regístrate</Link>
+        ¿Ya tienes cuenta? <Link href="/login">Inicia sesión</Link>
       </CardFooter>
     </Card>
   );
