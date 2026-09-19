@@ -11,6 +11,7 @@ async function main(): Promise<void> {
     scriptPath: env.WHOSCORED_SCRIPT_PATH,
     url: env.WHOSCORED_URL,
     maxPages: env.WHOSCORED_MAX_PAGES,
+    limit: env.WHOSCORED_LIMIT,
     headless: env.WHOSCORED_HEADLESS,
   });
   const adapter = new WhoScoredAdapter(() => scraper.fetchPlayers());

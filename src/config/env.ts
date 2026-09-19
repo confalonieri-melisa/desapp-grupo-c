@@ -22,6 +22,7 @@ export const envSchema = z.object({
   WHOSCORED_SCRIPT_PATH: z.string().trim().min(1).default("scripts/whoscored_scraper.py"),
   WHOSCORED_URL: z.string().url().default("https://www.whoscored.com/Statistics"),
   WHOSCORED_MAX_PAGES: z.coerce.number().int().positive().max(140).default(140),
+  WHOSCORED_LIMIT: z.coerce.number().int().positive().optional(),
   WHOSCORED_HEADLESS: z.preprocess(
     parseBooleanEnvironmentValue,
     z.boolean().default(false),

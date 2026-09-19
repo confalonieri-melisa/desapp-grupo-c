@@ -66,6 +66,7 @@ WHOSCORED_PYTHON_PATH=python
 WHOSCORED_SCRIPT_PATH=scripts/whoscored_scraper.py
 WHOSCORED_URL=https://www.whoscored.com/Statistics
 WHOSCORED_MAX_PAGES=140
+WHOSCORED_LIMIT=10
 WHOSCORED_HEADLESS=false
 ```
 
@@ -80,6 +81,7 @@ Para una prueba pequeña:
 
 ```powershell
 $env:WHOSCORED_MAX_PAGES="1"
+$env:WHOSCORED_LIMIT="10"
 npm run db:sync-whoscored
 ```
 

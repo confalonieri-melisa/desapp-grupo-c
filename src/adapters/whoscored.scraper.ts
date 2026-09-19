@@ -15,6 +15,7 @@ export interface WhoScoredScraperOptions {
   scriptPath?: string;
   url?: string;
   maxPages?: number;
+  limit?: number;
   headless?: boolean;
   commandRunner?: PythonCommandRunner;
 }
@@ -46,6 +47,7 @@ export class WhoScoredScraper {
       "--format", "json",
     ];
     if (this.options.maxPages) args.push("--max-pages", String(this.options.maxPages));
+    if (this.options.limit) args.push("--limit", String(this.options.limit));
     if (this.options.headless === false) args.push("--headed");
 
     try {
