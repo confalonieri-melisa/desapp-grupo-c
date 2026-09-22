@@ -13,6 +13,7 @@ describe("persistence domain mappings", () => {
       role: UserRole.INVESTOR,
       creditBalance: "1000.00",
       createdAt: new Date("2026-01-01T00:00:00.000Z"),
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
     });
 
     expect(user.id).toBe("00000000-0000-0000-0000-000000000001");
