@@ -1,3 +1,31 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  --rose-punch: #D64282;
+  --watermelon: #EC4255;
+  --tangerine: #FC8439;
+  --rose-punch-50: rgb(214 66 130 / 0.5);
+  --watermelon-30: rgb(236 66 85 / 0.2);
+  --text-gradient: -webkit-linear-gradient(135deg, var(--rose-punch) 0%, var(--watermelon) 30%, var(--tangerine) 100%);
+  --background-gradient: linear-gradient(43deg, var(--rose-punch) 0%, var(--watermelon) 50%, var(--tangerine) 100%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -40,20 +68,11 @@ p, h1, h2, h3, h4, h5, h6 {
 p {
   text-wrap: pretty;
 }
+
 h1, h2, h3, h4, h5, h6 {
   text-wrap: balance;
 }
 
 #root, #__next {
   isolation: isolate;
-}
-
-:root{
-    --rose-punch: #D64282;
-    --watermelon: #EC4255;
-    --tangerine: #FC8439;
-    --rose-punch-50: rgb(214 66 130 / 0.5);
-    --watermelon-30: rgb(236 66 85 / 0.2);
-    --text-gradient: -webkit-linear-gradient(135deg, var(--rose-punch) 0%, var(--watermelon) 30%, var(--tangerine) 100%);
-    --background-gradient: linear-gradient(43deg, var(--rose-punch) 0%, var(--watermelon) 50%, var(--tangerine) 100%);
 }

@@ -1,22 +1,21 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0
-- Bump rationale: MINOR — materially expanded Principle V + added new Principle X.
+- Version change: 1.1.0 → 1.2.0
+- Bump rationale: MINOR — updated Principle X to clarify GitFlow convention de nombres de rama,
+  alinear la rama base de integración (main) y aclarar la granularidad de features por PR.
 - Modified principles:
-  - V. Tests, Comportamiento Verificable y Ciclo de Vida de las Pruebas
-    (updated tech references, added Prohibición de Tests Triviales,
-     added Manejo de Cobertura en Fases de Configuración)
-- Added sections:
   - X. Gestión de GitFlow y Fases Iterativas
+    (aclaración de naming convention de ramas, rama base = main, una rama/PR por feature pequeña)
+- Added sections: none
 - Removed sections: none
 - Deferred TODOs: none
 -->
 # Constitución del Proyecto: Sistema de Valoración de Mercado de Jugadores de Fútbol
 
 ## Datos del Documento
-- **Versión:** 1.1.0
+- **Versión:** 1.2.0
 - **Fecha de creación:** 2026-09-08
-- **Última actualización:** 2026-09-13
+- **Última actualización:** 2026-09-15
 - **Modelo de desarrollo:** Spec-Driven Development (SDD)
 
 ---
@@ -90,7 +89,11 @@ Sync Impact Report
   - **La Project Owner ha revisado explícitamente y otorgado su aprobación formal para la entrega o funcionalidad.**
 
 ### X. Gestión de GitFlow y Fases Iterativas
-- El desarrollo debe realizarse de forma estrictamente incremental por **Fases** y tareas independientes (según el desglose de `tasks.md`).
-- **Aislamiento por Rama de Fase:** Cada Fase del plan debe desarrollarse y entregarse en su propia rama independiente creada desde `main` (ej. `feature/001-phase1-setup`, `feature/001-phase2-domain`). Queda prohibido acumular todo el desarrollo en una única rama gigante o mezclar múltiples fases.
-- **Pull Request por Fase:** Al finalizar todas las tareas de una fase, se debe abrir un único Pull Request hacia `main` para esa fase específica, permitiendo revisiones acotadas e incrementales.
+- El desarrollo debe realizarse de forma estrictamente incremental, en **features productivas pequeñas e independientes** que puedan probarse, revisarse y mergearse de forma aislada.
+- **Rama base de integración:** `main` es la única rama base de integración continua del proyecto.
+- **Creación de Ramas por Feature:** Cada feature o incremento productivo se desarrolla en su propia rama creada a partir de `main`.
+  - Convención de nombres: `feature/<id>-<nombre-corto-descriptivo>` (Ejemplo: `feature/001-domain-model`, `feature/002-auth-jwt`).
+  - Queda prohibido acumular múltiples features o fases completas del plan en una única rama gigante.
+- **Pull Request por Feature:** Al finalizar cada feature, se debe abrir un único Pull Request hacia `main` para ese incremento específico, permitiendo revisiones acotadas e incrementales.
+- **Prohibición de Trabajo Directo:** Queda terminantemente prohibido desarrollar o commitear directamente sobre `main`.
 - **Principio YAGNI Estricto:** Se favorece el diseño más simple que satisfaga los requisitos actuales. Está prohibido escribir código defensivo, abstracciones anticipadas, patrones no solicitados o lógica que no esté explícitamente requerida por la tarea o especificación actual.

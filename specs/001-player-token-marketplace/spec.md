@@ -2,7 +2,7 @@
 
 **Feature Branch**: `feature/001-player-token-marketplace`
 
-F**Integration Base Branch**: `main`
+**Integration Base Branch**: `main`
 
 **Created**: 2026-09-12
 
@@ -40,7 +40,7 @@ Como sistema de valoraciones deportivas, quiero disponer de un modelo de dominio
 
 1. **Given** los datos de un jugador perteneciente a una de las 5 ligas oficiales (Premier League, Bundesliga, La Liga, Serie A, Ligue 1), **When** se instancia la entidad de dominio `Player`, **Then** se valida correctamente su posición, equipo y liga asignada.
 2. **Given** un intento de crear un jugador con una liga no perteneciente a las 5 oficiales, **When** se ejecuta la validación de dominio, **Then** se rechaza la creación lanzando una excepción de dominio específica.
-3. **Given** la definición del modelo de tokens para el momento inicial $t_0$, **When** se inicializa un jugador en el sistema, **Then** se asocia la estructura base para su emisión fija de 100 tokens a cotización base de 1 crédito.
+3. **Given** la definición del modelo de tokens para el momento inicial $t_0$, **When** se inicializa la tenencia del superusuario para un jugador, **Then** se crea una tenencia inicial de 100 tokens a cotización base de 1 crédito.
 
 ---
 
@@ -50,11 +50,11 @@ Como usuario inversor, quiero registrarme en la plataforma con email y contrase�
 
 **Why this priority**: Permite la gestión segura de identidades y constituye el mecanismo de acceso y autorización requerido para interactuar con la plataforma.
 
-**Independent Test**: Puede probarse registrando un nuevo usuario con email y contraseña, verificando la persistencia de credenciales seguras (hasheadas), obteniendo el token de autenticación con expiración de 24h e intentando acceder a rutas protegidas con y sin dicho token.
+**Independent Test**: Puede probarse registrando un nuevo usuario con email y contraseña, verificando la persistencia de la contraseña definida para el alcance académico, obteniendo el token de autenticación con expiración de 24h e intentando acceder a rutas protegidas con y sin dicho token.
 
 **Acceptance Scenarios**:
 
-1. **Given** datos válidos de registro (email, nombre, contraseña), **When** el usuario solicita su creación en `POST /auth/register`, **Then** el sistema persiste al usuario con contraseña hasheada, le asigna 1.000 créditos iniciales de bienvenida y retorna la confirmación de registro.
+1. **Given** datos válidos de registro (email, nombre, contraseña), **When** el usuario solicita su creación en `POST /auth/register`, **Then** el sistema persiste al usuario con la contraseña directa definida para este alcance, le asigna 1.000 créditos iniciales de bienvenida y retorna la confirmación de registro.
 2. **Given** un usuario registrado previamente, **When** envía sus credenciales correctas en `POST /auth/login`, **Then** el sistema responde con un token de autenticación JWT válido por 24 horas conteniendo claims de identidad.
 3. **Given** una solicitud a un endpoint protegido sin token o con un token inválido/expirado, **When** la petición llega al backend, **Then** el sistema intercepta la petición y responde con código HTTP 401 Unauthorized sin ejecutar la acción solicitada.
 
@@ -97,21 +97,23 @@ Como usuario inversor autenticado, quiero consultar el catálogo de futbolistas 
 - **FR-004**: El sistema DEBE modelar las entidades de dominio puras `User` y `Player` desacopladas de frameworks y persistencia, validando sus invariantes mediante tests unitarios en Vitest.
 - **FR-005**: El sistema DEBE restringir los jugadores exclusivamente a las 5 ligas oficiales: Premier League (`PREMIER_LEAGUE`), Bundesliga (`BUNDESLIGA`), La Liga (`LA_LIGA`), Serie A (`SERIE_A`) y Ligue 1 (`LIGUE_1`).
 - **FR-006**: El sistema DEBE persistir los datos de usuarios y jugadores en PostgreSQL utilizando Drizzle ORM con migraciones estructuradas.
-- **FR-007**: El sistema DEBE implementar el endpoint público de registro `POST /auth/register`, persistiendo la contraseña hasheada y asignando el rol `INVESTOR`.
+- **FR-007**: El sistema DEBE implementar el endpoint público de registro `POST /auth/register`, persistiendo la contraseña definida para el alcance académico y asignando el rol `INVESTOR`.
 - **FR-008**: El sistema DEBE asignar automáticamente un saldo inicial de bienvenida de exactamente **1.000 créditos** a cada nuevo usuario inversor registrado.
 - **FR-009**: El sistema DEBE implementar el endpoint público de autenticación `POST /auth/login`, retornando un token JWT estándar con expiración configurable fijada por defecto en **24 horas** para ser utilizado en el header `Authorization: Bearer <token>`.
 - **FR-010**: El sistema DEBE proteger todos los endpoints de negocio (incluyendo el catálogo de jugadores `GET /players` y `GET /players/:id`), permitiendo acceso únicamente con un token JWT válido y respondiendo con HTTP 401 Unauthorized en caso contrario. Los únicos endpoints públicos son `POST /auth/register`, `POST /auth/login`, `/api/docs` y `GET /health`.
 - **FR-011**: El sistema DEBE permitir filtrar jugadores en `GET /players` de manera combinada u opcional por `league`, `team` y `position`, con soporte de paginación por defecto de 20 registros y máximo de 100 por consulta.
 - **FR-012**: El sistema DEBE exponer el endpoint de detalle individual `GET /players/:id` retornando las estadísticas y atributos biográficos del jugador solicitado.
-- **FR-013**: El sistema DEBE proveer un dataset de inicialización (seeding reproducible) que incluya entre 2 y 3 jugadores representativos por cada una de las 5 ligas oficiales (total de 10 a 15 jugadores) para habilitar pruebas y demostraciones inmediatas.
+- **FR-013**: El sistema DEBE permitir la ingesta y sincronización de jugadores desde una fuente externa mediante un adapter que normalice cada registro al contrato `ScrapedPlayer` antes de persistirlo. Para esta entrega no se requieren scheduler, snapshots históricos, cache ni fallback entre fuentes.
 
 ---
 
 ### Key Entities *(include if feature involves data)*
 
-- **User (Usuario):** Entidad representativa del inversor o superusuario. Atributos: `id`, `name`, `email`, `passwordHash`, `role` (`INVESTOR`, `SUPERUSER`), `creditBalance` (inicia en 1.000), `createdAt`, `updatedAt`.
-- **Player (Jugador):** Entidad deportiva perteneciente a una de las 5 ligas oficiales. Atributos: `id`, `name`, `team`, `league` (`PREMIER_LEAGUE`, `BUNDESLIGA`, `LA_LIGA`, `SERIE_A`, `LIGUE_1`), `position` (`GOALKEEPER`, `DEFENDER`, `MIDFIELDER`, `FORWARD`), `statistics` (partidos, minutos, goles, asistencias, etc.).
-- **Token Valuation Reference ($t_0$):** Estructura base para emisión fija de 100 tokens y cotización inicial de 1 crédito en preparación para la Entrega 2.
+- **User (Usuario):** Entidad representativa del inversor o superusuario. Atributos: `id`, `name`, `email`, `password`, `role` (`INVESTOR`, `SUPERUSER`), `creditBalance` (inicia en 1.000) y `createdAt`. Expone operaciones para consultar, debitar y acreditar saldo.
+- **Player (Jugador):** Entidad deportiva perteneciente a una de las 5 ligas oficiales. Atributos: `id`, `name`, `team`, `league` (`PREMIER_LEAGUE`, `BUNDESLIGA`, `LA_LIGA`, `SERIE_A`, `LIGUE_1`), `position` (`UNKNOWN`, `GOALKEEPER`, `DEFENDER`, `MIDFIELDER`, `FORWARD`) y `statistics`, un mapa de métricas numéricas no negativas.
+- **TokenHolding:** Tenencia de tokens de un usuario para un jugador, con `quantity` entera no negativa y `averagePurchasePrice` no negativo. La fábrica `initialSeed` crea la tenencia inicial de 100 tokens a precio base 1.00.
+- **ScrapedPlayer:** Contrato de integración, no entidad de dominio. Representa el registro normalizado que entrega un adapter con `externalId`, `name`, `team`, `league`, `position` y `statistics`.
+- **Token Valuation Reference ($t_0$):** Estructura base para la tenencia inicial de 100 tokens y cotización inicial de 1 crédito en preparación para la Entrega 2.
 
 ---
 
@@ -133,7 +135,8 @@ Como usuario inversor autenticado, quiero consultar el catálogo de futbolistas 
 - **Stack Tecnológico**: Definido en la Constitución: Next.js / Node.js con TypeScript, Drizzle ORM sobre PostgreSQL, y Vitest para testing.
 - **Modelo de Seguridad**: Autenticación centralizada mediante JWT con vigencia de 24 horas (Bearer Token en header `Authorization`). Rutas públicas restringidas exclusivamente a `/auth/register`, `/auth/login`, `/api/docs` y `/health`.
 - **Saldo Inicial**: 1.000 créditos asignados automáticamente a cada nuevo inversor en el momento del registro.
-- **Seed inicial de jugadores**: El catálogo de la Entrega 1 se nutre de un dataset inicial de seeding con 2 a 3 jugadores por cada una de las 5 ligas (10 a 15 jugadores totales).
+- **Carga inicial de jugadores**: El catálogo de la Entrega 1 se carga mediante el flujo de ingesta y sincronización de una fuente externa. Los tests y demos pueden utilizar fixtures; no se mantiene un seed de jugadores como fuente del catálogo.
+- **Fuentes externas**: WhoScored es la fuente prioritaria para estadísticas de rendimiento y Football-Data.org queda contemplada como fuente/adaptador complementario de contexto de competiciones. La primera implementación puede comenzar con una sola fuente.
 - **Paginación del Catálogo**: 20 jugadores por página por defecto, hasta un máximo de 100 registros por solicitud.
-- **Invariante de 100 tokens**: El modelo y persistencia respetan la arquitectura para soportar la emisión fija de 100 tokens por jugador en $t_0$.
+- **Invariante inicial de 100 tokens**: El modelo soporta la creación de una tenencia inicial de 100 tokens por jugador a precio base en $t_0$.
 - **Observabilidad**: Manejo de logs estructurados y Correlation IDs en middleware HTTP.
