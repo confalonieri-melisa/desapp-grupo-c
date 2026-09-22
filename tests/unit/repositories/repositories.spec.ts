@@ -1,7 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { toPlayer } from "@/repositories/player.repository";
 import { toUser } from "@/repositories/user.repository";
 import { League, Position, UserRole } from "@/models/enums";
+import { Player } from "@/models/Player";
+import { User } from "@/models/User";
+import { PlayerRepository } from "@/repositories/player.repository";
+import { UserRepository } from "@/repositories/user.repository";
+import type { Database } from "@/db";
 
 describe("persistence domain mappings", () => {
   it("maps a user row to the User aggregate", () => {
@@ -36,5 +41,138 @@ describe("persistence domain mappings", () => {
     };
     const player = toPlayer(row);
     expect(player.statistics).toEqual({ goals: 2 });
+  });
+});
+
+function selectDatabase(rows: unknown[]): Database {
+  return {
+    select: vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(async () => rows),
+        })),
+      })),
+    })),
+  } as unknown as Database;
+}
+
+function insertDatabase(rows: unknown[]): Database {
+  const returning = vi.fn(async () => rows);
+  const insert = vi.fn(() => ({
+    values: vi.fn(() => ({
+      returning,
+      onConflictDoUpdate: vi.fn(() => ({ returning })),
+    })),
+  }));
+
+  return { insert } as unknown as Database;
+}
+
+describe("UserRepository", () => {
+  const userRow = {
+    id: "00000000-0000-0000-0000-000000000003",
+    email: "lola.gol@example.test",
+    password: "Gol2026!",
+    name: "Lola Gol",
+    role: UserRole.INVESTOR,
+    creditBalance: "1000.00",
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+  };
+
+  it("finds users by id and email and returns null when absent", async () => {
+    const repository = new UserRepository(selectDatabase([userRow]));
+
+    await expect(repository.findById(userRow.id)).resolves.toMatchObject({
+      email: userRow.email,
+    });
+    await expect(repository.findByEmail(userRow.email)).resolves.toMatchObject({
+      id: userRow.id,
+    });
+    await expect(
+      new UserRepository(selectDatabase([])).findByEmail(userRow.email),
+    ).resolves.toBeNull();
+  });
+
+  it("persists and maps a user", async () => {
+    const user = new User({
+      id: userRow.id,
+      email: userRow.email,
+      name: userRow.name,
+      password: userRow.password,
+    });
+    const repository = new UserRepository(insertDatabase([userRow]));
+
+    await expect(repository.save(user)).resolves.toMatchObject({
+      id: user.id,
+      creditBalance: 1000,
+    });
+  });
+
+  it("fails explicitly when persistence returns no user", async () => {
+    const repository = new UserRepository(insertDatabase([]));
+    const user = new User({
+      email: userRow.email,
+      name: userRow.name,
+      password: userRow.password,
+    });
+
+    await expect(repository.save(user)).rejects.toThrow(
+      "User could not be persisted",
+    );
+  });
+});
+
+describe("PlayerRepository", () => {
+  const player = new Player({
+    id: "00000000-0000-0000-0000-000000000004",
+    name: "Lola Gol",
+    team: "Club Atlético Ejemplo",
+    league: League.LA_LIGA,
+    position: Position.FORWARD,
+    statistics: { goals: 10 },
+  });
+
+  it("persists multiple players in one transaction and maps them", async () => {
+    const transaction = insertDatabase([
+      {
+        id: player.id,
+        source: "TEST",
+        externalId: "lola-10",
+        name: player.name,
+        team: player.team,
+        league: player.league,
+        position: player.position,
+        statistics: player.statistics,
+        createdAt: player.createdAt,
+        updatedAt: player.updatedAt,
+      },
+    ]);
+    const database = {
+      transaction: vi.fn(async (callback: (db: Database) => Promise<unknown>) =>
+        callback(transaction),
+      ),
+    } as unknown as Database;
+
+    await expect(
+      new PlayerRepository(database).savePlayers([
+        { player, source: "TEST", externalId: "lola-10" },
+      ]),
+    ).resolves.toMatchObject([{ id: player.id, name: player.name }]);
+  });
+
+  it("fails explicitly when a player cannot be persisted", async () => {
+    const transaction = insertDatabase([]);
+    const database = {
+      transaction: vi.fn(async (callback: (db: Database) => Promise<unknown>) =>
+        callback(transaction),
+      ),
+    } as unknown as Database;
+
+    await expect(
+      new PlayerRepository(database).savePlayers([
+        { player, source: "TEST", externalId: "lola-10" },
+      ]),
+    ).rejects.toThrow("Player could not be persisted");
   });
 });
