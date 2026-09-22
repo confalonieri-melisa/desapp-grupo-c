@@ -39,7 +39,7 @@ Para el desarrollo del proyecto se adopta estrictamente el siguiente flujo de tr
 
 Este plan de implementación cubre la entrega de la **Entrega 1** del Trabajo Práctico de Mercado de Tokens de Jugadores. Aplica la arquitectura en capas estándar **Controller $\to$ Service $\to$ Repository** con un **Modelo de Dominio Rico** (*Rich Domain Model*), asegurando que:
 - **La lógica y reglas de dominio residen en las entidades del Modelo** (invariantes, validación de ligas, saldo inicial, reglas de negocio).
-- **Los Servicios actúan como Orquestadores de flujo** (coordinan repositorios, invocan el comportamiento del modelo y coordinan servicios de infraestructura como JWT o hash).
+- **Los Servicios actúan como Orquestadores de flujo** (coordinan repositorios, invocan el comportamiento del modelo y coordinan servicios de infraestructura como JWT o comparación de contraseñas).
 - **Los Repositorios encapsulan el acceso a datos** (Drizzle ORM sobre PostgreSQL).
 - **Los Controladores manejan la interfaz HTTP** (validación de payloads de entrada con Zod y respuestas REST).
 
@@ -64,8 +64,8 @@ graph TD
 
 | Capa | Componentes | Responsabilidad Específica |
 | :--- | :--- | :--- |
-| **Modelo de Dominio** | `User`, `Player`, `TokenHolding`, `Quote` (`src/models/` o `src/domain/`) | **Lógica de negocio pura e invariantes:** Validación estricta de las 5 ligas oficiales, asignación de 1.000 créditos de bienvenida al inversor, verificación de saldo, emisión fija de 100 tokens a cotización base de 1 crédito en $t_0$. |
-| **Servicios (Orquestadores)** | `AuthService`, `PlayerService` (`src/services/`) | **Orquestación de flujos de aplicación:** Coordina la búsqueda en repositorios, invoca métodos de negocio de los modelos, coordina el hasheo de contraseñas y emisión de JWT, y persiste los cambios. |
+| **Modelo de Dominio** | `User`, `Player`, `TokenHolding` (`src/models/`) | **Lógica de negocio pura e invariantes:** Validación estricta de las 5 ligas oficiales y posiciones, asignación de 1.000 créditos de bienvenida al inversor, operaciones de saldo y creación de la tenencia inicial de 100 tokens a cotización base de 1 crédito en $t_0$. |
+| **Servicios (Orquestadores)** | `AuthService`, `PlayerService` (`src/services/`) | **Orquestación de flujos de aplicación:** Coordina la búsqueda en repositorios, invoca métodos de negocio de los modelos, coordina el almacenamiento directo de contraseñas y emisión de JWT, y persiste los cambios. |
 | **Repositorios** | `UserRepository`, `PlayerRepository` (`src/repositories/`) | **Persistencia y consultas:** Mapea entidades de dominio a tablas relacionales de PostgreSQL vía Drizzle ORM. |
 | **Controladores / API** | `auth.controller.ts`, `player.controller.ts`, Next.js Route Handlers | **Adaptador HTTP:** Valida la estructura de las peticiones (Zod), extrae parámetros, invoca al servicio orquestador y devuelve el código HTTP correspondiente (200, 201, 400, 401, 404, 409). |
 | **Middlewares** | `auth.middleware.ts` | **Seguridad y Control de Acceso:** Verifica el token Bearer JWT (24h) y protege rutas privadas retornando `401 Unauthorized`. |
@@ -132,10 +132,9 @@ desapp-grupo-c/
 │   └── whoscored.adapter.ts     # Adapter inicial de WhoScored
 ├── middlewares/                 # Middlewares y utilidades transversales
 │   ├── auth.middleware.ts       # Interceptor Bearer JWT (24h) con rechazo 401
-│   └── logger.ts                # Structured Logger con Correlation IDs
 ├── utils/                       # Utilidades de infraestructura
 │   ├── jwt.ts                   # Generación y validación de tokens JWT
-│   └── hash.ts                  # Hasheo seguro con bcrypt
+│   └── password.ts              # Almacenamiento y verificación de contraseña del alcance académico
 ├── tests/                           # Suite de Testing con Vitest
 │   ├── unit/
 │   │   ├── models/                  # Tests unitarios del Modelo de Dominio (lógica pura e invariantes)
@@ -176,13 +175,13 @@ Cada feature se implementa en su propia rama creada desde `main`, con commits gr
 - **Implementar `src/models/enums.ts`**: `League` (5 ligas), `Position`, `UserRole`.
 - **Implementar entidad `User`**: invariantes de rol, saldo y operaciones de balance; el formato de email pertenece al DTO.
 - **Implementar entidad `Player`**: invariante estricta de 5 ligas oficiales.
-- **Implementar entidad `TokenHolding`**: invariante de 100 tokens emitidos en $t_0$.
+- **Implementar entidad `TokenHolding`**: tenencia por usuario y jugador, con fábrica para la emisión inicial de 100 tokens a precio base en $t_0$.
 - **Implementar `src/models/errors.ts`**: errores de dominio tipados.
 - **Tests unitarios en `tests/unit/models/`** cubriendo todas las reglas e invariantes.
 - *Commit*: `feat(domain): rich domain models with invariants and unit tests`
 - *PR hacia*: `main`
 
-### Feature C: Persistencia e Importación Manual de Jugadores
+### Feature C: Persistencia e Ingesta de Jugadores
 **Rama**: `feature/003-persistence-drizzle`  
 **Dependencia**: Feature B mergeada en `main`  
 **Contenido**:
@@ -191,21 +190,20 @@ Cada feature se implementa en su propia rama creada desde `main`, con commits gr
 - Implementar `UserRepository` y `PlayerRepository`.
 - Definir el contrato `ScrapedPlayer` y el puerto `PlayerDataSource` en `src/adapters/player-data-source.ts`.
 - Implementar un adapter inicial de WhoScored que devuelva jugadores normalizados con las métricas mínimas definidas en la especificación.
-- Crear una importación manual que transforme `ScrapedPlayer` en `Player` y lo persista; puede ejecutarse contra datos reales o un fixture, sin scheduler, snapshots ni cache.
-- *Commit*: `feat(db): add persistence and manual player import`
+- Crear el flujo de sincronización que transforme `ScrapedPlayer` en `Player` y lo persista; puede ejecutarse contra datos reales o un fixture, sin scheduler, snapshots ni cache.
+- *Commit*: `feat(db): add persistence and player ingestion`
 - *PR hacia*: `main`
 
 ### Feature D: Autenticación y Control de Acceso (JWT)
 **Rama**: `feature/004-auth-jwt`  
 **Dependencia**: Feature C mergeada en `main`  
 **Contenido**:
-- Implementar utilidades: `src/utils/hash.ts` (bcrypt), `src/utils/jwt.ts` (JWT 24h).
+- Implementar utilidades: `src/utils/password.ts` (contraseña directa del alcance académico), `src/utils/jwt.ts` (JWT 24h).
 - Implementar `AuthService` (registro, login, emisión de JWT).
 - Implementar `auth.middleware.ts` (validación de Bearer JWT, rechazo 401).
 - Implementar `AuthController` con validación Zod y rutas Next.js:
   - `POST /api/auth/register`
   - `POST /api/auth/login`
-- Implementar logger estructurado con Correlation IDs (`src/middlewares/logger.ts`).
 - Tests unitarios de `AuthService` con mocks y tests de integración de rutas auth.
 - *Commit*: `feat(auth): registration, login, JWT middleware and auth routes`
 - *PR hacia*: `main`

@@ -20,6 +20,21 @@
       "key": "playerId",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "testUserName",
+      "value": "Lola Gol",
+      "type": "string"
+    },
+    {
+      "key": "testUserEmail",
+      "value": "lola.gol@example.test",
+      "type": "string"
+    },
+    {
+      "key": "testUserPassword",
+      "value": "Gol2026!",
+      "type": "string"
     }
   ],
   "item": [
@@ -72,7 +87,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"inversor1@test.com\",\n  \"password\": \"Password123!\",\n  \"name\": \"Usuario Demo Inversor\"\n}"
+              "raw": "{\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\",\n  \"name\": \"{{testUserName}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
@@ -107,7 +122,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"inversor1@test.com\",\n  \"password\": \"Password123!\"\n}"
+              "raw": "{\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",

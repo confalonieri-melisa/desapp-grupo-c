@@ -30,7 +30,8 @@ paths:
     post:
       summary: Registro de Usuario Inversor
       description: >
-        Crea una nueva cuenta de usuario inversor, hashea la contraseña,
+        Crea una nueva cuenta de usuario inversor, almacena la contraseña
+        directamente para este alcance académico,
         asigna automáticamente 1.000 créditos de bienvenida y confirma el registro.
       tags:
         - Authentication

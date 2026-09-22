@@ -13,7 +13,7 @@ erDiagram
     USER {
         uuid id PK
         varchar email UK
-        varchar password_hash
+        varchar password
         varchar name
         varchar role "INVESTOR | SUPERUSER"
         decimal credit_balance "Default 1000.00"
@@ -59,7 +59,7 @@ Represents system actors (Investors and the central Superuser / Market Creator).
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | `uuid` | `PRIMARY KEY`, not null | `gen_random_uuid()` | Unique identifier for the user. |
 | `email` | `varchar(255)` | `UNIQUE`, not null | - | Unique login email. |
-| `password_hash` | `varchar(255)` | not null | - | Bcrypt hashed password. |
+| `password` | `varchar(255)` | not null | - | Password stored directly for the academic scope. |
 | `name` | `varchar(150)` | not null | - | Full name or display name. |
 | `role` | `varchar(20)` | not null | `'INVESTOR'` | Role enum: `INVESTOR`, `SUPERUSER`. |
 | `credit_balance` | `numeric(12, 2)`| not null | `1000.00` | Account balance. Investors start with 1,000.00. |
@@ -89,7 +89,7 @@ Represents footballers from the 5 European leagues.
 | `updated_at` | `timestamp with time zone` | not null | `now()` | Last statistics update timestamp. |
 
 **Indexes**:
-- `uq_players_source_external_id` ON `players (source, external_id)` (Unique for idempotent manual re-imports)
+- `uq_players_source_external_id` ON `players (source, external_id)` (Unique for idempotent source synchronization)
 - `idx_players_league_team_pos` ON `players (league, team, position)` (Composite for catalog filters)
 - `idx_players_team` ON `players (team)`
 - `idx_players_league` ON `players (league)`

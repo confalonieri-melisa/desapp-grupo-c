@@ -41,7 +41,7 @@
 
 ### Phase 1: Setup de Tooling Base (ya completado)
 
-- [x] T001 Initialize project runtime and dev dependencies in [package.json](file:///C:/Users/meluk/UNQ/desapp-grupo-c/package.json) (`drizzle-orm`, `postgres`, `bcryptjs`, `@types/bcryptjs`, `jsonwebtoken`, `@types/jsonwebtoken`, `zod`, `vitest`, `@vitest/coverage-v8`, `swagger-ui-dist`, `yaml`, `dotenv`)
+- [x] T001 Initialize project runtime and dev dependencies in [package.json](file:///C:/Users/meluk/UNQ/desapp-grupo-c/package.json) (`drizzle-orm`, `postgres`, `jsonwebtoken`, `@types/jsonwebtoken`, `zod`, `vitest`, `@vitest/coverage-v8`, `swagger-ui-dist`, `yaml`, `dotenv`)
 - [x] T002 [P] Configure Vitest runner with TypeScript path aliases and coverage thresholds in [vitest.config.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/vitest.config.ts)
 - [x] T003 [P] Configure SonarCloud static analysis properties in [sonar-project.properties](file:///C:/Users/meluk/UNQ/desapp-grupo-c/sonar-project.properties)
 - [x] T004 [P] Configure Drizzle ORM Kit settings in [drizzle.config.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/drizzle.config.ts)
@@ -81,40 +81,40 @@
 #### Tests para Feature B
 - [x] T009 [P] [US2] Unit tests for `User` domain model invariants (role assignment, 1,000 initial credits, and balance rules) in [tests/unit/models/User.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/User.spec.ts)
 - [x] T010 [P] [US2] Unit tests for `Player` domain model invariants (official 5 leagues enforcement, metrics validation) in [tests/unit/models/Player.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/Player.spec.ts)
-- [x] T011 [P] [US2] Unit tests for `TokenHolding` domain model invariants (100 token emission at base price 1.00) in [tests/unit/models/TokenHolding.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/TokenHolding.spec.ts)
+- [x] T011 [P] [US2] Unit tests for `TokenHolding` domain model invariants (non-negative quantity/price and 100-token initial seed at base price 1.00) in [tests/unit/models/TokenHolding.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/TokenHolding.spec.ts)
 
 #### Implementation para Feature B
 - [x] T012 [P] [US2] Define domain enums (`League`, `Position`, `UserRole`) in [src/models/enums.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/enums.ts)
 - [x] T013 [P] [US2] Implement standard domain error classes (`InvalidLeagueError`, `DomainValidationError`) in [src/models/errors.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/errors.ts)
 - [x] T014 [P] [US2] Implement rich `User` domain entity with business methods and balance rules in [src/models/User.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/User.ts)
 - [x] T015 [P] [US2] Implement rich `Player` domain entity enforcing the 5 official leagues invariant in [src/models/Player.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/Player.ts)
-- [x] T016 [P] [US2] Implement `TokenHolding` domain entity for fixed 100-token tracking in [src/models/TokenHolding.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/TokenHolding.ts)
+- [x] T016 [P] [US2] Implement `TokenHolding` domain entity with quantity/price invariants and initial 100-token seed in [src/models/TokenHolding.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/TokenHolding.ts)
 
 **Checkpoint Feature B**: Abrir PR `feature/002-domain-model` → `main`.
 
 ---
 
 ## ═══════════════════════════════════════
-## FEATURE C: Persistencia e Importación Manual de Jugadores
+## FEATURE C: Persistencia e Ingesta de Jugadores
 ### Rama: `feature/003-persistence-drizzle` → PR a `main`
 ## ═══════════════════════════════════════
 
-**Objetivo**: Persistencia mínima y una importación manual demostrable de jugadores desde una fuente externa.
+**Objetivo**: Persistencia mínima e ingesta reproducible de jugadores desde una fuente externa.
 
 **Dependencia**: Feature B mergeada en `main` (los modelos de dominio deben existir).
 
 **Test independiente**:
-- Ejecutar la importación manual contra un fixture o la fuente configurada y verificar que crea jugadores normalizados en BD.
+- Ejecutar el flujo de sincronización contra un fixture o la fuente configurada y verificar que crea jugadores normalizados en BD.
 - `UserRepository.findByEmail()` y `PlayerRepository.findMany()` devuelven resultados correctos.
 - No se requiere scheduler, snapshot histórico, cache, fallback ni datos de cotizaciones en esta feature.
 
 #### Implementation para Feature C
-- [ ] T017 [US2] Implement PostgreSQL database client connection pooling in [src/db/index.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/index.ts)
-- [ ] T018 [US2] Define the minimal Drizzle ORM schema for tables `users`, `players`, and `token_holdings` in [src/db/schema.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/schema.ts), including the source and external identifier needed to identify imported players
-- [ ] T019 [P] [US2] Implement `UserRepository` with Drizzle ORM (`findByEmail`, `findById`, `save`) in [src/repositories/user.repository.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/repositories/user.repository.ts)
-- [ ] T020 [P] [US2] Implement `PlayerRepository` with filtering and pagination in [src/repositories/player.repository.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/repositories/player.repository.ts)
-- [ ] T021 [US2] Define the `ScrapedPlayer` and `PlayerDataSource` contracts in [src/adapters/player-data-source.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/adapters/player-data-source.ts)
-- [ ] T021a [US2] Implement the initial WhoScored adapter and manual player import using the minimal statistics contract in [src/adapters/whoscored.adapter.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/adapters/whoscored.adapter.ts)
+- [x] T017 [US2] Implement PostgreSQL database client connection pooling in [src/db/index.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/index.ts)
+- [x] T018 [US2] Define the minimal Drizzle ORM schema for tables `users`, `players`, and `token_holdings` in [src/db/schema.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/schema.ts), including the source and external identifier needed to identify imported players
+- [x] T019 [P] [US2] Implement `UserRepository` with Drizzle ORM (`findByEmail`, `findById`, `save`) in [src/repositories/user.repository.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/repositories/user.repository.ts)
+- [x] T020 [P] [US2] Implement `PlayerRepository` with filtering and pagination in [src/repositories/player.repository.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/repositories/player.repository.ts)
+- [x] T021 [US2] Define the `ScrapedPlayer` and `PlayerDataSource` contracts in [src/adapters/player-data-source.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/adapters/player-data-source.ts)
+- [x] T021a [US2] Implement the initial WhoScored adapter and player synchronization using the minimal statistics contract in [src/adapters/whoscored.adapter.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/adapters/whoscored.adapter.ts)
 
 **Checkpoint Feature C**: Abrir PR `feature/003-persistence-drizzle` → `main`.
 
@@ -130,24 +130,24 @@
 **Dependencia**: Feature C mergeada en `main` (`UserRepository` debe existir).
 
 **Test independiente**:
-- `POST /api/auth/register` crea usuario con contraseña hasheada y 1.000 créditos.
+- `POST /api/auth/register` crea usuario con contraseña directa y 1.000 créditos.
 - `POST /api/auth/login` devuelve JWT válido por 24h.
 - Petición a endpoint protegido sin token → 401.
 
 #### Tests para Feature D
-- [ ] T022 [P] [US3] Unit tests for `AuthService` orchestrator with repository mocks in [tests/unit/services/auth.service.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/services/auth.service.spec.ts)
-- [ ] T023 [P] [US3] Unit and integration tests for Bearer JWT middleware authentication and 401 rejection in [tests/unit/middlewares/auth.middleware.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/middlewares/auth.middleware.spec.ts)
-- [ ] T024 [P] [US3] Integration tests for `POST /api/auth/register` and `POST /api/auth/login` routes in [tests/integration/auth.routes.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/integration/auth.routes.spec.ts)
+- [x] T022 [P] [US3] Unit tests for `AuthService` orchestrator with repository mocks in [tests/unit/services/auth.service.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/services/auth.service.spec.ts)
+- [x] T023 [P] [US3] Unit and integration tests for Bearer JWT middleware authentication and 401 rejection in [tests/unit/middlewares/auth.middleware.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/middlewares/auth.middleware.spec.ts)
+- [x] T024 [P] [US3] Integration tests for registration and login application flows in [tests/integration/auth.routes.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/integration/auth.routes.spec.ts)
 
 #### Implementation para Feature D
-- [ ] T025 [P] [US3] Implement password hashing and verification utility using bcrypt in [src/utils/hash.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/utils/hash.ts)
-- [ ] T026 [P] [US3] Implement JWT issuance and verification utility with 24-hour expiration in [src/utils/jwt.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/utils/jwt.ts)
+- [x] T025 [P] [US3] Implement password storage and verification utility (direct password comparison for the academic scope) in [src/utils/password.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/utils/password.ts)
+- [x] T026 [P] [US3] Implement JWT issuance and verification utility with 24-hour expiration in [src/utils/jwt.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/utils/jwt.ts)
 - [ ] T027 [P] [US3] Implement structured JSON logging utility with correlation ID support in [src/middlewares/logger.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/middlewares/logger.ts)
-- [ ] T028 [US3] Implement `AuthService` orchestrating registration validation, user entity creation, password hashing, and 24h JWT issuance in [src/services/auth.service.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/services/auth.service.ts)
-- [ ] T029 [US3] Implement authentication middleware guard (`requireAuth`) validating Bearer JWT header in [src/middlewares/auth.middleware.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/middlewares/auth.middleware.ts)
-- [ ] T030 [US3] Implement `AuthController` handling registration and login request validation with Zod in [src/controllers/auth.controller.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/controllers/auth.controller.ts)
-- [ ] T031 [P] [US3] Create Next.js route handler for `POST /api/auth/register` in [src/app/api/auth/register/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/auth/register/route.ts)
-- [ ] T032 [P] [US3] Create Next.js route handler for `POST /api/auth/login` in [src/app/api/auth/login/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/auth/login/route.ts)
+- [x] T028 [US3] Implement `AuthService` orchestrating registration validation, user entity creation, direct password storage, and 24h JWT issuance in [src/services/auth.service.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/services/auth.service.ts)
+- [x] T029 [US3] Implement authentication middleware guard (`requireAuth`) validating Bearer JWT header in [src/middlewares/auth.middleware.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/middlewares/auth.middleware.ts)
+- [x] T030 [US3] Implement `AuthController` delegating registration and login use cases after route-level Zod validation in [src/controllers/auth.controller.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/controllers/auth.controller.ts)
+- [x] T031 [P] [US3] Create Next.js route handler for `POST /api/auth/register` in [src/app/api/auth/register/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/auth/register/route.ts)
+- [x] T032 [P] [US3] Create Next.js route handler for `POST /api/auth/login` in [src/app/api/auth/login/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/auth/login/route.ts)
 
 **Checkpoint Feature D**: Abrir PR `feature/004-auth-jwt` → `main`.
 
@@ -208,7 +208,7 @@
 ```
 Feature A (CI/CD + Health)
     └─► Feature B (Domain Model)
-            └─► Feature C (Persistence + Manual Import)
+            └─► Feature C (Persistence + Player Ingestion)
                     └─► Feature D (Auth + JWT)
                                 └─► Feature E (Player Catalog)
                                             └─► Feature F (Swagger Docs)
