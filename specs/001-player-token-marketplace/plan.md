@@ -117,7 +117,7 @@ desapp-grupo-c/
 │   └── player.service.ts        # Orquesta: consultar repositorio con filtros y paginación -> mapear
 ├── models/                      # MODELO DE DOMINIO RICO (Entidades con comportamiento e invariantes)
 │   ├── enums.ts                 # League (5 ligas oficiales), Position, UserRole
-│   ├── User.ts                  # Entidad User: validación de email, asignación 1.000 créditos, roles
+│   ├── User.ts                  # Entidad User: invariantes de saldo y roles, asignación 1.000 créditos
 │   ├── Player.ts                # Entidad Player: invariante de 5 ligas, métricas, validaciones
 │   ├── TokenHolding.ts          # Tenencia de tokens: invariante de emisión de 100 tokens en t0
 │   └── errors.ts                # Errores de dominio (InvalidLeagueError, DomainValidationError, etc.)
@@ -125,10 +125,11 @@ desapp-grupo-c/
 │   ├── user.repository.ts       # findByEmail, findById, save
 │   └── player.repository.ts     # findMany(filters, pagination), findById
 ├── db/                          # Configuración y esquemas Drizzle ORM
-│   ├── schema.ts                # Tablas PostgreSQL: users, players, token_holdings, quote_history, audit_logs
+│   ├── schema.ts                # Tablas PostgreSQL mínimas: users, players, token_holdings
 │   ├── index.ts                 # Conexión PostgreSQL
-│   └── seeds/
-│       └── seed.ts              # Dataset inicial de 15 jugadores (3 por liga) + superusuario
+├── adapters/                    # Integración mínima con fuentes externas
+│   ├── player-data-source.ts    # Contrato ScrapedPlayer y PlayerDataSource
+│   └── whoscored.adapter.ts     # Adapter inicial de WhoScored
 ├── middlewares/                 # Middlewares y utilidades transversales
 │   ├── auth.middleware.ts       # Interceptor Bearer JWT (24h) con rechazo 401
 │   └── logger.ts                # Structured Logger con Correlation IDs
@@ -173,7 +174,7 @@ Cada feature se implementa en su propia rama creada desde `main`, con commits gr
 **Rama**: `feature/002-domain-model`  
 **Contenido**:
 - **Implementar `src/models/enums.ts`**: `League` (5 ligas), `Position`, `UserRole`.
-- **Implementar entidad `User`**: invariantes (email válido, 1.000 créditos para inversor).
+- **Implementar entidad `User`**: invariantes de rol, saldo y operaciones de balance; el formato de email pertenece al DTO.
 - **Implementar entidad `Player`**: invariante estricta de 5 ligas oficiales.
 - **Implementar entidad `TokenHolding`**: invariante de 100 tokens emitidos en $t_0$.
 - **Implementar `src/models/errors.ts`**: errores de dominio tipados.
@@ -181,15 +182,17 @@ Cada feature se implementa en su propia rama creada desde `main`, con commits gr
 - *Commit*: `feat(domain): rich domain models with invariants and unit tests`
 - *PR hacia*: `main`
 
-### Feature C: Persistencia con Drizzle ORM y Seeding
+### Feature C: Persistencia e Importación Manual de Jugadores
 **Rama**: `feature/003-persistence-drizzle`  
 **Dependencia**: Feature B mergeada en `main`  
 **Contenido**:
-- Definir esquemas en `src/db/schema.ts` (`users`, `players`, `token_holdings`, `quote_history`, `audit_logs`).
+- Definir esquemas mínimos en `src/db/schema.ts` (`users`, `players`, `token_holdings`). Las tablas de cotizaciones y auditoría se incorporarán cuando exista la operación que las utilice.
 - Implementar conexión PostgreSQL en `src/db/index.ts`.
 - Implementar `UserRepository` y `PlayerRepository`.
-- Crear script `src/db/seeds/seed.ts` con 15 jugadores (3 por liga) y superusuario.
-- *Commit*: `feat(db): drizzle schema, repositories and initial dataset seeder`
+- Definir el contrato `ScrapedPlayer` y el puerto `PlayerDataSource` en `src/adapters/player-data-source.ts`.
+- Implementar un adapter inicial de WhoScored que devuelva jugadores normalizados con las métricas mínimas definidas en la especificación.
+- Crear una importación manual que transforme `ScrapedPlayer` en `Player` y lo persista; puede ejecutarse contra datos reales o un fixture, sin scheduler, snapshots ni cache.
+- *Commit*: `feat(db): add persistence and manual player import`
 - *PR hacia*: `main`
 
 ### Feature D: Autenticación y Control de Acceso (JWT)

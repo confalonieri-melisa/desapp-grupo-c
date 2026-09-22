@@ -103,14 +103,15 @@ Como usuario inversor autenticado, quiero consultar el catálogo de futbolistas 
 - **FR-010**: El sistema DEBE proteger todos los endpoints de negocio (incluyendo el catálogo de jugadores `GET /players` y `GET /players/:id`), permitiendo acceso únicamente con un token JWT válido y respondiendo con HTTP 401 Unauthorized en caso contrario. Los únicos endpoints públicos son `POST /auth/register`, `POST /auth/login`, `/api/docs` y `GET /health`.
 - **FR-011**: El sistema DEBE permitir filtrar jugadores en `GET /players` de manera combinada u opcional por `league`, `team` y `position`, con soporte de paginación por defecto de 20 registros y máximo de 100 por consulta.
 - **FR-012**: El sistema DEBE exponer el endpoint de detalle individual `GET /players/:id` retornando las estadísticas y atributos biográficos del jugador solicitado.
-- **FR-013**: El sistema DEBE proveer un dataset de inicialización (seeding reproducible) que incluya entre 2 y 3 jugadores representativos por cada una de las 5 ligas oficiales (total de 10 a 15 jugadores) para habilitar pruebas y demostraciones inmediatas.
+- **FR-013**: El sistema DEBE permitir una importación manual de jugadores desde una fuente externa mediante un adapter que normalice cada registro al contrato `ScrapedPlayer` antes de persistirlo. Para esta entrega no se requieren scheduler, snapshots históricos, cache ni fallback entre fuentes.
 
 ---
 
 ### Key Entities *(include if feature involves data)*
 
 - **User (Usuario):** Entidad representativa del inversor o superusuario. Atributos: `id`, `name`, `email`, `passwordHash`, `role` (`INVESTOR`, `SUPERUSER`), `creditBalance` (inicia en 1.000), `createdAt`, `updatedAt`.
-- **Player (Jugador):** Entidad deportiva perteneciente a una de las 5 ligas oficiales. Atributos: `id`, `name`, `team`, `league` (`PREMIER_LEAGUE`, `BUNDESLIGA`, `LA_LIGA`, `SERIE_A`, `LIGUE_1`), `position` (`GOALKEEPER`, `DEFENDER`, `MIDFIELDER`, `FORWARD`), `statistics` (partidos, minutos, goles, asistencias, etc.).
+- **Player (Jugador):** Entidad deportiva perteneciente a una de las 5 ligas oficiales. Atributos: `id`, `name`, `team`, `league` (`PREMIER_LEAGUE`, `BUNDESLIGA`, `LA_LIGA`, `SERIE_A`, `LIGUE_1`), `position` (`GOALKEEPER`, `DEFENDER`, `MIDFIELDER`, `FORWARD`) y estadísticas mínimas: `appearances`, `minutesPlayed`, `rating`, `goals`, `assists`, `shotsPerGame`, `tacklesPerGame`, `interceptionsPerGame`, `foulsPerGame`, `yellowCards` y `redCards`.
+- **ScrapedPlayer:** Contrato de integración, no entidad de dominio. Representa el registro normalizado que entrega un adapter con `externalId`, `name`, `team`, `league`, `position` y las estadísticas mínimas de `Player`.
 - **Token Valuation Reference ($t_0$):** Estructura base para emisión fija de 100 tokens y cotización inicial de 1 crédito en preparación para la Entrega 2.
 
 ---
@@ -133,7 +134,8 @@ Como usuario inversor autenticado, quiero consultar el catálogo de futbolistas 
 - **Stack Tecnológico**: Definido en la Constitución: Next.js / Node.js con TypeScript, Drizzle ORM sobre PostgreSQL, y Vitest para testing.
 - **Modelo de Seguridad**: Autenticación centralizada mediante JWT con vigencia de 24 horas (Bearer Token en header `Authorization`). Rutas públicas restringidas exclusivamente a `/auth/register`, `/auth/login`, `/api/docs` y `/health`.
 - **Saldo Inicial**: 1.000 créditos asignados automáticamente a cada nuevo inversor en el momento del registro.
-- **Seed inicial de jugadores**: El catálogo de la Entrega 1 se nutre de un dataset inicial de seeding con 2 a 3 jugadores por cada una de las 5 ligas (10 a 15 jugadores totales).
+- **Carga inicial de jugadores**: El catálogo de la Entrega 1 se carga mediante una ejecución manual del adapter de una fuente externa. Los tests y demos pueden utilizar fixtures; no se mantiene un seed de jugadores como fuente del catálogo.
+- **Fuentes externas**: WhoScored es la fuente prioritaria para estadísticas de rendimiento y Football-Data.org queda contemplada como fuente/adaptador complementario de contexto de competiciones. La primera implementación puede comenzar con una sola fuente.
 - **Paginación del Catálogo**: 20 jugadores por página por defecto, hasta un máximo de 100 registros por solicitud.
 - **Invariante de 100 tokens**: El modelo y persistencia respetan la arquitectura para soportar la emisión fija de 100 tokens por jugador en $t_0$.
 - **Observabilidad**: Manejo de logs estructurados y Correlation IDs en middleware HTTP.

@@ -95,24 +95,26 @@
 ---
 
 ## ═══════════════════════════════════════
-## FEATURE C: Persistencia con Drizzle ORM y Seeding
+## FEATURE C: Persistencia e Importación Manual de Jugadores
 ### Rama: `feature/003-persistence-drizzle` → PR a `main`
 ## ═══════════════════════════════════════
 
-**Objetivo**: Esquema relacional, repositorios y dataset inicial de jugadores.
+**Objetivo**: Persistencia mínima y una importación manual demostrable de jugadores desde una fuente externa.
 
 **Dependencia**: Feature B mergeada en `main` (los modelos de dominio deben existir).
 
 **Test independiente**:
-- Ejecutar el seeder y verificar 15 jugadores en BD (3 por liga) y superusuario con token holdings.
+- Ejecutar la importación manual contra un fixture o la fuente configurada y verificar que crea jugadores normalizados en BD.
 - `UserRepository.findByEmail()` y `PlayerRepository.findMany()` devuelven resultados correctos.
+- No se requiere scheduler, snapshot histórico, cache, fallback ni datos de cotizaciones en esta feature.
 
 #### Implementation para Feature C
 - [ ] T017 [US2] Implement PostgreSQL database client connection pooling in [src/db/index.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/index.ts)
-- [ ] T018 [US2] Define Drizzle ORM schema for tables `users`, `players`, `token_holdings`, `quote_history`, and `audit_logs` in [src/db/schema.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/schema.ts)
+- [ ] T018 [US2] Define the minimal Drizzle ORM schema for tables `users`, `players`, and `token_holdings` in [src/db/schema.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/schema.ts), including the source and external identifier needed to identify imported players
 - [ ] T019 [P] [US2] Implement `UserRepository` with Drizzle ORM (`findByEmail`, `findById`, `save`) in [src/repositories/user.repository.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/repositories/user.repository.ts)
 - [ ] T020 [P] [US2] Implement `PlayerRepository` with filtering and pagination in [src/repositories/player.repository.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/repositories/player.repository.ts)
-- [ ] T021 [US2] Create database seeder with 15 initial players (3 per official league) and superuser token holdings at t₀ in [src/db/seeds/seed.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/seeds/seed.ts)
+- [ ] T021 [US2] Define the `ScrapedPlayer` and `PlayerDataSource` contracts in [src/adapters/player-data-source.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/adapters/player-data-source.ts)
+- [ ] T021a [US2] Implement the initial WhoScored adapter and manual player import using the minimal statistics contract in [src/adapters/whoscored.adapter.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/adapters/whoscored.adapter.ts)
 
 **Checkpoint Feature C**: Abrir PR `feature/003-persistence-drizzle` → `main`.
 
@@ -206,7 +208,7 @@
 ```
 Feature A (CI/CD + Health)
     └─► Feature B (Domain Model)
-            └─► Feature C (Persistence + Drizzle)
+            └─► Feature C (Persistence + Manual Import)
                     └─► Feature D (Auth + JWT)
                                 └─► Feature E (Player Catalog)
                                             └─► Feature F (Swagger Docs)

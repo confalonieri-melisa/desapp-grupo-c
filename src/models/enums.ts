@@ -15,10 +15,17 @@ export function isOfficialLeague(value: unknown): value is League {
 
 /** Supported player positions. */
 export enum Position {
+  UNKNOWN = "UNKNOWN",
   GOALKEEPER = "GOALKEEPER",
   DEFENDER = "DEFENDER",
   MIDFIELDER = "MIDFIELDER",
   FORWARD = "FORWARD",
+}
+
+const positions = new Set<string>(Object.values(Position));
+
+export function isPosition(value: unknown): value is Position {
+  return typeof value === "string" && positions.has(value);
 }
 
 /** Roles that can act in the marketplace. */
