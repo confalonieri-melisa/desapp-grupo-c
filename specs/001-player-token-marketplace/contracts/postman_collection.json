@@ -217,23 +217,6 @@
               "path": ["auth", "login"]
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "Players (Catálogo)",
-      "item": [
-        {
-          "name": "1. Listar Jugadores (Sin Token -> Debe dar 401)",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/players",
-              "host": ["{{baseUrl}}"],
-              "path": ["players"]
-            }
-          }
         },
         {
           "name": "5. Login Inválido (Debe dar 400)",
@@ -334,6 +317,23 @@
               "raw": "{{baseUrl}}/auth/login",
               "host": ["{{baseUrl}}"],
               "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Players (Catálogo)",
+      "item": [
+        {
+          "name": "1. Listar Jugadores (Sin Token -> Debe dar 401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/players",
+              "host": ["{{baseUrl}}"],
+              "path": ["players"]
             }
           }
         },
