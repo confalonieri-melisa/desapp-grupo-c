@@ -22,17 +22,17 @@
       "type": "string"
     },
     {
-      "key": "testUserName",
+      "key": "userName",
       "value": "Lola Gol",
       "type": "string"
     },
     {
-      "key": "testUserEmail",
+      "key": "userEmail",
       "value": "lola.gol@example.test",
       "type": "string"
     },
     {
-      "key": "testUserPassword",
+      "key": "userPassword",
       "value": "Gol2026!",
       "type": "string"
     }
@@ -88,7 +88,7 @@
                   "",
                   "pm.test('Registro devuelve el usuario sin contraseña', function () {",
                   "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData.user.email).to.eql(pm.collectionVariables.get('testUserEmail'));",
+                  "    pm.expect(jsonData.user.email).to.eql(pm.collectionVariables.get('userEmail'));",
                   "    pm.expect(jsonData.user).to.not.have.property('password');",
                   "});"
                 ],
@@ -106,7 +106,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\",\n  \"name\": \"{{testUserName}}\"\n}"
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\",\n  \"name\": \"{{userName}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
@@ -140,7 +140,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\",\n  \"name\": \"Lola Gol Repetida\"\n}"
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\",\n  \"name\": \"Lola Gol Repetida\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
@@ -209,7 +209,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"{{testUserPassword}}\"\n}"
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
@@ -260,7 +260,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{testUserEmail}}\",\n  \"password\": \"AtajaEsteError!\"\n}"
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"AtajaEsteError!\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
