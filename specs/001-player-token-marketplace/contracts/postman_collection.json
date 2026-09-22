@@ -236,7 +236,41 @@
           }
         },
         {
-          "name": "5. Login con Contraseña Incorrecta (Debe dar 401)",
+          "name": "5. Login Inválido (Debe dar 400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login inválido devuelve 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"correo-sin-formato\",\n  \"password\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "6. Login con Contraseña Incorrecta (Debe dar 401)",
           "event": [
             {
               "listen": "test",
@@ -270,7 +304,7 @@
           }
         },
         {
-          "name": "6. Login con Email Inexistente (Debe dar 401)",
+          "name": "7. Login con Email Inexistente (Debe dar 401)",
           "event": [
             {
               "listen": "test",
