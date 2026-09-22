@@ -1,4 +1,3 @@
-
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -17,6 +16,12 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   font-family: Arial, Helvetica, sans-serif;
+  background-image: url('../assets/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 img, picture, video, canvas, svg {
@@ -52,4 +57,3 @@ h1, h2, h3, h4, h5, h6 {
     --text-gradient: -webkit-linear-gradient(135deg, var(--rose-punch) 0%, var(--watermelon) 30%, var(--tangerine) 100%);
     --background-gradient: linear-gradient(43deg, var(--rose-punch) 0%, var(--watermelon) 50%, var(--tangerine) 100%);
 }
-

@@ -26,6 +26,7 @@
     "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "sass": "^1.99.0",
     "swagger-ui-dist": "^5.32.15",
     "yaml": "^2.9.1",
     "zod": "^4.6.4"
@@ -42,7 +43,6 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
-    "sass": "^1.99.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5",
