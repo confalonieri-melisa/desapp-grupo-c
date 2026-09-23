@@ -14,7 +14,7 @@
 
 ## 1. Protocolo GitFlow y Flujo de Trabajo
 
-Para el desarrollo del proyecto se adopta estrictamente el siguiente flujo de trabajo GitFlow, alineado con la Constitución v1.2.0:
+Para el desarrollo del proyecto se adopta strictly el siguiente flujo de trabajo GitFlow, alineado con la Constitución v1.2.0:
 
 1. **Rama base de integración**: `main` es la única rama base de integración continua del proyecto.
 2. **Creación de Ramas por Feature**: Cada feature o incremento productivo se desarrolla en su propia rama creada a partir de `main`.
@@ -108,33 +108,33 @@ desapp-grupo-c/
 │   │   │       └── route.ts         # Endpoint Swagger OpenAPI UI
 │   │   ├── layout.tsx
 │   │   └── page.tsx
-├── controllers/                 # Controladores HTTP (manejan Request/Response y validación de schema)
-│   ├── auth.controller.ts
-│   ├── player.controller.ts
-│   └── health.controller.ts
-├── services/                    # Servicios Orquestadores de Flujo
-│   ├── auth.service.ts          # Orquesta: verificar unicidad -> crear entidad User -> persistir -> JWT
-│   └── player.service.ts        # Orquesta: consultar repositorio con filtros y paginación -> mapear
-├── models/                      # MODELO DE DOMINIO RICO (Entidades con comportamiento e invariantes)
-│   ├── enums.ts                 # League (5 ligas oficiales), Position, UserRole
-│   ├── User.ts                  # Entidad User: invariantes de saldo y roles, asignación 1.000 créditos
-│   ├── Player.ts                # Entidad Player: invariante de 5 ligas, métricas, validaciones
-│   ├── TokenHolding.ts          # Tenencia de tokens: invariante de emisión de 100 tokens en t0
-│   └── errors.ts                # Errores de dominio (InvalidLeagueError, DomainValidationError, etc.)
-├── repositories/                # Repositorios Drizzle ORM
-│   ├── user.repository.ts       # findByEmail, findById, save
-│   └── player.repository.ts     # findMany(filters, pagination), findById
-├── db/                          # Configuración y esquemas Drizzle ORM
-│   ├── schema.ts                # Tablas PostgreSQL mínimas: users, players, token_holdings
-│   ├── index.ts                 # Conexión PostgreSQL
-├── adapters/                    # Integración mínima con fuentes externas
-│   ├── player-data-source.ts    # Contrato ScrapedPlayer y PlayerDataSource
-│   └── whoscored.adapter.ts     # Adapter inicial de WhoScored
-├── middlewares/                 # Middlewares y utilidades transversales
-│   ├── auth.middleware.ts       # Interceptor Bearer JWT (24h) con rechazo 401
-├── utils/                       # Utilidades de infraestructura
-│   ├── jwt.ts                   # Generación y validación de tokens JWT
-│   └── password.ts              # Almacenamiento y verificación de contraseña del alcance académico
+│   ├── controllers/                 # Controladores HTTP (manejan Request/Response y validación de schema)
+│   │   ├── auth.controller.ts
+│   │   ├── player.controller.ts
+│   │   └── health.controller.ts
+│   ├── services/                    # Servicios Orquestadores de Flujo
+│   │   ├── auth.service.ts          # Orquesta: verificar unicidad -> crear entidad User -> persistir -> JWT
+│   │   └── player.service.ts        # Orquesta: consultar repositorio con filtros y paginación -> mapear
+│   ├── models/                      # MODELO DE DOMINIO RICO (Entidades con comportamiento e invariantes)
+│   │   ├── enums.ts                 # League (5 ligas oficiales), Position, UserRole
+│   │   ├── User.ts                  # Entidad User: invariantes de saldo y roles, asignación 1.000 créditos
+│   │   ├── Player.ts                # Entidad Player: invariante de 5 ligas, métricas, validaciones
+│   │   ├── TokenHolding.ts          # Tenencia de tokens: invariante de emisión de 100 tokens en t0
+│   │   └── errors.ts                # Errores de dominio (InvalidLeagueError, DomainValidationError, etc.)
+│   ├── repositories/                # Repositorios Drizzle ORM
+│   │   ├── user.repository.ts       # findByEmail, findById, save
+│   │   └── player.repository.ts     # findMany(filters, pagination), findById
+│   ├── db/                          # Configuración y esquemas Drizzle ORM
+│   │   ├── schema.ts                # Tablas PostgreSQL mínimas: users, players, token_holdings
+│   │   └── index.ts                 # Conexión PostgreSQL
+│   ├── adapters/                    # Integración mínima con fuentes externas
+│   │   ├── player-data-source.ts    # Contrato ScrapedPlayer y PlayerDataSource
+│   │   └── whoscored.adapter.ts     # Adapter inicial de WhoScored
+│   ├── middlewares/                 # Middlewares y utilidades transversales
+│   │   └── auth.middleware.ts       # Interceptor Bearer JWT (24h) con rechazo 401
+│   └── utils/                       # Utilidades de infraestructura
+│       ├── jwt.ts                   # Generación y validación de tokens JWT
+│       └── password.ts              # Almacenamiento y verificación de contraseña del alcance académico
 ├── tests/                           # Suite de Testing con Vitest
 │   ├── unit/
 │   │   ├── models/                  # Tests unitarios del Modelo de Dominio (lógica pura e invariantes)
@@ -175,7 +175,7 @@ Cada feature se implementa en su propia rama creada desde `main`, con commits gr
 - **Implementar `src/models/enums.ts`**: `League` (5 ligas), `Position`, `UserRole`.
 - **Implementar entidad `User`**: invariantes de rol, saldo y operaciones de balance; el formato de email pertenece al DTO.
 - **Implementar entidad `Player`**: invariante estricta de 5 ligas oficiales.
-- **Implementar entidad `TokenHolding`**: tenencia por usuario y jugador, con fábrica para la emisión inicial de 100 tokens a precio base en $t_0$.
+- **Implementar entidad `TokenHolding`**: tenencia por usuario y jugador, con fábrica para la emisión inicial de 100 tokens a cotización base de 1 crédito en $t_0$.
 - **Implementar `src/models/errors.ts`**: errores de dominio tipados.
 - **Tests unitarios en `tests/unit/models/`** cubriendo todas las reglas e invariantes.
 - *Commit*: `feat(domain): rich domain models with invariants and unit tests`
