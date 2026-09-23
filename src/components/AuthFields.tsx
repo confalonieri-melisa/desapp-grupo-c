@@ -1,4 +1,5 @@
 import FormInput from '@/components/FormInput';
+import styles from './AuthFields.module.scss';
 
 interface AuthField<T extends object> {
   id: Extract<keyof T, string>;
@@ -20,7 +21,7 @@ export default function AuthFields<T extends object>({
   onChange,
 }: AuthFieldsProps<T>) {
   return (
-    <div>
+    <div className={styles.fields}>
       {fields.map(({ id, type, label, value, error }) => (
         <FormInput
           key={id}

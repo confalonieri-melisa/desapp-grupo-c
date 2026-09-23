@@ -46,34 +46,32 @@ export default function RegisterPage() {
       successMessage={successMessage}
       form={(
         <form className={styles.form} onSubmit={authForm.handleSubmit} noValidate>
-          <div className={styles.fields}>
-            <AuthFields<RegisterInput>
-              fields={[
-                {
-                  id: 'name',
-                  label: 'Nombre completo',
-                  value: authForm.formData.name,
-                  error: authForm.fieldErrors.name,
-                },
-                {
-                  id: 'email',
-                  type: 'email',
-                  label: 'Correo electrónico',
-                  value: authForm.formData.email,
-                  error: authForm.fieldErrors.email,
-                },
-                {
-                  id: 'password',
-                  type: 'password',
-                  label: 'Contraseña',
-                  value: authForm.formData.password,
-                  error: authForm.fieldErrors.password,
-                },
-              ]}
-              disabled={authForm.isLoading}
-              onChange={authForm.handleChange}
-            />
-          </div>
+          <AuthFields<RegisterInput>
+            fields={[
+              {
+                id: 'name',
+                label: 'Nombre completo',
+                value: authForm.formData.name,
+                error: authForm.fieldErrors.name,
+              },
+              {
+                id: 'email',
+                type: 'email',
+                label: 'Correo electrónico',
+                value: authForm.formData.email,
+                error: authForm.fieldErrors.email,
+              },
+              {
+                id: 'password',
+                type: 'password',
+                label: 'Contraseña',
+                value: authForm.formData.password,
+                error: authForm.fieldErrors.password,
+              },
+            ]}
+            disabled={authForm.isLoading}
+            onChange={authForm.handleChange}
+          />
           <ActionButton text="Registrarse" isLoading={authForm.isLoading} />
         </form>
       )}

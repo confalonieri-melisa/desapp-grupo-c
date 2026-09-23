@@ -36,28 +36,26 @@ export default function LoginPage() {
       error={authForm.error}
       form={(
         <form className={styles.form} onSubmit={authForm.handleSubmit} noValidate>
-          <div className={styles.fields}>
-            <AuthFields<LoginInput>
-              fields={[
-                {
-                  id: 'email',
-                  type: 'email',
-                  label: 'Correo electrónico',
-                  value: authForm.formData.email,
-                  error: authForm.fieldErrors.email,
-                },
-                {
-                  id: 'password',
-                  type: 'password',
-                  label: 'Contraseña',
-                  value: authForm.formData.password,
-                  error: authForm.fieldErrors.password,
-                },
-              ]}
-              disabled={authForm.isLoading}
-              onChange={authForm.handleChange}
-            />
-          </div>
+          <AuthFields<LoginInput>
+            fields={[
+              {
+                id: 'email',
+                type: 'email',
+                label: 'Correo electrónico',
+                value: authForm.formData.email,
+                error: authForm.fieldErrors.email,
+              },
+              {
+                id: 'password',
+                type: 'password',
+                label: 'Contraseña',
+                value: authForm.formData.password,
+                error: authForm.fieldErrors.password,
+              },
+            ]}
+            disabled={authForm.isLoading}
+            onChange={authForm.handleChange}
+          />
           <ActionButton text="Iniciar sesión" isLoading={authForm.isLoading} />
         </form>
       )}
