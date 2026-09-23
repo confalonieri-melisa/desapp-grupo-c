@@ -6,6 +6,7 @@ import {useAuth} from '@/context/AuthContext';
 import PageContainer from '@/components/ui/PageContainer/PageContainer';
 import CatalogNav from '@/features/catalog/components/CatalogNav/CatalogNav';
 import PlayerFilters from '@/features/catalog/components/PlayerFilters/PlayerFilters';
+import PlayerGrid from '@/features/catalog/components/PlayerGrid/PlayerGrid';
 import {playerFixture} from '@/catalog/player-fixture';
 import {filterPlayers, type PlayerCatalogFilters} from '@/catalog/player-catalog';
 import {League, Position} from '@/models/enums';
@@ -57,14 +58,17 @@ export default function Home() {
                         />
                     </aside>
                     <div className={`${styles.catalog} ${styles.box}`}>
-                    <p className={styles.resultCount} aria-live="polite">
-                        {filteredPlayers.length} {filteredPlayers.length === 1 ? 'jugador encontrado' : 'jugadores encontrados'}
-                    </p>
-                    {filteredPlayers.length === 0 && (
-                        <p className={styles.emptyState}>
-                            No hay jugadores que coincidan con los filtros seleccionados.
+                        <p className={styles.resultCount} aria-live="polite">
+                            {filteredPlayers.length} {filteredPlayers.length === 1 ? 'jugador encontrado' : 'jugadores encontrados'}
                         </p>
-                    )}
+                        {filteredPlayers.length > 0 && (
+                            <PlayerGrid players={filteredPlayers}/>
+                        )}
+                        {filteredPlayers.length === 0 && (
+                            <p className={styles.emptyState}>
+                                No hay jugadores que coincidan con los filtros seleccionados.
+                            </p>
+                        )}
                     </div>
                 </div>
             </section>
