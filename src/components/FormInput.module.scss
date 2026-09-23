@@ -1,3 +1,7 @@
+.container {
+  width: 100%;
+}
+
 .input-wrapper {
   --padding: 10px;
   --focus-color: var(--rose-punch);
@@ -14,7 +18,7 @@
     border-radius: 15px;
     width: 100%;
 
-    &:is(:focus, :valid) {
+    &:is(:focus, :not(:placeholder-shown)) {
       border: 2px solid var(--focus-color);
 
       + .placeholder {
@@ -32,5 +36,26 @@
     left: var(--padding);
     padding: 0 4px;
     transition: all 0.3s ease-in;
+    pointer-events: none;
   }
+
+  &.has-error {
+    input {
+      border-color: var(--cherry-bomb);
+    }
+    input:is(:focus, :not(:placeholder-shown)) + .placeholder {
+      color: var(--cherry-bomb);
+    }
+    .placeholder {
+      color: var(--cherry-bomb);
+    }
+  }
+}
+
+.error-text {
+  color: var(--cherry-bomb) ;
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+  padding-left: 4px;
 }
