@@ -6,20 +6,23 @@ type FormInputProps = InputHTMLAttributes<HTMLInputElement> & {
     error?: string;
 };
 
-export default function FormInput({ type = 'text', label, error, ...props }: FormInputProps) {
+export default function FormInput({ id, type = 'text', label, error, ...props }: FormInputProps) {
+    const errorId = error && id ? `${id}-error` : undefined;
+
     return (
         <div className={styles.container}>
             <div className={`${styles['input-wrapper']} ${error ? styles['has-error'] : ''}`}>
-                <input type={type} placeholder=" " {...props} />
-                <label className={styles.placeholder}>
-                    {label}
-                </label>
+                <input
+                    id={id}
+                    type={type}
+                    placeholder=" "
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={errorId}
+                    {...props}
+                />
+                <label className={styles.placeholder} htmlFor={id}>{label}</label>
             </div>
-            {error && (
-                <span className={styles['error-text']}>
-                    {error}
-                </span>
-            )}
+            {error && <span id={errorId} className={styles['error-text']}>{error}</span>}
         </div>
     );
 }
