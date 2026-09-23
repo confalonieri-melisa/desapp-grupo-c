@@ -27,6 +27,7 @@ export interface PlayerSearchResult {
 }
 
 type PlayerDatabaseExecutor = Pick<Database, "insert">;
+const DEFAULT_PLAYER_PAGINATION: PlayerPagination = { page: 1, limit: 20 };
 
 export class PlayerRepository {
   constructor(private readonly database: Database = defaultDatabase) {}
@@ -93,7 +94,7 @@ export class PlayerRepository {
 
   async findMany(
     filters: PlayerSearchFilters = {},
-    pagination: PlayerPagination = { page: 1, limit: 20 },
+    pagination: PlayerPagination = DEFAULT_PLAYER_PAGINATION,
   ): Promise<PlayerSearchResult> {
     const where = this.buildSearchConditions(filters);
 
