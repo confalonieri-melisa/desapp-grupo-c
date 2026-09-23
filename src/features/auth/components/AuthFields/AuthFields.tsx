@@ -1,4 +1,4 @@
-import FormInput from '@/components/FormInput';
+import FormInput from '@/features/auth/components/FormInput/FormInput';
 import styles from './AuthFields.module.scss';
 
 interface AuthField<T extends object> {

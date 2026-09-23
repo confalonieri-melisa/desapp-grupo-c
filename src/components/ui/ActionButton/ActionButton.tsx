@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import styles from './ActionBtn.module.scss';
+import styles from './ActionButton.module.scss';
 
 type ActionButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     text?: string;

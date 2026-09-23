@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {LogOut} from 'lucide-react';
 import {useRouter} from 'next/navigation';
 import {useAuth} from '@/context/AuthContext';
-import ActionButton from '@/components/ActionButton';
+import ActionButton from '@/components/ui/ActionButton/ActionButton';
 import styles from './CatalogNav.module.scss';
 
 export default function CatalogNav() {
