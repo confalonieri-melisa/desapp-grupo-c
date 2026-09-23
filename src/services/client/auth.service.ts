@@ -16,40 +16,46 @@ export interface ApiErrorResponse {
     details?: unknown;
 }
 
-export async function loginApi(credentials: LoginInput): Promise<AuthResponse> {
-    const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-    });
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-        const errorMsg = (data as ApiErrorResponse).message || (data as ApiErrorResponse).error || 'Error al iniciar sesión';
-        throw new Error(errorMsg);
+function getApiErrorMessage(data: unknown, fallback: string): string {
+    if (typeof data !== 'object' || data === null) {
+        return fallback;
     }
 
-    return data as AuthResponse;
+    const apiError = data as ApiErrorResponse;
+    return apiError.message || apiError.error || fallback;
 }
 
-export async function registerApi(dataInput: RegisterInput): Promise<RegisterResponse> {
-    const response = await fetch('/api/auth/register', {
+async function postAuthRequest<T>(
+    endpoint: string,
+    input: LoginInput | RegisterInput,
+    fallbackError: string,
+): Promise<T> {
+    const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(dataInput),
+        body: JSON.stringify(input),
     });
 
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-        const errorMsg = (data as ApiErrorResponse).message || (data as ApiErrorResponse).error || 'Error al registrarse';
-        throw new Error(errorMsg);
+    let data: unknown;
+    try {
+        data = await response.json();
+    } catch {
+        data = undefined;
     }
 
-    return data as RegisterResponse;
+    if (!response.ok) {
+        throw new Error(getApiErrorMessage(data, fallbackError));
+    }
+
+    return data as T;
+}
+
+export function loginApi(credentials: LoginInput): Promise<AuthResponse> {
+    return postAuthRequest<AuthResponse>('/api/auth/login', credentials, 'Error al iniciar sesión');
+}
+
+export function registerApi(dataInput: RegisterInput): Promise<RegisterResponse> {
+    return postAuthRequest<RegisterResponse>('/api/auth/register', dataInput, 'Error al registrarse');
 }

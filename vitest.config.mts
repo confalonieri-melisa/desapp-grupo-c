@@ -14,6 +14,8 @@ export default defineConfig({
       include: ["src/**/*.ts"],
       exclude: [
         "src/app/**",
+        "src/components/**",
+        "src/context/**",
         "src/config/**",
         "src/db/seeds/**",
         "src/db/migrations/**",
@@ -26,10 +28,10 @@ export default defineConfig({
         "**/*.d.ts",
       ],
       thresholds: {
-        lines: 70,
-        functions: 70,
-        branches: 70,
-        statements: 70,
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
       },
     },
   },

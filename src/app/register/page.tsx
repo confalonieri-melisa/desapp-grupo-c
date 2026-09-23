@@ -36,7 +36,7 @@ export default function RegisterPage() {
     setFieldErrors((current) => ({ ...current, [field]: undefined }));
   };
 
-  const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = async (event) => {
+  const submitForm = async (event: Parameters<NonNullable<ComponentProps<'form'>['onSubmit']>>[0]): Promise<void> => {
     event.preventDefault();
     setError(null);
     setSuccessMessage(null);
@@ -60,6 +60,10 @@ export default function RegisterPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = (event) => {
+    void submitForm(event);
   };
 
   return (
