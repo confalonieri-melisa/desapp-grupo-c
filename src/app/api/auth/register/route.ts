@@ -11,7 +11,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     const input = validate(registerSchema, await request.json());
     return Response.json(
-      { user: await controller.register(input) },
+      await controller.register(input),
       { status: 201 },
     );
   } catch (error) {

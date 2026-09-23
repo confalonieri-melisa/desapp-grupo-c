@@ -24,11 +24,12 @@ describe("authentication application flows", () => {
       password: "secret",
     });
 
-    expect(user).toMatchObject({
+    expect(user.user).toMatchObject({
       email: "alice@example.com",
       role: UserRole.INVESTOR,
       creditBalance: 1000,
     });
+    expect(user.token).toEqual(expect.any(String));
   });
 
   it("returns 401 for invalid login credentials", async () => {
