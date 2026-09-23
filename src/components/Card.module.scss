@@ -1,10 +1,3 @@
-.bg {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .card {
   width: 480px;
   min-height: 600px;
@@ -48,6 +41,12 @@
   opacity: 0.6;
 }
 
+.card-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .card-title {
   font-size: 2.25rem;
   font-weight: 700;
@@ -71,7 +70,7 @@
   padding-top: 0.5rem;
 }
 
-.card-inputs {
+.card-content{
   display: flex;
   flex-direction: column;
   align-items: center;

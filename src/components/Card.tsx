@@ -1,18 +1,20 @@
 import { ReactNode, ComponentProps } from "react";
 import styles from "./Card.module.scss";
 
-type CardProps = ComponentProps<"form"> & {
+type CardProps = ComponentProps<"div"> & {
   children: ReactNode;
 };
 
 export default function Card({ children, className = "", ...props }: CardProps) {
   return (
-    <div className={styles.bg}>
-      <form className={`${styles.card} ${className}`} {...props}>
-        {children}
-      </form>
+    <div className={`${styles.card} ${className}`} {...props}>
+      {children}
     </div>
   );
+}
+
+export function CardHeader({ children }: { children: ReactNode }) {
+  return <div className={styles['card-header']}>{children}</div>;
 }
 
 export function CardTitle({ children }: { children: ReactNode }) {
@@ -27,8 +29,8 @@ export function CardText({ children }: { children: ReactNode }) {
   return <p className={styles['card-text']}>{children}</p>;
 }
 
-export function CardInputs({ children }: { children: ReactNode }) {
-  return <div className={styles['card-inputs']}>{children}</div>;
+export function CardContent({ children }: { children: ReactNode }) {
+  return <div className={styles['card-content']}>{children}</div>;
 }
 
 export function CardFooter({ children }: { children: ReactNode }) {
