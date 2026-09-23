@@ -2,6 +2,11 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { AuthenticatedUser } from '@/services/auth.service';
+import {
+  clearStoredAuth,
+  getStoredAuth,
+  saveStoredAuth,
+} from '@/services/client/auth-storage';
 
 interface AuthContextType {
   user: AuthenticatedUser | null;
@@ -14,9 +19,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const TOKEN_KEY = 'auth_token';
-const USER_KEY = 'auth_user';
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthenticatedUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -26,19 +28,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let isMounted = true;
 
     queueMicrotask(() => {
-      const storedToken = localStorage.getItem(TOKEN_KEY);
-      const storedUser = localStorage.getItem(USER_KEY);
+      const storedAuth = getStoredAuth();
 
-      if (storedToken && storedUser) {
-        try {
-          if (isMounted) {
-            setToken(storedToken);
-            setUser(JSON.parse(storedUser));
-          }
-        } catch {
-          localStorage.removeItem(TOKEN_KEY);
-          localStorage.removeItem(USER_KEY);
-        }
+      if (isMounted && storedAuth) {
+        setToken(storedAuth.token);
+        setUser(storedAuth.user);
       }
 
       if (isMounted) {
@@ -54,15 +48,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = (newToken: string, newUser: AuthenticatedUser) => {
     setToken(newToken);
     setUser(newUser);
-    localStorage.setItem(TOKEN_KEY, newToken);
-    localStorage.setItem(USER_KEY, JSON.stringify(newUser));
+    saveStoredAuth(newToken, newUser);
   };
 
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    clearStoredAuth();
   };
 
   return (
