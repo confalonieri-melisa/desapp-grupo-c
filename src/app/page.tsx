@@ -41,24 +41,32 @@ export default function Home() {
         <PageContainer className={styles.page}>
             <CatalogNav/>
             <section aria-labelledby="catalog-title" className={styles.content}>
-                <h1 id="catalog-title" className={styles.title}>Jugadores</h1>
-                <p className={styles.description}>Explora y analiza el catálogo de jugadores de futbol.</p>
-                <PlayerFilters
-                    filters={filters}
-                    leagues={Object.values(League)}
-                    teams={[...new Set(playerFixture.map((player) => player.team))].sort()}
-                    positions={Object.values(Position)}
-                    onChange={setFilters}
-                    onReset={() => setFilters(initialFilters)}
-                />
-                <p className={styles.resultCount} aria-live="polite">
-                    {filteredPlayers.length} {filteredPlayers.length === 1 ? 'jugador encontrado' : 'jugadores encontrados'}
-                </p>
-                {filteredPlayers.length === 0 && (
-                    <p className={styles.emptyState}>
-                        No hay jugadores que coincidan con los filtros seleccionados.
+                <div className={styles.heading}>
+                    <h1 id="catalog-title" className={styles.title}>Jugadores</h1>
+                    <p className={styles.description}>Explora y analiza el catálogo de jugadores de futbol.</p>
+                </div>
+                <div className={styles.catalogLayout}>
+                    <aside className={styles.sidebar}>
+                        <PlayerFilters
+                            filters={filters}
+                            leagues={Object.values(League)}
+                            teams={[...new Set(playerFixture.map((player) => player.team))].sort()}
+                            positions={Object.values(Position)}
+                            onChange={setFilters}
+                            onReset={() => setFilters(initialFilters)}
+                        />
+                    </aside>
+                    <div className={`${styles.catalog} ${styles.box}`}>
+                    <p className={styles.resultCount} aria-live="polite">
+                        {filteredPlayers.length} {filteredPlayers.length === 1 ? 'jugador encontrado' : 'jugadores encontrados'}
                     </p>
-                )}
+                    {filteredPlayers.length === 0 && (
+                        <p className={styles.emptyState}>
+                            No hay jugadores que coincidan con los filtros seleccionados.
+                        </p>
+                    )}
+                    </div>
+                </div>
             </section>
         </PageContainer>
     );
