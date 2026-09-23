@@ -17,10 +17,15 @@ export interface AuthenticatedUser {
   creditBalance: number;
 }
 
+export interface AuthenticatedSession {
+  token: string;
+  user: AuthenticatedUser;
+}
+
 export class AuthService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async register(input: RegisterInput): Promise<AuthenticatedUser> {
+  async register(input: RegisterInput): Promise<AuthenticatedSession> {
     const existingUser = await this.userRepository.findByEmail(input.email);
     if (existingUser) {
       throw new ConflictError("User email is already registered");
@@ -35,24 +40,28 @@ export class AuthService {
       }),
     );
 
-    return toAuthenticatedUser(user);
+    return createAuthenticatedSession(user);
   }
 
-  async login(input: LoginInput): Promise<{ token: string; user: AuthenticatedUser }> {
+  async login(input: LoginInput): Promise<AuthenticatedSession> {
     const user = await this.userRepository.findByEmail(input.email);
     if (!user || !verifyPassword(input.password, user.password)) {
       throw new UnauthorizedError("Invalid credentials");
     }
 
-    return {
-      token: issueToken({
-        sub: user.id,
-        email: user.email,
-        role: user.role,
-      }),
-      user: toAuthenticatedUser(user),
-    };
+    return createAuthenticatedSession(user);
   }
+}
+
+function createAuthenticatedSession(user: User): AuthenticatedSession {
+  return {
+    token: issueToken({
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    }),
+    user: toAuthenticatedUser(user),
+  };
 }
 
 function toAuthenticatedUser(user: User): AuthenticatedUser {

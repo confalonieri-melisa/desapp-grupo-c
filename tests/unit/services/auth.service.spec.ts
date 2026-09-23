@@ -14,7 +14,7 @@ function repositoryMock(
 }
 
 describe("AuthService", () => {
-  it("registers an investor with 1,000 credits and the direct password", async () => {
+  it("registers an investor and issues a token", async () => {
     const save = vi.fn(async (user: User) => user);
     const service = new AuthService(
       repositoryMock(vi.fn(async () => null), save),
@@ -26,7 +26,12 @@ describe("AuthService", () => {
       password: "secret",
     });
 
-    expect(result.creditBalance).toBe(1000);
+    expect(result.user.creditBalance).toBe(1000);
+    expect(verifyToken(result.token)).toMatchObject({
+      sub: result.user.id,
+      email: result.user.email,
+      role: result.user.role,
+    });
     expect(save).toHaveBeenCalledWith(
       expect.objectContaining({
         password: "secret",
