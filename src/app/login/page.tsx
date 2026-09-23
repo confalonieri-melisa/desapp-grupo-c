@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import AuthCard, { CardTitleSpan } from '@/components/AuthCard';
+import AuthCard from '@/components/AuthCard';
+import { CardTitleSpan } from '@/components/Card';
 import AuthFields from '@/components/AuthFields';
 import ActionButton from '@/components/ActionButton';
 import { useAuth } from '@/context/AuthContext';

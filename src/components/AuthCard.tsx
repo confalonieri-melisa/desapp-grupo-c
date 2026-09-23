@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import Card, { CardFooter, CardHeader, CardText, CardTitle, CardTitleSpan } from '@/components/Card';
+import Card, { CardFooter, CardHeader, CardText, CardTitle } from '@/components/Card';
 import PageContainer from '@/components/PageContainer';
-import styles from '@/components/AuthFields.module.scss';
+import styles from './AuthCard.module.scss';
 
 interface AuthCardProps {
   title: ReactNode;
@@ -36,5 +36,3 @@ export default function AuthCard({
     </PageContainer>
   );
 }
-
-export { CardTitleSpan };
