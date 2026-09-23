@@ -1,25 +1,33 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { ComponentProps } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import Card, { CardFooter, CardHeader, CardText, CardTitle, CardTitleSpan } from '@/components/Card';
-import FormInput from '@/components/FormInput';
+import AuthCard, { CardTitleSpan } from '@/components/AuthCard';
+import AuthFields from '@/components/AuthFields';
 import ActionButton from '@/components/ActionButton';
-import PageContainer from '@/components/PageContainer';
 import { registerSchema, type RegisterInput } from '@/schemas/auth.schema';
 import { registerApi } from '@/services/client/auth.service';
+import { useAuthForm } from '@/hooks/useAuthForm';
 import styles from '@/components/AuthFields.module.scss';
-import { getFieldErrors } from '@/utils/form-errors';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState<RegisterInput>({ name: '', email: '', password: '' });
-  const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof RegisterInput, string>>>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const authForm = useAuthForm<RegisterInput>({
+    initialData: { name: '', email: '', password: '' },
+    schema: registerSchema,
+    submit: async (data) => {
+      await registerApi(data);
+      setSuccessMessage('¡Cuenta creada exitosamente! Redirigiendo al inicio de sesión...');
+    },
+    getSubmissionError: (error) => {
+      const message = error instanceof Error ? error.message : '';
+      return message.includes('already registered')
+        ? 'El correo electrónico ya se encuentra registrado.'
+        : message || 'Ocurrió un error inesperado al registrarse.';
+    },
+  });
 
   useEffect(() => {
     if (!successMessage) {
@@ -30,100 +38,46 @@ export default function RegisterPage() {
     return () => window.clearTimeout(timeout);
   }, [router, successMessage]);
 
-  const handleChange = (field: keyof RegisterInput, value: string) => {
-    setFormData((current) => ({ ...current, [field]: value }));
-    setError(null);
-    setFieldErrors((current) => ({ ...current, [field]: undefined }));
-  };
-
-  const submitForm = async (event: Parameters<NonNullable<ComponentProps<'form'>['onSubmit']>>[0]): Promise<void> => {
-    event.preventDefault();
-    setError(null);
-    setSuccessMessage(null);
-    setFieldErrors({});
-
-    const validation = registerSchema.safeParse(formData);
-    if (!validation.success) {
-      setFieldErrors(getFieldErrors(validation.error));
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      await registerApi(validation.data);
-      setSuccessMessage('¡Cuenta creada exitosamente! Redirigiendo al inicio de sesión...');
-    } catch (submissionError) {
-      const message = submissionError instanceof Error ? submissionError.message : '';
-      setError(message.includes('already registered')
-        ? 'El correo electrónico ya se encuentra registrado.'
-        : message || 'Ocurrió un error inesperado al registrarse.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = (event) => {
-    void submitForm(event);
-  };
-
   return (
-    <PageContainer>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            ¡Crea tu <CardTitleSpan>cuenta!</CardTitleSpan>
-          </CardTitle>
-          <CardText>
-            Regístrate para comenzar a explorar el mercado de valoración de jugadores.
-          </CardText>
-        </CardHeader>
-
-        <form className={styles.form} onSubmit={handleSubmit} noValidate>
-          {error && <div className={styles.alert} role="alert">{error}</div>}
-          {successMessage && <div className={styles.successAlert} role="status">{successMessage}</div>}
-
+    <AuthCard
+      title={<>¡Crea tu <CardTitleSpan>cuenta!</CardTitleSpan></>}
+      description="Regístrate para comenzar a explorar el mercado de valoración de jugadores."
+      error={authForm.error}
+      successMessage={successMessage}
+      form={(
+        <form className={styles.form} onSubmit={authForm.handleSubmit} noValidate>
           <div className={styles.fields}>
-            <FormInput
-              id="name"
-              name="name"
-              label="Nombre completo"
-              value={formData.name}
-              onChange={(event) => handleChange('name', event.target.value)}
-              error={fieldErrors.name}
-              disabled={isLoading}
-              required
-            />
-            <FormInput
-              id="email"
-              name="email"
-              type="email"
-              label="Correo electrónico"
-              value={formData.email}
-              onChange={(event) => handleChange('email', event.target.value)}
-              error={fieldErrors.email}
-              disabled={isLoading}
-              required
-            />
-            <FormInput
-              id="password"
-              name="password"
-              type="password"
-              label="Contraseña"
-              value={formData.password}
-              onChange={(event) => handleChange('password', event.target.value)}
-              error={fieldErrors.password}
-              disabled={isLoading}
-              required
+            <AuthFields<RegisterInput>
+              fields={[
+                {
+                  id: 'name',
+                  label: 'Nombre completo',
+                  value: authForm.formData.name,
+                  error: authForm.fieldErrors.name,
+                },
+                {
+                  id: 'email',
+                  type: 'email',
+                  label: 'Correo electrónico',
+                  value: authForm.formData.email,
+                  error: authForm.fieldErrors.email,
+                },
+                {
+                  id: 'password',
+                  type: 'password',
+                  label: 'Contraseña',
+                  value: authForm.formData.password,
+                  error: authForm.fieldErrors.password,
+                },
+              ]}
+              disabled={authForm.isLoading}
+              onChange={authForm.handleChange}
             />
           </div>
-
-          <ActionButton text="Registrarse" isLoading={isLoading} />
+          <ActionButton text="Registrarse" isLoading={authForm.isLoading} />
         </form>
-
-        <CardFooter>
-          ¿Ya tienes cuenta? <Link href="/login">Inicia sesión</Link>
-        </CardFooter>
-      </Card>
-    </PageContainer>
+      )}
+      footer={<>¿Ya tienes cuenta? <Link href="/login">Inicia sesión</Link></>}
+    />
   );
 }
