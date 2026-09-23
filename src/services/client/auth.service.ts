@@ -6,10 +6,6 @@ export interface AuthResponse {
     user: AuthenticatedUser;
 }
 
-export interface RegisterResponse {
-    user: AuthenticatedUser;
-}
-
 export interface ApiErrorResponse {
     message?: string;
     error?: string;
@@ -56,6 +52,6 @@ export function loginApi(credentials: LoginInput): Promise<AuthResponse> {
     return postAuthRequest<AuthResponse>('/api/auth/login', credentials, 'Error al iniciar sesión');
 }
 
-export function registerApi(dataInput: RegisterInput): Promise<RegisterResponse> {
-    return postAuthRequest<RegisterResponse>('/api/auth/register', dataInput, 'Error al registrarse');
+export function registerApi(dataInput: RegisterInput): Promise<AuthResponse> {
+    return postAuthRequest<AuthResponse>('/api/auth/register', dataInput, 'Error al registrarse');
 }

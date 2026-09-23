@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AuthCard, { CardTitleSpan } from '@/components/AuthCard';
 import AuthFields from '@/components/AuthFields';
 import ActionButton from '@/components/ActionButton';
+import { useAuth } from '@/context/AuthContext';
 import { registerSchema, type RegisterInput } from '@/schemas/auth.schema';
 import { registerApi } from '@/services/client/auth.service';
 import { useAuthForm } from '@/hooks/useAuthForm';
@@ -13,13 +13,14 @@ import styles from '@/components/AuthFields.module.scss';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { login } = useAuth();
   const authForm = useAuthForm<RegisterInput>({
     initialData: { name: '', email: '', password: '' },
     schema: registerSchema,
     submit: async (data) => {
-      await registerApi(data);
-      setSuccessMessage('¡Cuenta creada exitosamente! Redirigiendo al inicio de sesión...');
+      const response = await registerApi(data);
+      login(response.token, response.user);
+      router.push('/');
     },
     getSubmissionError: (error) => {
       const message = error instanceof Error ? error.message : '';
@@ -29,21 +30,11 @@ export default function RegisterPage() {
     },
   });
 
-  useEffect(() => {
-    if (!successMessage) {
-      return;
-    }
-
-    const timeout = window.setTimeout(() => router.push('/login'), 1500);
-    return () => window.clearTimeout(timeout);
-  }, [router, successMessage]);
-
   return (
     <AuthCard
       title={<>¡Crea tu <CardTitleSpan>cuenta!</CardTitleSpan></>}
       description="Regístrate para comenzar a explorar el mercado de valoración de jugadores."
       error={authForm.error}
-      successMessage={successMessage}
       form={(
         <form className={styles.form} onSubmit={authForm.handleSubmit} noValidate>
           <AuthFields<RegisterInput>
