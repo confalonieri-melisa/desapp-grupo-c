@@ -22,7 +22,7 @@
   border: 1px solid rgb(223 223 230 / 95%);
   border-radius: 12px;
   padding: 0.55rem 2.75rem 0.55rem 0.85rem;
-  color: #483757;
+  color: var(--dusty-violet);
   background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a5361' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat calc(100% - 0.85rem) center;
   background-size: 1rem;
   cursor: pointer;
@@ -30,7 +30,7 @@
 }
 
 .field select option {
-  color: #5a5361;
+  color: var(--dusty-violet);
   background: white;
 }
 
