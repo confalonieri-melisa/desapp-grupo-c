@@ -56,6 +56,33 @@ function selectDatabase(rows: unknown[]): Database {
   } as unknown as Database;
 }
 
+function playerSearchDatabase(
+  playerRows: unknown[],
+  total: number,
+): Database {
+  const dataQuery = {
+    from: vi.fn(() => dataQuery),
+    where: vi.fn(() => dataQuery),
+    orderBy: vi.fn(() => dataQuery),
+    limit: vi.fn(() => dataQuery),
+    offset: vi.fn(async () => playerRows),
+  };
+  const countQuery = {
+    from: vi.fn(() => countQuery),
+    where: vi.fn(() => countQuery),
+    then: (resolve: (value: unknown[]) => unknown) =>
+      Promise.resolve(resolve([{ count: total }])),
+  };
+  let selectCall = 0;
+
+  return {
+    select: vi.fn(() => {
+      selectCall += 1;
+      return selectCall === 1 ? dataQuery : countQuery;
+    }),
+  } as unknown as Database;
+}
+
 function insertDatabase(rows: unknown[]): Database {
   const returning = vi.fn(async () => rows);
   const insert = vi.fn(() => ({
@@ -174,5 +201,41 @@ describe("PlayerRepository", () => {
         { player, source: "TEST", externalId: "lola-10" },
       ]),
     ).rejects.toThrow("Player could not be persisted");
+  });
+
+  it("finds a paginated catalog and total count", async () => {
+    const playerRow = {
+      id: player.id,
+      source: "TEST",
+      externalId: "lola-10",
+      name: player.name,
+      team: player.team,
+      league: player.league,
+      position: player.position,
+      statistics: player.statistics,
+      createdAt: player.createdAt,
+      updatedAt: player.updatedAt,
+    };
+    const database = playerSearchDatabase([playerRow], 25);
+
+    await expect(
+      new PlayerRepository(database).findMany(
+        {
+          league: League.LA_LIGA,
+          team: "Club Atlético",
+          position: Position.FORWARD,
+        },
+        { page: 2, limit: 10 },
+      ),
+    ).resolves.toMatchObject({
+      data: [{ id: player.id, name: player.name }],
+      total: 25,
+    });
+  });
+
+  it("returns null when a player id does not exist", async () => {
+    await expect(
+      new PlayerRepository(selectDatabase([])).findById(player.id),
+    ).resolves.toBeNull();
   });
 });
