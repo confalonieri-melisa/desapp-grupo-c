@@ -194,8 +194,8 @@
 - `GET /api/docs` expone Swagger UI con esquema `BearerAuth` y todos los endpoints documentados.
 
 #### Implementation para Feature F
-- [ ] T039 [US1] Implement Swagger OpenAPI UI route handler exposing `contracts/openapi.yaml` in [src/app/api/docs/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/docs/route.ts)
-- [ ] T040 Update quickstart execution documentation in [specs/001-player-token-marketplace/quickstart.md](file:///C:/Users/meluk/UNQ/desapp-grupo-c/specs/001-player-token-marketplace/quickstart.md) and project [README.md](file:///C:/Users/meluk/UNQ/desapp-grupo-c/README.md)
+- [x] T039 [US1] Implement Swagger OpenAPI UI route handler exposing `contracts/openapi.yaml` in [src/app/api/docs/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/docs/route.ts)
+- [x] T040 Update project [README.md](file:///C:/Users/meluk/UNQ/desapp-grupo-c/README.md) with complete execution and verification documentation
 
 **Checkpoint Feature F**: Abrir PR `feature/006-swagger-docs` → `main`.
 

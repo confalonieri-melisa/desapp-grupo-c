@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MedioCampo ⚽👑
 
-## Getting Started
+Marketplace de tokens de jugadores de fútbol, construido con Next.js,
+TypeScript, Drizzle ORM y PostgreSQL.
 
-First, run the development server:
+## Requisitos
+
+- Node.js 22.12 o superior
+- npm
+- PostgreSQL local o mediante Docker
+
+## Configuración de variables de entorno
+
+Crear `.env` en la raíz del proyecto a partir de `.env.example` y completar,
+como mínimo, `DATABASE_URL` y `JWT_SECRET`.
+
+## Instalación y base de datos
+
+```bash
+npm install
+npm run db:up
+npm run db:generate
+npm run db:migrate
+```
+
+## Ingesta de jugadores desde WhoScored
+
+La ingesta todavía no se ejecuta automáticamente al levantar la aplicación. El flujo
+ejecuta el scraper Python con Playwright, normaliza los registros mediante el
+adapter y hace upsert de los jugadores en PostgreSQL.
+
+Instalar las dependencias del scraper:
+
+```powershell
+pip install -r requirements-scraper.txt
+```
+
+Los valores predeterminados de `WHOSCORED_PYTHON_PATH`,
+`WHOSCORED_SCRIPT_PATH`, `WHOSCORED_URL`, `WHOSCORED_MAX_PAGES`,
+`WHOSCORED_LIMIT` y `WHOSCORED_HEADLESS` están definidos en `.env.example`.
+
+Ejecutar la sincronización:
+
+```powershell
+npm run db:sync-whoscored
+```
+
+Para una prueba pequeña:
+
+```powershell
+$env:WHOSCORED_MAX_PAGES="1"
+$env:WHOSCORED_LIMIT="10"
+npm run db:sync-whoscored
+```
+
+La guía técnica del scraper, sus límites y la configuración de pgAdmin está en
+[`docs/whoscored-ingestion.md`](./docs/whoscored-ingestion.md).
+
+## Ejecución
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+La aplicación queda disponible en
+[http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Swagger UI: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+- Health check: [http://localhost:3000/api/health](http://localhost:3000/api/health)
+- Contrato OpenAPI:
+  [`specs/001-player-token-marketplace/contracts/openapi.yaml`](./specs/001-player-token-marketplace/contracts/openapi.yaml)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Testing automático
 
-## Learn More
+```bash
+npm run lint
+npm test
+npm run build
+npm run test:coverage
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Verificación manual con Postman
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+La colección se encuentra en
+[`specs/001-player-token-marketplace/contracts/postman_collection.json`](./specs/001-player-token-marketplace/contracts/postman_collection.json).
