@@ -5,7 +5,7 @@ import type { Player } from "@/models/Player";
 import type { PlayerService } from "@/services/player.service";
 
 const player = {
-  id: "00000000-0000-0000-0000-000000000001",
+  id: "00000000-0000-4000-8000-000000000001",
   name: "Kylian Mbappé",
   team: "Real Madrid",
   league: League.LA_LIGA,
@@ -55,7 +55,12 @@ describe("PlayerController", () => {
         limit: "20",
       }),
     ).resolves.toMatchObject({
-      data: [{ id: player.id, currentQuote: 1, totalTokens: 100 }],
+      data: [{
+        id: player.id,
+        statistics: player.statistics,
+        currentQuote: 1,
+        totalTokens: 100,
+      }],
       pagination: { total: 21, page: 2, limit: 20, totalPages: 2 },
     });
     expect(service.catalog).toHaveBeenCalledWith({
@@ -63,5 +68,16 @@ describe("PlayerController", () => {
       page: 2,
       limit: 20,
     });
+  });
+
+  it("rejects an invalid player id before calling the service", async () => {
+    const service = {
+      getById: vi.fn(),
+    } as unknown as PlayerService;
+
+    await expect(
+      new PlayerController(service).getById("not-a-uuid"),
+    ).rejects.toThrow();
+    expect(service.getById).not.toHaveBeenCalled();
   });
 });

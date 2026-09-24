@@ -1,6 +1,9 @@
 import { Player } from "@/models/Player";
 import { validate } from "@/utils/validate";
-import { playerCatalogQuerySchema } from "@/schemas/player.schema";
+import {
+  playerCatalogQuerySchema,
+  playerIdSchema,
+} from "@/schemas/player.schema";
 import { PlayerService } from "@/services/player.service";
 import type { PlayerCatalogResult } from "@/services/player.types";
 
@@ -10,12 +13,12 @@ interface PlayerSummaryResponse {
   team: string;
   league: Player["league"];
   position: Player["position"];
+  statistics: Player["statistics"];
   currentQuote: number;
   totalTokens: number;
 }
 
 interface PlayerDetailResponse extends PlayerSummaryResponse {
-  statistics: Player["statistics"];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,7 +45,8 @@ export class PlayerController {
   }
 
   async getById(id: string): Promise<PlayerDetailResponse> {
-    return this.toDetail(await this.playerService.getById(id));
+    const validId = validate(playerIdSchema, id);
+    return this.toDetail(await this.playerService.getById(validId));
   }
 
   private toSummary(player: Player): PlayerSummaryResponse {
@@ -52,6 +56,7 @@ export class PlayerController {
       team: player.team,
       league: player.league,
       position: player.position,
+      statistics: player.statistics,
       currentQuote: 1,
       totalTokens: 100,
     };
@@ -60,7 +65,6 @@ export class PlayerController {
   private toDetail(player: Player): PlayerDetailResponse {
     return {
       ...this.toSummary(player),
-      statistics: player.statistics,
       createdAt: player.createdAt,
       updatedAt: player.updatedAt,
     };

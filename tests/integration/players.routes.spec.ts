@@ -34,7 +34,9 @@ describe("player routes", () => {
       data: [],
       pagination: { total: 0, page: 1, limit: 20, totalPages: 0 },
     });
-    getById.mockResolvedValue({ id: "player-id" });
+    getById.mockResolvedValue({
+      id: "00000000-0000-4000-8000-000000000001",
+    });
   });
 
   it("rejects catalog requests without authentication", async () => {
@@ -59,20 +61,22 @@ describe("player routes", () => {
 
   it("authenticates and delegates the player detail request", async () => {
     const response = await getPlayerRoute(
-      new Request("http://localhost/api/players/player-id", {
+      new Request("http://localhost/api/players/00000000-0000-4000-8000-000000000001", {
         headers: { authorization: "Bearer token" },
       }),
-      { params: Promise.resolve({ id: "player-id" }) },
+      { params: Promise.resolve({ id: "00000000-0000-4000-8000-000000000001" }) },
     );
 
     expect(response.status).toBe(200);
-    expect(getById).toHaveBeenCalledWith("player-id");
+    expect(getById).toHaveBeenCalledWith(
+      "00000000-0000-4000-8000-000000000001",
+    );
   });
 
   it("rejects player detail requests without authentication", async () => {
     const response = await getPlayerRoute(
-      new Request("http://localhost/api/players/player-id"),
-      { params: Promise.resolve({ id: "player-id" }) },
+      new Request("http://localhost/api/players/00000000-0000-4000-8000-000000000001"),
+      { params: Promise.resolve({ id: "00000000-0000-4000-8000-000000000001" }) },
     );
 
     expect(response.status).toBe(401);
@@ -83,12 +87,24 @@ describe("player routes", () => {
     getById.mockRejectedValueOnce(new NotFoundError("Player not found"));
 
     const response = await getPlayerRoute(
-      new Request("http://localhost/api/players/player-id", {
+      new Request("http://localhost/api/players/00000000-0000-4000-8000-000000000001", {
         headers: { authorization: "Bearer token" },
       }),
-      { params: Promise.resolve({ id: "player-id" }) },
+      { params: Promise.resolve({ id: "00000000-0000-4000-8000-000000000001" }) },
     );
 
     expect(response.status).toBe(404);
+  });
+
+  it("rejects an invalid player id before reaching the controller", async () => {
+    const response = await getPlayerRoute(
+      new Request("http://localhost/api/players/not-a-uuid", {
+        headers: { authorization: "******" },
+      }),
+      { params: Promise.resolve({ id: "not-a-uuid" }) },
+    );
+
+    expect(response.status).toBe(400);
+    expect(getById).not.toHaveBeenCalled();
   });
 });
