@@ -1,0 +1,16 @@
+.card {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  gap: 0.85rem;
+  align-items: center;
+  min-height: 142px;
+  padding: 0.85rem;
+}
