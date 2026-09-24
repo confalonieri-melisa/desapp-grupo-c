@@ -1,10 +1,10 @@
 .panel {
   width: 100%;
   padding: 1.5rem 1.25rem;
-  border: 1px solid rgb(226 226 232 / 90%);
-  border-radius: 18px;
-  background: rgb(255 255 255 / 94%);
-  box-shadow: 0 10px 24px rgb(49 30 55 / 8%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
   backdrop-filter: blur(8px);
 }
 
@@ -35,7 +35,7 @@
   border-radius: 999px;
   padding: 0.45rem 0.7rem;
   color: var(--rose-punch);
-  background: white;
+  background: var(--surface);
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 700;

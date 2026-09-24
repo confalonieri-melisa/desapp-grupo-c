@@ -3,7 +3,7 @@
   place-content: center;
   min-width: 58px;
   min-height: 62px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   color: white;
   background: var(--background-gradient);
   text-align: center;
