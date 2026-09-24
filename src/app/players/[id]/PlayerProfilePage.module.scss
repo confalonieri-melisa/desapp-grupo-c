@@ -1,0 +1,41 @@
+.page {
+  display: block;
+  width: 100%;
+  padding: 1rem 1rem 2rem;
+}
+
+.content {
+  display: grid;
+  gap: 1.25rem;
+  width: min(95%, 1180px);
+  margin: 0 auto;
+  color: var(--crimson-violet);
+}
+
+.overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.9fr);
+  gap: 1.25rem;
+}
+
+.state {
+  width: 100%;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.state a {
+  display: inline-block;
+  margin-top: 0.75rem;
+  color: var(--rose-punch);
+  font-weight: 700;
+}
+
+@media (max-width: 820px) {
+  .overview {
+    grid-template-columns: 1fr;
+  }
+}

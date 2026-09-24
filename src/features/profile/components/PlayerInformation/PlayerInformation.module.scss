@@ -1,0 +1,37 @@
+.section {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.section h2 {
+  color: var(--crimson-violet);
+  font-size: 1.1rem;
+  margin-bottom: 0.75rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+
+.row:last-child {
+  border-bottom: 0;
+}
+
+.row dt {
+  color: var(--dusty-violet);
+}
+
+.row dd {
+  color: var(--crimson-violet);
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
