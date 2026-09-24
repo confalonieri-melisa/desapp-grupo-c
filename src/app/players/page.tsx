@@ -1,6 +1,6 @@
 'use client';
 
-import {useCallback, useEffect, useMemo} from 'react';
+import {Suspense, useCallback, useEffect, useMemo} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
 import {useAuth} from '@/context/AuthContext';
 import PageContainer from '@/components/ui/PageContainer/PageContainer';
@@ -16,7 +16,7 @@ import {
 } from '@/features/catalog/utils/player-catalog-url';
 import styles from '@/app/PlayersPage.module.scss';
 
-export default function PlayersPage() {
+function PlayersPageContent() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -85,5 +85,13 @@ export default function PlayersPage() {
                 </div>
             </section>
         </PageContainer>
+    );
+}
+
+export default function PlayersPage() {
+    return (
+        <Suspense fallback={null}>
+            <PlayersPageContent />
+        </Suspense>
     );
 }
