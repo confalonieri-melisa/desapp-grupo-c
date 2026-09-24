@@ -13,6 +13,11 @@ export interface PlayerApiItem {
   totalTokens: number;
 }
 
+export interface PlayerApiDetail extends PlayerApiItem {
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface PlayerApiResponse {
   data: PlayerApiItem[];
   pagination: {
@@ -85,4 +90,39 @@ export async function getPlayers(
   }
 
   return data as PlayerApiResponse;
+}
+
+export async function getPlayer(
+  token: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<PlayerApiDetail> {
+  const response = await fetch(`/api/players/${encodeURIComponent(id)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    signal,
+  });
+
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch {
+    data = undefined;
+  }
+
+  if (!response.ok) {
+    const apiError = typeof data === "object" && data !== null
+      ? data as { message?: unknown; error?: unknown }
+      : {};
+    const message = typeof apiError.message === "string"
+      ? apiError.message
+      : typeof apiError.error === "string"
+        ? apiError.error
+        : "No se pudo cargar el jugador";
+
+    throw new Error(message);
+  }
+
+  return data as PlayerApiDetail;
 }
