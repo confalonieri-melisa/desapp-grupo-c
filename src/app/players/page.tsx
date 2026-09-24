@@ -67,6 +67,13 @@ function PlayersPageContent() {
     }
 
     const teams = [...new Set(players.map((player) => player.team))].sort();
+    const hasLoadedCatalog = !isLoading && !error;
+    const hasPlayers = players.length > 0;
+    const showPlayerGrid = hasLoadedCatalog && hasPlayers;
+    const showPagination = hasLoadedCatalog && pagination.totalPages > 1;
+    const resultLabel = pagination.total === 1
+        ? 'jugador encontrado'
+        : 'jugadores encontrados';
 
     return (
         <PageContainer className={styles.page}>
@@ -88,16 +95,16 @@ function PlayersPageContent() {
                     </aside>
                     <div className={`${styles.catalog} ${styles.box}`}>
                         <p className={styles.resultCount} aria-live="polite">
-                            {isLoading ? 'Cargando jugadores...' : `${pagination.total} ${pagination.total === 1 ? 'jugador encontrado' : 'jugadores encontrados'}`}
+                            {isLoading ? 'Cargando jugadores...' : `${pagination.total} ${resultLabel}`}
                         </p>
                         {error && <p className={styles.errorState} role="alert">{error}</p>}
-                        {!isLoading && !error && players.length > 0 && <PlayerGrid players={players}/>}
-                        {!isLoading && !error && players.length === 0 && (
+                        {showPlayerGrid ?
+                            <PlayerGrid players={players}/> :
                             <p className={styles.emptyState}>
                                 No hay jugadores que coincidan con los filtros seleccionados.
                             </p>
-                        )}
-                        {!isLoading && !error && pagination.totalPages > 1 && (
+                        }
+                        {showPagination && (
                             <PlayerPagination
                                 page={page}
                                 totalPages={pagination.totalPages}
@@ -112,9 +119,10 @@ function PlayersPageContent() {
 }
 
 export default function PlayersPage() {
+    //esto es el "loading skeleton"
     return (
         <Suspense fallback={null}>
-            <PlayersPageContent />
+            <PlayersPageContent/>
         </Suspense>
     );
 }
