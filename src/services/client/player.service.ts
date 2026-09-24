@@ -23,10 +23,17 @@ interface PlayerApiResponse {
   };
 }
 
-function getQueryString(filters: PlayerCatalogFilters): string {
+export interface PlayerPagination {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+function getQueryString(filters: PlayerCatalogFilters, page: number): string {
   const query = new URLSearchParams({
-    page: "1",
-    limit: "100",
+    page: String(page),
+    limit: "18",
   });
 
   if (filters.league) {
@@ -47,9 +54,10 @@ function getQueryString(filters: PlayerCatalogFilters): string {
 export async function getPlayers(
   token: string,
   filters: PlayerCatalogFilters,
+  page: number,
   signal?: AbortSignal,
 ): Promise<PlayerApiResponse> {
-  const response = await fetch(`/api/players?${getQueryString(filters)}`, {
+  const response = await fetch(`/api/players?${getQueryString(filters, page)}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

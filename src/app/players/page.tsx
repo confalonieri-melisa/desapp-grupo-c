@@ -6,12 +6,14 @@ import {useAuth} from '@/context/AuthContext';
 import PageContainer from '@/components/ui/PageContainer/PageContainer';
 import PlayerFilters from '@/features/catalog/components/PlayerFilters/PlayerFilters';
 import PlayerGrid from '@/features/catalog/components/PlayerGrid/PlayerGrid';
+import PlayerPagination from '@/features/catalog/components/PlayerPagination/PlayerPagination';
 import type {PlayerCatalogFilters} from '@/catalog/player-catalog';
 import {League, Position} from '@/models/enums';
 import {usePlayerCatalog} from '@/features/catalog/hooks/usePlayerCatalog';
 import {
     emptyPlayerCatalogFilters,
     parsePlayerCatalogFilters,
+    parsePlayerCatalogPage,
     serializePlayerCatalogFilters,
 } from '@/features/catalog/utils/player-catalog-url';
 import styles from '@/app/PlayersPage.module.scss';
@@ -25,6 +27,10 @@ function PlayersPageContent() {
         () => parsePlayerCatalogFilters(new URLSearchParams(searchParams.toString())),
         [searchParams],
     );
+    const page = useMemo(
+        () => parsePlayerCatalogPage(new URLSearchParams(searchParams.toString())),
+        [searchParams],
+    );
 
     const handleUnauthorized = useCallback(() => {
         logout();
@@ -33,7 +39,12 @@ function PlayersPageContent() {
 
     const catalogToken = isHydrated && isAuthenticated ? token : null;
 
-    const {players, isLoading, error} = usePlayerCatalog(catalogToken, filters, handleUnauthorized);
+    const {players, isLoading, error, pagination} = usePlayerCatalog(
+        catalogToken,
+        filters,
+        page,
+        handleUnauthorized,
+    );
 
     useEffect(() => {
         if (isHydrated && !isAuthenticated) {
@@ -43,6 +54,11 @@ function PlayersPageContent() {
 
     const updateFilters = (nextFilters: PlayerCatalogFilters) => {
         const query = serializePlayerCatalogFilters(nextFilters);
+        router.replace(query ? `${pathname}?${query}` : pathname, {scroll: false});
+    };
+
+    const updatePage = (nextPage: number) => {
+        const query = serializePlayerCatalogFilters(filters, nextPage);
         router.replace(query ? `${pathname}?${query}` : pathname, {scroll: false});
     };
 
@@ -72,7 +88,7 @@ function PlayersPageContent() {
                     </aside>
                     <div className={`${styles.catalog} ${styles.box}`}>
                         <p className={styles.resultCount} aria-live="polite">
-                            {isLoading ? 'Cargando jugadores...' : `${players.length} ${players.length === 1 ? 'jugador encontrado' : 'jugadores encontrados'}`}
+                            {isLoading ? 'Cargando jugadores...' : `${pagination.total} ${pagination.total === 1 ? 'jugador encontrado' : 'jugadores encontrados'}`}
                         </p>
                         {error && <p className={styles.errorState} role="alert">{error}</p>}
                         {!isLoading && !error && players.length > 0 && <PlayerGrid players={players}/>}
@@ -80,6 +96,13 @@ function PlayersPageContent() {
                             <p className={styles.emptyState}>
                                 No hay jugadores que coincidan con los filtros seleccionados.
                             </p>
+                        )}
+                        {!isLoading && !error && pagination.totalPages > 1 && (
+                            <PlayerPagination
+                                page={page}
+                                totalPages={pagination.totalPages}
+                                onPageChange={updatePage}
+                            />
                         )}
                     </div>
                 </div>
