@@ -1,0 +1,40 @@
+.section {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.section h2 {
+  color: var(--crimson-violet);
+  font-size: 1.1rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.stat {
+  display: grid;
+  gap: 0.3rem;
+  min-height: 80px;
+  padding: 0.9rem;
+  border-radius: 12px;
+  background: rgb(236 66 85 / 8%);
+}
+
+.stat dt {
+  color: var(--dusty-violet);
+  font-size: 0.82rem;
+}
+
+.stat dd {
+  color: var(--crimson-violet);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
