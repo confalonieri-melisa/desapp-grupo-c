@@ -1,0 +1,28 @@
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgb(231 231 237 / 95%);
+}
+
+.metrics div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.7rem 0.35rem;
+}
+
+.metrics div + div {
+  border-left: 1px solid rgb(231 231 237 / 95%);
+}
+
+.metrics dt {
+  color: var(--dusty-violet);
+  font-size: 0.7rem;
+}
+
+.metrics dd {
+  color: var(--crimson-violet);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
