@@ -1,0 +1,67 @@
+.identity {
+  min-width: 0;
+}
+
+.identity h2 {
+  overflow: hidden;
+  color: var(--crimson-violet);
+  font-size: 1rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+  color: #777686;
+  font-size: 0.75rem;
+}
+
+.detailIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rose-punch);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+}
+
+.tags span {
+  border-radius: 999px;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.positionUnknown {
+  color: var(--position-unknown);
+  background: rgb(77 24 56 / 12%);
+}
+
+.positionGoalkeeper {
+  color: var(--position-goalkeeper);
+  background: rgb(252 132 57 / 12%);
+}
+
+.positionDefender {
+  color: var(--position-defender);
+  background: rgb(236 66 85 / 12%);
+}
+
+.positionMidfielder {
+  color: var(--position-midfielder);
+  background: rgb(214 66 130 / 12%);
+}
+
+.positionForward {
+  color: var(--position-forward);
+  background: rgb(219 4 40 / 12%);
+}
