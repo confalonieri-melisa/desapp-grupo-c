@@ -1,5 +1,5 @@
 import type { PlayerCatalogFilters } from "@/catalog/player-catalog";
-import { League, Position } from "@/models/enums";
+import { isOfficialLeague, isPosition } from "@/models/enums";
 
 export const emptyPlayerCatalogFilters: PlayerCatalogFilters = {
   league: "",
@@ -7,20 +7,22 @@ export const emptyPlayerCatalogFilters: PlayerCatalogFilters = {
   position: "",
 };
 
+function getEnumParam<T extends string>(
+  searchParams: URLSearchParams,
+  name: string,
+  isValid: (value: unknown) => value is T,
+): T | "" {
+  const value = searchParams.get(name);
+  return isValid(value) ? value : "";
+}
+
 export function parsePlayerCatalogFilters(
   searchParams: URLSearchParams,
 ): PlayerCatalogFilters {
-  const league = searchParams.get("league");
-  const position = searchParams.get("position");
-
   return {
-    league: league && Object.values(League).includes(league as League)
-      ? league as League
-      : "",
+    league: getEnumParam(searchParams, "league", isOfficialLeague),
     team: searchParams.get("team") ?? "",
-    position: position && Object.values(Position).includes(position as Position)
-      ? position as Position
-      : "",
+    position: getEnumParam(searchParams, "position", isPosition),
   };
 }
 
