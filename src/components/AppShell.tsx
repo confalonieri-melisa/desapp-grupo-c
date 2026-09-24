@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import CatalogNav from '@/features/catalog/components/CatalogNav/CatalogNav';
+import GlobalNav from '@/components/GlobalNav/GlobalNav';
 
 const AUTH_ROUTES = new Set(['/login', '/register']);
 
@@ -18,7 +18,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {shouldShowNavigation && <CatalogNav />}
+      {shouldShowNavigation && <GlobalNav />}
       {children}
     </>
   );

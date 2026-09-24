@@ -25,11 +25,14 @@ export default function PlayersPage() {
         () => parsePlayerCatalogFilters(new URLSearchParams(searchParams.toString())),
         [searchParams],
     );
+
     const handleUnauthorized = useCallback(() => {
         logout();
         router.replace('/login');
     }, [logout, router]);
+
     const catalogToken = isHydrated && isAuthenticated ? token : null;
+
     const {players, isLoading, error} = usePlayerCatalog(catalogToken, filters, handleUnauthorized);
 
     useEffect(() => {

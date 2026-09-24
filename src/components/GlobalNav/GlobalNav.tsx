@@ -5,9 +5,9 @@ import {LogOut} from 'lucide-react';
 import {useRouter} from 'next/navigation';
 import {useAuth} from '@/context/AuthContext';
 import ActionButton from '@/components/ui/ActionButton/ActionButton';
-import styles from './CatalogNav.module.scss';
+import styles from './GlobalNav.module.scss';
 
-export default function CatalogNav() {
+export default function GlobalNav() {
     const router = useRouter();
     const {logout} = useAuth();
 
