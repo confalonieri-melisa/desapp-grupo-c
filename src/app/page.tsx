@@ -4,7 +4,6 @@ import {useEffect, useMemo, useState} from 'react';
 import {useRouter} from 'next/navigation';
 import {useAuth} from '@/context/AuthContext';
 import PageContainer from '@/components/ui/PageContainer/PageContainer';
-import CatalogNav from '@/features/catalog/components/CatalogNav/CatalogNav';
 import PlayerFilters from '@/features/catalog/components/PlayerFilters/PlayerFilters';
 import PlayerGrid from '@/features/catalog/components/PlayerGrid/PlayerGrid';
 import {playerFixture} from '@/catalog/player-fixture';
@@ -40,7 +39,6 @@ export default function Home() {
 
     return (
         <PageContainer className={styles.page}>
-            <CatalogNav/>
             <section aria-labelledby="catalog-title" className={styles.content}>
                 <div className={styles.heading}>
                     <h1 id="catalog-title" className={styles.title}>Jugadores</h1>

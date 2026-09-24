@@ -1,12 +1,14 @@
 .page {
   position: relative;
   width: 100%;
+  margin: 0;
   display: block;
-  padding: 6rem 1rem 2rem;
+  padding: 1rem 1rem 2rem;
 }
 
 .content {
-  width: min(100%, 1180px);
+  width: min(95%, 1480px);
+  padding-top: 1rem;
   margin: 0 auto;
   color: var(--crimson-violet);
 }
