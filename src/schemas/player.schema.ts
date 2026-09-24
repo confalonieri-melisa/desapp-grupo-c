@@ -27,3 +27,7 @@ export const playerCatalogQuerySchema = z.object({
 });
 
 export type PlayerCatalogQuery = z.infer<typeof playerCatalogQuerySchema>;
+
+export const playerParamsSchema = z.object({
+  id: z.uuid(),
+});

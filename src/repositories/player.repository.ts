@@ -1,4 +1,4 @@
-import { and, count, eq, ilike, type SQL } from "drizzle-orm";
+import { and, asc, count, eq, ilike, type SQL } from "drizzle-orm";
 import { db as defaultDatabase, type Database } from "@/db";
 import { players, type PlayerRow } from "@/db/schema";
 import { League, Position } from "@/models/enums";
@@ -113,7 +113,7 @@ export class PlayerRepository {
       .select()
       .from(players)
       .where(where)
-      .orderBy(players.name)
+      .orderBy(asc(players.name), asc(players.id))
       .limit(pagination.limit)
       .offset(offset);
 

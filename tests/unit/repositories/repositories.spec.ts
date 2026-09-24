@@ -59,7 +59,7 @@ function selectDatabase(rows: unknown[]): Database {
 function playerSearchDatabase(
   playerRows: unknown[],
   total: number,
-): Database {
+): { database: Database; orderBy: ReturnType<typeof vi.fn> } {
   const dataQuery = {
     from: vi.fn(() => dataQuery),
     where: vi.fn(() => dataQuery),
@@ -76,11 +76,14 @@ function playerSearchDatabase(
   let selectCall = 0;
 
   return {
+    database: {
     select: vi.fn(() => {
       selectCall += 1;
       return selectCall === 1 ? dataQuery : countQuery;
     }),
-  } as unknown as Database;
+    } as unknown as Database,
+    orderBy: dataQuery.orderBy,
+  };
 }
 
 function insertDatabase(rows: unknown[]): Database {
@@ -216,7 +219,7 @@ describe("PlayerRepository", () => {
       createdAt: player.createdAt,
       updatedAt: player.updatedAt,
     };
-    const database = playerSearchDatabase([playerRow], 25);
+    const { database, orderBy } = playerSearchDatabase([playerRow], 25);
 
     await expect(
       new PlayerRepository(database).findMany(
@@ -231,6 +234,10 @@ describe("PlayerRepository", () => {
       data: [{ id: player.id, name: player.name }],
       total: 25,
     });
+    expect(orderBy).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+    );
   });
 
   it("returns null when a player id does not exist", async () => {

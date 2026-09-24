@@ -1,6 +1,6 @@
 import { Player } from "@/models/Player";
-import { validate } from "@/utils/validate";
 import { playerCatalogQuerySchema } from "@/schemas/player.schema";
+import { validate } from "@/utils/validate";
 import { PlayerService } from "@/services/player.service";
 import type { PlayerCatalogResult } from "@/services/player.types";
 
@@ -16,7 +16,6 @@ interface PlayerSummaryResponse {
 }
 
 interface PlayerDetailResponse extends PlayerSummaryResponse {
-  statistics: Player["statistics"];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -62,7 +61,6 @@ export class PlayerController {
   private toDetail(player: Player): PlayerDetailResponse {
     return {
       ...this.toSummary(player),
-      statistics: player.statistics,
       createdAt: player.createdAt,
       updatedAt: player.updatedAt,
     };
