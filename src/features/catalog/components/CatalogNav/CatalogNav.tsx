@@ -18,10 +18,10 @@ export default function CatalogNav() {
 
     return (
         <nav className={styles.nav} aria-label="Navegación principal">
-            <Link className={styles.brand} href="/">
+            <Link className={styles.brand} href="/players">
                 Medio Campo
             </Link>
-            <Link className={styles.activeLink} href="/" aria-current="page">
+            <Link className={styles.activeLink} href="/players" aria-current="page">
                 Jugadores
             </Link>
             <ActionButton

@@ -66,6 +66,15 @@
   background: var(--surface);
 }
 
+.errorState {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--cherry-bomb);
+  border-radius: var(--radius);
+  color: var(--cherry-bomb);
+  background: rgb(219 4 40 / 8%);
+}
+
 @media (max-width: 760px) {
   .catalogLayout {
     grid-template-columns: 1fr;

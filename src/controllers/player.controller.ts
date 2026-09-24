@@ -10,6 +10,7 @@ interface PlayerSummaryResponse {
   team: string;
   league: Player["league"];
   position: Player["position"];
+  statistics: Player["statistics"];
   currentQuote: number;
   totalTokens: number;
 }
@@ -52,6 +53,7 @@ export class PlayerController {
       team: player.team,
       league: player.league,
       position: player.position,
+      statistics: player.statistics,
       currentQuote: 1,
       totalTokens: 100,
     };
