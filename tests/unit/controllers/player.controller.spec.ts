@@ -70,14 +70,4 @@ describe("PlayerController", () => {
     });
   });
 
-  it("rejects an invalid player id before calling the service", async () => {
-    const service = {
-      getById: vi.fn(),
-    } as unknown as PlayerService;
-
-    await expect(
-      new PlayerController(service).getById("not-a-uuid"),
-    ).rejects.toThrow();
-    expect(service.getById).not.toHaveBeenCalled();
-  });
 });

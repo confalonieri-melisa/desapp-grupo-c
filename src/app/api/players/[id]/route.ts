@@ -2,7 +2,7 @@ import { PlayerController } from "@/controllers/player.controller";
 import { toHttpResponse } from "@/errors/to-http-response";
 import { requireAuth } from "@/middlewares/auth.middleware";
 import { PlayerRepository } from "@/repositories/player.repository";
-import { playerIdSchema } from "@/schemas/player.schema";
+import { playerParamsSchema } from "@/schemas/player.schema";
 import { PlayerService } from "@/services/player.service";
 import { validate } from "@/utils/validate";
 
@@ -17,8 +17,7 @@ interface PlayerRouteContext {
 export async function GET(request: Request, context: PlayerRouteContext): Promise<Response> {
   try {
     requireAuth(request);
-    const { id } = await context.params;
-    validate(playerIdSchema, id);
+    const { id } = validate(playerParamsSchema, await context.params);
 
     return Response.json(await controller.getById(id));
   } catch (error) {

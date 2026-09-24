@@ -1,9 +1,6 @@
 import { Player } from "@/models/Player";
+import { playerCatalogQuerySchema } from "@/schemas/player.schema";
 import { validate } from "@/utils/validate";
-import {
-  playerCatalogQuerySchema,
-  playerIdSchema,
-} from "@/schemas/player.schema";
 import { PlayerService } from "@/services/player.service";
 import type { PlayerCatalogResult } from "@/services/player.types";
 
@@ -45,8 +42,7 @@ export class PlayerController {
   }
 
   async getById(id: string): Promise<PlayerDetailResponse> {
-    const validId = validate(playerIdSchema, id);
-    return this.toDetail(await this.playerService.getById(validId));
+    return this.toDetail(await this.playerService.getById(id));
   }
 
   private toSummary(player: Player): PlayerSummaryResponse {
