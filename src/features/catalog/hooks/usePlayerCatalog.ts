@@ -32,19 +32,20 @@ export function usePlayerCatalog(
 
     const controller = new AbortController();
 
-    queueMicrotask(() => {
-      if (!controller.signal.aborted) {
-        setIsLoading(true);
-        setError(null);
-      }
-    });
+    const loadPlayers = async () => {
+      setIsLoading(true);
+      setError(null);
 
-    getPlayers(token, filters, page, controller.signal)
-      .then((response) => {
+      try {
+        const response = await getPlayers(token, filters, page, controller.signal);
+
+        if (controller.signal.aborted) {
+          return;
+        }
+
         setPlayers(response.data);
         setPagination(response.pagination);
-      })
-      .catch((requestError: unknown) => {
+      } catch (requestError: unknown) {
         if (requestError instanceof DOMException && requestError.name === "AbortError") {
           return;
         }
@@ -59,12 +60,14 @@ export function usePlayerCatalog(
             ? requestError.message
             : "No se pudieron cargar los jugadores",
         );
-      })
-      .finally(() => {
+      } finally {
         if (!controller.signal.aborted) {
           setIsLoading(false);
         }
-      });
+      }
+    };
+
+    void loadPlayers();
 
     return () => controller.abort();
   }, [filters, onUnauthorized, page, token]);
