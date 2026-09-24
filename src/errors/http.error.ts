@@ -19,3 +19,9 @@ export class UnauthorizedError extends HttpError {
     super(message, 401);
   }
 }
+
+export class NotFoundError extends HttpError {
+  constructor(message = "Resource not found") {
+    super(message, 404);
+  }
+}

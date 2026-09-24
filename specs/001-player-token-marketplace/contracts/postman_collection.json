@@ -327,6 +327,19 @@
       "item": [
         {
           "name": "1. Listar Jugadores (Sin Token -> Debe dar 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Listado sin token devuelve 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -344,6 +357,21 @@
               "listen": "test",
               "script": {
                 "exec": [
+                  "pm.test('Listado autenticado devuelve 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Listado devuelve datos y paginación', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('pagination');",
+                  "    pm.expect(jsonData.pagination.page).to.eql(1);",
+                  "    pm.expect(jsonData.pagination.limit).to.eql(20);",
+                  "    if (jsonData.data.length > 0) {",
+                  "        pm.expect(jsonData.data[0]).to.have.property('statistics');",
+                  "    }",
+                  "});",
+                  "",
                   "var jsonData = pm.response.json();",
                   "if (jsonData.data && jsonData.data.length > 0) {",
                   "    pm.collectionVariables.set('playerId', jsonData.data[0].id);",
@@ -384,7 +412,34 @@
           }
         },
         {
-          "name": "3. Filtrar Jugadores (Liga y Posición)",
+          "name": "3. Filtrar Jugadores (Liga, Equipo, Posición y Paginación)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Listado filtrado devuelve 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('La respuesta respeta la paginación solicitada', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.pagination.page).to.eql(1);",
+                  "    pm.expect(jsonData.pagination.limit).to.eql(10);",
+                  "});",
+                  "",
+                  "pm.test('Los resultados respetan liga, equipo y posición', function () {",
+                  "    pm.response.json().data.forEach(function (player) {",
+                  "        pm.expect(player.league).to.eql('LA_LIGA');",
+                  "        pm.expect(player.team.toLowerCase()).to.include('real');",
+                  "        pm.expect(player.position).to.eql('FORWARD');",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -399,7 +454,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/players?league=LA_LIGA&position=FORWARD",
+              "raw": "{{baseUrl}}/players?league=LA_LIGA&team=Real&position=FORWARD&page=1&limit=10",
               "host": ["{{baseUrl}}"],
               "path": ["players"],
               "query": [
@@ -408,8 +463,20 @@
                   "value": "LA_LIGA"
                 },
                 {
+                  "key": "team",
+                  "value": "Real"
+                },
+                {
                   "key": "position",
                   "value": "FORWARD"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
                 }
               ]
             }
@@ -417,6 +484,27 @@
         },
         {
           "name": "4. Obtener Detalle de Jugador por ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Detalle autenticado devuelve 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Detalle devuelve atributos y estadísticas', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get('playerId'));",
+                  "    pm.expect(jsonData).to.have.property('statistics');",
+                  "    pm.expect(jsonData.currentQuote).to.eql(1);",
+                  "    pm.expect(jsonData.totalTokens).to.eql(100);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "bearer",
@@ -434,6 +522,66 @@
               "raw": "{{baseUrl}}/players/{{playerId}}",
               "host": ["{{baseUrl}}"],
               "path": ["players", "{{playerId}}"]
+            }
+          }
+        },
+        {
+          "name": "5. Detalle sin Token (Debe dar 401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Detalle sin token devuelve 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/players/{{playerId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["players", "{{playerId}}"]
+            }
+          }
+        },
+        {
+          "name": "6. Detalle inexistente (Debe dar 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Jugador inexistente devuelve 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/players/00000000-0000-0000-0000-000000000099",
+              "host": ["{{baseUrl}}"],
+              "path": ["players", "00000000-0000-0000-0000-000000000099"]
             }
           }
         }

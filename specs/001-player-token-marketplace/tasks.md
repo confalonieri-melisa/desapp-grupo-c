@@ -168,14 +168,14 @@
 - Ambos endpoints sin token → 401 Unauthorized.
 
 #### Tests para Feature E
-- [ ] T033 [P] [US4] Unit tests for `PlayerService` orchestrator (filtering, pagination defaults, not found handling) in [tests/unit/services/player.service.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/services/player.service.spec.ts)
-- [ ] T034 [P] [US4] Integration tests for `GET /api/players` and `GET /api/players/:id` endpoints in [tests/integration/players.routes.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/integration/players.routes.spec.ts)
+- [x] T033 [P] [US4] Unit tests for `PlayerService` orchestrator (filtering, pagination defaults, not found handling) in [tests/unit/services/player.service.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/services/player.service.spec.ts)
+- [x] T034 [P] [US4] Integration tests for `GET /api/players` and `GET /api/players/:id` endpoints in [tests/integration/players.routes.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/integration/players.routes.spec.ts)
 
 #### Implementation para Feature E
-- [ ] T035 [US4] Implement `PlayerService` orchestrator coordinating repository search and domain mappings in [src/services/player.service.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/services/player.service.ts)
-- [ ] T036 [US4] Implement `PlayerController` handling query validation, pagination parameters, and response formatting in [src/controllers/player.controller.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/controllers/player.controller.ts)
-- [ ] T037 [P] [US4] Create protected Next.js route handler for `GET /api/players` in [src/app/api/players/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/players/route.ts)
-- [ ] T038 [P] [US4] Create protected Next.js route handler for `GET /api/players/[id]` in [src/app/api/players/[id]/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/players/[id]/route.ts)
+- [x] T035 [US4] Implement `PlayerService` orchestrator coordinating repository search and domain mappings in [src/services/player.service.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/services/player.service.ts)
+- [x] T036 [US4] Implement `PlayerController` handling query validation, pagination parameters, and response formatting in [src/controllers/player.controller.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/controllers/player.controller.ts)
+- [x] T037 [P] [US4] Create protected Next.js route handler for `GET /api/players` in [src/app/api/players/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/players/route.ts)
+- [x] T038 [P] [US4] Create protected Next.js route handler for `GET /api/players/[id]` in [src/app/api/players/[id]/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/players/[id]/route.ts)
 
 **Checkpoint Feature E**: Abrir PR `feature/005-player-catalog` → `main`.
 

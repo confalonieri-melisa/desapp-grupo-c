@@ -325,6 +325,15 @@ components:
           $ref: '#/components/schemas/LeagueEnum'
         position:
           $ref: '#/components/schemas/PositionEnum'
+        statistics:
+          type: object
+          additionalProperties: true
+          example:
+            matches: 28
+            minutes: 2450
+            goals: 24
+            assists: 8
+            rating: 8.12
         currentQuote:
           type: number
           format: float
