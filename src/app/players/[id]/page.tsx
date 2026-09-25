@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ChartNoAxesColumnIncreasing, ChartNoAxesCombined } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import PageContainer from "@/components/ui/PageContainer/PageContainer";
@@ -39,22 +40,27 @@ export default function PlayerProfilePage() {
     return null;
   }
 
+  const showLoadingState = isLoading;
+  const showErrorState = Boolean(error);
+  const showPlayerProfile = !isLoading && !error && Boolean(player);
+
   return (
     <PageContainer className={styles.page}>
       <div className={styles.content}>
-        {isLoading && <p className={styles.state}>Cargando perfil...</p>}
-        {error && (
+        {showLoadingState && <p className={styles.state}>Cargando perfil...</p>}
+        {showErrorState && (
           <section className={styles.state} role="alert">
             <p>{error}</p>
             <Link href="/players">Volver a jugadores</Link>
           </section>
         )}
-        {!isLoading && !error && player && (
+        {showPlayerProfile && player && (
           <>
             <PlayerProfileHeader player={player} />
             <div className={styles.overview}>
               <PlayerStatSection
                 title="Rendimiento"
+                icon={<ChartNoAxesCombined size={18} />}
                 statistics={player.statistics}
                 items={summaryStatistics}
               />
@@ -62,6 +68,7 @@ export default function PlayerProfilePage() {
             </div>
             <PlayerStatSection
               title="Estadísticas detalladas"
+              icon={<ChartNoAxesColumnIncreasing size={18} />}
               statistics={player.statistics}
               items={detailedStatistics}
             />

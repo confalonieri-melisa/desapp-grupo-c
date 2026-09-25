@@ -22,16 +22,20 @@ export function usePlayerProfile(
     }
 
     const controller = new AbortController();
-    queueMicrotask(() => {
-      if (!controller.signal.aborted) {
-        setIsLoading(true);
-        setError(null);
-      }
-    });
 
-    getPlayer(token, playerId, controller.signal)
-      .then(setPlayer)
-      .catch((requestError: unknown) => {
+    const loadPlayer = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await getPlayer(token, playerId, controller.signal);
+
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        setPlayer(response);
+      } catch (requestError: unknown) {
         if (requestError instanceof DOMException && requestError.name === "AbortError") {
           return;
         }
@@ -46,12 +50,14 @@ export function usePlayerProfile(
             ? requestError.message
             : "No se pudo cargar el jugador",
         );
-      })
-      .finally(() => {
+      } finally {
         if (!controller.signal.aborted) {
           setIsLoading(false);
         }
-      });
+      }
+    };
+
+    void loadPlayer();
 
     return () => controller.abort();
   }, [onUnauthorized, playerId, token]);

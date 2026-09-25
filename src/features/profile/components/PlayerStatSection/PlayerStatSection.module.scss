@@ -8,8 +8,16 @@
 }
 
 .section h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
   color: var(--crimson-violet);
   font-size: 1.1rem;
+}
+
+.titleIcon {
+  display: inline-flex;
+  color: var(--rose-punch);
 }
 
 .grid {

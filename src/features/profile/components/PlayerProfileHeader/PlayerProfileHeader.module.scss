@@ -31,6 +31,10 @@
   min-width: 0;
 }
 
+.identity > :nth-child(2) {
+  flex: 1;
+}
+
 .identity > :first-child {
   flex: 0 0 150px;
   width: 150px;
@@ -59,15 +63,47 @@
   color: var(--dusty-violet);
 }
 
-.details span + span::before {
-  content: "•";
-  margin-right: 1rem;
+.detail {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.detail svg {
   color: var(--rose-punch);
 }
 
-.position {
-  color: var(--rose-punch);
+.details > span:not(.detail) {
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.7rem;
   font-weight: 700;
+  text-transform: uppercase;
+}
+
+.positionUnknown {
+  color: var(--position-unknown);
+  background: rgb(77 24 56 / 12%);
+}
+
+.positionGoalkeeper {
+  color: var(--position-goalkeeper);
+  background: rgb(252 132 57 / 12%);
+}
+
+.positionDefender {
+  color: var(--position-defender);
+  background: rgb(236 66 85 / 12%);
+}
+
+.positionMidfielder {
+  color: var(--position-midfielder);
+  background: rgb(214 66 130 / 12%);
+}
+
+.positionForward {
+  color: var(--position-forward);
+  background: rgb(219 4 40 / 12%);
 }
 
 @media (max-width: 560px) {
@@ -87,8 +123,4 @@
     gap: 0.35rem;
   }
 
-  .details span + span::before {
-    content: "";
-    margin: 0;
-  }
 }

@@ -13,7 +13,6 @@ export const summaryStatistics = [
   ["Minutos jugados", "minutesPlayed"],
   ["Goles", "goals"],
   ["Asistencias", "assists"],
-  ["Rating", "rating"],
 ] as const satisfies readonly [string, keyof PlayerStatistics][];
 
 export const detailedStatistics = [
