@@ -38,10 +38,21 @@ const player: PlayerApiItem = {
 };
 
 function useTestHook(token: string | null = "token") {
-  const state = [[], false, null] as [
+  const state = [[], false, null, {
+    total: 0,
+    page: 1,
+    limit: 18,
+    totalPages: 0,
+  }] as [
     PlayerApiItem[],
     boolean,
     string | null,
+    {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    },
   ];
 
   useStateMock
@@ -53,10 +64,13 @@ function useTestHook(token: string | null = "token") {
     }])
     .mockImplementationOnce(() => [state[2], (value: string | null) => {
       state[2] = value;
+    }])
+    .mockImplementationOnce(() => [state[3], (value: typeof state[3]) => {
+      state[3] = value;
     }]);
 
   const unauthorized = vi.fn();
-  const result = usePlayerCatalog(token, filters, unauthorized);
+  const result = usePlayerCatalog(token, filters, 1, unauthorized);
   const effect = useEffectMock.mock.calls.at(-1)?.[0] as () => void | (() => void);
 
   return { effect, result, state, unauthorized };
@@ -83,13 +97,16 @@ describe("usePlayerCatalog", () => {
   });
 
   it("loads players and toggles loading state", async () => {
-    getPlayersMock.mockResolvedValue({ data: [player] });
+    getPlayersMock.mockResolvedValue({
+      data: [player],
+      pagination: { total: 1, page: 1, limit: 18, totalPages: 1 },
+    });
     const { effect, state } = useTestHook();
 
     effect();
     await flushPromises();
 
-    expect(getPlayersMock).toHaveBeenCalledWith("token", filters, expect.any(AbortSignal));
+    expect(getPlayersMock).toHaveBeenCalledWith("token", filters, 1, expect.any(AbortSignal));
     expect(state[0]).toEqual([player]);
     expect(state[1]).toBe(false);
     expect(state[2]).toBeNull();
@@ -127,7 +144,7 @@ describe("usePlayerCatalog", () => {
     const { effect, state } = useTestHook();
 
     const cleanup = effect();
-    const signal = getPlayersMock.mock.calls[0][2] as AbortSignal;
+    const signal = getPlayersMock.mock.calls[0][3] as AbortSignal;
     cleanup?.();
     await flushPromises();
 

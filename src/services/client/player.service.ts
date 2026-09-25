@@ -91,7 +91,6 @@ export async function getPlayers(
 
   return data as PlayerApiResponse;
 }
-
 export async function getPlayer(
   token: string,
   id: string,
