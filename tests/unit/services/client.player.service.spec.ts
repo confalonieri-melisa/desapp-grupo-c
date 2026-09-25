@@ -10,7 +10,7 @@ describe("client player service", () => {
   it("requests players with the authentication token and filters", async () => {
     const response = {
       data: [],
-      pagination: { total: 0, page: 1, limit: 100, totalPages: 0 },
+      pagination: { total: 0, page: 1, limit: 18, totalPages: 0 },
     };
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify(response), { status: 200 }),
@@ -20,10 +20,10 @@ describe("client player service", () => {
       league: League.BUNDESLIGA,
       team: "Schalke",
       position: Position.DEFENDER,
-    })).resolves.toEqual(response);
+    }, 1)).resolves.toEqual(response);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/players?page=1&limit=100&league=BUNDESLIGA&team=Schalke&position=DEFENDER",
+      "/api/players?page=1&limit=18&league=BUNDESLIGA&team=Schalke&position=DEFENDER",
       {
         headers: { Authorization: "Bearer token" },
         signal: undefined,
@@ -40,7 +40,7 @@ describe("client player service", () => {
       league: "",
       team: "",
       position: "",
-    })).rejects.toThrow("Unauthorized");
+    }, 1)).rejects.toThrow("Unauthorized");
   });
 
   it("prefers the message field from an API error", async () => {
@@ -52,7 +52,7 @@ describe("client player service", () => {
       league: "",
       team: "",
       position: "",
-    })).rejects.toThrow("Players unavailable");
+    }, 1)).rejects.toThrow("Players unavailable");
   });
 
   it("uses the fallback message for non-JSON API errors", async () => {
@@ -64,7 +64,7 @@ describe("client player service", () => {
       league: "",
       team: "",
       position: "",
-    })).rejects.toThrow("No se pudieron cargar los jugadores");
+    }, 1)).rejects.toThrow("No se pudieron cargar los jugadores");
   });
 
   it("ignores unknown non-object API error payloads", async () => {
@@ -76,6 +76,6 @@ describe("client player service", () => {
       league: "",
       team: "",
       position: "",
-    })).rejects.toThrow("No se pudieron cargar los jugadores");
+    }, 1)).rejects.toThrow("No se pudieron cargar los jugadores");
   });
 });
