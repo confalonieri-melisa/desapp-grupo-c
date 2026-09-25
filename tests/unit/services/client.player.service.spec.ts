@@ -58,6 +58,29 @@ describe("client player service", () => {
     );
   });
 
+  it("requests a player detail with an encoded id", async () => {
+    const response = { id: "player/1" };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify(response), { status: 200 }),
+    );
+
+    await expect(getPlayer("token", "player/1")).resolves.toEqual(response);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/players/player%2F1",
+      expect.objectContaining({ signal: undefined }),
+    );
+  });
+
+  it("uses detail API errors and fallback messages", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: "Player unavailable" }), { status: 500 }))
+      .mockResolvedValueOnce(new Response("server error", { status: 500 }));
+
+    await expect(getPlayer("token", "player-1")).rejects.toThrow("Player unavailable");
+    await expect(getPlayer("token", "player-1")).rejects.toThrow("No se pudo cargar el jugador");
+  });
+
   it("throws the API error message when the request fails", async () => {
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 }),

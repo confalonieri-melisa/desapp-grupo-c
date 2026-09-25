@@ -28,6 +28,33 @@ interface PlayerApiResponse {
   };
 }
 
+async function parseApiResponse<T>(
+  response: Response,
+  fallbackMessage: string,
+): Promise<T> {
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch {
+    data = undefined;
+  }
+
+  if (!response.ok) {
+    const apiError = typeof data === "object" && data !== null
+      ? data as { message?: unknown; error?: unknown }
+      : {};
+    const message = typeof apiError.message === "string"
+      ? apiError.message
+      : typeof apiError.error === "string"
+        ? apiError.error
+        : fallbackMessage;
+
+    throw new Error(message);
+  }
+
+  return data as T;
+}
+
 export interface PlayerPagination {
   total: number;
   page: number;
@@ -69,27 +96,10 @@ export async function getPlayers(
     signal,
   });
 
-  let data: unknown;
-  try {
-    data = await response.json();
-  } catch {
-    data = undefined;
-  }
-
-  if (!response.ok) {
-    const apiError = typeof data === "object" && data !== null
-      ? data as { message?: unknown; error?: unknown }
-      : {};
-    const message = typeof apiError.message === "string"
-      ? apiError.message
-      : typeof apiError.error === "string"
-        ? apiError.error
-        : "No se pudieron cargar los jugadores";
-
-    throw new Error(message);
-  }
-
-  return data as PlayerApiResponse;
+  return parseApiResponse<PlayerApiResponse>(
+    response,
+    "No se pudieron cargar los jugadores",
+  );
 }
 export async function getPlayer(
   token: string,
@@ -103,25 +113,8 @@ export async function getPlayer(
     signal,
   });
 
-  let data: unknown;
-  try {
-    data = await response.json();
-  } catch {
-    data = undefined;
-  }
-
-  if (!response.ok) {
-    const apiError = typeof data === "object" && data !== null
-      ? data as { message?: unknown; error?: unknown }
-      : {};
-    const message = typeof apiError.message === "string"
-      ? apiError.message
-      : typeof apiError.error === "string"
-        ? apiError.error
-        : "No se pudo cargar el jugador";
-
-    throw new Error(message);
-  }
-
-  return data as PlayerApiDetail;
+  return parseApiResponse<PlayerApiDetail>(
+    response,
+    "No se pudo cargar el jugador",
+  );
 }
