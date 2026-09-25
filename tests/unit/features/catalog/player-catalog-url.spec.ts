@@ -3,6 +3,7 @@ import { League, Position } from "@/models/enums";
 import {
   emptyPlayerCatalogFilters,
   parsePlayerCatalogFilters,
+  parsePlayerCatalogPage,
   serializePlayerCatalogFilters,
 } from "@/features/catalog/utils/player-catalog-url";
 
@@ -45,5 +46,17 @@ describe("player catalog URL filters", () => {
 
   it("serializes an empty query when no filters are active", () => {
     expect(serializePlayerCatalogFilters(emptyPlayerCatalogFilters)).toBe("");
+  });
+
+  it("parses valid and invalid pages", () => {
+    expect(parsePlayerCatalogPage(new URLSearchParams("page=3"))).toBe(3);
+    expect(parsePlayerCatalogPage(new URLSearchParams("page=0"))).toBe(1);
+    expect(parsePlayerCatalogPage(new URLSearchParams("page=invalid"))).toBe(1);
+    expect(parsePlayerCatalogPage(new URLSearchParams())).toBe(1);
+  });
+
+  it("serializes the page only when it is greater than one", () => {
+    expect(serializePlayerCatalogFilters(emptyPlayerCatalogFilters, 1)).toBe("");
+    expect(serializePlayerCatalogFilters(emptyPlayerCatalogFilters, 3)).toBe("page=3");
   });
 });
