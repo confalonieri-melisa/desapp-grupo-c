@@ -1,0 +1,14 @@
+.placeholder {
+  position: relative;
+  align-self: stretch;
+  min-height: 124px;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(145deg, rgb(255 255 255 / 35%), transparent 50%),
+    linear-gradient(135deg, var(--rose-punch-50), rgb(252 132 57 / 35%));
+}
+
+.image {
+  object-fit: cover;
+}

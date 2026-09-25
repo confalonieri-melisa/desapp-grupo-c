@@ -1,0 +1,20 @@
+.rating {
+  display: grid;
+  place-content: center;
+  min-width: 58px;
+  min-height: 62px;
+  border-radius: var(--radius);
+  color: white;
+  background: var(--background-gradient);
+  text-align: center;
+}
+
+.rating strong {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.rating span {
+  margin-top: 0.3rem;
+  font-size: 0.6rem;
+}

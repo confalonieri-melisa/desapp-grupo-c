@@ -5,6 +5,17 @@
   --tangerine: #fc8439;
   --rose-punch-50: rgb(214 66 130 / 50%);
   --watermelon-30: rgb(236 66 85 / 20%);
+  --crimson-violet: #4d1838;
+  --dusty-violet: #625b73;
+  --surface: rgb(255 251 254 / 0.94);
+  --border: rgb(232 230 238 / 0.9);
+  --radius: 16px;
+  --shadow: 0 10px 24px rgb(49 30 55 / 8%);
+  --position-goalkeeper: var(--tangerine);
+  --position-defender: var(--watermelon);
+  --position-midfielder: var(--rose-punch);
+  --position-forward: var(--cherry-bomb);
+  --position-unknown: var(--crimson-violet);
   --text-gradient: linear-gradient(135deg, var(--rose-punch) 0%, var(--watermelon) 30%, var(--tangerine) 100%);
   --background-gradient: linear-gradient(43deg, var(--rose-punch) 0%, var(--watermelon) 50%, var(--tangerine) 100%);
 }

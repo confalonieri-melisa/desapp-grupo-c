@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import AuthCard from '@/components/AuthCard';
-import { CardTitleSpan } from '@/components/Card';
-import AuthFields from '@/components/AuthFields';
-import ActionButton from '@/components/ActionButton';
+import AuthCard from '@/features/auth/components/AuthCard/AuthCard';
+import { CardTitleSpan } from '@/components/ui/Card/Card';
+import AuthFields from '@/features/auth/components/AuthFields/AuthFields';
+import ActionButton from '@/components/ui/ActionButton/ActionButton';
 import { useAuth } from '@/context/AuthContext';
 import { registerSchema, type RegisterInput } from '@/schemas/auth.schema';
 import { registerApi } from '@/services/client/auth.service';
 import { useAuthForm } from '@/hooks/useAuthForm';
-import styles from '@/components/AuthFields.module.scss';
+import styles from '@/features/auth/components/AuthFields/AuthFields.module.scss';
 
 export default function RegisterPage() {
   const router = useRouter();
