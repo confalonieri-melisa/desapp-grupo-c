@@ -37,7 +37,7 @@ describe("client player service", () => {
   it("requests players with the authentication token and filters", async () => {
     const response = {
       data: [],
-      pagination: { total: 0, page: 1, limit: 18, totalPages: 0 },
+      pagination: { total: 0, page: 1, limit: 12, totalPages: 0 },
     };
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify(response), { status: 200 }),
@@ -50,7 +50,7 @@ describe("client player service", () => {
     }, 1)).resolves.toEqual(response);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/players?page=1&limit=18&league=BUNDESLIGA&team=Schalke&position=DEFENDER",
+      "/api/players?page=1&limit=12&league=BUNDESLIGA&team=Schalke&position=DEFENDER",
       {
         headers: { Authorization: "Bearer token" },
         signal: undefined,

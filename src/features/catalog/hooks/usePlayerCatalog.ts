@@ -21,7 +21,7 @@ export function usePlayerCatalog(
   const [pagination, setPagination] = useState<PlayerPagination>({
     total: 0,
     page: 1,
-    limit: 18,
+    limit: 12,
     totalPages: 0,
   });
 

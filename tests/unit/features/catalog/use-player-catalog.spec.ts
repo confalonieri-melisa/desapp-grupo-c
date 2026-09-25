@@ -41,7 +41,7 @@ function useTestHook(token: string | null = "token") {
   const state = [[], false, null, {
     total: 0,
     page: 1,
-    limit: 18,
+    limit: 12,
     totalPages: 0,
   }] as [
     PlayerApiItem[],
@@ -99,7 +99,7 @@ describe("usePlayerCatalog", () => {
   it("loads players and toggles loading state", async () => {
     getPlayersMock.mockResolvedValue({
       data: [player],
-      pagination: { total: 1, page: 1, limit: 18, totalPages: 1 },
+      pagination: { total: 1, page: 1, limit: 12, totalPages: 1 },
     });
     const { effect, state } = useTestHook();
 

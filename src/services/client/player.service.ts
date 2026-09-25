@@ -38,7 +38,7 @@ export interface PlayerPagination {
 function getQueryString(filters: PlayerCatalogFilters, page: number): string {
   const query = new URLSearchParams({
     page: String(page),
-    limit: "18",
+    limit: "12",
   });
 
   if (filters.league) {
