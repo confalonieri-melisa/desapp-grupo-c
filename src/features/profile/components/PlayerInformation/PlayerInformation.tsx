@@ -1,5 +1,5 @@
 import type {PlayerApiDetail} from "@/services/client/player.service";
-import {formatEnumLabel, leagueLabels, positionLabels,} from "@/features/profile/utils/player-profile";
+import {formatEnumLabel, leagueLabels} from "@/utils/player-labels";
 import styles from "./PlayerInformation.module.scss";
 
 interface PlayerInformationProps {
@@ -10,7 +10,7 @@ export default function PlayerInformation({player}: PlayerInformationProps) {
     const rows = [
         ["Equipo", player.team],
         ["Liga", leagueLabels[player.league] ?? formatEnumLabel(player.league)],
-        ["Posición", positionLabels[player.position] ?? formatEnumLabel(player.position)],
+        ["Posición", player.position],
     ];
 
     return (

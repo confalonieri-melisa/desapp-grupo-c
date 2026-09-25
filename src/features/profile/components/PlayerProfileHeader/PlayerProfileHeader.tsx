@@ -5,10 +5,7 @@ import type { PlayerApiDetail } from "@/services/client/player.service";
 import PlayerCardImage from "@/features/catalog/components/PlayerCardImage/PlayerCardImage";
 import PlayerCardRating from "@/features/catalog/components/PlayerCardRating/PlayerCardRating";
 import { Position } from "@/models/enums";
-import {
-  formatEnumLabel,
-  leagueLabels,
-} from "@/features/profile/utils/player-profile";
+import { formatEnumLabel, leagueLabels } from "@/utils/player-labels";
 import styles from "./PlayerProfileHeader.module.scss";
 
 interface PlayerProfileHeaderProps {
@@ -42,7 +39,7 @@ export default function PlayerProfileHeader({ player }: PlayerProfileHeaderProps
               {leagueLabels[player.league] ?? formatEnumLabel(player.league)}
             </span>
             <span className={positionStyles[player.position]}>
-              {formatEnumLabel(player.position)}
+              {player.position}
             </span>
           </div>
         </div>
