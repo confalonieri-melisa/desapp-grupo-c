@@ -27,9 +27,6 @@
   box-shadow: var(--shadow);
 }
 
-.identity > div:last-child {
-  min-width: 0;
-}
 
 .identity > :nth-child(2) {
   flex: 1;
