@@ -19,7 +19,10 @@ export default function GlobalNav() {
     return (
         <nav className={styles.nav} aria-label="Navegación principal">
             <Link className={styles.brand} href="/players">
-                Medio Campo
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img alt={"MedioCampo Logo"} className={styles.logo} srcSet="/favicon.svg" width={32} height={32}>
+                </img>
+                <h1 className={styles.brandText}>MedioCampo</h1>
             </Link>
             <Link className={styles.activeLink} href="/players" aria-current="page">
                 Jugadores
