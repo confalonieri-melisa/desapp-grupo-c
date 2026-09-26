@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import AuthCard from '@/features/auth/components/AuthCard/AuthCard';
-import { CardTitleSpan } from '@/components/ui/Card/Card';
-import AuthFields from '@/features/auth/components/AuthFields/AuthFields';
-import ActionButton from '@/components/ui/ActionButton/ActionButton';
-import { useAuth } from '@/context/AuthContext';
-import { loginSchema, type LoginInput } from '@/schemas/auth.schema';
-import { loginApi } from '@/services/client/auth.service';
-import { useAuthForm } from '@/hooks/useAuthForm';
-import styles from '@/features/auth/components/AuthFields/AuthFields.module.scss';
+import AuthCard from '@/frontend/features/auth/components/AuthCard/AuthCard';
+import { CardTitleSpan } from '@/frontend/components/ui/Card/Card';
+import AuthFields from '@/frontend/features/auth/components/AuthFields/AuthFields';
+import ActionButton from '@/frontend/components/ui/ActionButton/ActionButton';
+import { useAuth } from '@/frontend/context/AuthContext';
+import { loginSchema, type LoginInput } from '@/backend/schemas/auth.schema';
+import { loginApi } from '@/frontend/services/client/auth.service';
+import { useAuthForm } from '@/frontend/hooks/useAuthForm';
+import styles from '@/frontend/features/auth/components/AuthFields/AuthFields.module.scss';
 
 export default function LoginPage() {
   const router = useRouter();

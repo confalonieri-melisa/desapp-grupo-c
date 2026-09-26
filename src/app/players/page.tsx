@@ -2,20 +2,20 @@
 
 import {Suspense, useCallback, useEffect, useMemo} from 'react';
 import {usePathname, useRouter, useSearchParams} from 'next/navigation';
-import {useAuth} from '@/context/AuthContext';
-import PageContainer from '@/components/ui/PageContainer/PageContainer';
-import PlayerFilters from '@/features/catalog/components/PlayerFilters/PlayerFilters';
-import PlayerGrid from '@/features/catalog/components/PlayerGrid/PlayerGrid';
-import PlayerPagination from '@/features/catalog/components/PlayerPagination/PlayerPagination';
-import type {PlayerCatalogFilters} from '@/catalog/player-catalog';
-import {League, Position} from '@/models/enums';
-import {usePlayerCatalog} from '@/features/catalog/hooks/usePlayerCatalog';
+import {useAuth} from '@/frontend/context/AuthContext';
+import PageContainer from '@/frontend/components/ui/PageContainer/PageContainer';
+import PlayerFilters from '@/frontend/features/catalog/components/PlayerFilters/PlayerFilters';
+import PlayerGrid from '@/frontend/features/catalog/components/PlayerGrid/PlayerGrid';
+import PlayerPagination from '@/frontend/features/catalog/components/PlayerPagination/PlayerPagination';
+import type {PlayerCatalogFilters} from '@/frontend/features/catalog/player-catalog';
+import {League, Position} from '@/backend/models/enums';
+import {usePlayerCatalog} from '@/frontend/features/catalog/hooks/usePlayerCatalog';
 import {
     emptyPlayerCatalogFilters,
     parsePlayerCatalogFilters,
     parsePlayerCatalogPage,
     serializePlayerCatalogFilters,
-} from '@/features/catalog/utils/player-catalog-url';
+} from '@/frontend/features/catalog/utils/player-catalog-url';
 import styles from '@/app/PlayersPage.module.scss';
 
 function PlayersPageContent() {

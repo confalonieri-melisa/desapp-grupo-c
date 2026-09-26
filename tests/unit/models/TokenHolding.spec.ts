@@ -3,8 +3,8 @@ import {
   INITIAL_TOKEN_PRICE,
   INITIAL_TOKEN_QUANTITY,
   TokenHolding,
-} from "@/models/TokenHolding";
-import { DomainValidationError } from "@/models/errors";
+} from "@/backend/models/TokenHolding";
+import { DomainValidationError } from "@/backend/models/errors";
 
 describe("TokenHolding", () => {
   it("creates the initial superuser holding at t0", () => {

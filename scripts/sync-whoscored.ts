@@ -1,9 +1,9 @@
-import { env } from "@/config/env";
-import { WhoScoredAdapter } from "@/adapters/whoscored.adapter";
-import { WhoScoredScraper } from "@/adapters/whoscored.scraper";
-import { closeDatabase } from "@/db";
-import { PlayerSyncService } from "@/services/player-sync.service";
-import { PlayerRepository } from "@/repositories/player.repository";
+import { env } from "@/backend/config/env";
+import { WhoScoredAdapter } from "@/backend/adapters/whoscored.adapter";
+import { WhoScoredScraper } from "@/backend/adapters/whoscored.scraper";
+import { closeDatabase } from "@/backend/db";
+import { PlayerSyncService } from "@/backend/services/player-sync.service";
+import { PlayerRepository } from "@/backend/repositories/player.repository";
 
 async function main(): Promise<void> {
   const scraper = new WhoScoredScraper({

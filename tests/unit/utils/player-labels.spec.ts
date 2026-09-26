@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { League } from "@/models/enums";
+import { League } from "@/backend/models/enums";
 import {
   formatEnumLabel,
   leagueLabels,
-} from "@/utils/player-labels";
+} from "@/frontend/utils/player-labels";
 import {
   detailedStatistics,
   summaryStatistics,
-} from "@/features/profile/utils/player-profile";
+} from "@/frontend/features/profile/utils/player-profile";
 
 describe("player labels", () => {
   it("formats enum values for display", () => {

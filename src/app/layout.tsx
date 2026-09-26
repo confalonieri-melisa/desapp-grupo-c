@@ -1,8 +1,8 @@
 import type {Metadata} from "next";
 import {Geist_Mono, Poppins} from "next/font/google";
 import "./globals.scss";
-import {AuthProvider} from "@/context/AuthContext";
-import AppShell from "@/components/AppShell";
+import {AuthProvider} from "@/frontend/context/AuthContext";
+import AppShell from "@/frontend/components/AppShell";
 
 const poppins = Poppins({
     variable: "--font-poppins",

@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { PlayerSyncService } from "@/services/player-sync.service";
-import type { PlayerDataSource } from "@/adapters/player-data-source";
+import { PlayerSyncService } from "@/backend/services/player-sync.service";
+import type { PlayerDataSource } from "@/backend/adapters/player-data-source";
 import type {
   PlayerPersistenceData,
   PlayerRepository,
-} from "@/repositories/player.repository";
-import { League, Position } from "@/models/enums";
+} from "@/backend/repositories/player.repository";
+import { League, Position } from "@/backend/models/enums";
 
 describe("PlayerSyncService", () => {
   it("transforms scraped players and persists them using source metadata", async () => {

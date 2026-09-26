@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { ConflictError, UnauthorizedError } from "@/errors/http.error";
-import { toHttpResponse } from "@/errors/to-http-response";
+import { ConflictError, UnauthorizedError } from "@/backend/errors/http.error";
+import { toHttpResponse } from "@/backend/errors/to-http-response";
 
 describe("toHttpResponse", () => {
   it.each([

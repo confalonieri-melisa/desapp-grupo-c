@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { PlayerController } from "@/controllers/player.controller";
-import { League, Position } from "@/models/enums";
-import type { Player } from "@/models/Player";
-import type { PlayerService } from "@/services/player.service";
+import { PlayerController } from "@/backend/controllers/player.controller";
+import { League, Position } from "@/backend/models/enums";
+import type { Player } from "@/backend/models/Player";
+import type { PlayerService } from "@/backend/services/player.service";
 
 const player = {
   id: "00000000-0000-4000-8000-000000000001",

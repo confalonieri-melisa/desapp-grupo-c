@@ -1,0 +1,26 @@
+import type { CatalogPlayer } from "@/frontend/features/catalog/player-catalog";
+import Link from "next/link";
+import styles from "./PlayerCard.module.scss";
+import PlayerCardImage from "@/frontend/features/catalog/components/PlayerCardImage/PlayerCardImage";
+import PlayerCardIdentity from "@/frontend/features/catalog/components/PlayerCardIdentity/PlayerCardIdentity";
+import PlayerCardRating from "@/frontend/features/catalog/components/PlayerCardRating/PlayerCardRating";
+import PlayerCardMetrics from "@/frontend/features/catalog/components/PlayerCardMetrics/PlayerCardMetrics";
+
+interface PlayerCardProps {
+  player: CatalogPlayer;
+}
+
+export default function PlayerCard({ player }: PlayerCardProps) {
+  return (
+    <Link className={styles.link} href={`/players/${encodeURIComponent(player.id)}`}>
+      <article className={styles.card}>
+        <div className={styles.summary}>
+          <PlayerCardImage playerId={player.id} playerName={player.name} imageUrl={player.imageUrl} />
+          <PlayerCardIdentity player={player} />
+          <PlayerCardRating rating={player.statistics.rating} />
+        </div>
+        <PlayerCardMetrics statistics={player.statistics} />
+      </article>
+    </Link>
+  );
+}

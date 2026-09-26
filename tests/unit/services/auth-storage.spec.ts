@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { UserRole } from '@/models/enums';
+import { UserRole } from '@/backend/models/enums';
 import {
   clearStoredAuth,
   getStoredAuth,
   saveStoredAuth,
-} from '@/services/client/auth-storage';
+} from '@/frontend/services/client/auth-storage';
 
 const storedUser = {
   id: 'user-1',

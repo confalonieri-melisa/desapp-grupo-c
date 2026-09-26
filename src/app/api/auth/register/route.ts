@@ -1,9 +1,9 @@
-import { AuthController } from "@/controllers/auth.controller";
-import { UserRepository } from "@/repositories/user.repository";
-import { registerSchema } from "@/schemas/auth.schema";
-import { AuthService } from "@/services/auth.service";
-import { toHttpResponse } from "@/errors/to-http-response";
-import { validate } from "@/utils/validate";
+import { AuthController } from "@/backend/controllers/auth.controller";
+import { UserRepository } from "@/backend/repositories/user.repository";
+import { registerSchema } from "@/backend/schemas/auth.schema";
+import { AuthService } from "@/backend/services/auth.service";
+import { toHttpResponse } from "@/backend/errors/to-http-response";
+import { validate } from "@/backend/utils/validate";
 
 const controller = new AuthController(new AuthService(new UserRepository()));
 

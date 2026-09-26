@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { PlayerCatalogFilters } from "@/catalog/player-catalog";
-import type { PlayerApiItem } from "@/services/client/player.service";
-import { League, Position } from "@/models/enums";
+import type { PlayerCatalogFilters } from "@/frontend/features/catalog/player-catalog";
+import type { PlayerApiItem } from "@/frontend/services/client/player.service";
+import { League, Position } from "@/backend/models/enums";
 
 const { getPlayersMock, useEffectMock, useStateMock } = vi.hoisted(() => ({
   getPlayersMock: vi.fn(),
@@ -14,11 +14,11 @@ vi.mock("react", () => ({
   useState: useStateMock,
 }));
 
-vi.mock("@/services/client/player.service", () => ({
+vi.mock("@/frontend/services/client/player.service", () => ({
   getPlayers: getPlayersMock,
 }));
 
-import { usePlayerCatalog } from "@/features/catalog/hooks/usePlayerCatalog";
+import { usePlayerCatalog } from "@/frontend/features/catalog/hooks/usePlayerCatalog";
 
 const filters: PlayerCatalogFilters = {
   league: "",

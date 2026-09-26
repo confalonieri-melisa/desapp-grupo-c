@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { validate } from "@/utils/validate";
+import { validate } from "@/backend/utils/validate";
 
 describe("validate", () => {
   const schema = z.object({ name: z.string().min(1) });

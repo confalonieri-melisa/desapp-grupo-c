@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { User, INVESTOR_INITIAL_CREDITS } from "@/models/User";
-import { UserRole } from "@/models/enums";
-import { DomainValidationError } from "@/models/errors";
+import { User, INVESTOR_INITIAL_CREDITS } from "@/backend/models/User";
+import { UserRole } from "@/backend/models/enums";
+import { DomainValidationError } from "@/backend/models/errors";
 
 describe("User", () => {
   const validUser = () =>

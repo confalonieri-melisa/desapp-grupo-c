@@ -4,13 +4,13 @@ import Link from "next/link";
 import { ChartNoAxesColumnIncreasing, ChartNoAxesCombined } from "lucide-react";
 import { useCallback, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import PageContainer from "@/components/ui/PageContainer/PageContainer";
-import { useAuth } from "@/context/AuthContext";
-import PlayerInformation from "@/features/profile/components/PlayerInformation/PlayerInformation";
-import PlayerProfileHeader from "@/features/profile/components/PlayerProfileHeader/PlayerProfileHeader";
-import PlayerStatSection from "@/features/profile/components/PlayerStatSection/PlayerStatSection";
-import { detailedStatistics, summaryStatistics } from "@/features/profile/utils/player-profile";
-import { usePlayerProfile } from "@/features/profile/hooks/usePlayerProfile";
+import PageContainer from "@/frontend/components/ui/PageContainer/PageContainer";
+import { useAuth } from "@/frontend/context/AuthContext";
+import PlayerInformation from "@/frontend/features/profile/components/PlayerInformation/PlayerInformation";
+import PlayerProfileHeader from "@/frontend/features/profile/components/PlayerProfileHeader/PlayerProfileHeader";
+import PlayerStatSection from "@/frontend/features/profile/components/PlayerStatSection/PlayerStatSection";
+import { detailedStatistics, summaryStatistics } from "@/frontend/features/profile/utils/player-profile";
+import { usePlayerProfile } from "@/frontend/features/profile/hooks/usePlayerProfile";
 import styles from "./PlayerProfilePage.module.scss";
 
 export default function PlayerProfilePage() {

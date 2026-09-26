@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getPlayerImage } from "@/utils/image-mapper";
+import { getPlayerImage } from "@/frontend/utils/image-mapper";
 
 describe("getPlayerImage", () => {
   it("returns the provided image URL when one exists", () => {
@@ -18,7 +18,7 @@ describe("getPlayerImage", () => {
   it("returns a placeholder when the image URL is undefined", () => {
     const result = getPlayerImage("player-1");
 
-    expect(result).toEqual(expect.stringMatching(/\/src\/assets\/players\/[1-6]\.png$/));
+    expect(result).toEqual(expect.stringMatching(/\/src\/frontend\/assets\/players\/[1-6]\.png$/));
   });
 
   it("maps different player IDs to available placeholders", () => {

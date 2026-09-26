@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { User } from "@/models/User";
-import { UserRole } from "@/models/enums";
-import { ConflictError, UnauthorizedError } from "@/errors/http.error";
-import type { UserRepository } from "@/repositories/user.repository";
-import { AuthService } from "@/services/auth.service";
-import { verifyToken } from "@/utils/jwt";
+import { User } from "@/backend/models/User";
+import { UserRole } from "@/backend/models/enums";
+import { ConflictError, UnauthorizedError } from "@/backend/errors/http.error";
+import type { UserRepository } from "@/backend/repositories/user.repository";
+import { AuthService } from "@/backend/services/auth.service";
+import { verifyToken } from "@/backend/utils/jwt";
 
 function repositoryMock(
   findByEmail: ReturnType<typeof vi.fn>,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { loginSchema } from '@/schemas/auth.schema';
-import { getFieldErrors } from '@/utils/form-errors';
+import { loginSchema } from '@/backend/schemas/auth.schema';
+import { getFieldErrors } from '@/frontend/utils/form-errors';
 
 describe('getFieldErrors', () => {
   it('maps the first issue for each named field', () => {
