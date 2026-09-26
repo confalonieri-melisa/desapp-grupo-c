@@ -4,6 +4,7 @@ import { IoFootballSharp } from "react-icons/io5";
 import type { PlayerCatalogFilters } from "@/catalog/player-catalog";
 import PlayerFilterSelect from "@/features/catalog/components/PlayerFilterSelect/PlayerFilterSelect";
 import styles from "./PlayerFilters.module.scss";
+import { formatEnumLabel } from "@/utils/player-labels";
 
 interface PlayerFiltersProps {
   filters: PlayerCatalogFilters;
@@ -13,11 +14,6 @@ interface PlayerFiltersProps {
   onChange: (filters: PlayerCatalogFilters) => void;
   onReset: () => void;
 }
-
-const formatOptionLabel = (value: string) => value
-  .toLowerCase()
-  .replaceAll("_", " ")
-  .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
 export default function PlayerFilters({
   filters,
@@ -49,7 +45,7 @@ export default function PlayerFilters({
           placeholder="Todas las ligas"
           options={leagues.map((league) => ({
             value: league,
-            label: formatOptionLabel(league),
+            label: formatEnumLabel(league),
           }))}
           onChange={(value) => onChange({
             ...filters,
@@ -73,7 +69,7 @@ export default function PlayerFilters({
           placeholder="Todas las posiciones"
           options={positions.map((position) => ({
             value: position,
-            label: formatOptionLabel(position),
+            label: formatEnumLabel(position),
           }))}
           onChange={(value) => onChange({
             ...filters,

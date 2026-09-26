@@ -1,4 +1,5 @@
 import type { CatalogPlayer } from "@/catalog/player-catalog";
+import Link from "next/link";
 import styles from "./PlayerCard.module.scss";
 import PlayerCardImage from "@/features/catalog/components/PlayerCardImage/PlayerCardImage";
 import PlayerCardIdentity from "@/features/catalog/components/PlayerCardIdentity/PlayerCardIdentity";
@@ -11,13 +12,15 @@ interface PlayerCardProps {
 
 export default function PlayerCard({ player }: PlayerCardProps) {
   return (
-    <article className={styles.card}>
-      <div className={styles.summary}>
-        <PlayerCardImage playerId={player.id} playerName={player.name} imageUrl={player.imageUrl} />
-        <PlayerCardIdentity player={player} />
-        <PlayerCardRating rating={player.statistics.rating} />
-      </div>
-      <PlayerCardMetrics statistics={player.statistics} />
-    </article>
+    <Link className={styles.link} href={`/players/${encodeURIComponent(player.id)}`}>
+      <article className={styles.card}>
+        <div className={styles.summary}>
+          <PlayerCardImage playerId={player.id} playerName={player.name} imageUrl={player.imageUrl} />
+          <PlayerCardIdentity player={player} />
+          <PlayerCardRating rating={player.statistics.rating} />
+        </div>
+        <PlayerCardMetrics statistics={player.statistics} />
+      </article>
+    </Link>
   );
 }

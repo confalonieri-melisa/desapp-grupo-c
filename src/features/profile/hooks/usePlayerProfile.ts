@@ -1,50 +1,40 @@
 import { useEffect, useState } from "react";
-import type { CatalogPlayer, PlayerCatalogFilters } from "@/catalog/player-catalog";
-import { getPlayers, type PlayerPagination } from "@/services/client/player.service";
+import { getPlayer, type PlayerApiDetail } from "@/services/client/player.service";
 
-interface UsePlayerCatalogResult {
-  players: CatalogPlayer[];
+interface UsePlayerProfileResult {
+  player: PlayerApiDetail | null;
   isLoading: boolean;
   error: string | null;
-  pagination: PlayerPagination;
 }
 
-export function usePlayerCatalog(
+export function usePlayerProfile(
   token: string | null,
-  filters: PlayerCatalogFilters,
-  page: number,
+  playerId: string,
   onUnauthorized: () => void,
-): UsePlayerCatalogResult {
-  const [players, setPlayers] = useState<CatalogPlayer[]>([]);
+): UsePlayerProfileResult {
+  const [player, setPlayer] = useState<PlayerApiDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [pagination, setPagination] = useState<PlayerPagination>({
-    total: 0,
-    page: 1,
-    limit: 12,
-    totalPages: 0,
-  });
 
   useEffect(() => {
-    if (!token) {
+    if (!token || !playerId) {
       return;
     }
 
     const controller = new AbortController();
 
-    const loadPlayers = async () => {
+    const loadPlayer = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const response = await getPlayers(token, filters, page, controller.signal);
+        const response = await getPlayer(token, playerId, controller.signal);
 
         if (controller.signal.aborted) {
           return;
         }
 
-        setPlayers(response.data);
-        setPagination(response.pagination);
+        setPlayer(response);
       } catch (requestError: unknown) {
         if (requestError instanceof DOMException && requestError.name === "AbortError") {
           return;
@@ -58,7 +48,7 @@ export function usePlayerCatalog(
         setError(
           requestError instanceof Error
             ? requestError.message
-            : "No se pudieron cargar los jugadores",
+            : "No se pudo cargar el jugador",
         );
       } finally {
         if (!controller.signal.aborted) {
@@ -67,10 +57,10 @@ export function usePlayerCatalog(
       }
     };
 
-    void loadPlayers();
+    void loadPlayer();
 
     return () => controller.abort();
-  }, [filters, onUnauthorized, page, token]);
+  }, [onUnauthorized, playerId, token]);
 
-  return { players, isLoading, error, pagination };
+  return { player, isLoading, error };
 }

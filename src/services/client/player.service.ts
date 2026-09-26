@@ -13,6 +13,11 @@ export interface PlayerApiItem {
   totalTokens: number;
 }
 
+export interface PlayerApiDetail extends PlayerApiItem {
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface PlayerApiResponse {
   data: PlayerApiItem[];
   pagination: {
@@ -21,6 +26,33 @@ interface PlayerApiResponse {
     limit: number;
     totalPages: number;
   };
+}
+
+async function parseApiResponse<T>(
+  response: Response,
+  fallbackMessage: string,
+): Promise<T> {
+  let data: unknown;
+  try {
+    data = await response.json();
+  } catch {
+    data = undefined;
+  }
+
+  if (!response.ok) {
+    const apiError = typeof data === "object" && data !== null
+      ? data as { message?: unknown; error?: unknown }
+      : {};
+    const message = typeof apiError.message === "string"
+      ? apiError.message
+      : typeof apiError.error === "string"
+        ? apiError.error
+        : fallbackMessage;
+
+    throw new Error(message);
+  }
+
+  return data as T;
 }
 
 export interface PlayerPagination {
@@ -33,7 +65,7 @@ export interface PlayerPagination {
 function getQueryString(filters: PlayerCatalogFilters, page: number): string {
   const query = new URLSearchParams({
     page: String(page),
-    limit: "18",
+    limit: "12",
   });
 
   if (filters.league) {
@@ -64,25 +96,25 @@ export async function getPlayers(
     signal,
   });
 
-  let data: unknown;
-  try {
-    data = await response.json();
-  } catch {
-    data = undefined;
-  }
+  return parseApiResponse<PlayerApiResponse>(
+    response,
+    "No se pudieron cargar los jugadores",
+  );
+}
+export async function getPlayer(
+  token: string,
+  id: string,
+  signal?: AbortSignal,
+): Promise<PlayerApiDetail> {
+  const response = await fetch(`/api/players/${encodeURIComponent(id)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    signal,
+  });
 
-  if (!response.ok) {
-    const apiError = typeof data === "object" && data !== null
-      ? data as { message?: unknown; error?: unknown }
-      : {};
-    const message = typeof apiError.message === "string"
-      ? apiError.message
-      : typeof apiError.error === "string"
-        ? apiError.error
-        : "No se pudieron cargar los jugadores";
-
-    throw new Error(message);
-  }
-
-  return data as PlayerApiResponse;
+  return parseApiResponse<PlayerApiDetail>(
+    response,
+    "No se pudo cargar el jugador",
+  );
 }

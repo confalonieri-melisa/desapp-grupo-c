@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getPlayers } from "@/services/client/player.service";
+import { getPlayer, getPlayers } from "@/services/client/player.service";
 import { League, Position } from "@/models/enums";
 
 describe("client player service", () => {
@@ -7,10 +7,37 @@ describe("client player service", () => {
     vi.restoreAllMocks();
   });
 
+  it("requests a player detail with the authentication token", async () => {
+    const response = {
+      id: "player-1",
+      name: "Raphinha",
+      team: "Barcelona",
+      league: League.LA_LIGA,
+      position: Position.FORWARD,
+      statistics: { goals: 5 },
+      currentQuote: 1,
+      totalTokens: 100,
+      createdAt: "2026-01-01T00:00:00.000Z",
+      updatedAt: "2026-01-02T00:00:00.000Z",
+    };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify(response), { status: 200 }),
+    );
+
+    await expect(getPlayer("token", "player-1")).resolves.toEqual(response);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/players/player-1",
+      expect.objectContaining({ signal: undefined }),
+    );
+    const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect(new Headers(requestInit.headers).has("Authorization")).toBe(true);
+  });
+
   it("requests players with the authentication token and filters", async () => {
     const response = {
       data: [],
-      pagination: { total: 0, page: 1, limit: 18, totalPages: 0 },
+      pagination: { total: 0, page: 1, limit: 12, totalPages: 0 },
     };
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(JSON.stringify(response), { status: 200 }),
@@ -23,12 +50,35 @@ describe("client player service", () => {
     }, 1)).resolves.toEqual(response);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "/api/players?page=1&limit=18&league=BUNDESLIGA&team=Schalke&position=DEFENDER",
+      "/api/players?page=1&limit=12&league=BUNDESLIGA&team=Schalke&position=DEFENDER",
       {
         headers: { Authorization: "Bearer token" },
         signal: undefined,
       },
     );
+  });
+
+  it("requests a player detail with an encoded id", async () => {
+    const response = { id: "player/1" };
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify(response), { status: 200 }),
+    );
+
+    await expect(getPlayer("token", "player/1")).resolves.toEqual(response);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/players/player%2F1",
+      expect.objectContaining({ signal: undefined }),
+    );
+  });
+
+  it("uses detail API errors and fallback messages", async () => {
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: "Player unavailable" }), { status: 500 }))
+      .mockResolvedValueOnce(new Response("server error", { status: 500 }));
+
+    await expect(getPlayer("token", "player-1")).rejects.toThrow("Player unavailable");
+    await expect(getPlayer("token", "player-1")).rejects.toThrow("No se pudo cargar el jugador");
   });
 
   it("throws the API error message when the request fails", async () => {
