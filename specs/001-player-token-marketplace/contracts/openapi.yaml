@@ -2,8 +2,7 @@ openapi: 3.0.3
 info:
   title: Player Token Marketplace API
   description: >
-    API REST para la plataforma de valuación y mercado de tokens de jugadores de fútbol
-    (Entrega 1: Core CI/CD, Modelo Mínimo, Autenticación y Catálogo).
+    API REST para la plataforma de valuación y mercado de tokens de jugadores de fútbol.
   version: 1.0.0
   contact:
     name: DesApp Grupo C
@@ -30,9 +29,7 @@ paths:
     post:
       summary: Registro de Usuario Inversor
       description: >
-        Crea una nueva cuenta de usuario inversor, almacena la contraseña
-        directamente para este alcance académico,
-        asigna automáticamente 1.000 créditos de bienvenida y confirma el registro.
+        Crea una nueva cuenta de usuario inversor, asigna automáticamente 1.000 créditos de bienvenida y confirma el registro.
       tags:
         - Authentication
       requestBody:

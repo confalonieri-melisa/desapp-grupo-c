@@ -7,7 +7,7 @@
 **Data Model**: [data-model.md](./data-model.md)  
 **API Contracts**: [contracts/openapi.yaml](./contracts/openapi.yaml)  
 **Postman Collection**: [contracts/postman_collection.json](./contracts/postman_collection.json)  
-**Quickstart**: [quickstart.md](./quickstart.md)  
+**Execution Guide**: [README.md](../../README.md)
 **Status**: Ready for Implementation  
 
 ---
@@ -86,7 +86,7 @@ desapp-grupo-c/
 │       ├── plan.md                  # Este plan de implementación
 │       ├── research.md              # Decisiones técnicas y arquitectura
 │       ├── data-model.md            # Esquemas de base de datos y modelos
-│       ├── quickstart.md            # Guía rápida de ejecución y pruebas
+│       ├── README.md                # Guía de ejecución y verificación
 │       └── contracts/
 │           ├── openapi.yaml         # Contrato OpenAPI 3.0
 │           └── postman_collection.json # Colección de Postman para verificación manual
@@ -225,8 +225,8 @@ Cada feature se implementa en su propia rama creada desde `main`, con commits gr
 **Dependencia**: Feature E mergeada en `main` (todos los endpoints estables)  
 **Contenido**:
 - Implementar ruta `GET /api/docs` exponiendo Swagger UI con el contrato `contracts/openapi.yaml`.
-- Actualizar `README.md` y `quickstart.md` con instrucciones de ejecución completas.
-- *Commit*: `feat(docs): swagger ui at /api/docs and updated quickstart`
+- Actualizar `README.md` con instrucciones de ejecución completas.
+- *Commit*: `feat(docs): swagger ui at /api/docs and updated README`
 - *PR hacia*: `main`
 
 ---
