@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default defineConfig({
-  schema: "./src/db/schema.ts",
-  out: "./src/db/migrations",
+  schema: "./src/backend/db/schema.ts",
+  out: "./src/backend/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
     url: process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/desapp_marketplace",

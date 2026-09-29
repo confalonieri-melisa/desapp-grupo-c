@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { getPlayer, getPlayers } from "@/services/client/player.service";
-import { League, Position } from "@/models/enums";
+import { getPlayer, getPlayers } from "@/frontend/services/client/player.service";
+import { League, Position } from "@/backend/models/enums";
 
 describe("client player service", () => {
   afterEach(() => {

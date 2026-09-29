@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { League, Position } from "@/models/enums";
-import { WhoScoredScraper } from "@/adapters/whoscored.scraper";
+import { League, Position } from "@/backend/models/enums";
+import { WhoScoredScraper } from "@/backend/adapters/whoscored.scraper";
 
 const player = {
   externalId: "300713",

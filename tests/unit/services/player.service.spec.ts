@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import { PlayerService } from "@/services/player.service";
-import { League, Position } from "@/models/enums";
+import { PlayerService } from "@/backend/services/player.service";
+import { League, Position } from "@/backend/models/enums";
 import type {
   PlayerRepository,
-} from "@/repositories/player.repository";
-import { NotFoundError } from "@/errors/http.error";
+} from "@/backend/repositories/player.repository";
+import { NotFoundError } from "@/backend/errors/http.error";
 
 describe("PlayerService", () => {
   const player = {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { Player } from "@/models/Player";
-import { League, Position } from "@/models/enums";
-import { DomainValidationError, InvalidLeagueError } from "@/models/errors";
+import { Player } from "@/backend/models/Player";
+import { League, Position } from "@/backend/models/enums";
+import { DomainValidationError, InvalidLeagueError } from "@/backend/models/errors";
 
 describe("Player", () => {
   const validPlayer = () =>

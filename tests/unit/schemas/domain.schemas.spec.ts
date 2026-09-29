@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { League, Position } from "@/models/enums";
-import { playerSchema } from "@/schemas/player.schema";
-import { tokenHoldingSchema } from "@/schemas/token-holding.schema";
-import { userRegistrationSchema } from "@/schemas/user.schema";
+import { League, Position } from "@/backend/models/enums";
+import { playerSchema } from "@/backend/schemas/player.schema";
+import { tokenHoldingSchema } from "@/backend/schemas/token-holding.schema";
+import { userRegistrationSchema } from "@/backend/schemas/user.schema";
 
 describe("domain input schemas", () => {
   it("normalizes and validates user registration input", () => {

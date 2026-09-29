@@ -19,7 +19,7 @@
     "db:studio": "drizzle-kit studio",
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
-    "db:seed": "tsx src/db/seeds/seed.ts",
+    "db:seed": "tsx src/backend/db/seeds/seed.ts",
     "db:sync-whoscored": "tsx scripts/sync-whoscored.ts"
   },
   "dependencies": {

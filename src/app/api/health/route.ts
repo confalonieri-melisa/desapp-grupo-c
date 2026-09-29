@@ -1,4 +1,4 @@
-import { getHealth } from "@/controllers/health.controller";
+import { getHealth } from "@/backend/controllers/health.controller";
 import { NextResponse } from "next/server";
 
 export function GET() {

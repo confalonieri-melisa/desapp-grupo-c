@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import { describe, expect, it } from "vitest";
-import { env } from "@/config/env";
-import { UnauthorizedError } from "@/errors/http.error";
-import { requireAuth } from "@/middlewares/auth.middleware";
-import { issueToken } from "@/utils/jwt";
+import { env } from "@/backend/config/env";
+import { UnauthorizedError } from "@/backend/errors/http.error";
+import { requireAuth } from "@/backend/middlewares/auth.middleware";
+import { issueToken } from "@/backend/utils/jwt";
 
 describe("requireAuth", () => {
   it("returns the payload for a valid bearer token", () => {

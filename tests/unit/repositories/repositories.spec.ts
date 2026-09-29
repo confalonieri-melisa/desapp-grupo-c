@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
-import { toPlayer } from "@/repositories/player.repository";
-import { toUser } from "@/repositories/user.repository";
-import { League, Position, UserRole } from "@/models/enums";
-import { Player } from "@/models/Player";
-import { User } from "@/models/User";
-import { PlayerRepository } from "@/repositories/player.repository";
-import { UserRepository } from "@/repositories/user.repository";
-import type { Database } from "@/db";
+import { toPlayer } from "@/backend/repositories/player.repository";
+import { toUser } from "@/backend/repositories/user.repository";
+import { League, Position, UserRole } from "@/backend/models/enums";
+import { Player } from "@/backend/models/Player";
+import { User } from "@/backend/models/User";
+import { PlayerRepository } from "@/backend/repositories/player.repository";
+import { UserRepository } from "@/backend/repositories/user.repository";
+import type { Database } from "@/backend/db";
 
 describe("persistence domain mappings", () => {
   it("maps a user row to the User aggregate", () => {

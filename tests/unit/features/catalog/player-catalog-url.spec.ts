@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { League, Position } from "@/models/enums";
+import { League, Position } from "@/backend/models/enums";
 import {
   emptyPlayerCatalogFilters,
   parsePlayerCatalogFilters,
   parsePlayerCatalogPage,
   serializePlayerCatalogFilters,
-} from "@/features/catalog/utils/player-catalog-url";
+} from "@/frontend/features/catalog/utils/player-catalog-url";
 
 describe("player catalog URL filters", () => {
   it("parses valid filters and ignores invalid enum values", () => {

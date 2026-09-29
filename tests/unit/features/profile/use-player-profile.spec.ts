@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { PlayerApiDetail } from "@/services/client/player.service";
-import { League, Position } from "@/models/enums";
+import type { PlayerApiDetail } from "@/frontend/services/client/player.service";
+import { League, Position } from "@/backend/models/enums";
 
 const { getPlayerMock, useEffectMock, useStateMock } = vi.hoisted(() => ({
   getPlayerMock: vi.fn(),
@@ -13,11 +13,11 @@ vi.mock("react", () => ({
   useState: useStateMock,
 }));
 
-vi.mock("@/services/client/player.service", () => ({
+vi.mock("@/frontend/services/client/player.service", () => ({
   getPlayer: getPlayerMock,
 }));
 
-import { usePlayerProfile } from "@/features/profile/hooks/usePlayerProfile";
+import { usePlayerProfile } from "@/frontend/features/profile/hooks/usePlayerProfile";
 
 const player: PlayerApiDetail = {
   id: "player-1",

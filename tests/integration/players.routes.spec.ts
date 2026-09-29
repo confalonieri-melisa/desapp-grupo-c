@@ -1,21 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { NotFoundError, UnauthorizedError } from "@/errors/http.error";
+import { NotFoundError, UnauthorizedError } from "@/backend/errors/http.error";
 
 const requireAuth = vi.hoisted(() => vi.fn());
 const getPlayers = vi.hoisted(() => vi.fn());
 const getById = vi.hoisted(() => vi.fn());
 
-vi.mock("@/middlewares/auth.middleware", () => ({ requireAuth }));
-vi.mock("@/controllers/player.controller", () => ({
+vi.mock("@/backend/middlewares/auth.middleware", () => ({ requireAuth }));
+vi.mock("@/backend/controllers/player.controller", () => ({
   PlayerController: class {
     getPlayers = getPlayers;
     getById = getById;
   },
 }));
-vi.mock("@/repositories/player.repository", () => ({
+vi.mock("@/backend/repositories/player.repository", () => ({
   PlayerRepository: class {},
 }));
-vi.mock("@/services/player.service", () => ({
+vi.mock("@/backend/services/player.service", () => ({
   PlayerService: class {},
 }));
 

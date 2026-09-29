@@ -1,12 +1,12 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
-import { db, closeDatabase } from "@/db";
-import { players, users } from "@/db/schema";
-import { League, Position, UserRole } from "@/models/enums";
-import { Player } from "@/models/Player";
-import { User } from "@/models/User";
-import { PlayerRepository } from "@/repositories/player.repository";
-import { UserRepository } from "@/repositories/user.repository";
+import { db, closeDatabase } from "@/backend/db";
+import { players, users } from "@/backend/db/schema";
+import { League, Position, UserRole } from "@/backend/models/enums";
+import { Player } from "@/backend/models/Player";
+import { User } from "@/backend/models/User";
+import { PlayerRepository } from "@/backend/repositories/player.repository";
+import { UserRepository } from "@/backend/repositories/user.repository";
 
 const userId = "00000000-0000-0000-0000-000000000101";
 const playerId = "00000000-0000-0000-0000-000000000102";

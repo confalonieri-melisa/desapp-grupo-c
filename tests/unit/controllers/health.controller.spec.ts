@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getHealth } from "@/controllers/health.controller";
+import { getHealth } from "@/backend/controllers/health.controller";
 
 describe("getHealth", () => {
   it("returns an ok status", () => {

@@ -9,7 +9,7 @@ vi.mock('react', () => ({
   useState: useStateMock,
 }));
 
-import { useAuthForm } from '@/hooks/useAuthForm';
+import { useAuthForm } from '@/frontend/hooks/useAuthForm';
 
 type FormData = {
   email: string;
