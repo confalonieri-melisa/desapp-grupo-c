@@ -28,6 +28,22 @@ identidades de equipos. Su contrato normalizado permite usar únicamente:
 La estrategia híbrida debe depender de un repositorio de lectura de la última
 actualización válida; no debe reutilizar el adapter HTTP.
 
+La rama base ya contiene esta feature: las tablas de contexto están en
+`src/backend/db/schema.ts` y las migraciones `0000`–`0002` están presentes.
+`CompetitionContextRepository` actualmente resuelve escritura, publicación y
+links, pero no ofrece todavía el método de lectura que la valuación necesita.
+Ese método debe agregarse en la capa de repositorio, sin duplicar tablas ni
+consultar el proveedor.
+
+### Temporal provenance gap
+
+La tabla `players` heredada contiene `statistics`, `league`, `team` y
+`position`, pero no contiene `season` ni un identificador de ingesta temporal.
+Por lo tanto, una normalización por liga–temporada–posición no puede asumir
+silenciosamente que las estadísticas actuales corresponden a la temporada
+solicitada. Esta decisión debe resolverse antes de generar `tasks.md` y antes
+de publicar referencias P5/P95.
+
 ### Normalization decision
 
 Se aprobó percentil 5 como `lower` y percentil 95 como `upper`, por
@@ -54,6 +70,9 @@ aprobarse el conjunto numérico de pesos por métrica y por posición. El plan
 propone que esos valores formen parte del payload de una versión publicada y
 que no se inventen como constantes ocultas. La implementación debe bloquear la
 publicación si faltan pesos válidos.
+
+También debe aprobarse la procedencia temporal de `players.statistics`, ya que
+es un requisito previo de la normalización aprobada.
 
 ## Alternatives rejected
 

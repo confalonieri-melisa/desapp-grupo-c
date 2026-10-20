@@ -82,22 +82,30 @@ manuales para todos o un subconjunto explícito.
   conserva versión, fuentes, contexto, explicación y errores.
 - **Incremental Development / YAGNI**: PASS. Se excluyen scheduler,
   consultas temporales, operaciones de mercado, ranking y UI nueva.
-- **GitFlow**: PASS once the branch is restacked on
+- **GitFlow**: PASS. The branch is now restacked on
   `football-data-context`. The PR must target `football-data-context`, not
   `main`, so it remains a stacked PR over the collective-context feature.
 
 ### Prerequisite gate
 
 La implementación se desarrolla sobre `football-data-context` y consume sus
-tablas, repositorio de lectura y asociaciones directamente. No se debe
-duplicar su modelo dentro de esta feature. El PR de `valuation-strategies`
-debe apuntar al PR/base `football-data-context`; cuando ese PR se mergee en
-`main`, el stack podrá promoverse sin cambiar el alcance de esta feature.
+tablas, repositorio y asociaciones directamente. En el workspace actual están
+presentes `competition_context_updates`, `competition_context_snapshots`,
+`team_competition_standings`, `team_source_links`,
+`CompetitionContextRepository`, `CompetitionContextService` y las migraciones
+`0000`–`0002`. No se debe duplicar su modelo dentro de esta feature. El PR de
+`valuation-strategies` debe apuntar al PR/base `football-data-context`; cuando
+ese PR se mergee en `main`, el stack podrá promoverse sin cambiar el alcance
+de esta feature.
 
-La verificación actual detecta que el workspace todavía tiene como ancestro
-inmediato `main`, no `football-data-context`. Antes de implementar se debe
-restackear o recrear `valuation-strategies` sobre `football-data-context` y
-conservar únicamente los cambios propios de esta feature.
+**Bloqueo previo a `tasks`**: la tabla `players` actual no contiene una
+temporada. Como la normalización aprobada requiere población por
+liga–temporada–posición, debe definirse si la temporada del recálculo será un
+parámetro que identifica el dataset WhoScored cargado, si se agregará
+procedencia temporal a la persistencia de jugadores/estadísticas, o si la
+referencia P5/P95 se almacenará para una temporada declarada aunque el
+catálogo no la modele. El plan no debe elegir una de estas alternativas sin
+aprobación.
 
 ## Architecture and Data Flow
 
@@ -184,8 +192,10 @@ El servicio de recálculo:
 - `src/backend/repositories/player.repository.ts`: agregar lecturas por
   alcance/IDs sin alterar el contrato de catálogo.
 - `src/backend/repositories/competition-context.repository.ts`: agregar una
-  lectura interna de la última versión válida y del standing vinculado, sin
-  invocar al proveedor.
+  lectura interna de la última actualización `VALID` por temporada y del
+  standing vinculado mediante `team_source_links`, sin invocar al proveedor.
+  El repositorio heredado actualmente solo expone escritura/sincronización y
+  `listWhoScoredTeams`; la lectura para valuación todavía no existe.
 - `src/backend/errors/http.error.ts`: errores de validación, conflicto,
   permisos o datos insuficientes solo si no existe una clase reutilizable.
 - `src/app/api/docs/route.ts`: reflejar los contratos nuevos.
@@ -426,7 +436,8 @@ inyectables; no se permite red durante el cálculo.
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
 | Pesos académicos no definidos | Resultados no reproducibles o arbitrarios | No hardcodear pesos silenciosamente; exigir configuración validada y aprobada |
-| Contexto colectivo aún no mergeado | Imposibilidad de calcular estrategia híbrida | Gate de dependencia y repositorio de lectura compartido |
+| Procedencia temporal ausente en `players` | No se puede formar de manera verificable la población P5/P95 por temporada | Resolver la temporada del dataset o agregar procedencia temporal antes de publicar referencias |
+| Lectura de contexto aún no expuesta | El motor no puede resolver el standing local | Agregar método de lectura en `CompetitionContextRepository`, sin reutilizar el adapter HTTP |
 | Cambios en snapshots | Históricos imposibles de reproducir | Referenciar `context_update_id` y congelar configuración |
 | Doble conteo entre fuentes | Score metodológicamente inválido | Whitelist de métricas y tests de separación de fuentes |
 | Datos insuficientes | Cotizaciones engañosas | Renormalización explícita, `INDIVIDUAL_ONLY` y errores por jugador |
@@ -436,8 +447,9 @@ inyectables; no se permite red durante el cálculo.
 
 ## Implementation Order
 
-1. Restackear `valuation-strategies` sobre `football-data-context` y confirmar
-   su contrato de lectura local.
+1. Resolver la procedencia de temporada para las estadísticas de `players`;
+   sin esta decisión no se puede generar correctamente la población
+   liga–temporada–posición.
 2. Cerrar y aprobar el set numérico de pesos iniciales; no implementarlo por
    inferencia.
 3. Crear modelos, schemas de configuración y motor puro con fixtures.
