@@ -37,7 +37,12 @@ export class CompetitionContextService {
       if (errors.some((error) => error.status === 429)) {
         throw new TooManyRequestsError();
       }
-      throw new BadGatewayError("Competition context synchronization failed");
+      const details = errors
+        .map((error) => `${error.league}: ${error.message}`)
+        .join("; ");
+      throw new BadGatewayError(
+        `Competition context synchronization failed: ${details}`,
+      );
     }
     return {
       updateId: finished?.id ?? update.id,

@@ -20,7 +20,10 @@ const standingRowSchema = z.object({
 export const footballDataPayloadSchema = z.object({
   competition: z.object({ name: z.string().optional() }).optional(),
   season: z.object({ startDate: z.string().optional() }).optional(),
-  standings: z.array(z.object({ table: z.array(standingRowSchema).min(1) })).length(1),
+  standings: z.array(z.object({
+    type: z.string().optional(),
+    table: z.array(standingRowSchema).min(1),
+  })).min(1),
 });
 
 export function normalizeStandings(
@@ -29,7 +32,10 @@ export function normalizeStandings(
   season: number,
 ): TeamCompetitionStanding[] {
   const parsed = footballDataPayloadSchema.parse(payload);
-  return parsed.standings[0].table.map((row) => ({
+  const totalStanding = parsed.standings.find((standing) => standing.type === "TOTAL")
+    ?? parsed.standings[0];
+
+  return totalStanding.table.map((row) => ({
     league,
     season,
     teamExternalId: String(row.team.id),
