@@ -35,6 +35,18 @@ npm test -- --run tests/integration/competition-context.repository.spec.ts
 
 ## Manual synchronization
 
+La sincronización operativa puede ejecutarse como script, igual que la de
+WhoScored:
+
+```powershell
+npm run db:sync-football-data -- --season 2026
+```
+
+El script usa `FOOTBALL_DATA_TOKEN` desde `.env`, consulta las cinco
+competiciones y persiste los datos en la base local. No requiere enviar la
+credencial por HTTP.
+
+También existe el endpoint protegido para una ejecución desde la aplicación.
 Con un JWT de superusuario:
 
 ```powershell
