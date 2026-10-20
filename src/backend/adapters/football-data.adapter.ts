@@ -83,6 +83,7 @@ export class FootballDataAdapter {
             transient,
           );
         }
+        await this.waitForRetry(response);
       } catch (error) {
         if (error instanceof FootballDataError && !error.transient) throw error;
         if (attempt === this.configuration.FOOTBALL_DATA_MAX_RETRIES) {
@@ -124,6 +125,20 @@ export class FootballDataAdapter {
       return await response.json();
     } catch {
       throw new FootballDataError("football-data.org returned invalid JSON");
+    }
+  }
+
+  private async waitForRetry(response: Response): Promise<void> {
+    const retryAfter = response.headers.get("retry-after");
+    if (!retryAfter) return;
+
+    const seconds = Number(retryAfter);
+    const delay = Number.isFinite(seconds)
+      ? Math.max(0, seconds * 1000)
+      : Math.max(0, Date.parse(retryAfter) - Date.now());
+
+    if (delay > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 }

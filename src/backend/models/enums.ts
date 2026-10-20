@@ -7,6 +7,24 @@ export enum League {
   LIGUE_1 = "LIGUE_1",
 }
 
+export const SUPPORTED_LEAGUES = [
+  League.PREMIER_LEAGUE,
+  League.BUNDESLIGA,
+  League.LA_LIGA,
+  League.SERIE_A,
+  League.LIGUE_1,
+] as const;
+
+export const CompetitionContextStatus = {
+  RUNNING: "RUNNING",
+  VALID: "VALID",
+  PARTIAL: "PARTIAL",
+  FAILED: "FAILED",
+} as const;
+
+export type CompetitionContextStatus =
+  typeof CompetitionContextStatus[keyof typeof CompetitionContextStatus];
+
 const officialLeagues = new Set<string>(Object.values(League));
 
 export function isOfficialLeague(value: unknown): value is League {

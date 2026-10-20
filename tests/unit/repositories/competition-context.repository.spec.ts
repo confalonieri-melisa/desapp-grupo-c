@@ -56,7 +56,7 @@ describe("CompetitionContextRepository", () => {
         callback(transaction as unknown as Database)),
     } as unknown as Database;
 
-    await expect(new CompetitionContextRepository(database).persistResults("update-1", [result]))
+    await expect(new CompetitionContextRepository(database).saveResults("update-1", [result]))
       .resolves.toBeUndefined();
 
     expect(transaction.insert).toHaveBeenCalledTimes(2);
@@ -103,7 +103,7 @@ describe("CompetitionContextRepository", () => {
         } as unknown as Database)),
     } as unknown as Database;
 
-    await new CompetitionContextRepository(database).saveConfirmedLinks([{
+    await new CompetitionContextRepository(database).saveTeamLinks([{
       league: League.PREMIER_LEAGUE,
       season: 2026,
       whoscoredTeamName: "Example",

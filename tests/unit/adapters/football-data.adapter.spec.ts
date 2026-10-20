@@ -40,4 +40,26 @@ describe("football-data adapter", () => {
       .getStandings(League.BUNDESLIGA, 2026)).rejects.toThrow();
     expect(unauthorizedFetch).toHaveBeenCalledTimes(1);
   });
+
+  it("respects a numeric Retry-After value before retrying", async () => {
+    vi.useFakeTimers();
+    try {
+      const retryingFetch = vi.fn()
+        .mockResolvedValueOnce(new Response("{}", {
+          status: 503,
+          headers: { "Retry-After": "1" },
+        }))
+        .mockResolvedValueOnce(new Response(JSON.stringify(payload), { status: 200 }));
+      const request = new FootballDataAdapter(configuration, { fetch: retryingFetch })
+        .getStandings(League.BUNDESLIGA, 2026);
+
+      await vi.advanceTimersByTimeAsync(999);
+      expect(retryingFetch).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+      await request;
+      expect(retryingFetch).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

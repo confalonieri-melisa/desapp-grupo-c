@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { League } from "@/backend/models/enums";
-import { resolveConfirmedTeamLink } from "@/backend/models/competition-context";
+import { resolveTeamLink } from "@/backend/models/team-identity";
 
 describe("competition context team association", () => {
   const base = {
@@ -10,24 +10,34 @@ describe("competition context team association", () => {
   };
 
   it("prefers an exact identity match", () => {
-    expect(resolveConfirmedTeamLink({
+    expect(resolveTeamLink({
       ...base,
       candidates: [{ externalId: "10", name: "Atletico de Madrid" }],
     })?.footballDataTeamExternalId).toBe("10");
   });
 
-  it("accepts a validated alias and rejects ambiguity", () => {
-    expect(resolveConfirmedTeamLink({
-      ...base,
-      candidates: [{ externalId: "20", name: "Atletico Madrid" }],
-      validatedAliases: { atleticodemadrid: "20" },
+  it("resolves known provider aliases and rejects ambiguity", () => {
+    expect(resolveTeamLink({
+      league: League.BUNDESLIGA,
+      season: 2026,
+      whoscoredTeamName: "RBL",
+      candidates: [{ externalId: "20", name: "RB Leipzig" }],
     })?.footballDataTeamExternalId).toBe("20");
-    expect(resolveConfirmedTeamLink({
+    expect(resolveTeamLink({
       ...base,
       candidates: [
         { externalId: "20", name: "Atletico Madrid" },
         { externalId: "21", name: "Atletico Madrid" },
       ],
     })).toBeNull();
+  });
+
+  it("resolves known provider naming differences automatically", () => {
+    expect(resolveTeamLink({
+      league: League.BUNDESLIGA,
+      season: 2026,
+      whoscoredTeamName: "RBL",
+      candidates: [{ externalId: "721", name: "RB Leipzig" }],
+    })?.footballDataTeamExternalId).toBe("721");
   });
 });

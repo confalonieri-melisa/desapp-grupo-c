@@ -32,7 +32,9 @@ describe("CompetitionContextService", () => {
     const adapter = adapterMock();
     const repository = {
       createUpdate: vi.fn().mockResolvedValue({ id: "update-1" }),
-      persistResults: vi.fn().mockResolvedValue(undefined),
+      saveResults: vi.fn().mockResolvedValue(undefined),
+      listWhoScoredTeams: vi.fn().mockResolvedValue([]),
+      saveTeamLinks: vi.fn().mockResolvedValue(undefined),
       finishUpdate: vi.fn().mockResolvedValue({
         id: "update-1",
         publishedAt: new Date("2026-01-01T00:00:00.000Z"),
@@ -44,7 +46,7 @@ describe("CompetitionContextService", () => {
 
     expect(adapter.getStandings).toHaveBeenCalledTimes(5);
     expect(repository.createUpdate).toHaveBeenCalledWith(2026, "superuser-1");
-    expect(repository.persistResults).toHaveBeenCalledWith(
+    expect(repository.saveResults).toHaveBeenCalledWith(
       "update-1",
       expect.arrayContaining([
         expect.objectContaining({ league: League.PREMIER_LEAGUE }),
@@ -75,7 +77,9 @@ describe("CompetitionContextService", () => {
         }));
     const repository = {
       createUpdate: vi.fn().mockResolvedValue({ id: "update-2" }),
-      persistResults: vi.fn().mockResolvedValue(undefined),
+      saveResults: vi.fn().mockResolvedValue(undefined),
+      listWhoScoredTeams: vi.fn().mockResolvedValue([]),
+      saveTeamLinks: vi.fn().mockResolvedValue(undefined),
       finishUpdate: vi.fn().mockResolvedValue({ id: "update-2" }),
     } as unknown as CompetitionContextRepository;
 

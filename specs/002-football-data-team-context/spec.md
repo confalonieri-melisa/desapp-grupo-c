@@ -98,7 +98,7 @@ Como operador autorizado, quiero iniciar y consultar sincronizaciones de context
 - **FR-005**: El sistema NO DEBE normalizar ni persistir desde football-data.org goleadores, asistencias, ratings, alineaciones, eventos de partidos, fixtures, forma reciente ni estadísticas individuales de jugadores.
 - **FR-006**: El sistema DEBE distinguir como mínimo competición, temporada, equipo, versión de sincronización y estado de publicación, evitando mezclar temporadas o competiciones.
 - **FR-007**: El sistema DEBE asociar la identidad de equipo de WhoScored con la de football-data.org mediante una clave compuesta por competición/temporada y una relación explícita de identificadores; los nombres y aliases solo pueden utilizarse para resolver esa relación.
-- **FR-008**: El sistema DEBE permitir registrar aliases de equipo únicamente cuando la correspondencia haya sido validada, y DEBE dejar sin vincular los casos ambiguos o no confirmados.
+- **FR-008**: El sistema DEBE resolver automáticamente las diferencias de nombres deterministas entre ambas fuentes usando la competición y los equipos del standings sincronizado; DEBE dejar sin vincular e informar únicamente los casos ambiguos o no resolubles.
 - **FR-009**: El sistema DEBE publicar como vigente únicamente una sincronización completa y válida para las cinco competiciones configuradas; una ejecución parcial o inválida DEBE conservarse para auditoría técnica sin reemplazar la vigente.
 - **FR-010**: El sistema DEBE conservar la última sincronización válida por combinación de temporada y conjunto de competiciones, incluyendo su identificador, fecha de publicación y estado.
 - **FR-011**: El sistema DEBE ser idempotente: repetir una sincronización con la misma competición, temporada y contenido no DEBE duplicar la relación vigente ni cambiar sus datos normalizados.
@@ -172,7 +172,7 @@ El snapshot original se conserva aparte de los registros normalizados. La existe
 - La primera sincronización será manual y explícitamente autorizada. La frecuencia automática, scheduler y reintentos operativos detallados se decidirán en una feature posterior.
 - La retención de snapshots y tablas históricas no se limita en esta especificación, porque es necesaria para recalcular fórmulas futuras y comparar temporadas.
 - La credencial del proveedor se configura fuera de los datos de dominio, nunca se expone en respuestas de API ni se incluye en logs o snapshots.
-- La relación inicial puede requerir revisión manual de aliases; no se permite inferir una asociación ambigua.
+- La resolución automática utiliza reglas de identidad deterministas por competición; una excepción no resoluble puede corregirse manualmente sin formar parte del flujo normal.
 - El modelo existente de `Player` continúa siendo la fuente de identidad WhoScored para estadísticas individuales; esta feature agrega contexto colectivo sin reemplazar ni copiar sus métricas.
 
 ## Decisions Pending

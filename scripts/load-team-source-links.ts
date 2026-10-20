@@ -40,7 +40,7 @@ async function main(): Promise<void> {
     );
   }
 
-  await new CompetitionContextRepository().saveConfirmedLinks(parsed.data);
+  await new CompetitionContextRepository().saveTeamLinks(parsed.data);
   console.log(`Loaded ${parsed.data.length} confirmed team links`);
 }
 

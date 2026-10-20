@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { CompetitionStandingResult } from "@/backend/adapters/football-data.adapter";
 import { db as defaultDatabase, type Database } from "@/backend/db";
 import {
@@ -6,11 +6,12 @@ import {
   competitionContextUpdates,
   teamCompetitionStandings,
   teamSourceLinks,
+  players,
 } from "@/backend/db/schema";
 import type {
   CompetitionContextStatus,
-  ConfirmedTeamLink,
-} from "@/backend/models/competition-context";
+} from "@/backend/models/enums";
+import type { TeamSourceLink } from "@/backend/models/team-identity";
 
 export class CompetitionContextRepository {
   constructor(private readonly database: Database = defaultDatabase) {}
@@ -25,7 +26,7 @@ export class CompetitionContextRepository {
     return rows[0];
   }
 
-  async persistResults(updateId: string, results: CompetitionStandingResult[]) {
+  async saveResults(updateId: string, results: CompetitionStandingResult[]) {
     return this.database.transaction(async (tx) => {
       for (const result of results) {
         const snapshotRows = await tx.insert(competitionContextSnapshots).values({
@@ -35,7 +36,7 @@ export class CompetitionContextRepository {
           sourceData: result.sourceData,
         }).returning();
         const snapshot = snapshotRows[0];
-        if (!snapshot) throw new Error("Snapshot could not be persisted");
+        if (!snapshot) throw new Error("Snapshot could not be saved");
         if (result.standings.length) {
           await tx.insert(teamCompetitionStandings).values(result.standings.map((standing) => ({
             contextUpdateId: updateId,
@@ -56,7 +57,7 @@ export class CompetitionContextRepository {
     return rows[0];
   }
 
-  async saveConfirmedLinks(links: ConfirmedTeamLink[]): Promise<void> {
+  async saveTeamLinks(links: TeamSourceLink[]): Promise<void> {
     if (!links.length) return;
 
     await this.database.transaction(async (transaction) => {
@@ -77,6 +78,17 @@ export class CompetitionContextRepository {
           });
       }
     });
+  }
+
+  async listWhoScoredTeams(): Promise<Array<{ league: TeamSourceLink["league"]; teamName: string }>> {
+    return this.database
+      .selectDistinct({
+        league: players.league,
+        teamName: players.team,
+      })
+      .from(players)
+      .where(eq(players.source, "WHOSCORED"))
+      .orderBy(sql`${players.league}`, sql`${players.team}`);
   }
 
 }

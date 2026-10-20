@@ -62,18 +62,15 @@ La operaciÃ³n debe ser la Ãºnica que contacte football-data.org. Ante un err
 la ejecuciÃ³n no se publica y la lectura interna continÃºa usando la Ãºltima
 publicaciÃ³n vÃ¡lida.
 
-## Carga de relaciones confirmadas
+## Asociación automática de equipos
 
-Las relaciones entre equipos se cargan desde un archivo JSON preparado
-manualmente. Se usa el nombre del equipo que ya proviene de WhoScored en
-`players.team`; no se agrega ni se solicita un identificador de equipo
-WhoScored:
+Durante una ejecución válida, el servicio toma automáticamente los equipos
+existentes en `players.team`, resuelve las diferencias de nombres conocidas
+entre WhoScored y football-data.org por competición y persiste los vínculos en
+`team_source_links`. No es necesario crear un JSON ni cargar un equipo por
+vez. La operación es idempotente: repetir la sincronización actualiza los
+vínculos sin duplicarlos.
 
-```powershell
-npm run db:load-team-links -- .\team-source-links.json
-```
-
-El archivo debe contener una lista de objetos con `league`, `season`, el nombre
-del equipo de WhoScored y el identificador/nombre de football-data.org. La
-operación es idempotente: repetirla actualiza la relación existente sin
-duplicarla.
+El script `db:load-team-links` queda disponible únicamente para corregir una
+excepción de proveedor que no pueda resolverse de forma determinista; no forma
+parte del flujo normal.
