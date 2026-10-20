@@ -92,4 +92,61 @@ describe("CompetitionContextService", () => {
       [expect.objectContaining({ status: 429 })],
     );
   });
+
+  it("saves only uniquely resolved team associations after a valid synchronization", async () => {
+    const adapter = adapterMock();
+    const repository = {
+      createUpdate: vi.fn().mockResolvedValue({ id: "update-3" }),
+      saveResults: vi.fn().mockResolvedValue(undefined),
+      listWhoScoredTeams: vi.fn().mockResolvedValue([
+        { league: League.PREMIER_LEAGUE, teamName: "Example" },
+        { league: League.PREMIER_LEAGUE, teamName: "Unknown" },
+      ]),
+      saveTeamLinks: vi.fn().mockResolvedValue(undefined),
+      finishUpdate: vi.fn().mockResolvedValue({ id: "update-3" }),
+    } as unknown as CompetitionContextRepository;
+
+    const result = await new CompetitionContextService(adapter, repository)
+      .update(2026);
+
+    expect(repository.saveTeamLinks).toHaveBeenCalledWith([
+      expect.objectContaining({
+        league: League.PREMIER_LEAGUE,
+        whoscoredTeamName: "Example",
+        footballDataTeamExternalId: `${League.PREMIER_LEAGUE}-1`,
+      }),
+    ]);
+    expect(result.updateId).toBe("update-3");
+  });
+
+  it("finishes as failed and reports a bad gateway when every league request fails", async () => {
+    const adapter = {
+      getStandings: vi.fn().mockRejectedValue("provider unavailable"),
+    } as unknown as FootballDataAdapter;
+    const repository = {
+      createUpdate: vi.fn().mockResolvedValue({ id: "update-4" }),
+      saveResults: vi.fn(),
+      listWhoScoredTeams: vi.fn(),
+      saveTeamLinks: vi.fn(),
+      finishUpdate: vi.fn().mockResolvedValue({ id: "update-4" }),
+    } as unknown as CompetitionContextRepository;
+
+    await expect(new CompetitionContextService(adapter, repository).update(2026))
+      .rejects.toMatchObject({
+        status: 502,
+        message: expect.stringContaining("Competition context synchronization failed"),
+      });
+
+    expect(repository.saveResults).not.toHaveBeenCalled();
+    expect(repository.finishUpdate).toHaveBeenCalledWith(
+      "update-4",
+      "FAILED",
+      expect.arrayContaining([
+        expect.objectContaining({
+          message: "Provider error",
+          status: undefined,
+        }),
+      ]),
+    );
+  });
 });

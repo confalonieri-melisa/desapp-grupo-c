@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { ConflictError, UnauthorizedError } from "@/backend/errors/http.error";
+import {
+  BadGatewayError,
+  ConflictError,
+  ForbiddenError,
+  UnauthorizedError,
+} from "@/backend/errors/http.error";
 import { toHttpResponse } from "@/backend/errors/to-http-response";
 
 describe("toHttpResponse", () => {
@@ -27,6 +32,20 @@ describe("toHttpResponse", () => {
 
   it("maps unauthorized errors as HTTP 401", () => {
     expect(toHttpResponse(new UnauthorizedError()).status).toBe(401);
+  });
+
+  it.each([
+    [new ForbiddenError(), 403, "Forbidden"],
+    [new BadGatewayError(), 502, "External provider unavailable"],
+  ])("maps new HTTP errors preserving their status and default message", async (
+    error,
+    expectedStatus,
+    expectedMessage,
+  ) => {
+    const response = toHttpResponse(error);
+
+    expect(response.status).toBe(expectedStatus);
+    await expect(response.json()).resolves.toEqual({ error: expectedMessage });
   });
 
   it("rethrows unexpected errors", () => {
