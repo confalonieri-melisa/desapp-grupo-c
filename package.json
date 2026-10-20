@@ -20,7 +20,8 @@
     "db:up": "docker compose up -d postgres",
     "db:down": "docker compose down",
     "db:seed": "tsx src/backend/db/seeds/seed.ts",
-    "db:sync-whoscored": "tsx scripts/sync-whoscored.ts"
+    "db:sync-whoscored": "tsx scripts/sync-whoscored.ts",
+    "db:load-team-links": "tsx scripts/load-team-source-links.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

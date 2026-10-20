@@ -1,11 +1,11 @@
-# Quickstart de validación
+# Quickstart de validaciÃ³n
 
 ## Prerequisites
 
 1. Node.js `>=22.12.0`.
 2. Dependencias instaladas con `npm ci`.
-3. PostgreSQL disponible para integración.
-4. `FOOTBALL_DATA_API_TOKEN` solo para una ejecución manual real; los tests no
+3. PostgreSQL disponible para integraciÃ³n.
+4. `FOOTBALL_DATA_TOKEN` solo para una ejecuciÃ³n manual real; los tests no
    lo necesitan.
 
 ## Local database
@@ -18,7 +18,7 @@ npm run db:migrate
 ## Offline validation
 
 Los tests deben usar fixtures locales para `PL`, `BL1`, `PD`, `SA` y `FL1`.
-Ningún comando de test debe acceder a internet:
+NingÃºn comando de test debe acceder a internet:
 
 ```powershell
 npm test -- --run
@@ -26,7 +26,7 @@ npm run lint
 npm run build
 ```
 
-Para integración con PostgreSQL:
+Para integraciÃ³n con PostgreSQL:
 
 ```powershell
 $env:RUN_DB_INTEGRATION_TESTS="true"
@@ -46,6 +46,19 @@ Invoke-RestMethod `
   -Body '{"season":2026}'
 ```
 
-La operación debe ser la única que contacte football-data.org. Ante un error,
-la ejecución no se publica y la lectura interna continúa usando la última
-publicación válida.
+La operaciÃ³n debe ser la Ãºnica que contacte football-data.org. Ante un error,
+la ejecuciÃ³n no se publica y la lectura interna continÃºa usando la Ãºltima
+publicaciÃ³n vÃ¡lida.
+
+## Carga de relaciones confirmadas
+
+Las relaciones entre equipos se cargan desde un archivo JSON preparado
+manualmente con identificadores ya verificados:
+
+```powershell
+npm run db:load-team-links -- .\team-source-links.json
+```
+
+El archivo debe contener una lista de objetos con `league`, `season`, los
+identificadores y nombres de WhoScored y football-data.org. La operación es
+idempotente: repetirla actualiza la relación existente sin duplicarla.

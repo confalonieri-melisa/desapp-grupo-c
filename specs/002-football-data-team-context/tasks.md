@@ -39,9 +39,9 @@ contrato existente de WhoScored.
 - [ ] T005 Generar la nueva migración Drizzle en
   `src/backend/db/migrations/` y verificar que no modifique migraciones
   existentes ni tablas de WhoScored.
-- [ ] T006 [P] Agregar fixtures JSON locales en
-  `tests/fixtures/football-data/` para las cinco competiciones y casos de
-  payload incompleto, JSON inválido y campos individuales que deben ignorarse.
+- [ ] T006 [P] Definir datos inline reutilizables en los tests unitarios para
+  las cinco competiciones y casos de payload incompleto, JSON inválido y campos
+  individuales que deben ignorarse, siguiendo la convención existente.
 
 **Checkpoint**: configuración, contratos de datos y esquema de persistencia
 listos para desarrollar el adapter.
@@ -74,7 +74,7 @@ normalizar únicamente el contexto colectivo requerido.
 - [ ] T011 [US1] Implementar
   `src/backend/repositories/competition-context.repository.ts` para insertar
   ejecuciones, snapshots y standings dentro de una transacción, incluyendo la
-  conservación del payload original y su huella.
+  conservación de los datos originales recibidos.
 - [ ] T012 [US1] Crear tests unitarios del repositorio con mocks en
   `tests/unit/repositories/competition-context.repository.spec.ts` para
   verificar el mapeo de snapshots, standings y errores sin tocar internet.
@@ -94,7 +94,7 @@ competiciones y conservar la última versión válida ante fallos.
 ### Implementation and verification
 
 - [ ] T014 [P] [US3] Después de implementar el servicio, crear tests unitarios en
-  `tests/unit/services/competition-context-update.service.spec.ts` para
+  `tests/unit/models/competition-context.spec.ts` para
   publicación cuando las cinco ligas son válidas, rechazo de ejecuciones
   parciales, persistencia de errores y conservación de la última publicación.
 - [ ] T015 [P] [US3] Agregar casos de `429`, `5xx`, timeout, `401`/`403`,
@@ -109,7 +109,7 @@ competiciones y conservar la última versión válida ante fallos.
 ### Implementation
 
 - [ ] T017 [US3] Implementar
-  `src/backend/services/competition-context-update.service.ts` para validar la
+  `src/backend/services/competition-context.service.ts` para validar la
   temporada, consultar las cinco competiciones, crear la ejecución,
   persistir snapshots y standings, y publicar solo cuando todas sean válidas.
 - [ ] T018 [US3] Implementar en el repositorio la consulta de la última
@@ -133,8 +133,7 @@ WhoScored y football-data.org.
 ### Implementation and verification
 
 - [ ] T021 [P] [US2] Después de implementar la resolución, crear tests unitarios en
-  `tests/unit/services/competition-context-update.service.spec.ts` o el archivo
-  de dominio correspondiente para coincidencia exacta, alias validado,
+  `tests/unit/models/competition-context.spec.ts` para coincidencia exacta, alias validado,
   competición/temporada incompatible y ambigüedad.
 - [ ] T022 [P] [US2] Agregar tests de integración en
   `tests/integration/competition-context.repository.spec.ts` para las
@@ -144,9 +143,9 @@ WhoScored y football-data.org.
 ### Implementation
 
 - [ ] T023 [US2] Implementar en
-  `src/backend/services/competition-context-update.service.ts` la resolución
-  mediante competición y temporada, priorizando identificadores y aceptando
-  solamente aliases previamente validados.
+  `src/backend/models/competition-context.ts` la resolución mediante
+  competición y temporada, priorizando identificadores y aceptando solamente
+  aliases previamente validados.
 - [ ] T024 [US2] Implementar en
   `src/backend/repositories/competition-context.repository.ts` la persistencia
   de asociaciones confirmadas en `team_source_links`; dejar sin vincular

@@ -80,7 +80,7 @@ No hay violaciones que requieran una excepción de complejidad.
 POST /api/competition-context/updates
   -> auth middleware (SUPERUSER)
   -> CompetitionContextController
-  -> CompetitionContextUpdateService
+  -> CompetitionContextService
   -> FootballDataAdapter (one standings request per league)
   -> payload schema + normalizer
   -> CompetitionContextRepository (single transaction)
@@ -102,7 +102,7 @@ no se modificará `players.statistics`.
   externas y request de sincronización.
 - `src/backend/models/competition-context.ts`: enums y tipos de dominio para
   estados, competiciones, snapshots, standings y asociaciones.
-- `src/backend/services/competition-context-update.service.ts`: orquestación de
+- `src/backend/services/competition-context.service.ts`: orquestación de
   las cinco consultas, validación completa, publicación atómica e idempotencia.
 - `src/backend/repositories/competition-context.repository.ts`: persistencia,
   consulta de la última ejecución válida y upserts históricos.
@@ -155,27 +155,22 @@ Agregar una migración nueva con las siguientes tablas lógicas:
 
 - `id` UUID primary key.
 - `context_update_id` foreign key.
-- `provider` constante `FOOTBALL_DATA`.
-- `competition_code` y `league`.
+- `league`.
 - `season`.
-- `endpoint_path` sin token ni query sensible.
-- `http_status`.
-- `fetched_at`.
-- `content_hash`.
-- `payload` JSONB inmutable.
-- Unique `(context_update_id, competition_code)`.
+- `source_data` JSONB inmutable con la respuesta original de football-data.org.
+- Unique `(context_update_id, league)`.
 
 ### `team_competition_standings`
 
 - `id` UUID primary key.
 - `context_update_id` foreign key.
 - `snapshot_id` foreign key.
-- `competition_code`, `league`, `season`.
+- `league`, `season`.
 - `team_external_id`, `team_name`.
 - `position`, `played_games`, `points`, `goal_difference`.
-- Unique `(context_update_id, competition_code, team_external_id)`.
+- Unique `(context_update_id, league, team_external_id)`.
 - Índices para `(league, season, team_external_id)` y
-  `(context_update_id, competition_code)`.
+  `(context_update_id, league)`.
 - Checks para posición, partidos jugados y puntos no negativos; diferencia de
   gol puede ser negativa.
 
@@ -188,8 +183,6 @@ Agregar una migración nueva con las siguientes tablas lógicas:
 - `whoscored_team_name`.
 - `football_data_team_external_id`.
 - `football_data_team_name`.
-- `resolution_method` (`EXACT_ID`, `VALIDATED_ALIAS`, `MANUAL`).
-- `validated_at`.
 - Unique por `(league, season, whoscored_team_external_id)` y por equipo
   football-data dentro de una misma liga/temporada.
 
@@ -213,7 +206,8 @@ se agrega una tabla de referencia duplicada.
    `goalDifference` negativo.
 6. Proyectar el payload externo al contrato interno mínimo. Campos como
    scorers, assists, ratings, matches o lineups no entran al contrato interno.
-7. Calcular el hash del payload recibido para detectar reejecuciones idénticas.
+7. Proyectar solo los campos del contexto colectivo; no conservar metadatos
+   técnicos que no participen de una regla de negocio.
 
 ## Synchronization Service
 
@@ -247,11 +241,11 @@ Success `200`:
 
 ```json
 {
-  "syncRunId": "uuid",
+  "updateId": "uuid",
   "season": 2026,
   "status": "VALID",
   "publishedAt": "2026-10-20T10:00:00.000Z",
-  "competitions": ["PL", "BL1", "PD", "SA", "FL1"]
+  "competitions": ["PREMIER_LEAGUE", "BUNDESLIGA", "LA_LIGA", "SERIE_A", "LIGUE_1"]
 }
 ```
 

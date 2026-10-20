@@ -113,9 +113,9 @@ Como operador autorizado, quiero iniciar y consultar sincronizaciones de context
 
 ### Key Entities
 
-- **CompetitionContextSnapshot**: Snapshot original e inmutable de una respuesta de standings. Identifica proveedor, endpoint lógico, competición, temporada, contenido original, huella, momento de obtención y resultado de validación.
+- **CompetitionContextSnapshot**: Snapshot original e inmutable de una respuesta de standings. Identifica la liga y temporada, y conserva los datos originales recibidos para poder recalcular el contexto si cambia la fórmula.
 - **TeamCompetitionStanding**: Registro normalizado de la posición de un equipo en una competición y temporada. Incluye equipo externo, nombre de vinculación, posición, partidos jugados, puntos, diferencia de gol y la actualización de contexto que lo originó.
-- **TeamSourceLink**: Relación validada entre el equipo identificado por WhoScored y el equipo identificado por football-data.org, con competición/temporada, identificadores externos, método de resolución, estado y fecha de validación.
+- **TeamSourceLink**: Relación validada entre el equipo identificado por WhoScored y el equipo identificado por football-data.org, con competición/temporada e identificadores externos.
 - **CompetitionContextUpdate**: Actualización del contexto colectivo de las cinco competiciones, con identidad, inicio/fin, estado (`VALID`, `PARTIAL`, `FAILED`), errores por competición y fecha de publicación.
 - **PublishedCompetitionContext**: Vista lógica obtenida consultando la última actualización válida publicada para una temporada y conjunto de competiciones; no requiere una entidad persistida adicional.
 
@@ -149,7 +149,7 @@ lineups o fixtures para esta feature.
 
 ### Normalized data boundary
 
-La frontera normalizada contiene únicamente los campos necesarios para reconstruir un score colectivo posterior: `competitionCode`, `season`, `teamExternalId`, `teamName`, `position`, `playedGames`, `points` y `goalDifference`. `teamName` solo soporta la vinculación y no puede utilizarse como métrica.
+La frontera normalizada contiene únicamente los campos necesarios para reconstruir un score colectivo posterior: `league`, `season`, `teamExternalId`, `teamName`, `position`, `playedGames`, `points` y `goalDifference`. `teamName` solo soporta la vinculación y no puede utilizarse como métrica.
 
 El snapshot original se conserva aparte de los registros normalizados. La existencia del snapshot no habilita a consumidores internos a tratar campos no permitidos como estadísticas individuales.
 

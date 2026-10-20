@@ -53,12 +53,12 @@ components:
     CollectiveSyncResponse:
       type: object
       required:
-        - syncRunId
+        - updateId
         - season
         - status
         - competitions
       properties:
-        syncRunId:
+        updateId:
           type: string
           format: uuid
         season:
@@ -77,8 +77,8 @@ components:
           items:
             type: string
             enum:
-              - PL
-              - BL1
-              - PD
-              - SA
-              - FL1
+              - PREMIER_LEAGUE
+              - BUNDESLIGA
+              - LA_LIGA
+              - SERIE_A
+              - LIGUE_1

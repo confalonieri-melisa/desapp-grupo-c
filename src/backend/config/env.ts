@@ -27,6 +27,10 @@ export const envSchema = z.object({
     parseBooleanEnvironmentValue,
     z.boolean().default(false),
   ),
+  FOOTBALL_DATA_BASE_URL: z.string().url().default("https://api.football-data.org"),
+  FOOTBALL_DATA_TOKEN: z.string().trim().min(1).default("test-football-data-token"),
+  FOOTBALL_DATA_TIMEOUT_MS: z.coerce.number().int().positive().default(10000),
+  FOOTBALL_DATA_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(2),
 });
 
 function parseBooleanEnvironmentValue(value: unknown): unknown {
