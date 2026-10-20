@@ -7,7 +7,8 @@
 
 ## Summary
 
-Implementar dos estrategias versionadas de valuación sobre datos persistidos:
+Implementar un MVP de dos estrategias versionadas de valuación sobre datos
+persistidos:
 
 1. `INDIVIDUAL_PERFORMANCE`, usando exclusivamente estadísticas individuales
    persistidas desde WhoScored.
@@ -17,10 +18,11 @@ Implementar dos estrategias versionadas de valuación sobre datos persistidos:
 
 La solución seguirá la arquitectura existente
 `route/controller → service → domain → repository`, con un motor de cálculo
-determinista y puro, configuraciones inmutables por versión, cotizaciones
-append-only y recálculos bajo demanda. No se implementarán scheduler,
-procesamiento asíncrono, ranking, consulta histórica por fecha ni operaciones
-de tokens.
+determinista y pequeño, dos estrategias conocidas en código, una configuración
+tipada por versión, cotizaciones append-only y un recálculo bajo demanda. Se
+implementará únicamente la activación de las dos estrategias conocidas; no se
+agregarán CRUD genérico, scheduler, procesamiento
+asíncrono, ranking, consulta histórica por fecha ni operaciones de tokens.
 
 ## Technical Context
 
@@ -30,9 +32,10 @@ de tokens.
 Zod, Vitest y `fetch` nativo solo para las integraciones existentes. No se
 requieren nuevas dependencias npm.
 
-**Storage**: PostgreSQL mediante Drizzle ORM. Las configuraciones y
-explicaciones extensas se conservarán en JSONB versionado; los campos de
-consulta frecuente quedarán tipados y normalizados.
+**Storage**: PostgreSQL mediante Drizzle ORM. La configuración y explicación
+se modelan como DTOs tipados en TypeScript y se validan con Zod; se persisten
+en JSONB únicamente como snapshots inmutables. Los scores, valor, estrategia,
+versión, jugador y fecha quedan en columnas normales.
 
 **Testing**: Vitest; tests unitarios de dominio/cálculo con fixtures
 deterministas, tests de repositorio y rutas contra PostgreSQL cuando
@@ -44,10 +47,10 @@ PostgreSQL.
 **Project Type**: Aplicación web con API REST en `src/app/api`, dominio y
 persistencia en `src/backend`, y documentación contractual en `specs`.
 
-**Performance Goals**: Un recálculo debe capturar una sola estrategia/version
+**Performance Goals**: Un recálculo debe capturar una sola estrategia/versión
 activa y una sola referencia de contexto por ejecución; las lecturas del motor
-no deben realizar requests externos. Las consultas deben paginar o procesar
-el alcance explícito sin cargar snapshots completos innecesarios.
+no deben realizar requests externos. El procesamiento debe recorrer todos los
+jugadores elegibles sin cargar snapshots completos innecesarios.
 
 **Constraints**:
 
@@ -63,9 +66,9 @@ el alcance explícito sin cargar snapshots completos innecesarios.
 - El recálculo publica resultados válidos y queda `PARTIAL` si hay errores.
 - No se consulta ningún proveedor durante el cálculo.
 
-**Scale/Scope**: Dos estrategias, múltiples versiones inmutables, una
-selección activa global, cotizaciones históricas por jugador y ejecuciones
-manuales para todos o un subconjunto explícito.
+**Scale/Scope**: Dos estrategias conocidas, múltiples versiones inmutables,
+una única versión activa global, referencias de normalización derivadas para
+la temporada vigente del market y cotizaciones históricas por jugador.
 
 ## Constitution Check
 
@@ -98,29 +101,16 @@ presentes `competition_context_updates`, `competition_context_snapshots`,
 ese PR se mergee en `main`, el stack podrá promoverse sin cambiar el alcance
 de esta feature.
 
-**Bloqueo previo a `tasks`**: la tabla `players` actual no contiene una
-temporada. Como la normalización aprobada requiere población por
-liga–temporada–posición, debe definirse si la temporada del recálculo será un
-parámetro que identifica el dataset WhoScored cargado, si se agregará
-procedencia temporal a la persistencia de jugadores/estadísticas, o si la
-referencia P5/P95 se almacenará para una temporada declarada aunque el
-catálogo no la modele. El plan no debe elegir una de estas alternativas sin
-aprobación.
+La tabla `players` actual no contiene una temporada porque representa el
+dataset vigente del market. Para este MVP, la temporada vigente del market se
+define en la configuración de la aplicación (por ejemplo, `2026`) y se reutiliza
+para resolver el contexto de football-data.org y las referencias de
+normalización. El endpoint de recálculo no recibe una temporada arbitraria; no
+se agrega `season` a `players` ni se introduce una entidad de ingesta temporal.
 
 ## Architecture and Data Flow
 
 ```text
-POST /api/valuation/strategies
-  -> auth + SUPERUSER
-  -> ValuationStrategyController
-  -> StrategyService
-  -> StrategyRepository
-
-POST /api/valuation/active
-  -> auth + SUPERUSER
-  -> ActiveStrategyService
-  -> StrategyRepository
-
 POST /api/quotes/recalculate
   -> auth + SUPERUSER
   -> QuoteRecalculationController
@@ -132,55 +122,58 @@ POST /api/quotes/recalculate
 ```
 
 El `ValuationEngine` debe ser independiente de Next.js, Drizzle y HTTP. Recibe
-un jugador, una configuración inmutable, estadísticas de referencia
-congeladas y, para la estrategia híbrida, un contexto colectivo ya resuelto.
-Devuelve scores, contribuciones, datos faltantes y valor o un error de dominio.
+un jugador, una estrategia conocida, un DTO de configuración inmutable,
+estadísticas de referencia congeladas y, para la estrategia híbrida, un
+contexto colectivo ya resuelto. Devuelve scores, contribuciones, datos
+faltantes y valor o un error de dominio.
 
 El servicio de recálculo:
 
 1. captura la estrategia/versión activa una sola vez;
 2. resuelve el conjunto de jugadores;
-3. obtiene la referencia de percentiles correspondiente a la versión;
+3. obtiene o genera las referencias de percentiles correspondientes a la
+   versión y temporada vigente del market;
 4. resuelve, sin red, el contexto colectivo publicado;
 5. calcula cada jugador;
-6. inserta las cotizaciones válidas y errores por jugador;
+6. inserta las cotizaciones válidas y acumula errores por jugador en la
+   respuesta;
 7. marca `COMPLETED`, `PARTIAL` o `FAILED`.
+
+No se crea una jerarquía de clases por métrica. Las métricas se representan
+como datos en un DTO validado y el motor aplica funciones pequeñas de
+normalización, ponderación y conversión.
 
 ## Files Affected
 
 ### New source files
 
-- `src/backend/models/valuation.ts`: códigos de estrategia, estados,
-  configuraciones, métricas, scores, contribuciones y errores de dominio.
+- `src/backend/models/valuation.ts`: códigos de las dos estrategias, DTOs
+  tipados de configuración/explicación, scores y errores de dominio.
 - `src/backend/services/valuation-engine.ts`: normalización P5/P95,
   polaridad, pesos efectivos, score individual, teamScore, combinación y
   conversión a crédito.
-- `src/backend/schemas/valuation.schema.ts`: schemas Zod de configuraciones,
-  publicación, activación y explicación persistida.
-- `src/backend/repositories/valuation.repository.ts`: estrategias,
-  versiones, activación global, referencias percentiles, ejecuciones y quotes.
-- `src/backend/services/valuation-strategy.service.ts`: publicación de
-  versiones inmutables y validaciones de administración.
+- `src/backend/schemas/valuation.schema.ts`: schemas Zod de configuración,
+  explicación y request de recálculo.
+- `src/backend/config/env.ts`: configurar y validar la temporada vigente del
+  market, sin permitir que el endpoint seleccione temporadas históricas.
+- `src/backend/repositories/valuation.repository.ts`: versión activa,
+  configuración versionada, referencias de normalización y cotizaciones
+  históricas.
 - `src/backend/services/quote-recalculation.service.ts`: captura de versión,
   lectura local de jugadores/contexto y publicación parcial.
-- `src/backend/controllers/valuation.controller.ts`: endpoints de
-  administración de estrategias y activación.
-- `src/backend/controllers/quote-recalculation.controller.ts`: endpoint de
-  recálculo y mapeo de resultados.
-- `src/app/api/valuation/strategies/route.ts`: alta/listado administrativo.
-- `src/app/api/valuation/strategies/[id]/versions/route.ts`: publicación de
-  versión inmutable.
-- `src/app/api/valuation/active/route.ts`: selección global activa.
+- `src/backend/services/valuation-strategy.service.ts`: activa una de las dos
+  estrategias conocidas y persiste su versión/configuración congelada.
 - `src/app/api/quotes/recalculate/route.ts`: recálculo bajo demanda.
+- `src/app/api/valuation/active/route.ts`: selección administrativa de la
+  estrategia activa.
 - `tests/unit/services/valuation-engine.spec.ts`: pruebas deterministas del
   motor.
-- `tests/unit/services/valuation-strategy.service.spec.ts`.
 - `tests/unit/services/quote-recalculation.service.spec.ts`.
+- `tests/unit/services/valuation-strategy.service.spec.ts`.
 - `tests/unit/models/valuation.spec.ts`.
 - `tests/unit/schemas/valuation.schema.spec.ts`.
 - `tests/integration/valuation.repositories.spec.ts`.
 - `tests/integration/quotes.routes.spec.ts`.
-- `tests/integration/valuation.routes.spec.ts`.
 - `tests/fixtures/valuation/*.json`: configuraciones, percentiles, jugadores,
   contexto y resultados esperados.
 
@@ -219,63 +212,66 @@ valuación.
 
 La migración debe agregar, como mínimo, las siguientes tablas:
 
-### `valuation_strategies`
-
-- `id` UUID primary key.
-- `code` único (`INDIVIDUAL_PERFORMANCE`,
-  `INDIVIDUAL_PLUS_TEAM_CONTEXT`).
-- `name`, `description`, `status`, timestamps.
-
 ### `valuation_strategy_versions`
 
 - `id` UUID primary key.
-- `strategy_id` foreign key.
-- `version` entero o string semántico único por estrategia.
-- `status` (`DRAFT`, `PUBLISHED`, `RETIRED`).
-- `configuration` JSONB inmutable, con métricas, polaridad, pesos, overrides,
-  shares, fórmula monetaria, política de faltantes y precisión.
-- `reference_population` JSONB con liga, temporada, posición, tamaño y
-  percentiles congelados.
-- `created_by`, `published_at`, timestamps.
-- Unique `(strategy_id, version)`.
+- `strategy_code` restringido a `INDIVIDUAL_PERFORMANCE` o
+  `INDIVIDUAL_PLUS_TEAM_CONTEXT`.
+- `version` string único por `strategy_code`.
+- `is_active` boolean, con una única versión activa global.
+- `configuration` JSONB inmutable, respaldado por el DTO `ValuationConfig`.
+- `created_by`, `created_at`, `activated_at`.
+- Unique `(strategy_code, version)`.
 
-La configuración publicada debe contener los pesos numéricos definitivos. La
-especificación define la estructura y reglas, pero no inventa silenciosamente
-los pesos académicos concretos; esos valores deben quedar aprobados antes de
-crear la versión inicial.
+No se crea una tabla separada para la identidad de cada estrategia ni una
+entidad `ActiveValuationStrategy`. La versión activa se resuelve mediante
+`is_active` y una operación transaccional que desactiva la anterior y activa
+la nueva. La configuración publicada debe contener pesos numéricos aprobados;
+no se inventan constantes ocultas.
 
-### `active_valuation_strategy`
+Las estadísticas y los contextos ya persistidos son la fuente para calcular
+las cotizaciones y las referencias P5/P95; no se cargan jugadores ni standings
+mediante seeds. La aplicación debe ofrecer una operación administrativa mínima
+para activar una de las dos estrategias conocidas. Esa operación recupera o
+persiste la configuración aprobada y luego marca una única versión activa. No
+se agrega un CRUD HTTP genérico de estrategias.
 
-- Una sola fila vigente global, o una constraint equivalente.
-- `strategy_version_id` foreign key.
-- `activated_by`, `activated_at`.
-- Historial de cambios separado o append-only para auditoría.
+### `valuation_normalization_references`
 
-### `quote_recalculations`
+Referencias estadísticas derivadas de los jugadores ya persistidos desde
+WhoScored. No es una fuente nueva ni una copia de jugadores: congela los
+límites utilizados por una versión para una combinación de liga, temporada,
+posición y métrica.
 
-- `id`, `strategy_version_id`, `context_update_id` nullable.
-- `scope` JSONB o filtros normalizados.
-- `status` (`RUNNING`, `COMPLETED`, `PARTIAL`, `FAILED`).
-- `requested_by`, timestamps.
-- contadores de total, calculados y rechazados.
-- `errors` JSONB sin secretos.
+- `id`, `strategy_version_id`, `league`, `season`, `position`, `metric`.
+- `lower_percentile`, `upper_percentile`, `population_size`, `created_at`.
+- Unique `(strategy_version_id, league, season, position, metric)`.
+- Append-only; si se recalibra, se publica otra versión de estrategia.
 
 ### `player_quotes`
 
-- `id`, `player_id`, `recalculation_id`, `strategy_version_id`.
+- `id`, `player_id`, `strategy_version_id`.
 - `individual_score` nullable solo en errores; `team_score` nullable.
 - `final_score`, `quote_value`, `currency`/unidad (`CREDIT_PER_TOKEN`).
 - `calculated_at`.
 - `context_update_id` nullable.
-- `explanation` JSONB con contribuciones, pesos efectivos, límites,
-  fuentes, métricas faltantes y degradación.
+- `explanation` JSONB como snapshot del DTO `QuoteExplanation`, con
+  contribuciones, pesos efectivos, límites, fuentes, métricas faltantes y
+  degradación.
 - Append-only: no usar upsert ni `updated_at`.
 - Índices `(player_id, calculated_at DESC)` y
-  `(recalculation_id, player_id)`.
+  `(strategy_version_id, calculated_at DESC)`.
+
+El MVP no persiste una entidad de ejecución de recálculo. La respuesta del
+endpoint informa resultados y errores de la solicitud; el historial persistido
+es el de `player_quotes`.
 
 ### Constraints and references
 
-- `strategy_version_id` debe apuntar a una versión publicada para calcular.
+- `strategy_version_id` debe apuntar a la versión activa capturada para
+  calcular.
+- Cada normalización debe usar referencias de la misma versión, liga,
+  temporada, posición y métrica.
 - `final_score` debe estar en `[0,1]`; `quote_value` en `[1,100]`.
 - Shares suman `1`, son no negativos y la primera versión exige `0.75/0.25`.
 - Pesos no negativos y al menos un peso efectivo.
@@ -289,9 +285,9 @@ crear la versión inicial.
 ### Individual component
 
 1. Leer únicamente `players.statistics` y `players.position`.
-2. Para cada métrica configurada, buscar el P5/P95 congelado para
-   `league + season + position`; para `UNKNOWN` usar la población definida por
-   la versión.
+2. Para cada métrica configurada, buscar o generar una referencia congelada
+   para `strategyVersion + league + season + position`; para `UNKNOWN` usar la
+   población definida por la configuración.
 3. Aplicar clipping y polaridad positiva/negativa.
 4. Excluir ausentes o inválidas y renormalizar los pesos efectivos.
 5. Calcular:
@@ -330,46 +326,36 @@ No se redondean scores intermedios.
 
 ## API Contracts
 
-### `POST /api/valuation/strategies`
+### `POST /api/quotes/recalculate`
 
-Superusuario. Crea la identidad lógica de una estrategia.
+Superusuario. Ejecuta para todos los jugadores elegibles usando la única
+versión activa global y la temporada vigente del market:
 
 ```json
-{
-  "code": "INDIVIDUAL_PERFORMANCE",
-  "name": "Rendimiento individual",
-  "description": "Valuación basada en WhoScored"
-}
+{}
 ```
 
-### `POST /api/valuation/strategies/{strategyId}/versions`
-
-Superusuario. Publica una configuración inmutable, incluyendo métricas,
-pesos, overrides por posición, referencias P5/P95, shares y fórmula.
-Versiones publicadas no se editan.
+El recálculo siempre procesa todos los jugadores elegibles usando la única
+versión activa global y la temporada vigente configurada por la aplicación. La
+respuesta informa estrategia, versión capturada, cotizaciones creadas y
+errores por jugador. No se agrega paginación del front-end, selección parcial
+de jugadores ni consulta de temporadas históricas en esta feature.
 
 ### `POST /api/valuation/active`
 
-Superusuario. Selecciona globalmente una versión publicada:
-
-```json
-{ "strategyVersionId": "uuid" }
-```
-
-### `POST /api/quotes/recalculate`
-
-Superusuario. Ejecuta para todos o para IDs explícitos:
+Superusuario. Selecciona la estrategia activa entre las dos estrategias
+conocidas:
 
 ```json
 {
-  "playerIds": ["uuid"],
-  "season": 2026
+  "strategyCode": "INDIVIDUAL_PLUS_TEAM_CONTEXT"
 }
 ```
 
-`playerIds` es opcional. La respuesta informa `recalculationId`, estrategia,
-versión capturada, estado, contadores, cotizaciones creadas y errores por
-jugador. No se agrega endpoint de consulta histórica en esta feature.
+La operación no administra identidades arbitrarias ni permite editar fórmulas
+libremente. Recupera o persiste una versión/configuración aprobada, conserva
+sus referencias de normalización por temporada cuando se calculen, y deja una
+única versión activa.
 
 Respuestas mínimas:
 
@@ -377,8 +363,8 @@ Respuestas mínimas:
 - `400`: configuración/alcance inválido.
 - `401`: JWT ausente o inválido.
 - `403`: no es superusuario.
-- `409`: no existe estrategia activa o versión no publicable.
-- `422`: datos insuficientes para una solicitud individual.
+- `409`: no existe versión activa global.
+- `422`: datos insuficientes para uno o más jugadores del market.
 
 Los contratos deben documentar explícitamente que `teamScore` es nullable y
 que `sourceBreakdown` distingue `WHOSCORED` de `FOOTBALL_DATA`.
@@ -404,19 +390,19 @@ que `sourceBreakdown` distingue `WHOSCORED` de `FOOTBALL_DATA`.
 
 Con PostgreSQL real y migraciones:
 
-- Crear/publicar versiones y evitar mutaciones.
+- Crear versiones de las dos estrategias y evitar mutaciones.
 - Mantener una sola estrategia activa global.
-- Persistir ejecución, cotizaciones y errores parciales.
+- Persistir cotizaciones y verificar que los errores no generan filas falsas.
 - Append-only: recalcular genera nuevas filas.
 - Referenciar contexto válido sin duplicar standings.
 - Índices, foreign keys, checks y límites numéricos.
 
 ### Route/API tests
 
-- Superusuario autorizado en los cuatro endpoints.
+- Superusuario autorizado en el endpoint de recálculo.
 - `401`/`403` sin contactar repositorios de mutación.
 - `409` sin estrategia activa.
-- `200` completo y `PARTIAL` con errores por jugador.
+- `200` completo y parcial con errores por jugador.
 - Contratos con `teamScore: null` y explicación de degradación.
 
 Todos los tests deben usar fixtures locales y repositorios/adapters
@@ -436,7 +422,7 @@ inyectables; no se permite red durante el cálculo.
 | Riesgo | Impacto | Mitigación |
 |---|---|---|
 | Pesos académicos no definidos | Resultados no reproducibles o arbitrarios | No hardcodear pesos silenciosamente; exigir configuración validada y aprobada |
-| Procedencia temporal ausente en `players` | No se puede formar de manera verificable la población P5/P95 por temporada | Resolver la temporada del dataset o agregar procedencia temporal antes de publicar referencias |
+| Dataset WhoScored temporal implícito | `players` no distingue temporadas históricas | Configurar una única temporada vigente del market y usarla para contexto y referencias, sin exponer temporadas arbitrarias en el recálculo |
 | Lectura de contexto aún no expuesta | El motor no puede resolver el standing local | Agregar método de lectura en `CompetitionContextRepository`, sin reutilizar el adapter HTTP |
 | Cambios en snapshots | Históricos imposibles de reproducir | Referenciar `context_update_id` y congelar configuración |
 | Doble conteo entre fuentes | Score metodológicamente inválido | Whitelist de métricas y tests de separación de fuentes |
@@ -447,16 +433,17 @@ inyectables; no se permite red durante el cálculo.
 
 ## Implementation Order
 
-1. Resolver la procedencia de temporada para las estadísticas de `players`;
-   sin esta decisión no se puede generar correctamente la población
-   liga–temporada–posición.
+1. Configurar la temporada vigente del market y verificar que coincide con los
+   datos WhoScored actualmente persistidos y el contexto válido de
+   football-data.org, sin modificar `players`.
 2. Cerrar y aprobar el set numérico de pesos iniciales; no implementarlo por
    inferencia.
-3. Crear modelos, schemas de configuración y motor puro con fixtures.
+3. Crear DTOs, schemas y motor puro con fixtures.
 4. Agregar tablas Drizzle, migración e índices.
-5. Implementar repositorios de estrategias, referencias, ejecución y quotes.
-6. Implementar servicios de publicación/activación y recálculo.
-7. Implementar controllers, rutas, autorización y OpenAPI.
+5. Implementar repositorio de versión activa y quotes, incluyendo la lectura
+   de contexto heredada.
+6. Implementar servicio de recálculo.
+7. Implementar controller, ruta, autorización y OpenAPI.
 8. Ejecutar unit tests, integración, lint y build.
 
 ## Definition of Done for This Plan

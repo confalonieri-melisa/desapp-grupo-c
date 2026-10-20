@@ -39,10 +39,9 @@ consultar el proveedor.
 
 La tabla `players` heredada contiene `statistics`, `league`, `team` y
 `position`, pero no contiene `season` ni un identificador de ingesta temporal.
-Por lo tanto, una normalización por liga–temporada–posición no puede asumir
-silenciosamente que las estadísticas actuales corresponden a la temporada
-solicitada. Esta decisión debe resolverse antes de generar `tasks.md` y antes
-de publicar referencias P5/P95.
+Para este MVP, `players` representa el dataset WhoScored vigente del market y
+la temporada vigente se configura en la aplicación. No se agrega procedencia
+temporal a `players` ni se expone una temporada arbitraria en el recálculo.
 
 ### Normalization decision
 
@@ -71,8 +70,10 @@ propone que esos valores formen parte del payload de una versión publicada y
 que no se inventen como constantes ocultas. La implementación debe bloquear la
 publicación si faltan pesos válidos.
 
-También debe aprobarse la procedencia temporal de `players.statistics`, ya que
-es un requisito previo de la normalización aprobada.
+La procedencia temporal queda resuelta operacionalmente por la configuración
+de una única temporada vigente, que debe coincidir con el dataset WhoScored
+cargado y con el contexto publicado de football-data.org. La limitación es
+explícita y no se presenta como historial de temporadas dentro de `players`.
 
 ## Alternatives rejected
 

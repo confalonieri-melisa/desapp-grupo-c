@@ -5,24 +5,24 @@
 1. Check out the feature on top of the `football-data-context` base branch/PR;
    its migration must be present in the stacked workspace.
 2. Configure `DATABASE_URL`, `JWT_SECRET` and an existing superuser.
-3. Load players from WhoScored and synchronize a valid collective context for
-   the target season.
+3. Configure the current market season (for example, `2026`), load players
+   from WhoScored for that season and synchronize its valid collective context.
 4. Create the valuation migration before running the API.
 
 ## Configuration flow
 
-1. Create the two strategy identities:
+1. Create one immutable version row for each known strategy:
    - `INDIVIDUAL_PERFORMANCE`
    - `INDIVIDUAL_PLUS_TEAM_CONTEXT`
-2. Publish one immutable version for each strategy with:
+2. Store the typed `ValuationConfig` DTO snapshot in the version row with:
    - approved metric weights;
    - P5/P95 references;
    - position overrides;
    - collective weights;
    - `0.75/0.25` shares;
    - `1 + 99 * score` formula.
-3. Activate exactly one version globally.
-4. Request a recalculation for all players or explicit player IDs.
+3. Select the active strategy through `POST /api/valuation/active`.
+4. Request a recalculation for all eligible players with an empty body: `{}`.
 
 ## Expected demonstration
 

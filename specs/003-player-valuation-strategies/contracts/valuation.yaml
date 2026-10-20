@@ -2,56 +2,11 @@ openapi: 3.0.3
 info:
   title: Player Valuation API
   version: 1.0.0
-  description: Administration of valuation strategies and on-demand quote recalculation.
+  description: On-demand player quote recalculation using a versioned strategy.
 paths:
-  /valuation/strategies:
-    post:
-      summary: Create a valuation strategy
-      tags: [Valuation]
-      security: [{ BearerAuth: [] }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StrategyCreateRequest'
-      responses:
-        '201':
-          description: Strategy created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Strategy'
-        '401': { description: Unauthorized }
-        '403': { description: Superuser required }
-        '409': { description: Strategy code already exists }
-  /valuation/strategies/{strategyId}/versions:
-    post:
-      summary: Publish an immutable strategy version
-      tags: [Valuation]
-      security: [{ BearerAuth: [] }]
-      parameters:
-        - $ref: '#/components/parameters/StrategyId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/StrategyVersionPublishRequest'
-      responses:
-        '201':
-          description: Version published
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StrategyVersion'
-        '400': { description: Invalid configuration }
-        '401': { description: Unauthorized }
-        '403': { description: Superuser required }
-        '409': { description: Version already exists or strategy is invalid }
   /valuation/active:
     post:
-      summary: Activate the global valuation strategy version
+      summary: Select the active valuation strategy
       tags: [Valuation]
       security: [{ BearerAuth: [] }]
       requestBody:
@@ -59,17 +14,18 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [strategyVersionId]
-              properties:
-                strategyVersionId:
-                  type: string
-                  format: uuid
+              $ref: '#/components/schemas/ActivateStrategyRequest'
       responses:
-        '200': { description: Active version changed }
+        '200':
+          description: Active strategy selected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveStrategyResponse'
+        '400': { description: Invalid strategy code }
         '401': { description: Unauthorized }
         '403': { description: Superuser required }
-        '409': { description: Version is not published }
+        '409': { description: Strategy configuration cannot be created from persisted data }
   /quotes/recalculate:
     post:
       summary: Recalculate player quotes on demand
@@ -83,100 +39,53 @@ paths:
               $ref: '#/components/schemas/RecalculateRequest'
       responses:
         '200':
-          description: Recalculation completed or partially completed
+          description: Recalculation completed, including per-player failures.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecalculationResponse'
-        '400': { description: Invalid scope }
+        '400': { description: Invalid request }
         '401': { description: Unauthorized }
         '403': { description: Superuser required }
-        '409': { description: No active strategy }
+        '409': { description: No active global version }
 components:
   securitySchemes:
     BearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
-  parameters:
-    StrategyId:
-      name: strategyId
-      in: path
-      required: true
-      schema:
-        type: string
-        format: uuid
   schemas:
-    StrategyCreateRequest:
+    ActivateStrategyRequest:
       type: object
-      required: [code, name, description]
+      required: [strategyCode]
       properties:
-        code:
+        strategyCode:
           type: string
           enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
-        name: { type: string, minLength: 1 }
-        description: { type: string, minLength: 1 }
-    Strategy:
-      allOf:
-        - $ref: '#/components/schemas/StrategyCreateRequest'
-        - type: object
-          required: [id, createdAt]
-          properties:
-            id: { type: string, format: uuid }
-            createdAt: { type: string, format: date-time }
-    StrategyVersionPublishRequest:
+    ActiveStrategyResponse:
       type: object
-      required:
-        - version
-        - configuration
-        - referencePopulation
+      required: [strategyCode, version]
       properties:
-        version: { type: string, minLength: 1 }
-        configuration:
-          type: object
-          additionalProperties: true
-          description: Immutable metrics, weights, shares, formula and missing-data policy.
-        referencePopulation:
-          type: object
-          additionalProperties: true
-          description: Frozen P5/P95 references by league, season and position.
-    StrategyVersion:
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
+        version: { type: string }
+    RecalculateRequest:
       type: object
-      required: [id, strategyId, version, status, configuration]
+      description: Empty request. The current market season is application configuration.
+    RecalculationResponse:
+      type: object
+      required: [strategyCode, version, status, calculated, rejected, quotes, errors]
       properties:
-        id: { type: string, format: uuid }
-        strategyId: { type: string, format: uuid }
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
         version: { type: string }
         status:
           type: string
-          enum: [DRAFT, PUBLISHED, RETIRED]
-        configuration:
-          type: object
-          additionalProperties: true
-        referencePopulation:
-          type: object
-          additionalProperties: true
-    RecalculateRequest:
-      type: object
-      properties:
-        playerIds:
-          type: array
-          items: { type: string, format: uuid }
-        season:
-          type: integer
-          minimum: 2000
-    RecalculationResponse:
-      type: object
-      required: [recalculationId, strategyVersionId, status, total, calculated, rejected]
-      properties:
-        recalculationId: { type: string, format: uuid }
-        strategyVersionId: { type: string, format: uuid }
-        status:
-          type: string
-          enum: [COMPLETED, PARTIAL, FAILED]
-        total: { type: integer }
-        calculated: { type: integer }
-        rejected: { type: integer }
+          enum: [COMPLETED, PARTIAL]
+        calculated: { type: integer, minimum: 0 }
+        rejected: { type: integer, minimum: 0 }
         errors:
           type: array
           items:
@@ -191,9 +100,21 @@ components:
             $ref: '#/components/schemas/QuoteResult'
     QuoteResult:
       type: object
-      required: [playerId, individualScore, finalScore, quoteValue, calculatedAt, explanation]
+      required:
+        - playerId
+        - strategyCode
+        - version
+        - individualScore
+        - finalScore
+        - quoteValue
+        - calculatedAt
+        - explanation
       properties:
         playerId: { type: string, format: uuid }
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
+        version: { type: string }
         individualScore: { type: number, minimum: 0, maximum: 1 }
         teamScore:
           type: number
@@ -205,4 +126,5 @@ components:
         calculatedAt: { type: string, format: date-time }
         explanation:
           type: object
+          description: Typed QuoteExplanation snapshot for auditability.
           additionalProperties: true

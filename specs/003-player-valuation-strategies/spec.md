@@ -19,11 +19,13 @@ datos ya persistidos por las integraciones existentes:
   `competition_context_updates`, `team_competition_standings` y
   `team_source_links`; no consulta el proveedor durante el cálculo.
 
-El alcance incluye dos estrategias configurables, administración de la
-estrategia activa, recálculo bajo demanda y un historial inmutable de
-cotizaciones. No incluye consulta de cotización a una fecha, compra/venta de
-tokens, historial de operaciones, ranking, dashboard ni procesamiento
-asíncrono/scheduler.
+El alcance incluye dos estrategias configurables, una versión activa global,
+una operación administrativa para seleccionarla, recálculo bajo demanda y un
+historial inmutable de cotizaciones. La selección se realiza sobre las dos
+estrategias conocidas por la aplicación y persiste su configuración/versionado;
+no se agrega un CRUD HTTP genérico. No incluye consulta de cotización a una
+fecha, compra/venta de tokens, historial de operaciones, ranking, dashboard ni
+procesamiento asíncrono/scheduler.
 
 ## User Scenarios & Testing
 
@@ -80,7 +82,7 @@ parte individual y la parte del equipo.
    **Then** sus `teamScore` pueden diferir y la diferencia final queda limitada
    por el peso colectivo configurado.
 3. **Given** que no existe asociación `team_source_links` o no hay una versión
-   válida publicada para la temporada del jugador, **When** se calcula la
+   válida publicada para la temporada vigente del market, **When** se calcula la
    estrategia híbrida, **Then** no se inventa contexto, se aplica la política
    aprobada para datos faltantes y el detalle informa la ausencia.
 4. **Given** un snapshot de football-data.org que contenga goleadores,
@@ -219,16 +221,16 @@ estado y el motivo registrado.
   participación individual/colectiva, fórmula de cotización y política de
   faltantes. Una versión publicada es inmutable.
 - **FR-013**: El sistema DEBE permitir seleccionar una única estrategia y
-  versión activa global para nuevos recálculos, con una operación
-  administrativa auditable. Activar una versión no modifica cotizaciones
-  existentes.
+  versión activa global para nuevos recálculos, mediante una operación
+  administrativa auditable sobre las dos estrategias conocidas. Activar una
+  versión no modifica cotizaciones existentes.
 - **FR-014**: El sistema DEBE ofrecer un recálculo bajo demanda para todos los
-  jugadores o un subconjunto explícito, usando una única versión capturada al
-  inicio de la ejecución.
+  jugadores elegibles del market vigente, usando una única versión activa
+  capturada al inicio de la ejecución y la temporada vigente configurada por la
+  aplicación.
 - **FR-015**: Cada cotización DEBE persistir como mínimo jugador, estrategia,
   versión, score individual, score colectivo cuando corresponda, score final,
-  valor calculado, moneda/unidad de valor, fecha de cálculo y referencia al
-  recálculo.
+  valor calculado, moneda/unidad de valor y fecha de cálculo.
 - **FR-016**: Cada cotización DEBE conservar una explicación reproducible que
   incluya pesos efectivos, métricas normalizadas, contribuciones por métrica,
   límites utilizados, fuente de cada dato, identificador de la versión de
@@ -261,15 +263,9 @@ estado y el motivo registrado.
 
 ### Key Entities
 
-- **ValuationStrategy**: Identidad estable de una estrategia (`code`, nombre,
-  descripción y estado).
 - **ValuationStrategyVersion**: Versión inmutable de fórmula y configuración:
   métricas, polaridad, pesos, pesos por posición, límites, población de
   referencia, shares, conversión monetaria, redondeo y política de faltantes.
-- **ActiveValuationStrategy**: Selección vigente de estrategia y versión para
-  nuevos recálculos, con autor y fecha de activación.
-- **QuoteRecalculation**: Ejecución bajo demanda con estrategia/versión
-  capturadas, alcance, estado, timestamps, cantidades y errores.
 - **PlayerQuote**: Registro histórico inmutable de la cotización y sus scores.
 - **QuoteExplanation**: Detalle reproducible de contribuciones, datos fuente,
   normalizaciones, contexto utilizado y decisiones de faltantes.
@@ -325,8 +321,12 @@ Las siguientes decisiones de negocio fueron aprobadas para la primera versión:
 
 - La integración WhoScored continuará almacenando como mínimo las métricas
   declaradas en `SCRAPED_PLAYER_STATISTICS`.
+- El dataset de `players` corresponde a la única temporada vigente del market;
+  esa temporada se configura en la aplicación y debe coincidir con el contexto
+  publicado de football-data.org.
 - La feature de contexto colectivo conservará una única actualización válida
-  consultable para la temporada seleccionada y sus asociaciones de equipos.
+  consultable para la temporada vigente configurada y sus asociaciones de
+  equipos.
 - Los identificadores de jugador y equipo persistidos son suficientes para
   vincular las fuentes; un nombre ambiguo no se resuelve por aproximación.
 - La administración de estrategias y el recálculo estarán protegidos por el
