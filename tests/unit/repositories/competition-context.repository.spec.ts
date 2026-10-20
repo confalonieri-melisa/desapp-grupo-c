@@ -106,7 +106,6 @@ describe("CompetitionContextRepository", () => {
     await new CompetitionContextRepository(database).saveConfirmedLinks([{
       league: League.PREMIER_LEAGUE,
       season: 2026,
-      whoscoredTeamExternalId: "ws-1",
       whoscoredTeamName: "Example",
       footballDataTeamExternalId: "fd-1",
       footballDataTeamName: "Example FC",
@@ -115,7 +114,7 @@ describe("CompetitionContextRepository", () => {
     expect(values).toHaveBeenCalledWith(expect.objectContaining({
       league: League.PREMIER_LEAGUE,
       season: 2026,
-      whoscoredTeamExternalId: "ws-1",
+      whoscoredTeamName: "Example",
     }));
   });
 });

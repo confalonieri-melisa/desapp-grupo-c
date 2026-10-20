@@ -1,5 +1,5 @@
 {
-  "id": "886de2c4-8404-46e5-8787-e6448a03c41a",
+  "id": "51a9e555-d33f-4d65-bda0-df3cb3ae55d9",
   "prevId": "a0276457-9d35-45f3-b527-dcf5e79cef2c",
   "version": "7",
   "dialect": "postgresql",
@@ -431,12 +431,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "whoscored_team_external_id": {
-          "name": "whoscored_team_external_id",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "whoscored_team_name": {
           "name": "whoscored_team_name",
           "type": "varchar(150)",
@@ -473,7 +467,7 @@
               "nulls": "last"
             },
             {
-              "expression": "whoscored_team_external_id",
+              "expression": "whoscored_team_name",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

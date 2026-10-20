@@ -152,13 +152,12 @@ export const teamSourceLinks = pgTable(
     id: uuid("id").defaultRandom().primaryKey(),
     league: varchar("league", { length: 50 }).$type<League>().notNull(),
     season: integer("season").notNull(),
-    whoscoredTeamExternalId: varchar("whoscored_team_external_id", { length: 100 }).notNull(),
     whoscoredTeamName: varchar("whoscored_team_name", { length: 150 }).notNull(),
     footballDataTeamExternalId: varchar("football_data_team_external_id", { length: 100 }).notNull(),
     footballDataTeamName: varchar("football_data_team_name", { length: 150 }).notNull(),
   },
   (table) => [
-    uniqueIndex("uq_team_source_link_whoscored").on(table.league, table.season, table.whoscoredTeamExternalId),
+    uniqueIndex("uq_team_source_link_whoscored").on(table.league, table.season, table.whoscoredTeamName),
     uniqueIndex("uq_team_source_link_football_data").on(table.league, table.season, table.footballDataTeamExternalId),
   ],
 );

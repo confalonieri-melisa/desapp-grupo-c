@@ -68,10 +68,9 @@ export class CompetitionContextRepository {
             target: [
               teamSourceLinks.league,
               teamSourceLinks.season,
-              teamSourceLinks.whoscoredTeamExternalId,
+              teamSourceLinks.whoscoredTeamName,
             ],
             set: {
-              whoscoredTeamName: link.whoscoredTeamName,
               footballDataTeamExternalId: link.footballDataTeamExternalId,
               footballDataTeamName: link.footballDataTeamName,
             },

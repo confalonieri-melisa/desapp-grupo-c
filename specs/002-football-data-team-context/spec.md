@@ -115,7 +115,7 @@ Como operador autorizado, quiero iniciar y consultar sincronizaciones de context
 
 - **CompetitionContextSnapshot**: Snapshot original e inmutable de una respuesta de standings. Identifica la liga y temporada, y conserva los datos originales recibidos para poder recalcular el contexto si cambia la fórmula.
 - **TeamCompetitionStanding**: Registro normalizado de la posición de un equipo en una competición y temporada. Incluye equipo externo, nombre de vinculación, posición, partidos jugados, puntos, diferencia de gol y la actualización de contexto que lo originó.
-- **TeamSourceLink**: Relación validada entre el equipo identificado por WhoScored y el equipo identificado por football-data.org, con competición/temporada e identificadores externos.
+- **TeamSourceLink**: Relación validada entre el nombre de equipo de WhoScored ya disponible en `players.team` y el equipo identificado por football-data.org, con competición/temporada e identificador externo de football-data.org.
 - **CompetitionContextUpdate**: Actualización del contexto colectivo de las cinco competiciones, con identidad, inicio/fin, estado (`VALID`, `PARTIAL`, `FAILED`), errores por competición y fecha de publicación.
 - **PublishedCompetitionContext**: Vista lógica obtenida consultando la última actualización válida publicada para una temporada y conjunto de competiciones; no requiere una entidad persistida adicional.
 

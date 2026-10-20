@@ -65,12 +65,15 @@ publicaciÃ³n vÃ¡lida.
 ## Carga de relaciones confirmadas
 
 Las relaciones entre equipos se cargan desde un archivo JSON preparado
-manualmente con identificadores ya verificados:
+manualmente. Se usa el nombre del equipo que ya proviene de WhoScored en
+`players.team`; no se agrega ni se solicita un identificador de equipo
+WhoScored:
 
 ```powershell
 npm run db:load-team-links -- .\team-source-links.json
 ```
 
-El archivo debe contener una lista de objetos con `league`, `season`, los
-identificadores y nombres de WhoScored y football-data.org. La operación es
-idempotente: repetirla actualiza la relación existente sin duplicarla.
+El archivo debe contener una lista de objetos con `league`, `season`, el nombre
+del equipo de WhoScored y el identificador/nombre de football-data.org. La
+operación es idempotente: repetirla actualiza la relación existente sin
+duplicarla.

@@ -7,7 +7,6 @@ import { League } from "@/backend/models/enums";
 const teamSourceLinkSchema = z.object({
   league: z.nativeEnum(League),
   season: z.number().int().min(2000).max(2100),
-  whoscoredTeamExternalId: z.string().min(1),
   whoscoredTeamName: z.string().min(1),
   footballDataTeamExternalId: z.string().min(1),
   footballDataTeamName: z.string().min(1),

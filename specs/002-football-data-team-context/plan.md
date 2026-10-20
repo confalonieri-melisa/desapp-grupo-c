@@ -178,12 +178,10 @@ Agregar una migración nueva con las siguientes tablas lógicas:
 
 - `id` UUID primary key.
 - `league`, `season`.
-- `whoscored_team_external_id` nullable pero requerido para una relación
-  confirmada.
-- `whoscored_team_name`.
+- `whoscored_team_name`, proveniente de `players.team`.
 - `football_data_team_external_id`.
 - `football_data_team_name`.
-- Unique por `(league, season, whoscored_team_external_id)` y por equipo
+- Unique por `(league, season, whoscored_team_name)` y por equipo
   football-data dentro de una misma liga/temporada.
 
 La última actualización válida se obtiene desde `competition_context_updates`, filtrando

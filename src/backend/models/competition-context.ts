@@ -21,7 +21,6 @@ export interface TeamIdentityCandidate {
 export interface ConfirmedTeamLink {
   league: League;
   season: number;
-  whoscoredTeamExternalId: string;
   whoscoredTeamName: string;
   footballDataTeamExternalId: string;
   footballDataTeamName: string;
@@ -35,29 +34,22 @@ function comparableTeamName(name: string): string {
 export function resolveConfirmedTeamLink(input: {
   league: League;
   season: number;
-  whoscoredTeamExternalId: string;
   whoscoredTeamName: string;
   candidates: TeamIdentityCandidate[];
   validatedAliases?: Record<string, string>;
 }): ConfirmedTeamLink | null {
-  const byId = input.candidates.filter((candidate) =>
-    candidate.externalId === input.whoscoredTeamExternalId);
-  const exactMatches = byId.length === 1 ? byId : [];
   const key = comparableTeamName(input.whoscoredTeamName);
   const alias = input.validatedAliases?.[key];
-  const matches = exactMatches.length
-    ? exactMatches
-    : input.candidates.filter((candidate) =>
-        alias
-          ? candidate.externalId === alias
-          : comparableTeamName(candidate.name) === key);
+  const matches = input.candidates.filter((candidate) =>
+    alias
+      ? candidate.externalId === alias
+      : comparableTeamName(candidate.name) === key);
 
   if (matches.length !== 1) return null;
 
   return {
     league: input.league,
     season: input.season,
-    whoscoredTeamExternalId: input.whoscoredTeamExternalId,
     whoscoredTeamName: input.whoscoredTeamName,
     footballDataTeamExternalId: matches[0].externalId,
     footballDataTeamName: matches[0].name,

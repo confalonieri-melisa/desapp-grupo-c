@@ -143,9 +143,8 @@ WhoScored y football-data.org.
 ### Implementation
 
 - [ ] T023 [US2] Implementar en
-  `src/backend/models/competition-context.ts` la resolución mediante
-  competición y temporada, priorizando identificadores y aceptando solamente
-  aliases previamente validados.
+  `src/backend/models/competition-context.ts` la resolución mediante nombre,
+  competición y temporada, aceptando solamente aliases previamente validados.
 - [ ] T024 [US2] Implementar en
   `src/backend/repositories/competition-context.repository.ts` la persistencia
   de asociaciones confirmadas en `team_source_links`; dejar sin vincular

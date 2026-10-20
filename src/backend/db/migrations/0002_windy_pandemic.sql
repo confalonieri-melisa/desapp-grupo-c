@@ -38,7 +38,6 @@ CREATE TABLE "team_source_links" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"league" varchar(50) NOT NULL,
 	"season" integer NOT NULL,
-	"whoscored_team_external_id" varchar(100) NOT NULL,
 	"whoscored_team_name" varchar(150) NOT NULL,
 	"football_data_team_external_id" varchar(100) NOT NULL,
 	"football_data_team_name" varchar(150) NOT NULL
@@ -50,5 +49,5 @@ ALTER TABLE "team_competition_standings" ADD CONSTRAINT "team_competition_standi
 ALTER TABLE "team_competition_standings" ADD CONSTRAINT "team_competition_standings_snapshot_id_competition_context_snapshots_id_fk" FOREIGN KEY ("snapshot_id") REFERENCES "public"."competition_context_snapshots"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE UNIQUE INDEX "uq_context_snapshot_update_league" ON "competition_context_snapshots" USING btree ("context_update_id","league");--> statement-breakpoint
 CREATE UNIQUE INDEX "uq_context_standing_update_league_team" ON "team_competition_standings" USING btree ("context_update_id","league","team_external_id");--> statement-breakpoint
-CREATE UNIQUE INDEX "uq_team_source_link_whoscored" ON "team_source_links" USING btree ("league","season","whoscored_team_external_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "uq_team_source_link_whoscored" ON "team_source_links" USING btree ("league","season","whoscored_team_name");--> statement-breakpoint
 CREATE UNIQUE INDEX "uq_team_source_link_football_data" ON "team_source_links" USING btree ("league","season","football_data_team_external_id");
