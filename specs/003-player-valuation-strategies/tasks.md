@@ -11,7 +11,7 @@ description: "Tasks for implementing the MVP of versioned player valuation strat
 **Base branch**: `football-data-context`
 
 **Scope rule**: Estas tareas cubren únicamente el cálculo de cotizaciones,
-selección de la estrategia activa, referencias de normalización, historial
+selección de la estrategia activa, rangos de normalización, historial
 append-only y documentación API. No incluyen seeds de jugadores o standings,
 CRUD genérico de estrategias, consulta histórica por fecha, ranking, dashboard,
 mercado de tokens, scheduler ni procesamiento asíncrono.
@@ -28,18 +28,18 @@ persistencia ni rutas.
 - [ ] T001 [P] Definir en
   `src/backend/models/valuation.ts` los códigos
   `INDIVIDUAL_PERFORMANCE` e `INDIVIDUAL_PLUS_TEAM_CONTEXT`, DTOs de
-  configuración, referencias de normalización, scores, explicación y errores
+  configuración de rangos, scores, explicación y errores
   de dominio.
 - [ ] T002 [P] Crear en
   `src/backend/schemas/valuation.schema.ts` schemas Zod para configuración,
-  referencias, explicación, activación y request vacío de recálculo.
+  rangos, explicación, activación y request vacío de recálculo.
 - [ ] T002a [P] Extender `src/backend/config/env.ts` con la temporada vigente
   del market (por ejemplo, `CURRENT_MARKET_SEASON=2026`), validarla como
   entero y documentar que se comparte entre WhoScored, football-data.org y
   valuación.
 - [ ] T003 [P] Crear fixtures locales en
   `tests/fixtures/valuation/` para estadísticas WhoScored, posiciones,
-  referencias P5/P95, contexto football-data.org, configuración y resultados
+  rangos de normalización, contexto football-data.org, configuración y resultados
   esperados.
 - [ ] T004 [P] Crear `tests/unit/models/valuation.spec.ts` para validar códigos,
   DTOs, rangos, pesos, shares, métricas permitidas y políticas de faltantes.
@@ -53,7 +53,7 @@ estrategias y el request de recálculo global.
 acceso directo a repositorios.
 
 - [ ] T005 [P] Crear
-  `tests/unit/services/valuation-engine.spec.ts` para clipping P5/P95,
+  `tests/unit/services/valuation-engine.spec.ts` para clipping de rangos,
   polaridad positiva/negativa, límites iguales, posición `UNKNOWN`, pesos por
   posición, métricas ausentes y renormalización.
 - [ ] T006 [P] Agregar casos de prueba para demostrar que el score individual
@@ -75,18 +75,14 @@ acceso directo a repositorios.
 **Checkpoint**: el motor calcula resultados reproducibles y explicables con
 fixtures, sin dependencias de infraestructura.
 
-## Phase 3: Database schema and normalization references
+## Phase 3: Database schema and valuation configuration
 
-**Goal**: Persistir versiones, referencias derivadas y cotizaciones históricas.
+**Goal**: Persistir versiones de configuración y cotizaciones históricas.
 
 - [ ] T011 Agregar en `src/backend/db/schema.ts` la tabla
   `valuation_strategy_versions`, con estrategia, versión, configuración JSONB,
   `is_active`, auditoría, foreign keys, unique `(strategy_code, version)` e
   índice para la versión activa.
-- [ ] T012 Agregar en `src/backend/db/schema.ts` la tabla
-  `valuation_normalization_references`, con versión, liga, temporada,
-  posición, métrica, límites P5/P95, población, unique compuesto e índices de
-  lectura.
 - [ ] T013 Agregar en `src/backend/db/schema.ts` la tabla `player_quotes`, con
   scores, valor, unidad, fecha, versión, contexto opcional, explicación JSONB,
   foreign keys, checks de rangos e índices históricos.
@@ -97,8 +93,8 @@ fixtures, sin dependencias de infraestructura.
   `tests/integration/valuation.repositories.spec.ts` para foreign keys,
   unique constraints, rangos, una única versión activa y append-only.
 
-**Checkpoint**: las tres tablas nuevas representan solo configuración,
-referencias derivadas y resultados; no duplican jugadores ni standings.
+**Checkpoint**: las dos tablas nuevas representan configuración y resultados;
+no duplican jugadores ni standings.
 
 ## Phase 4: Repositories and persisted context reads
 
@@ -106,8 +102,8 @@ referencias derivadas y resultados; no duplican jugadores ni standings.
 
 - [ ] T016 Implementar
   `src/backend/repositories/valuation.repository.ts` para obtener la versión
-  activa, persistir versiones inmutables, activar una versión en transacción,
-  leer/crear referencias de normalización y guardar cotizaciones.
+  activa, persistir versiones inmutables, activar una versión en transacción y
+  guardar cotizaciones.
 - [ ] T017 Agregar en
   `src/backend/repositories/player.repository.ts` una lectura de todos los
   jugadores elegibles del dataset vigente, sin agregar `season` a `players` ni
@@ -117,7 +113,7 @@ referencias derivadas y resultados; no duplican jugadores ni standings.
   local de la última actualización válida y del standing asociado mediante
   `team_source_links`, sin invocar el adapter HTTP.
 - [ ] T019 [P] Completar pruebas unitarias de repositorios con mocks para
-  referencias por versión/liga/temporada/posición/métrica, cotizaciones
+  configuración versionada, cotizaciones
   append-only y resolución de contexto.
 - [ ] T020 Verificar con integración que una nueva sincronización de contexto
   no modifica cotizaciones históricas ni duplica standings dentro del módulo
@@ -153,9 +149,8 @@ estrategias conocidas y la selección queda versionada y auditable.
 
 - [ ] T025 Implementar
   `src/backend/services/quote-recalculation.service.ts` para capturar una
-  única versión activa, obtener o generar referencias P5/P95 desde los
-  jugadores persistidos y la temporada vigente configurada, resolver contexto
-  local y procesar todos los jugadores del dataset vigente.
+  única versión activa, resolver contexto local y procesar todos los jugadores
+  del dataset vigente usando los rangos de la configuración activa.
 - [ ] T026 Persistir únicamente cotizaciones válidas y devolver errores por
   jugador sin crear filas con valores por defecto; informar `COMPLETED` o
   `PARTIAL`.
@@ -164,7 +159,7 @@ estrategias conocidas y la selección queda versionada y auditable.
   autenticación y autorización de superusuario.
 - [ ] T028 Crear
   `tests/unit/services/quote-recalculation.service.spec.ts` para captura de
-  versión, generación/reutilización de referencias, publicación parcial,
+  versión, uso de rangos configurados, publicación parcial,
   datos faltantes, contexto ausente y ausencia de requests externos.
 - [ ] T029 Completar tests de ruta en
   `tests/integration/quotes.routes.spec.ts` para `401`, `403`, `400`, `409`,
@@ -187,12 +182,12 @@ activa a todos los jugadores elegibles y conserva el historial.
 - [ ] T033 [P] Revisar `src/app/api/docs/route.ts` para confirmar que los
   contratos actualizados se cargan correctamente.
 - [ ] T034 [P] Actualizar `quickstart.md` con el flujo real: datos existentes,
-  activación, recálculo global y reutilización de referencias.
+  activación y recálculo global.
 - [ ] T035 Ejecutar tests unitarios y de rutas offline:
   `npm test -- --run`.
 - [ ] T036 Ejecutar tests PostgreSQL con
   `RUN_DB_INTEGRATION_TESTS=true` y validar migraciones, constraints,
-  referencias, activación, contexto y append-only.
+  activación, contexto y append-only.
 - [ ] T037 Ejecutar `npm run lint` y `npm run build`, corrigiendo únicamente
   problemas introducidos por esta feature.
 - [ ] T038 Verificar `git diff --check` y validar el YAML con el parser Node
@@ -213,8 +208,7 @@ activa a todos los jugadores elegibles y conserva el historial.
 - Las dos estrategias calculan scores distintos cuando cambia únicamente el
   contexto colectivo.
 - La estrategia activa se puede seleccionar administrativamente.
-- P5/P95 se calculan desde datos persistidos, se congelan por versión y
-  temporada, y se reutilizan.
+- Los rangos de cada métrica se congelan por versión y se reutilizan.
 - No se cargan jugadores ni standings mediante seeds.
 - No se realizan requests externos durante el cálculo.
 - Las cotizaciones históricas son append-only y explicables.

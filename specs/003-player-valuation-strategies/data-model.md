@@ -3,7 +3,6 @@
 ## Relationship overview
 
 ```text
-valuation_strategy_versions 1 ─── N valuation_normalization_references
 valuation_strategy_versions 1 ─── N player_quotes
 players 1 ─── N player_quotes
 competition_context_updates 1 ─── N player_quotes (optional)
@@ -18,7 +17,7 @@ contains:
 
 - individual metrics and polarity;
 - general and position-specific weights;
-- P5/P95 references by league-season-position;
+- fixed minimum and maximum ranges for each metric;
 - collective metrics and weights;
 - `individualShare`, `teamShare`;
 - monetary formula, limits and precision;
@@ -31,17 +30,6 @@ not access untyped JSON directly.
 The single active version is represented by `is_active`; activation is a
 transaction that clears the previous active row and sets the selected row.
 
-### `valuation_normalization_references`
-
-Stores immutable P5/P95 references derived from persisted WhoScored players.
-Each row identifies the strategy version, league, season, position and metric,
-and stores `lower`, `upper` and `populationSize`. It is created on demand for
-the configured current market season and reused by subsequent recalculations
-with the same version.
-
-This table does not duplicate player statistics or collective standings. A
-new calibration requires a new strategy version.
-
 ### `player_quotes`
 
 Append-only valuation result. It stores the scores, value and an explanation
@@ -49,7 +37,7 @@ containing every input used to reproduce the result:
 
 - normalized metric values;
 - effective weights and contributions;
-- P5/P95 limits;
+- metric ranges used for normalization;
 - WhoScored source marker;
 - football-data.org context update and source marker when used;
 - missing fields and degradation policy.
@@ -59,9 +47,7 @@ containing every input used to reproduce the result:
 - Version rows cannot be updated after publication.
 - Only one global active version exists.
 - A quote always references the exact version used.
-- A quote's explanation references the exact normalization limits used.
-- A normalization reference is unique for version, league, season, position
-  and metric.
+- A quote's explanation references the exact metric ranges used.
 - A hybrid quote with a non-null `teamScore` references one valid persisted
   context update.
 - Individual strategy quotes have `teamScore = null` and no collective

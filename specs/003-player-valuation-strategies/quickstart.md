@@ -11,18 +11,14 @@
 
 ## Configuration flow
 
-1. Create one immutable version row for each known strategy:
-   - `INDIVIDUAL_PERFORMANCE`
-   - `INDIVIDUAL_PLUS_TEAM_CONTEXT`
-2. Store the typed `ValuationConfig` DTO snapshot in the version row with:
-   - approved metric weights;
-   - P5/P95 references;
-   - position overrides;
-   - collective weights;
-   - `0.75/0.25` shares;
-   - `1 + 99 * score` formula.
-3. Select the active strategy through `POST /api/valuation/active`.
-4. Request a recalculation for all eligible players with an empty body: `{}`.
+1. Select one of the two known strategies through
+   `POST /api/valuation/active`; the service creates the immutable `1.0.0`
+   configuration snapshot if it does not already exist.
+2. Request a global recalculation through
+   `POST /api/quotes/recalculate` with exactly `{}`. The current season comes
+   only from `CURRENT_MARKET_SEASON`.
+3. The active strategy already contains the fixed minimum and maximum range
+   for every metric. The recalculation uses those ranges directly.
 
 ## Expected demonstration
 

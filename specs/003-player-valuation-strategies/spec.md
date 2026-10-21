@@ -181,20 +181,15 @@ estado y el motivo registrado.
   pesos opcionales por posición. Cuando la posición sea `UNKNOWN` o no exista
   un override para esa posición, DEBE utilizarse el peso general.
 - **FR-006**: La normalización DEBE producir valores en `[0, 1]`, ser
-  determinista para el mismo dataset/configuración y evitar división por cero.
-  La primera versión DEBE usar el percentil 5 como `lower` y el percentil 95
-  como `upper`, calculados por liga-temporada-posición, y aplicar clipping al
-  rango `[0, 1]`. La fórmula es:
-  `positive = clamp((x - lower)/(upper - lower), 0, 1)` y
-  `negative = 1 - clamp((x - lower)/(upper - lower), 0, 1)`.
-  Los valores de `lower` y `upper` DEBEN formar parte de la versión; no se
-  permiten límites implícitos no trazables. Los valores por debajo de P5 se
-  tratan como `0` y los superiores a P95 como `1`.
-- **FR-007**: La especificación de cada versión DEBE indicar la población de
-  referencia para `lower`/`upper` y la política ante métricas faltantes. La
-  primera versión DEBE usar percentiles por combinación
-  liga-temporada-posición, con la población y sus límites congelados dentro de
-  la versión para conservar la reproducibilidad histórica.
+  determinista para la misma configuración y evitar división por cero. Cada
+  métrica DEBE persistir sus límites `minimum` y `maximum` dentro de la
+  configuración versionada. La fórmula es:
+  `positive = clamp((x - minimum)/(maximum - minimum), 0, 1)` y
+  `negative = 1 - clamp((x - minimum)/(maximum - minimum), 0, 1)`.
+  Los valores fuera del rango se deben limitar a `[0, 1]`.
+- **FR-007**: La especificación de cada versión DEBE indicar los límites de
+  cada métrica y la política ante métricas faltantes. No se requiere una
+  población de referencia ni una tabla derivada para calcular una cotización.
 - **FR-008**: El score individual DEBE ser una media ponderada de métricas
   normalizadas disponibles, excluyendo métricas faltantes y renormalizando los
   pesos disponibles, con pesos no negativos y suma efectiva mayor que cero:

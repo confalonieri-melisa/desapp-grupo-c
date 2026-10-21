@@ -45,9 +45,10 @@ temporal a `players` ni se expone una temporada arbitraria en el recálculo.
 
 ### Normalization decision
 
-Se aprobó percentil 5 como `lower` y percentil 95 como `upper`, por
-liga-temporada-posición, congelados en la versión. Esto reduce la influencia
-de valores atípicos sin comprimir excesivamente los extremos legítimos.
+La primera versión usa límites fijos `minimum` y `maximum` por métrica,
+congelados en la configuración de la versión. Esto mantiene el cálculo
+determinista y simple para el MVP. Los percentiles quedan como una posible
+evolución si luego se necesita una comparación relativa entre poblaciones.
 
 ### Numeric design
 

@@ -56,8 +56,8 @@ jugadores elegibles sin cargar snapshots completos innecesarios.
 
 - WhoScored sigue siendo la única fuente individual.
 - football-data.org sigue siendo la única fuente colectiva.
-- La primera versión usa percentiles P5/P95 por liga-temporada-posición,
-  congelados en la versión, con clipping a `[0,1]`.
+- La primera versión usa límites `minimum`/`maximum` fijos por métrica,
+  congelados en la configuración de la versión, con clipping a `[0,1]`.
 - La mezcla híbrida es 75% individual y 25% equipo.
 - La conversión es `1 + 99 * finalScore`, entre 1 y 100 créditos, con dos
   decimales.
@@ -67,8 +67,8 @@ jugadores elegibles sin cargar snapshots completos innecesarios.
 - No se consulta ningún proveedor durante el cálculo.
 
 **Scale/Scope**: Dos estrategias conocidas, múltiples versiones inmutables,
-una única versión activa global, referencias de normalización derivadas para
-la temporada vigente del market y cotizaciones históricas por jugador.
+una única versión activa global, configuración de rangos fijos y cotizaciones
+históricas por jugador.
 
 ## Constitution Check
 
@@ -123,7 +123,7 @@ POST /api/quotes/recalculate
 
 El `ValuationEngine` debe ser independiente de Next.js, Drizzle y HTTP. Recibe
 un jugador, una estrategia conocida, un DTO de configuración inmutable,
-estadísticas de referencia congeladas y, para la estrategia híbrida, un
+  configuración de rangos fijos y, para la estrategia híbrida, un
 contexto colectivo ya resuelto. Devuelve scores, contribuciones, datos
 faltantes y valor o un error de dominio.
 
@@ -131,11 +131,9 @@ El servicio de recálculo:
 
 1. captura la estrategia/versión activa una sola vez;
 2. resuelve el conjunto de jugadores;
-3. obtiene o genera las referencias de percentiles correspondientes a la
-   versión y temporada vigente del market;
-4. resuelve, sin red, el contexto colectivo publicado;
-5. calcula cada jugador;
-6. inserta las cotizaciones válidas y acumula errores por jugador en la
+3. resuelve, sin red, el contexto colectivo publicado cuando corresponde;
+4. calcula cada jugador usando los rangos de la configuración activa;
+5. inserta las cotizaciones válidas y acumula errores por jugador en la
    respuesta;
 7. marca `COMPLETED`, `PARTIAL` o `FAILED`.
 
@@ -149,7 +147,7 @@ normalización, ponderación y conversión.
 
 - `src/backend/models/valuation.ts`: códigos de las dos estrategias, DTOs
   tipados de configuración/explicación, scores y errores de dominio.
-- `src/backend/services/valuation-engine.ts`: normalización P5/P95,
+- `src/backend/services/valuation-engine.ts`: normalización por rangos,
   polaridad, pesos efectivos, score individual, teamScore, combinación y
   conversión a crédito.
 - `src/backend/schemas/valuation.schema.ts`: schemas Zod de configuración,
@@ -157,7 +155,7 @@ normalización, ponderación y conversión.
 - `src/backend/config/env.ts`: configurar y validar la temporada vigente del
   market, sin permitir que el endpoint seleccione temporadas históricas.
 - `src/backend/repositories/valuation.repository.ts`: versión activa,
-  configuración versionada, referencias de normalización y cotizaciones
+  configuración versionada y cotizaciones
   históricas.
 - `src/backend/services/quote-recalculation.service.ts`: captura de versión,
   lectura local de jugadores/contexto y publicación parcial.
@@ -174,7 +172,7 @@ normalización, ponderación y conversión.
 - `tests/unit/schemas/valuation.schema.spec.ts`.
 - `tests/integration/valuation.repositories.spec.ts`.
 - `tests/integration/quotes.routes.spec.ts`.
-- `tests/fixtures/valuation/*.json`: configuraciones, percentiles, jugadores,
+- `tests/fixtures/valuation/*.json`: configuraciones, jugadores,
   contexto y resultados esperados.
 
 ### Existing files to modify
@@ -230,23 +228,11 @@ la nueva. La configuración publicada debe contener pesos numéricos aprobados;
 no se inventan constantes ocultas.
 
 Las estadísticas y los contextos ya persistidos son la fuente para calcular
-las cotizaciones y las referencias P5/P95; no se cargan jugadores ni standings
-mediante seeds. La aplicación debe ofrecer una operación administrativa mínima
+las cotizaciones; no se cargan jugadores ni standings mediante seeds. La
+aplicación debe ofrecer una operación administrativa mínima
 para activar una de las dos estrategias conocidas. Esa operación recupera o
 persiste la configuración aprobada y luego marca una única versión activa. No
 se agrega un CRUD HTTP genérico de estrategias.
-
-### `valuation_normalization_references`
-
-Referencias estadísticas derivadas de los jugadores ya persistidos desde
-WhoScored. No es una fuente nueva ni una copia de jugadores: congela los
-límites utilizados por una versión para una combinación de liga, temporada,
-posición y métrica.
-
-- `id`, `strategy_version_id`, `league`, `season`, `position`, `metric`.
-- `lower_percentile`, `upper_percentile`, `population_size`, `created_at`.
-- Unique `(strategy_version_id, league, season, position, metric)`.
-- Append-only; si se recalibra, se publica otra versión de estrategia.
 
 ### `player_quotes`
 
@@ -270,8 +256,8 @@ es el de `player_quotes`.
 
 - `strategy_version_id` debe apuntar a la versión activa capturada para
   calcular.
-- Cada normalización debe usar referencias de la misma versión, liga,
-  temporada, posición y métrica.
+- Cada normalización debe usar los límites de la métrica definidos en la
+  configuración de la versión.
 - `final_score` debe estar en `[0,1]`; `quote_value` en `[1,100]`.
 - Shares suman `1`, son no negativos y la primera versión exige `0.75/0.25`.
 - Pesos no negativos y al menos un peso efectivo.
@@ -302,7 +288,7 @@ individual adicional ni recibe score propio.
 2. Resolver el standing dentro de la última actualización válida de esa
    temporada.
 3. Usar solamente `position`, `points`, `playedGames` y `goalDifference`.
-4. Normalizar con referencias colectivas congeladas en la versión.
+4. Normalizar con los rangos definidos en la configuración de la versión.
 5. Calcular el `teamScore` ponderado y registrar cada contribución.
 
 Si no existe contexto, aplicar `INDIVIDUAL_ONLY`, dejar `teamScore` null y
@@ -353,8 +339,7 @@ conocidas:
 ```
 
 La operación no administra identidades arbitrarias ni permite editar fórmulas
-libremente. Recupera o persiste una versión/configuración aprobada, conserva
-sus referencias de normalización por temporada cuando se calculen, y deja una
+libremente. Recupera o persiste una versión/configuración aprobada y deja una
 única versión activa.
 
 Respuestas mínimas:
@@ -373,7 +358,7 @@ que `sourceBreakdown` distingue `WHOSCORED` de `FOOTBALL_DATA`.
 
 ### Unit tests
 
-- P5/P95, clipping, polaridad positiva y negativa.
+- Rangos fijos, clipping, polaridad positiva y negativa.
 - Grupo homogéneo con `lower === upper`, usando el neutral definido por la
   versión y sin división por cero.
 - Pesos generales, overrides por posición y fallback `UNKNOWN`.
