@@ -31,6 +31,7 @@ export const envSchema = z.object({
   FOOTBALL_DATA_TOKEN: z.string().trim().min(1).default("test-football-data-token"),
   FOOTBALL_DATA_TIMEOUT_MS: z.coerce.number().int().positive().default(10000),
   FOOTBALL_DATA_MAX_RETRIES: z.coerce.number().int().min(0).max(5).default(2),
+  CURRENT_MARKET_SEASON: z.coerce.number().int().min(2000).default(2026),
 });
 
 function parseBooleanEnvironmentValue(value: unknown): unknown {

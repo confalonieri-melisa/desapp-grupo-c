@@ -1,17 +1,18 @@
 import {
-  SCRAPED_PLAYER_STATISTICS,
   type MinimalPlayerStatistics,
   type PlayerDataSource,
   type ScrapedPlayer,
   type ScrapedPlayerStatistic,
 } from "./player-data-source";
+import { PLAYER_STATISTIC_KEYS } from "@/backend/models/player-statistics";
+import { DATA_SOURCES } from "@/backend/models/data-sources";
 import {
   whoScoredPlayerRecordSchema,
   whoScoredStatisticSchema,
   type WhoScoredPlayerRecord,
 } from "@/backend/schemas/whoscored.schema";
 
-export const WHOSCORED_SOURCE = "WHOSCORED";
+export const WHOSCORED_SOURCE = DATA_SOURCES.WHOSCORED;
 
 export type WhoScoredFetcher = () => Promise<WhoScoredPlayerRecord[]>;
 
@@ -33,9 +34,7 @@ export class WhoScoredAdapter implements PlayerDataSource {
   }
 }
 
-function normalizeWhoScoredPlayer(
-  playerRecord: WhoScoredPlayerRecord,
-): ScrapedPlayer {
+function normalizeWhoScoredPlayer(playerRecord: WhoScoredPlayerRecord): ScrapedPlayer {
   const validatedPlayer = whoScoredPlayerRecordSchema.parse(playerRecord);
 
   return {
@@ -48,12 +47,10 @@ function normalizeWhoScoredPlayer(
   };
 }
 
-function normalizeStatistics(
-  source: Record<string, unknown>,
-): MinimalPlayerStatistics {
+function normalizeStatistics(source: Record<string, unknown>): MinimalPlayerStatistics {
   const normalized: MinimalPlayerStatistics = {};
 
-  for (const metric of SCRAPED_PLAYER_STATISTICS) {
+  for (const metric of PLAYER_STATISTIC_KEYS) {
     const value = source[metric];
     if (value === undefined || value === null || value === "") {
       continue;

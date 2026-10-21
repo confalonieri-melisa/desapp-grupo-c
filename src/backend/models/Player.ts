@@ -1,7 +1,11 @@
 import { isOfficialLeague, isPosition, League, Position } from "./enums";
 import { DomainValidationError, InvalidLeagueError } from "./errors";
+import {
+  PLAYER_STATISTIC_KEY_SET,
+  type PlayerStatistics,
+} from "./player-statistics";
 
-export type PlayerStatistics = Record<string, number>;
+export type { PlayerStatistics } from "./player-statistics";
 
 export interface PlayerProps {
   id?: string;
@@ -53,6 +57,9 @@ export class Player {
 
   private static validateStatistics(statistics: PlayerStatistics): void {
     for (const [metric, value] of Object.entries(statistics)) {
+      if (!PLAYER_STATISTIC_KEY_SET.has(metric)) {
+        throw new DomainValidationError(`Unsupported player statistic: ${metric}`);
+      }
       if (!Number.isFinite(value) || value < 0) {
         throw new DomainValidationError(
           `Statistic must be a non-negative number: ${metric}`,
