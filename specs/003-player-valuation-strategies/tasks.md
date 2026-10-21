@@ -42,13 +42,6 @@ persistencia ni rutas.
   del market (por ejemplo, `CURRENT_MARKET_SEASON=2026`), validarla como
   entero y documentar que se comparte entre WhoScored, football-data.org y
   valuación.
-- [ ] T003 [P] Crear fixtures locales en
-  `tests/fixtures/valuation/` para estadísticas WhoScored, posiciones,
-  rangos de normalización, contexto football-data.org, configuración y resultados
-  esperados.
-- [ ] T004 [P] Crear `tests/unit/models/valuation.spec.ts` para validar códigos,
-  DTOs, rangos, pesos, shares, métricas permitidas y políticas de faltantes.
-
 **Checkpoint**: los contratos tipados representan únicamente las dos
 estrategias y el request de recálculo global.
 
@@ -120,10 +113,6 @@ no duplican jugadores ni standings.
 - [x] T019 [P] Completar pruebas unitarias de repositorios con mocks para
   configuración versionada, cotizaciones
   append-only y resolución de contexto.
-- [ ] T020 Verificar con integración que una nueva sincronización de contexto
-  no modifica cotizaciones históricas ni duplica standings dentro del módulo
-  de valuación.
-
 **Checkpoint**: el dominio puede recibir únicamente datos persistidos y no
 realiza requests externos.
 
