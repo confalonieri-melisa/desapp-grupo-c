@@ -5,6 +5,11 @@ description: "Tasks for implementing the MVP of versioned player valuation strat
 
 # Tasks: Estrategias de Valuación y Cotización de Jugadores
 
+> Estado del MVP: implementación, pruebas unitarias, pruebas de rutas y
+> documentación completadas. Queda pendiente ejecutar las pruebas marcadas
+> para PostgreSQL con `RUN_DB_INTEGRATION_TESTS=true` en un entorno con la
+> base disponible.
+
 **Input**: `spec.md`, `plan.md`, `research.md`, `data-model.md`,
 `quickstart.md` and `contracts/valuation.yaml`
 
@@ -25,15 +30,15 @@ paralelo cuando no compartan archivos.
 **Goal**: Definir los tipos mínimos y los datos de prueba sin tocar todavía
 persistencia ni rutas.
 
-- [ ] T001 [P] Definir en
+- [x] T001 [P] Definir en
   `src/backend/models/valuation.ts` los códigos
   `INDIVIDUAL_PERFORMANCE` e `INDIVIDUAL_PLUS_TEAM_CONTEXT`, DTOs de
   configuración de rangos, scores, explicación y errores
   de dominio.
-- [ ] T002 [P] Crear en
+- [x] T002 [P] Crear en
   `src/backend/schemas/valuation.schema.ts` schemas Zod para configuración,
   rangos, explicación, activación y request vacío de recálculo.
-- [ ] T002a [P] Extender `src/backend/config/env.ts` con la temporada vigente
+- [x] T002a [P] Extender `src/backend/config/env.ts` con la temporada vigente
   del market (por ejemplo, `CURRENT_MARKET_SEASON=2026`), validarla como
   entero y documentar que se comparte entre WhoScored, football-data.org y
   valuación.
@@ -52,23 +57,23 @@ estrategias y el request de recálculo global.
 **Goal**: Implementar el cálculo determinista sin Next.js, Drizzle, HTTP ni
 acceso directo a repositorios.
 
-- [ ] T005 [P] Crear
+- [x] T005 [P] Crear
   `tests/unit/services/valuation-engine.spec.ts` para clipping de rangos,
   polaridad positiva/negativa, límites iguales, posición `UNKNOWN`, pesos por
   posición, métricas ausentes y renormalización.
-- [ ] T006 [P] Agregar casos de prueba para demostrar que el score individual
+- [x] T006 [P] Agregar casos de prueba para demostrar que el score individual
   no cambia con puntos, partidos jugados, diferencia de gol o resultados del
   equipo, y que no usa métricas colectivas.
-- [ ] T007 Implementar
+- [x] T007 Implementar
   `src/backend/services/valuation-engine.ts` para calcular el score individual,
   incluyendo contribuciones y explicación de cada métrica.
-- [ ] T008 [P] Agregar pruebas para el `teamScore` usando únicamente posición,
+- [x] T008 [P] Agregar pruebas para el `teamScore` usando únicamente posición,
   puntos, partidos jugados y diferencia de gol; excluir goleadores,
   asistencias, ratings, fixtures y eventos.
-- [ ] T009 Implementar en el mismo motor el `teamScore`, la combinación
+- [x] T009 Implementar en el mismo motor el `teamScore`, la combinación
   `0.75/0.25`, la degradación `INDIVIDUAL_ONLY` y la conversión
   `1 + 99 * finalScore` con redondeo final a dos decimales.
-- [ ] T010 Verificar en tests que ambas estrategias produzcan resultados
+- [x] T010 Verificar en tests que ambas estrategias produzcan resultados
   diferentes cuando cambia únicamente el contexto del equipo y que ambas
   conserven el efecto de cambios en el rendimiento individual.
 
@@ -79,17 +84,17 @@ fixtures, sin dependencias de infraestructura.
 
 **Goal**: Persistir versiones de configuración y cotizaciones históricas.
 
-- [ ] T011 Agregar en `src/backend/db/schema.ts` la tabla
+- [x] T011 Agregar en `src/backend/db/schema.ts` la tabla
   `valuation_strategy_versions`, con estrategia, versión, configuración JSONB,
   `is_active`, auditoría, foreign keys, unique `(strategy_code, version)` e
   índice para la versión activa.
-- [ ] T013 Agregar en `src/backend/db/schema.ts` la tabla `player_quotes`, con
+- [x] T013 Agregar en `src/backend/db/schema.ts` la tabla `player_quotes`, con
   scores, valor, unidad, fecha, versión, contexto opcional, explicación JSONB,
   foreign keys, checks de rangos e índices históricos.
-- [ ] T014 Generar una migración nueva en
+- [x] T014 Generar una migración nueva en
   `src/backend/db/migrations/` y verificar que no modifique migraciones
   existentes ni tablas de WhoScored o football-data.org.
-- [ ] T015 [P] Crear tests de integración en
+- [x] T015 [P] Crear tests de integración en
   `tests/integration/valuation.repositories.spec.ts` para foreign keys,
   unique constraints, rangos, una única versión activa y append-only.
 
@@ -100,19 +105,19 @@ no duplican jugadores ni standings.
 
 **Goal**: Encapsular lecturas y escrituras de infraestructura.
 
-- [ ] T016 Implementar
+- [x] T016 Implementar
   `src/backend/repositories/valuation.repository.ts` para obtener la versión
   activa, persistir versiones inmutables, activar una versión en transacción y
   guardar cotizaciones.
-- [ ] T017 Agregar en
+- [x] T017 Agregar en
   `src/backend/repositories/player.repository.ts` una lectura de todos los
   jugadores elegibles del dataset vigente, sin agregar `season` a `players` ni
   cambiar el catálogo existente.
-- [ ] T018 Agregar en
+- [x] T018 Agregar en
   `src/backend/repositories/competition-context.repository.ts` una lectura
   local de la última actualización válida y del standing asociado mediante
   `team_source_links`, sin invocar el adapter HTTP.
-- [ ] T019 [P] Completar pruebas unitarias de repositorios con mocks para
+- [x] T019 [P] Completar pruebas unitarias de repositorios con mocks para
   configuración versionada, cotizaciones
   append-only y resolución de contexto.
 - [ ] T020 Verificar con integración que una nueva sincronización de contexto
@@ -126,17 +131,17 @@ realiza requests externos.
 
 **Goal**: Permitir elegir la única estrategia activa sin crear CRUD genérico.
 
-- [ ] T021 Implementar
+- [x] T021 Implementar
   `src/backend/services/valuation-strategy.service.ts` para validar el código
   de estrategia, obtener la configuración aprobada, crear una versión
   inmutable si corresponde y activar una única versión global.
-- [ ] T022 Crear
+- [x] T022 Crear
   `src/app/api/valuation/active/route.ts` con `POST`, validación Zod,
   autenticación existente y autorización exclusiva para `SUPERUSER`.
-- [ ] T023 Crear
+- [x] T023 Crear
   `tests/unit/services/valuation-strategy.service.spec.ts` para activación,
   versión inmutable, reactivación y rechazo de códigos desconocidos.
-- [ ] T024 Crear tests de ruta en
+- [x] T024 Crear tests de ruta en
   `tests/integration/quotes.routes.spec.ts` para `401`, `403`, request
   inválido, activación válida y garantía de una única versión activa.
 
@@ -147,25 +152,25 @@ estrategias conocidas y la selección queda versionada y auditable.
 
 **Goal**: Calcular y persistir cotizaciones para todos los jugadores elegibles.
 
-- [ ] T025 Implementar
+- [x] T025 Implementar
   `src/backend/services/quote-recalculation.service.ts` para capturar una
   única versión activa, resolver contexto local y procesar todos los jugadores
   del dataset vigente usando los rangos de la configuración activa.
-- [ ] T026 Persistir únicamente cotizaciones válidas y devolver errores por
+- [x] T026 Persistir únicamente cotizaciones válidas y devolver errores por
   jugador sin crear filas con valores por defecto; informar `COMPLETED` o
   `PARTIAL`.
-- [ ] T027 Crear
+- [x] T027 Crear
   `src/app/api/quotes/recalculate/route.ts` con `POST`, request vacío,
   autenticación y autorización de superusuario.
-- [ ] T028 Crear
+- [x] T028 Crear
   `tests/unit/services/quote-recalculation.service.spec.ts` para captura de
   versión, uso de rangos configurados, publicación parcial,
   datos faltantes, contexto ausente y ausencia de requests externos.
-- [ ] T029 Completar tests de ruta en
+- [x] T029 Completar tests de ruta en
   `tests/integration/quotes.routes.spec.ts` para `401`, `403`, `400`, `409`,
   respuesta completa, respuesta parcial, `teamScore: null` y explicación de
   degradación.
-- [ ] T030 Verificar integración append-only: dos recálculos crean nuevas filas
+- [x] T030 Verificar integración append-only: dos recálculos crean nuevas filas
   y no actualizan cotizaciones existentes.
 
 **Checkpoint**: `POST /api/quotes/recalculate` aplica la única estrategia
@@ -173,24 +178,24 @@ activa a todos los jugadores elegibles y conserva el historial.
 
 ## Phase 7: API documentation and final validation
 
-- [ ] T031 [P] Actualizar
+- [x] T031 [P] Actualizar
   `specs/003-player-valuation-strategies/contracts/valuation.yaml` con
   `/valuation/active`, `/quotes/recalculate`, schemas, seguridad y respuestas.
-- [ ] T032 [P] Actualizar
+- [x] T032 [P] Actualizar
   `specs/001-player-token-marketplace/contracts/openapi.yaml` con las dos rutas
   nuevas sin modificar contratos no relacionados.
-- [ ] T033 [P] Revisar `src/app/api/docs/route.ts` para confirmar que los
+- [x] T033 [P] Revisar `src/app/api/docs/route.ts` para confirmar que los
   contratos actualizados se cargan correctamente.
-- [ ] T034 [P] Actualizar `quickstart.md` con el flujo real: datos existentes,
+- [x] T034 [P] Actualizar `quickstart.md` con el flujo real: datos existentes,
   activación y recálculo global.
-- [ ] T035 Ejecutar tests unitarios y de rutas offline:
+- [x] T035 Ejecutar tests unitarios y de rutas offline:
   `npm test -- --run`.
 - [ ] T036 Ejecutar tests PostgreSQL con
   `RUN_DB_INTEGRATION_TESTS=true` y validar migraciones, constraints,
   activación, contexto y append-only.
-- [ ] T037 Ejecutar `npm run lint` y `npm run build`, corrigiendo únicamente
+- [x] T037 Ejecutar `npm run lint` y `npm run build`, corrigiendo únicamente
   problemas introducidos por esta feature.
-- [ ] T038 Verificar `git diff --check` y validar el YAML con el parser Node
+- [x] T038 Verificar `git diff --check` y validar el YAML con el parser Node
   disponible.
 
 ## Dependencies & execution order

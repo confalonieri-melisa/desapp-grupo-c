@@ -271,9 +271,9 @@ es el de `player_quotes`.
 ### Individual component
 
 1. Leer únicamente `players.statistics` y `players.position`.
-2. Para cada métrica configurada, buscar o generar una referencia congelada
-   para `strategyVersion + league + season + position`; para `UNKNOWN` usar la
-   población definida por la configuración.
+2. Para cada métrica configurada, utilizar el rango mínimo y máximo congelado
+   en la configuración de la versión. La posición sólo puede seleccionar un
+   peso alternativo; `UNKNOWN` utiliza el peso general.
 3. Aplicar clipping y polaridad positiva/negativa.
 4. Excluir ausentes o inválidas y renormalizar los pesos efectivos.
 5. Calcular:

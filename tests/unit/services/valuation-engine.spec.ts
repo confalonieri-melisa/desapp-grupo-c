@@ -63,12 +63,14 @@ describe("ValuationEngine", () => {
   });
 
   it("renormalizes the weights when an individual metric is missing", () => {
-    const config = configFor("INDIVIDUAL_PERFORMANCE");
-    config.individualMetrics = [
+    const config = {
+      ...buildValuationConfig("INDIVIDUAL_PERFORMANCE"),
+      individualMetrics: [
       { metric: "appearances", polarity: "POSITIVE", weight: 1, minimum: 0, maximum: 20 },
       { metric: "goals", polarity: "POSITIVE", weight: 1, minimum: 0, maximum: 10 },
       { metric: "assists", polarity: "POSITIVE", weight: 2, minimum: 0, maximum: 10 },
-    ];
+      ] satisfies IndividualMetricConfig[],
+    };
     const result = new ValuationEngine().calculate(
       player,
       "INDIVIDUAL_PERFORMANCE",

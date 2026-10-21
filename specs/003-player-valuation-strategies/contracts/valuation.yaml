@@ -25,7 +25,7 @@ paths:
         '400': { description: Invalid strategy code }
         '401': { description: Unauthorized }
         '403': { description: Superuser required }
-        '409': { description: Strategy configuration cannot be created from persisted data }
+        '409': { description: Strategy configuration could not be activated }
   /quotes/recalculate:
     post:
       summary: Recalculate player quotes on demand
@@ -64,12 +64,13 @@ components:
           enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
     ActiveStrategyResponse:
       type: object
-      required: [strategyCode, version]
+      required: [strategyCode, version, isActive]
       properties:
         strategyCode:
           type: string
           enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
         version: { type: string }
+        isActive: { type: boolean }
     RecalculateRequest:
       type: object
       additionalProperties: false
@@ -84,17 +85,17 @@ components:
         version: { type: string }
         status:
           type: string
-          enum: [COMPLETED, PARTIAL]
+          enum: [COMPLETED, PARTIAL, FAILED]
         calculated: { type: integer, minimum: 0 }
         rejected: { type: integer, minimum: 0 }
         errors:
           type: array
           items:
             type: object
-            required: [playerId, reason]
+            required: [playerId, error]
             properties:
               playerId: { type: string, format: uuid }
-              reason: { type: string }
+              error: { type: string }
         quotes:
           type: array
           items:
@@ -103,27 +104,13 @@ components:
       type: object
       required:
         - playerId
-        - strategyCode
-        - version
-        - individualScore
-        - finalScore
         - quoteValue
-        - explanation
+        - teamScore
       properties:
         playerId: { type: string, format: uuid }
-        strategyCode:
-          type: string
-          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
-        version: { type: string }
-        individualScore: { type: number, minimum: 0, maximum: 1 }
+        quoteValue: { type: number, minimum: 1, maximum: 100 }
         teamScore:
           type: number
           nullable: true
           minimum: 0
           maximum: 1
-        finalScore: { type: number, minimum: 0, maximum: 1 }
-        quoteValue: { type: number, minimum: 1, maximum: 100 }
-        explanation:
-          type: object
-          description: Typed QuoteExplanation snapshot for auditability.
-          additionalProperties: true

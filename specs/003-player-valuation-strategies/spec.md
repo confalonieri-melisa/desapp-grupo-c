@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-20
 
-**Status**: Draft — requiere aprobación de decisiones de negocio
+**Status**: Implemented MVP
 
 **Input**: User description: "Implementar un sistema de estrategias de valuación y cálculo de cotizaciones de jugadores con una estrategia de rendimiento individual y otra de rendimiento individual más contexto persistido del equipo."
 
@@ -259,16 +259,16 @@ estado y el motivo registrado.
 ### Key Entities
 
 - **ValuationStrategyVersion**: Versión inmutable de fórmula y configuración:
-  métricas, polaridad, pesos, pesos por posición, límites, población de
-  referencia, shares, conversión monetaria, redondeo y política de faltantes.
+  métricas, polaridad, pesos, pesos por posición, rangos fijos, shares,
+  conversión monetaria, redondeo y política de faltantes.
 - **PlayerQuote**: Registro histórico inmutable de la cotización y sus scores.
 - **QuoteExplanation**: Detalle reproducible de contribuciones, datos fuente,
   normalizaciones, contexto utilizado y decisiones de faltantes.
 
-## Fórmulas y configuración propuesta para validar
+## Fórmulas y configuración del MVP
 
-La siguiente configuración es una **propuesta de análisis**, no una decisión
-definitiva hasta completar `research`, `clarify` y `plan`:
+La primera versión utiliza una configuración fija, explícita y versionada. No
+calcula referencias dinámicas ni requiere una población auxiliar.
 
 | Área | Propuesta a evaluar | Motivo |
 |---|---|---|
@@ -276,7 +276,7 @@ definitiva hasta completar `research`, `clarify` y `plan`:
 | Positivas | Apariciones, minutos, rating, goles, asistencias, tiros, tackles e intercepciones | Representan participación o acciones deportivas favorables según el contexto de posición. |
 | Negativas | Faltas, amarillas y rojas | Penalizan indisciplina; la penalización exacta requiere calibración. |
 | Contexto | Posición, puntos, partidos jugados y diferencia de gol | Coincide con el contexto persistido aprobado para la primera versión y evita estadísticas individuales duplicadas. |
-| Normalización | Percentiles versionados por liga-temporada-posición, con población y límites congelados en cada versión | Reduce la distorsión entre posiciones y temporadas y fue aprobado para la primera versión. |
+| Normalización | Rangos mínimos y máximos fijos por métrica, congelados en cada versión | Es determinista, explicable y suficiente para el MVP. |
 | Mezcla híbrida | `individualShare = 0.75` y `teamShare = 0.25` | Garantiza que el equipo sea un ajuste y no reemplace al jugador; fue aprobado para la primera versión. |
 | Cotización | `1 + 99 * score`, rango de 1 a 100 créditos y 2 decimales | Es explicable y conserva el valor base de 1 crédito en `t0`; fue aprobado para la primera versión. |
 
