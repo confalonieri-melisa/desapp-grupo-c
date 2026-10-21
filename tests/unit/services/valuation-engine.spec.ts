@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { League, Position } from "@/backend/models/enums";
 import { Player } from "@/backend/models/Player";
-import { ValuationEngine } from "@/backend/services/valuation-engine";
+import { normalizeMetricValue, ValuationEngine } from "@/backend/services/valuation-engine";
 import { buildValuationConfig } from "@/backend/services/valuation-strategy.service";
 import type { IndividualMetricConfig } from "@/backend/models/valuation";
 
@@ -60,5 +60,47 @@ describe("ValuationEngine", () => {
       configFor("INDIVIDUAL_PERFORMANCE"),
     );
     expect(result.individualScore).toBe(1);
+  });
+
+  it("renormalizes the weights when an individual metric is missing", () => {
+    const config = configFor("INDIVIDUAL_PERFORMANCE");
+    config.individualMetrics = [
+      { metric: "appearances", polarity: "POSITIVE", weight: 1, minimum: 0, maximum: 20 },
+      { metric: "goals", polarity: "POSITIVE", weight: 1, minimum: 0, maximum: 10 },
+      { metric: "assists", polarity: "POSITIVE", weight: 2, minimum: 0, maximum: 10 },
+    ];
+    const result = new ValuationEngine().calculate(
+      player,
+      "INDIVIDUAL_PERFORMANCE",
+      config,
+    );
+
+    expect(result.individualScore).toBe(0.5);
+    expect(result.explanation.missingMetrics).toEqual(["assists"]);
+  });
+
+  it("uses the individual score and explains the degradation without team context", () => {
+    const result = new ValuationEngine().calculate(
+      player,
+      "INDIVIDUAL_PLUS_TEAM_CONTEXT",
+      configFor("INDIVIDUAL_PLUS_TEAM_CONTEXT"),
+    );
+
+    expect(result.teamScore).toBeNull();
+    expect(result.finalScore).toBe(result.individualScore);
+    expect(result.explanation).toMatchObject({
+      degraded: true,
+      effectivePolicy: "INDIVIDUAL_ONLY",
+    });
+  });
+
+  it("returns a neutral value when a metric range has no width", () => {
+    expect(normalizeMetricValue(42, {
+      metric: "goals",
+      polarity: "POSITIVE",
+      weight: 1,
+      minimum: 42,
+      maximum: 42,
+    })).toBe(0.5);
   });
 });
