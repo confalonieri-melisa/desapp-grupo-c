@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type { CompetitionStandingResult } from "@/backend/adapters/football-data.adapter";
 import { db as defaultDatabase, type Database } from "@/backend/db";
 import {
@@ -12,6 +12,7 @@ import type {
   CompetitionContextStatus,
 } from "@/backend/models/enums";
 import type { TeamSourceLink } from "@/backend/models/team-identity";
+import { DATA_SOURCES } from "@/backend/models/data-sources";
 
 export class CompetitionContextRepository {
   constructor(private readonly database: Database = defaultDatabase) {}
@@ -87,8 +88,37 @@ export class CompetitionContextRepository {
         teamName: players.team,
       })
       .from(players)
-      .where(eq(players.source, "WHOSCORED"))
+      .where(eq(players.source, DATA_SOURCES.WHOSCORED))
       .orderBy(sql`${players.league}`, sql`${players.team}`);
+  }
+
+  async findTeamContext(league: TeamSourceLink["league"], season: number, teamName: string) {
+    const rows = await this.database
+      .select({
+        updateId: competitionContextUpdates.id,
+        teamExternalId: teamCompetitionStandings.teamExternalId,
+        position: teamCompetitionStandings.position,
+        points: teamCompetitionStandings.points,
+        playedGames: teamCompetitionStandings.playedGames,
+        goalDifference: teamCompetitionStandings.goalDifference,
+      })
+      .from(teamSourceLinks)
+      .innerJoin(teamCompetitionStandings, and(
+        eq(teamCompetitionStandings.league, teamSourceLinks.league),
+        eq(teamCompetitionStandings.season, teamSourceLinks.season),
+        eq(teamCompetitionStandings.teamExternalId, teamSourceLinks.footballDataTeamExternalId),
+      ))
+      .innerJoin(competitionContextUpdates, eq(competitionContextUpdates.id, teamCompetitionStandings.contextUpdateId))
+      .where(and(
+        eq(teamSourceLinks.league, league),
+        eq(teamSourceLinks.season, season),
+        eq(teamSourceLinks.whoscoredTeamName, teamName),
+        eq(competitionContextUpdates.season, season),
+        eq(competitionContextUpdates.status, "VALID"),
+      ))
+      .orderBy(desc(competitionContextUpdates.publishedAt))
+      .limit(1);
+    return rows[0] ?? null;
   }
 
 }
