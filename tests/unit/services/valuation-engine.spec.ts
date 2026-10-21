@@ -105,4 +105,63 @@ describe("ValuationEngine", () => {
       maximum: 42,
     })).toBe(0.5);
   });
+
+  it("shows how team context changes only the hybrid valuation", () => {
+    const secondPlayer = new Player({
+      ...player,
+      id: "00000000-0000-0000-0000-000000000002",
+      team: "Another FC",
+    });
+    const individualConfig = configFor("INDIVIDUAL_PERFORMANCE");
+    const hybridConfig = configFor("INDIVIDUAL_PLUS_TEAM_CONTEXT");
+    const strongTeam = {
+      contextUpdateId: "context-strong",
+      position: 1,
+      points: 114,
+      playedGames: 38,
+      goalDifference: 80,
+    };
+    const weakTeam = {
+      contextUpdateId: "context-weak",
+      position: 20,
+      points: 0,
+      playedGames: 0,
+      goalDifference: -60,
+    };
+    const engine = new ValuationEngine();
+
+    const individualFirst = engine.calculate(
+      player,
+      "INDIVIDUAL_PERFORMANCE",
+      individualConfig,
+      strongTeam,
+    );
+    const individualSecond = engine.calculate(
+      secondPlayer,
+      "INDIVIDUAL_PERFORMANCE",
+      individualConfig,
+      weakTeam,
+    );
+    const hybridFirst = engine.calculate(
+      player,
+      "INDIVIDUAL_PLUS_TEAM_CONTEXT",
+      hybridConfig,
+      strongTeam,
+    );
+    const hybridSecond = engine.calculate(
+      secondPlayer,
+      "INDIVIDUAL_PLUS_TEAM_CONTEXT",
+      hybridConfig,
+      weakTeam,
+    );
+
+    expect(individualFirst.finalScore).toBe(individualSecond.finalScore);
+    expect(individualFirst.teamScore).toBeNull();
+    expect(hybridFirst.individualScore).toBe(hybridSecond.individualScore);
+    expect(hybridFirst.teamScore).toBe(1);
+    expect(hybridSecond.teamScore).toBe(0);
+    expect(hybridFirst.finalScore).toBeGreaterThan(hybridSecond.finalScore);
+    expect(hybridFirst.explanation.contextUpdateId).toBe("context-strong");
+    expect(hybridSecond.explanation.contextUpdateId).toBe("context-weak");
+  });
 });
