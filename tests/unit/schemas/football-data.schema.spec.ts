@@ -18,6 +18,7 @@ describe("football-data schema", () => {
   it("normalizes only collective standings fields", () => {
     const result = normalizeStandings({
       standings: [{
+        type: "TOTAL",
         table: [{
           position: 1, playedGames: 4, points: 10, goalDifference: -1,
           team: { id: 7, name: "Example FC" },
@@ -64,5 +65,23 @@ describe("football-data schema", () => {
       points: 7,
       goalDifference: 1,
     });
+  });
+
+  it("rejects payloads that only contain home or away standings", () => {
+    expect(() => normalizeStandings({
+      standings: [{
+        type: "HOME",
+        table: [{
+          position: 1, playedGames: 2, points: 6, goalDifference: 5,
+          team: { id: 7, name: "Example FC" },
+        }],
+      }, {
+        type: "AWAY",
+        table: [{
+          position: 2, playedGames: 2, points: 4, goalDifference: 1,
+          team: { id: 7, name: "Example FC" },
+        }],
+      }],
+    }, League.PREMIER_LEAGUE, 2026)).toThrow(/TOTAL/);
   });
 });
