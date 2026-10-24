@@ -56,4 +56,53 @@ describe("TokenHolding", () => {
       ).toThrow(DomainValidationError);
     },
   );
+
+  it("updates the weighted average when buying", () => {
+    const holding = new TokenHolding({
+      userId: "investor-id",
+      playerId: "player-id",
+      quantity: 2,
+      averagePurchasePrice: 10,
+    });
+
+    const updated = holding.buy(3, 20);
+
+    expect(updated.quantity).toBe(5);
+    expect(updated.averagePurchasePrice).toBe(16);
+  });
+
+  it("keeps the average on a partial sale and resets it on liquidation", () => {
+    const holding = new TokenHolding({
+      userId: "investor-id",
+      playerId: "player-id",
+      quantity: 5,
+      averagePurchasePrice: 16,
+    });
+
+    expect(holding.sell(2).averagePurchasePrice).toBe(16);
+    expect(holding.sell(5).averagePurchasePrice).toBe(0);
+  });
+
+  it("calculates current value and unrealized pnl at a quote", () => {
+    const holding = new TokenHolding({
+      userId: "investor-id",
+      playerId: "player-id",
+      quantity: 5,
+      averagePurchasePrice: 10,
+    });
+
+    expect(holding.currentValueAt(12.5)).toBe(62.5);
+    expect(holding.unrealizedPnlAt(12.5)).toBe(12.5);
+  });
+
+  it("rejects buying or selling a non-positive quantity", () => {
+    const holding = new TokenHolding({ userId: "investor-id", playerId: "player-id" });
+    expect(() => holding.buy(0, 1)).toThrow(DomainValidationError);
+    expect(() => holding.sell(0)).toThrow(DomainValidationError);
+  });
+
+  it("rejects selling more tokens than held", () => {
+    const holding = new TokenHolding({ userId: "investor-id", playerId: "player-id", quantity: 1 });
+    expect(() => holding.sell(2)).toThrow(DomainValidationError);
+  });
 });

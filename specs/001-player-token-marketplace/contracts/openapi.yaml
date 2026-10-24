@@ -316,6 +316,74 @@ paths:
         '403': { description: Se requiere SUPERUSER }
         '409': { description: No existe estrategia activa }
 
+  /orders/buy:
+    post:
+      summary: Comprar tokens de un jugador
+      description: Ejecuta una compra inmediata contra el único superusuario a la cotización vigente persistida.
+      tags: [Market]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketOrderRequest'
+      responses:
+        '201':
+          description: Compra ejecutada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketOperationResult'
+        '400': { description: Request inválido }
+        '401': { description: Token ausente o inválido }
+        '404': { description: Jugador, pool o cotización inexistente }
+        '409': { description: Saldo o tokens insuficientes }
+        '500': { description: Error inesperado sin cambios parciales }
+
+  /orders/sell:
+    post:
+      summary: Vender tokens de un jugador
+      description: Ejecuta una venta inmediata contra el único superusuario a la cotización vigente persistida.
+      tags: [Market]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketOrderRequest'
+      responses:
+        '201':
+          description: Venta ejecutada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketOperationResult'
+        '400': { description: Request inválido }
+        '401': { description: Token ausente o inválido }
+        '404': { description: Jugador, pool o cotización inexistente }
+        '409': { description: Tenencia o saldo del pool insuficiente }
+        '500': { description: Error inesperado sin cambios parciales }
+
+  /portfolio:
+    get:
+      summary: Consultar portfolio del usuario autenticado
+      description: Devuelve las posiciones activas del sujeto del JWT; no acepta userId.
+      tags: [Market]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Portfolio del inversor autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortfolioResponse'
+        '401': { description: Token ausente o inválido }
+
 components:
   securitySchemes:
     BearerAuth:
@@ -624,6 +692,65 @@ components:
         components:
           type: object
           additionalProperties: true
+
+    MarketOrderRequest:
+      type: object
+      additionalProperties: false
+      required: [playerId, quantity]
+      properties:
+        playerId:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+          example: 3
+
+    MarketOperationResult:
+      type: object
+      required: [operation, account, holding]
+      properties:
+        operation:
+          type: object
+          required: [id, type, userId, playerId, quantity, quoteValue, total, createdAt]
+          properties:
+            id: { type: string, format: uuid }
+            type: { type: string, enum: [BUY, SELL] }
+            userId: { type: string, format: uuid }
+            playerId: { type: string, format: uuid }
+            quantity: { type: integer, minimum: 1 }
+            quoteValue: { type: number, format: float, minimum: 0 }
+            total: { type: number, format: float, minimum: 0 }
+            createdAt: { type: string, format: date-time }
+        account:
+          type: object
+          required: [creditBalance]
+          properties:
+            creditBalance: { type: number, format: float, minimum: 0 }
+        holding:
+          type: object
+          required: [quantity, averagePurchasePrice]
+          properties:
+            quantity: { type: integer, minimum: 0 }
+            averagePurchasePrice: { type: number, format: float, minimum: 0 }
+
+    PortfolioResponse:
+      type: object
+      required: [creditBalance, items]
+      properties:
+        creditBalance: { type: number, format: float, minimum: 0 }
+        items:
+          type: array
+          items:
+            type: object
+            required: [playerId, quantity, averagePurchasePrice, currentQuoteValue, currentValue, unrealizedPnl]
+            properties:
+              playerId: { type: string, format: uuid }
+              quantity: { type: integer, minimum: 1 }
+              averagePurchasePrice: { type: number, format: float, minimum: 0 }
+              currentQuoteValue: { type: number, format: float, nullable: true }
+              currentValue: { type: number, format: float, nullable: true }
+              unrealizedPnl: { type: number, format: float, nullable: true }
 
     HealthResponse:
       type: object

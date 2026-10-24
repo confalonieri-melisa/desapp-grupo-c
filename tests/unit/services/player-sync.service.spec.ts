@@ -27,10 +27,14 @@ describe("PlayerSyncService", () => {
         playerDataList.map((playerData) => playerData.player),
       ),
     } as unknown as PlayerRepository;
+    const marketRepository = {
+      assignInitialTokens: vi.fn().mockResolvedValue(undefined),
+    };
 
     const persisted = await new PlayerSyncService(
       dataSource,
       repository,
+      marketRepository as never,
     ).syncFromSource();
 
     expect(persisted).toHaveLength(1);
@@ -41,6 +45,9 @@ describe("PlayerSyncService", () => {
         externalId: "42",
         player: expect.objectContaining({ name: "Kylian Mbappé" }),
       }),
+    ]);
+    expect(marketRepository.assignInitialTokens).toHaveBeenCalledWith([
+      persisted[0]?.id,
     ]);
   });
 });

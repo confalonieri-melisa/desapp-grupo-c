@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Player Token Market
+  version: 1.0.0
+paths:
+  /orders/buy:
+    post:
+      summary: Buy player tokens at the current persisted quote
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketOrderRequest'
+      responses:
+        '201':
+          description: Completed purchase
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketOperationResult'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { description: Unexpected error without partial changes }
+  /orders/sell:
+    post:
+      summary: Sell player tokens at the current persisted quote
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketOrderRequest'
+      responses:
+        '201':
+          description: Completed sale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketOperationResult'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '500': { description: Unexpected error without partial changes }
+  /portfolio:
+    get:
+      summary: Get the authenticated investor portfolio
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Portfolio
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Portfolio'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    MarketOrderRequest:
+      type: object
+      additionalProperties: false
+      required: [playerId, quantity]
+      properties:
+        playerId: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1 }
+    MarketOperationResult:
+      type: object
+      required: [operation, account, holding]
+      properties:
+        operation:
+          type: object
+          required: [id, type, userId, playerId, quantity, quoteValue, total, createdAt]
+          properties:
+            id: { type: string, format: uuid }
+            type: { type: string, enum: [BUY, SELL] }
+            userId: { type: string, format: uuid }
+            playerId: { type: string, format: uuid }
+            quantity: { type: integer }
+            quoteValue: { type: number, format: double }
+            total: { type: number, format: double }
+            createdAt: { type: string, format: date-time }
+        account:
+          type: object
+          required: [creditBalance]
+          properties:
+            creditBalance: { type: number, format: double }
+        holding:
+          type: object
+          required: [quantity, averagePurchasePrice]
+          properties:
+            quantity: { type: integer, minimum: 0 }
+            averagePurchasePrice: { type: number, minimum: 0 }
+    Portfolio:
+      type: object
+      required: [creditBalance, items]
+      properties:
+        creditBalance: { type: number, format: double }
+        items:
+          type: array
+          items:
+            type: object
+            required: [playerId, quantity, averagePurchasePrice, currentQuoteValue, currentValue, unrealizedPnl]
+            properties:
+              playerId: { type: string, format: uuid }
+              quantity: { type: integer, minimum: 1 }
+              averagePurchasePrice: { type: number, minimum: 0 }
+              currentQuoteValue: { type: number, nullable: true }
+              currentValue: { type: number, nullable: true }
+              unrealizedPnl: { type: number, nullable: true }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid request
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unauthorized:
+      description: Missing or invalid JWT
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    NotFound:
+      description: Player, pool or quote not found
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Conflict:
+      description: Balance, holding, availability or concurrency conflict
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }

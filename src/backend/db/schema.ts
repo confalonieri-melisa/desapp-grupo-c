@@ -204,6 +204,51 @@ export const playerQuotes = pgTable(
   ],
 );
 
+export const marketOperations = pgTable(
+  "market_operations",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    type: varchar("type", { length: 10 }).notNull(),
+    investorId: uuid("investor_id").notNull().references(() => users.id),
+    playerId: uuid("player_id").notNull().references(() => players.id),
+    quoteId: uuid("quote_id").notNull().references(() => playerQuotes.id),
+    quoteValue: numeric("quote_value", { precision: 10, scale: 2 }).notNull(),
+    quantity: integer("quantity").notNull(),
+    total: numeric("total", { precision: 12, scale: 2 }).notNull(),
+    unit: varchar("unit", { length: 30 }).notNull().default("CREDIT_PER_TOKEN"),
+    correlationId: varchar("correlation_id", { length: 100 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    check("chk_market_operation_type", sql`${table.type} in ('BUY', 'SELL')`),
+    check("chk_market_operation_quantity", sql`${table.quantity} > 0`),
+    check("chk_market_operation_quote", sql`${table.quoteValue} >= 0`),
+    check("chk_market_operation_total", sql`${table.total} > 0`),
+    index("idx_market_operations_investor_date").on(table.investorId, table.createdAt),
+    index("idx_market_operations_player_date").on(table.playerId, table.createdAt),
+  ],
+);
+
+export const financialAuditRecords = pgTable(
+  "financial_audit_records",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    operationId: uuid("operation_id")
+      .notNull()
+      .references(() => marketOperations.id),
+    actorUserId: uuid("actor_user_id").notNull().references(() => users.id),
+    action: varchar("action", { length: 50 }).notNull(),
+    previousState: jsonb("previous_state").notNull(),
+    newState: jsonb("new_state").notNull(),
+    correlationId: varchar("correlation_id", { length: 100 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("uq_financial_audit_operation").on(table.operationId),
+    check("chk_financial_audit_action", sql`${table.action} in ('TOKEN_BUY', 'TOKEN_SELL')`),
+  ],
+);
+
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
 export type PlayerRow = typeof players.$inferSelect;
@@ -211,3 +256,5 @@ export type NewPlayerRow = typeof players.$inferInsert;
 export type TokenHoldingRow = typeof tokenHoldings.$inferSelect;
 export type ValuationStrategyVersionRow = typeof valuationStrategyVersions.$inferSelect;
 export type PlayerQuoteRow = typeof playerQuotes.$inferSelect;
+export type MarketOperationRow = typeof marketOperations.$inferSelect;
+export type FinancialAuditRecordRow = typeof financialAuditRecords.$inferSelect;

@@ -47,10 +47,62 @@ export class TokenHolding {
     });
   }
 
-  private static validateQuantity(quantity: number): void {
-    if (!Number.isInteger(quantity) || quantity < 0) {
+  buy(quantity: number, price: number): TokenHolding {
+    TokenHolding.validateQuantity(quantity, false);
+    TokenHolding.validatePrice(price);
+
+    const nextQuantity = this.quantity + quantity;
+    const nextAverage = calculateWeightedPurchasePrice(
+      this.quantity,
+      this.averagePurchasePrice,
+      quantity,
+      price,
+      nextQuantity,
+    );
+
+    return new TokenHolding({
+      id: this.id,
+      userId: this.userId,
+      playerId: this.playerId,
+      quantity: nextQuantity,
+      averagePurchasePrice: nextAverage,
+    });
+  }
+
+  sell(quantity: number): TokenHolding {
+    TokenHolding.validateQuantity(quantity, false);
+    if (quantity > this.quantity) {
+      throw new DomainValidationError("Insufficient token holding");
+    }
+
+    const nextQuantity = this.quantity - quantity;
+    return new TokenHolding({
+      id: this.id,
+      userId: this.userId,
+      playerId: this.playerId,
+      quantity: nextQuantity,
+      averagePurchasePrice: nextQuantity === 0 ? 0 : this.averagePurchasePrice,
+    });
+  }
+
+  currentValueAt(price: number): number {
+    TokenHolding.validatePrice(price);
+    return roundMoney(this.quantity * price);
+  }
+
+  unrealizedPnlAt(price: number): number {
+    const currentValue = this.currentValueAt(price);
+    const investedValue = this.quantity * this.averagePurchasePrice;
+    return roundMoney(currentValue - investedValue);
+  }
+
+  private static validateQuantity(quantity: number, allowZero = true): void {
+    const isInvalid = !Number.isInteger(quantity) || (allowZero ? quantity < 0 : quantity <= 0);
+    if (isInvalid) {
       throw new DomainValidationError(
-        "Token quantity must be a non-negative integer",
+        allowZero
+          ? "Token quantity must be a non-negative integer"
+          : "Token quantity must be a positive integer",
       );
     }
   }
@@ -62,4 +114,25 @@ export class TokenHolding {
       );
     }
   }
+}
+
+function calculateWeightedPurchasePrice(
+  currentQuantity: number,
+  currentAveragePrice: number,
+  addedQuantity: number,
+  purchasePrice: number,
+  nextQuantity: number,
+): number {
+  if (currentQuantity === 0) return purchasePrice;
+
+  const currentPositionValue = currentQuantity * currentAveragePrice;
+  const newPurchaseValue = addedQuantity * purchasePrice;
+  const combinedPositionValue = currentPositionValue + newPurchaseValue;
+  const weightedAveragePrice = combinedPositionValue / nextQuantity;
+
+  return roundMoney(weightedAveragePrice);
+}
+
+function roundMoney(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
 }

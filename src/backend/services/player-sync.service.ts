@@ -7,11 +7,13 @@ import {
   PlayerRepository,
   type PlayerPersistenceData,
 } from "@/backend/repositories/player.repository";
+import { MarketRepository } from "@/backend/repositories/market.repository";
 
 export class PlayerSyncService {
   constructor(
     private readonly dataSource: PlayerDataSource,
     private readonly playerRepository: PlayerRepository,
+    private readonly marketRepository: MarketRepository,
   ) {}
 
   async syncFromSource(): Promise<Player[]> {
@@ -19,7 +21,7 @@ export class PlayerSyncService {
     return this.savePlayers(scrapedPlayers);
   }
 
-  private savePlayers(scrapedPlayers: ScrapedPlayer[]): Promise<Player[]> {
+  private async savePlayers(scrapedPlayers: ScrapedPlayer[]): Promise<Player[]> {
     const playerDataList: PlayerPersistenceData[] = scrapedPlayers.map(
       (scrapedPlayer) => ({
         player: new Player({
@@ -34,6 +36,8 @@ export class PlayerSyncService {
       }),
     );
 
-    return this.playerRepository.savePlayers(playerDataList);
+    const players = await this.playerRepository.savePlayers(playerDataList);
+    await this.marketRepository.assignInitialTokens(players.map((player) => player.id));
+    return players;
   }
 }
