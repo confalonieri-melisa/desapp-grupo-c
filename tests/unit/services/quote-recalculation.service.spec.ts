@@ -35,7 +35,7 @@ function dependencies() {
       saveQuote: vi.fn().mockResolvedValue({ id: "quote-1" }),
     },
     playerRepository: {
-      findPlayersForValuation: vi.fn().mockResolvedValue({ players: [player], rejected: [] }),
+      findAll: vi.fn().mockResolvedValue([player]),
     },
     contextRepository: { findTeamContext: vi.fn() },
     engine: { calculate: vi.fn().mockReturnValue(result) },
@@ -82,10 +82,7 @@ describe("QuoteRecalculationService", () => {
   it("publishes valid quotes and reports player-level failures", async () => {
     const deps = dependencies();
     const secondPlayer = new Player({ ...player, id: "player-2", name: "Player Two" });
-    deps.playerRepository.findPlayersForValuation.mockResolvedValue({
-      players: [player, secondPlayer],
-      rejected: [],
-    });
+    deps.playerRepository.findAll.mockResolvedValue([player, secondPlayer]);
     deps.engine.calculate
       .mockReturnValueOnce(result)
       .mockImplementationOnce(() => { throw new Error("insufficient data"); });
@@ -102,24 +99,4 @@ describe("QuoteRecalculationService", () => {
     expect(deps.valuationRepository.saveQuote).toHaveBeenCalledTimes(1);
   });
 
-  it("continues when a player cannot be loaded for recalculation", async () => {
-    const deps = dependencies();
-    deps.playerRepository.findPlayersForValuation.mockResolvedValue({
-      players: [player],
-      rejected: [{ playerId: "invalid-player", error: "Unsupported player statistic: legacy_metric" }],
-    });
-
-    const response = await new QuoteRecalculationService(
-      deps.valuationRepository as never,
-      deps.playerRepository as never,
-      deps.contextRepository as never,
-      deps.engine as never,
-    ).recalculate();
-
-    expect(response).toMatchObject({ status: "PARTIAL", calculated: 1, rejected: 1 });
-    expect(response.errors).toEqual([{
-      playerId: "invalid-player",
-      error: "Unsupported player statistic: legacy_metric",
-    }]);
-  });
 });
