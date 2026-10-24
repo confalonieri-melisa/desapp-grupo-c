@@ -26,9 +26,10 @@
    una fila. Esto implementa anterior o igual sin depender de la zona horaria
    del cliente.
 3. **Jugador inexistente**: se valida existencia con `PlayerRepository` antes
-   de consultar quotes para distinguir `PLAYER_NOT_FOUND` de un historial vacío.
+   de consultar quotes para distinguir un jugador inexistente de un historial
+   vacío.
 4. **Historial vacío**: devuelve `200` con `items: []`. Una consulta con
-   `date` sin candidato devuelve `QUOTE_NOT_AVAILABLE`.
+   `date` sin candidato devuelve `404`.
 5. **Orden**: la consulta histórica usa `calculatedAt DESC, id DESC`. No hay
    paginación ni orden configurable en el MVP.
 6. **Respuesta**: se exponen columnas persistidas y una proyección directa de

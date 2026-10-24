@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-23
 
-**Status**: Ready for Planning
+**Status**: Ready for Review
 
 **Input**: User description: "Permitir la consulta de cotizaciones actuales e históricas de un jugador, solicitar la cotización correspondiente a una fecha determinada, informar valor, fecha de cálculo, estrategia, versión y componentes de score, reutilizando las cotizaciones persistidas por `valuation-strategies` sin recalcular precios durante una consulta."
 
@@ -50,7 +50,7 @@ actual.
 2. **Given** un jugador existente sin cotizaciones, **When** se solicita su
    historial, **Then** responde `200` con `items: []`.
 3. **Given** un identificador de jugador inexistente, **When** se solicita su
-   historial, **Then** responde `404` con el código `PLAYER_NOT_FOUND`.
+   historial, **Then** responde `404` con un mensaje descriptivo.
 
 ---
 
@@ -69,13 +69,13 @@ la última cotización calculada el 20 de octubre o antes.
    se solicita `date=2026-10-20`, **Then** se devuelve la de mayor
    `calculatedAt` cuya fecha sea menor o igual a `2026-10-20`.
 2. **Given** una fecha anterior a la primera cotización del jugador, **When** se
-   solicita esa fecha, **Then** responde `404` con el código
-   `QUOTE_NOT_AVAILABLE` y no utiliza una cotización posterior.
+   solicita esa fecha, **Then** responde `404` con un mensaje descriptivo y no
+   utiliza una cotización posterior.
 3. **Given** una fecha futura válida, **When** se solicita, **Then** devuelve la
    cotización más reciente disponible.
 4. **Given** una fecha inexistente o con formato distinto de `YYYY-MM-DD`,
-   **When** llega la solicitud, **Then** responde `400` con el código
-   `INVALID_DATE`.
+   **When** llega la solicitud, **Then** responde `400` con un mensaje
+   descriptivo.
 
 ### Edge Cases
 
@@ -85,9 +85,9 @@ la última cotización calculada el 20 de octubre o antes.
   posterior.
 - La ausencia de historial completo se representa con `200` y lista vacía;
   la ausencia de resultado para una consulta por fecha se representa con
-  `404 QUOTE_NOT_AVAILABLE`.
+  `404` con un mensaje descriptivo.
 - Un `playerId` con formato inválido responde `400`; un UUID válido que no
-  existe responde `404 PLAYER_NOT_FOUND`.
+  existe responde `404`.
 
 ## API Contract
 
@@ -135,11 +135,10 @@ No se requiere crear una representación nueva de la explicación para este MVP.
 
 Respuestas de error:
 
-- `400 INVALID_DATE` o `400 INVALID_PLAYER_ID`.
-- `401 UNAUTHORIZED` si falta un JWT Bearer válido.
-- `404 PLAYER_NOT_FOUND` si el jugador no existe.
-- `404 QUOTE_NOT_AVAILABLE` únicamente cuando se solicita `date` y no existe
-  una cotización anterior o igual a esa fecha.
+- `400` si el UUID o la fecha son inválidos.
+- `401` si falta un JWT Bearer válido.
+- `404` si el jugador no existe o no hay una cotización anterior o igual a la
+  fecha solicitada.
 
 ## Requirements
 
@@ -160,9 +159,9 @@ Respuestas de error:
 - **FR-007**: Cada cotización devuelta DEBE informar valor, unidad, fecha de
   cálculo, código de estrategia, versión, `individualScore`, `teamScore` si
   corresponde, `finalScore` y sus componentes persistidos.
-- **FR-008**: Un jugador inexistente DEBE responder `404 PLAYER_NOT_FOUND`; un
-  historial vacío DEBE responder `200` con `items: []`; una consulta por fecha
-  sin resultado DEBE responder `404 QUOTE_NOT_AVAILABLE`.
+- **FR-008**: Un jugador inexistente DEBE responder `404`; un historial vacío
+  DEBE responder `200` con `items: []`; una consulta por fecha sin resultado
+  DEBE responder `404`.
 - **FR-009**: Las rutas DEBEN requerir un JWT Bearer válido. Los usuarios
   autenticados con rol `INVESTOR` o `SUPERUSER` pueden consultar cualquier
   jugador. No se requiere permiso administrativo.

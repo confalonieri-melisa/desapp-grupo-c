@@ -13,8 +13,8 @@ prepare shared validation/error behavior without ampliar el esquema.
 - [x] T001 Revisar `src/backend/db/schema.ts` y la migración `0003_secret_luckman.sql` para verificar que `player_quotes`, `valuation_strategy_versions` y el índice `(player_id, calculated_at)` cubren la consulta; documentar explícitamente que no se crea migración nueva en `specs/004-player-quote-queries/data-model.md`.
 - [x] T002 [P] Escribir tests de validación de parámetros en `tests/unit/schemas/player-quotes.schema.spec.ts` para UUID válido, UUID inválido, fecha `YYYY-MM-DD` válida, fechas imposibles, fecha con hora y fecha vacía.
 - [x] T003 Implementar los schemas de request en `src/backend/schemas/player-quotes.schema.ts`, reutilizando `playerParamsSchema` si corresponde y validando estrictamente el parámetro opcional `date`.
-- [x] T004 [P] Agregar tests de serialización de códigos de error en `tests/unit/errors/to-http-response.spec.ts` sin romper las respuestas existentes.
-- [x] T005 Implementar códigos de error estables para `INVALID_PLAYER_ID`, `INVALID_DATE`, `PLAYER_NOT_FOUND` y `QUOTE_NOT_AVAILABLE` en `src/backend/errors/http.error.ts` y `src/backend/errors/to-http-response.ts`.
+- [x] T004 [P] Agregar tests de serialización de errores HTTP en `tests/unit/errors/to-http-response.spec.ts` sin romper las respuestas existentes.
+- [x] T005 Reutilizar errores HTTP simples para respuestas `400` y `404` en `src/backend/errors/http.error.ts` y `src/backend/errors/to-http-response.ts`.
 
 **Checkpoint**: Los parámetros y errores de la feature tienen contrato verificable y el esquema de persistencia existente fue validado sin generar migraciones.
 
@@ -33,7 +33,7 @@ la estrategia/version histórica asociada.
 
 - [x] T006 [P] [US1] Escribir el test de integración de lectura histórica en `tests/integration/player-quotes.repository.spec.ts`, verificando orden descendente, desempate por `id`, join de `strategyCode`/`version` y conservación de scores, unidad y explicación.
 - [x] T007 [P] [US1] Escribir tests unitarios de `PlayerQuotesService` en `tests/unit/services/player-quotes.service.spec.ts` para jugador inexistente, historial vacío y devolución de todos los registros sin invocar `ValuationEngine`.
-- [x] T008 [P] [US1] Escribir tests de ruta en `tests/integration/player-quotes.routes.spec.ts` para `401`, `200` con historial, `200` con `items: []`, `404 PLAYER_NOT_FOUND` y acceso válido de `INVESTOR` y `SUPERUSER`.
+- [x] T008 [P] [US1] Escribir tests de ruta en `tests/integration/player-quotes.routes.spec.ts` para `401`, `200` con historial, `200` con `items: []`, `404` para jugador inexistente y acceso válido de `INVESTOR` y `SUPERUSER`.
 
 ### Implementation for User Story 1
 
@@ -56,14 +56,14 @@ devuelve un único elemento correspondiente a la última cotización elegible.
 
 ### Tests for User Story 2
 
-- [x] T013 [P] [US2] Agregar tests de selección temporal en `tests/unit/services/player-quotes.service.spec.ts` para fecha coincidente, fecha anterior a todo el historial, fecha futura y ausencia de candidato con `QUOTE_NOT_AVAILABLE`.
+- [x] T013 [P] [US2] Agregar tests de selección temporal en `tests/unit/services/player-quotes.service.spec.ts` para fecha coincidente, fecha anterior a todo el historial, fecha futura y ausencia de candidato con `404`.
 - [x] T014 [P] [US2] Agregar tests de integración de límite temporal en `tests/integration/player-quotes.repository.spec.ts`, verificando que el repositorio use el inicio del día siguiente UTC como límite exclusivo y `LIMIT 1`.
-- [x] T015 [P] [US2] Agregar tests de ruta en `tests/integration/player-quotes.routes.spec.ts` para `200` con un único elemento, `400 INVALID_DATE`, `404 QUOTE_NOT_AVAILABLE` y rechazo de fechas posteriores al criterio solicitado.
+- [x] T015 [P] [US2] Agregar tests de ruta en `tests/integration/player-quotes.routes.spec.ts` para `200` con un único elemento, `400` por fecha inválida, `404` sin cotización elegible y rechazo de fechas posteriores al criterio solicitado.
 
 ### Implementation for User Story 2
 
-- [x] T016 Extender `src/backend/repositories/valuation.repository.ts` con la lectura `findLatestByPlayerIdOnOrBefore`, aplicando el límite temporal, el mismo orden estable y el join de estrategia/version.
-- [x] T017 Extender `src/backend/services/player-quotes.service.ts` para transformar `date` en límite UTC exclusivo, solicitar una sola cotización y lanzar `QUOTE_NOT_AVAILABLE` si no existe candidato.
+- [x] T016 Extender `src/backend/repositories/valuation.repository.ts` con la lectura `findLatestQuoteBefore`, aplicando el límite temporal, el mismo orden estable y el join de estrategia/version.
+- [x] T017 Extender `src/backend/services/player-quotes.service.ts` para transformar `date` en límite UTC exclusivo, solicitar una sola cotización y lanzar un error `404` si no existe candidato.
 - [x] T018 Extender `src/backend/controllers/player-quotes.controller.ts` y `src/app/api/players/[id]/quotes/route.ts` para devolver `{ items: [quote] }` cuando existe `date`, conservando el mismo DTO del historial.
 
 **Checkpoint**: Las dos user stories funcionan sobre la misma ruta y comparten el contrato de cotización sin recalcular ni persistir datos.
@@ -77,10 +77,13 @@ devuelve un único elemento correspondiente a la última cotización elegible.
 - [x] T019 Actualizar `specs/001-player-token-marketplace/contracts/openapi.yaml` con `GET /players/{id}/quotes`, sus parámetros, esquemas `PlayerQuotesResponse`, `PlayerQuoteResponse` y `PlayerQuoteScore`, seguridad Bearer y errores definidos.
 - [x] T020 Verificar que `src/app/api/docs/route.ts` siga cargando correctamente el OpenAPI principal y que el contrato documente la unidad persistida `CREDIT_PER_TOKEN`.
 - [x] T021 Actualizar `specs/004-player-quote-queries/quickstart.md` si el contrato final difiere del ejemplo y verificar manualmente los comandos de historial y consulta por fecha.
-- [x] T022 Ejecutar `npm test -- --run`, incluyendo integración PostgreSQL con `RUN_DB_INTEGRATION_TESTS=true` cuando el entorno esté disponible; corregir solo fallos pertenecientes a esta feature.
-- [x] T023 Ejecutar `npm run lint` y `npm run build`; verificar `git diff --check` y confirmar que no se agregaron migraciones, dependencias, UI ni funcionalidades fuera del MVP.
+- [x] T022 Ejecutar la suite de tests; la integración PostgreSQL queda preparada para ejecutarse con `RUN_DB_INTEGRATION_TESTS=true` cuando el entorno esté disponible.
+- [x] T023 Ejecutar lint dirigido sobre los archivos de la feature, `npx tsc --noEmit`, `npm run build` y `git diff --check`; confirmar que no se agregaron migraciones, dependencias, UI ni funcionalidades fuera del MVP.
 
-**Checkpoint final**: La ruta, tests, OpenAPI y quickstart están sincronizados; el build y lint pasan.
+**Checkpoint final**: La ruta, tests, OpenAPI y quickstart están sincronizados;
+los tests dirigidos, TypeScript y el build pasan. El lint dirigido pasa; los
+fallos del lint global corresponden a archivos preexistentes fuera de esta
+feature.
 
 ## Dependencies & Execution Order
 

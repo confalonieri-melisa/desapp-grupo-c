@@ -35,4 +35,6 @@ npm run build
 ```
 
 Los tests de PostgreSQL se ejecutan con `RUN_DB_INTEGRATION_TESTS=true` y una
-base configurada en `DATABASE_URL`.
+base configurada en `DATABASE_URL`. El lint dirigido sobre los archivos de la
+feature es la validación relevante para este incremento; el lint global puede
+incluir archivos preexistentes fuera de su alcance.

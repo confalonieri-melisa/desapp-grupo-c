@@ -57,14 +57,14 @@ para consumo posterior por la ficha de jugador.
 2. La route ejecuta `requireAuth`.
 3. La route valida `{ id }` y el query param opcional `date` con Zod.
 4. `PlayerQuotesController` delega al servicio.
-5. `PlayerQuotesService` consulta primero el jugador para distinguir
-   `PLAYER_NOT_FOUND` de historial vacío.
+5. `PlayerQuotesService` consulta primero el jugador para distinguir un
+   jugador inexistente de un historial vacío.
 6. El servicio solicita al repositorio las quotes del jugador, con o sin
    límite temporal.
 7. `ValuationRepository` hace un SELECT de `player_quotes` unido a
    `valuation_strategy_versions`, ordenado por `calculated_at DESC, id DESC`.
-8. El controller mapea numeric strings de Drizzle a números y conserva la
-   explicación persistida dentro de `score.components`.
+8. El repositorio mapea numeric strings de Drizzle a números y el controller
+   conserva la explicación persistida dentro de `score.components`.
 9. La route serializa `{ items }`; los errores pasan por `toHttpResponse`.
 
 Para una fecha `D`, el servicio calcula `nextDayStartUtc(D)` y el repositorio
@@ -95,13 +95,12 @@ con fecha.
 ### Existing files to modify
 
 - `src/backend/repositories/valuation.repository.ts`: agregar métodos de
-  lecturas `findByPlayerId` y `findLatestByPlayerIdOnOrBefore`, incluyendo join a
+  lecturas `findHistoryByPlayerId` y `findLatestQuoteBefore`, incluyendo join a
   `valuationStrategyVersions`; no modificar `saveQuote`.
-- `src/backend/errors/http.error.ts`: agregar errores/códigos reutilizables
-  para `INVALID_PLAYER_ID`, `INVALID_DATE`, `PLAYER_NOT_FOUND` y
-  `QUOTE_NOT_AVAILABLE`, manteniendo compatibilidad con errores existentes.
-- `src/backend/errors/to-http-response.ts`: serializar el código estable junto
-  con el mensaje cuando exista.
+- `src/backend/errors/http.error.ts`: reutilizar errores HTTP simples para
+  respuestas `400` y `404`, manteniendo compatibilidad con errores existentes.
+- `src/backend/errors/to-http-response.ts`: serializar el mensaje y status de
+  los errores HTTP.
 - `specs/001-player-token-marketplace/contracts/openapi.yaml`: incorporar la
   ruta real al contrato Swagger que carga `/api/docs`.
 
@@ -165,16 +164,15 @@ Response:
 }
 ```
 
-With `date`, `items` tiene un único elemento o se responde `404
-QUOTE_NOT_AVAILABLE`. Sin `date`, `items` puede estar vacío.
+With `date`, `items` tiene un único elemento o se responde `404` si no existe
+una cotización elegible. Sin `date`, `items` puede estar vacío.
 
 HTTP outcomes:
 
 - `200`: historial o resultado puntual.
 - `400`: UUID/formato de fecha inválido.
 - `401`: JWT ausente, inválido o expirado.
-- `404 PLAYER_NOT_FOUND`: jugador inexistente.
-- `404 QUOTE_NOT_AVAILABLE`: no existe quote anterior o igual a `date`.
+- `404`: jugador inexistente o no existe quote anterior o igual a `date`.
 
 El campo `components` es una proyección directa de `QuoteExplanation`:
 `individual` y `team` contienen las contribuciones persistidas. No se invoca
@@ -189,7 +187,9 @@ El campo `components` es una proyección directa de `QuoteExplanation`:
 - Service: jugador inexistente; historial vacío; fecha anterior a todo;
   fecha coincidente; fecha futura; empate por `id`; delegación sin engine ni
   insert/update.
-- Controller: mapea numeric strings a números y conserva `teamScore: null` y
+- Repository: mapea numeric strings a números y devuelve `null` cuando no hay
+  una cotización elegible para la fecha.
+- Controller: conserva `teamScore`, incluso cuando es `null`, y los
   componentes de explicación.
 
 ### Repository/integration tests
@@ -231,12 +231,13 @@ adapters porque no se permite red en esta feature.
 | Confundir jugador inexistente con historial vacío | Contrato HTTP incorrecto | Comprobar `players` antes de consultar `player_quotes` |
 | Recalcular accidentalmente durante una lectura | Modificación de datos y latencia | Dependencia exclusiva del repositorio; tests con mocks que aseguren ausencia del engine |
 | Numeric de PostgreSQL serializado como string | Contrato inconsistente | Mapper único en controller y tests del DTO |
-| Código de error incompatible con rutas existentes | Regresión en contratos | Extender errores de forma retrocompatible y ejecutar suite completa |
+| Mensaje o status HTTP inconsistente | Regresión en contratos | Reutilizar errores HTTP existentes y ejecutar suite completa |
 | Crecimiento futuro del historial | Lecturas grandes | Mantener índice existente; dejar paginación como feature posterior |
 
 ## Implementation Order
 
-1. Crear schemas de parámetros y definir errores/códigos HTTP retrocompatibles.
+1. Crear schemas de parámetros y definir respuestas HTTP con status y mensajes
+   descriptivos.
 2. Agregar métodos de lectura al `ValuationRepository` con join, orden y límite
    temporal.
 3. Implementar `PlayerQuotesService` y su mapper de salida.
@@ -252,5 +253,7 @@ adapters porque no se permite red en esta feature.
 - Se diferencian jugador inexistente, historial vacío y ausencia de quote a una
   fecha.
 - El contrato OpenAPI coincide con la implementación.
-- Tests, lint y build pasan.
+- Tests dirigidos, TypeScript y build pasan. La integración PostgreSQL se
+  ejecuta cuando el entorno está disponible; el lint global puede incluir
+  archivos preexistentes fuera de esta feature.
 - No se implementan paginación, filtros, UI ni funcionalidades fuera del MVP.

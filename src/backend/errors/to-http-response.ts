@@ -7,10 +7,7 @@ export function toHttpResponse(error: unknown): Response {
   }
 
   if (error instanceof HttpError) {
-    return Response.json(
-      { error: error.message },
-      { status: error.status },
-    );
+    return Response.json({ error: error.message }, { status: error.status });
   }
 
   throw error;

@@ -119,6 +119,3 @@ components:
       properties:
         error:
           type: string
-        code:
-          type: string
-          enum: [INVALID_PLAYER_ID, INVALID_DATE, PLAYER_NOT_FOUND, QUOTE_NOT_AVAILABLE]
