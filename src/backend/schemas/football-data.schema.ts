@@ -32,8 +32,10 @@ export function normalizeStandings(
   season: number,
 ): TeamCompetitionStanding[] {
   const parsed = footballDataPayloadSchema.parse(payload);
-  const totalStanding = parsed.standings.find((standing) => standing.type === "TOTAL")
-    ?? parsed.standings[0];
+  const totalStanding = parsed.standings.find((standing) => standing.type === "TOTAL");
+  if (!totalStanding) {
+    throw new Error("football-data.org payload does not contain TOTAL standings");
+  }
 
   return totalStanding.table.map((row) => ({
     league,
