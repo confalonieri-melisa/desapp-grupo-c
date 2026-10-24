@@ -35,7 +35,7 @@ function dependencies() {
       saveQuote: vi.fn().mockResolvedValue({ id: "quote-1" }),
     },
     playerRepository: {
-      findAllForRecalculation: vi.fn().mockResolvedValue({ players: [player], errors: [] }),
+      findPlayersForValuation: vi.fn().mockResolvedValue({ players: [player], rejected: [] }),
     },
     contextRepository: { findTeamContext: vi.fn() },
     engine: { calculate: vi.fn().mockReturnValue(result) },
@@ -82,9 +82,9 @@ describe("QuoteRecalculationService", () => {
   it("publishes valid quotes and reports player-level failures", async () => {
     const deps = dependencies();
     const secondPlayer = new Player({ ...player, id: "player-2", name: "Player Two" });
-    deps.playerRepository.findAllForRecalculation.mockResolvedValue({
+    deps.playerRepository.findPlayersForValuation.mockResolvedValue({
       players: [player, secondPlayer],
-      errors: [],
+      rejected: [],
     });
     deps.engine.calculate
       .mockReturnValueOnce(result)
@@ -104,9 +104,9 @@ describe("QuoteRecalculationService", () => {
 
   it("continues when a player cannot be loaded for recalculation", async () => {
     const deps = dependencies();
-    deps.playerRepository.findAllForRecalculation.mockResolvedValue({
+    deps.playerRepository.findPlayersForValuation.mockResolvedValue({
       players: [player],
-      errors: [{ playerId: "invalid-player", error: "Unsupported player statistic: legacy_metric" }],
+      rejected: [{ playerId: "invalid-player", error: "Unsupported player statistic: legacy_metric" }],
     });
 
     const response = await new QuoteRecalculationService(

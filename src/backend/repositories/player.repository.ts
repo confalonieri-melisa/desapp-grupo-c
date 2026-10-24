@@ -26,14 +26,14 @@ export interface PlayerSearchResult {
   total: number;
 }
 
-export interface PlayerLoadError {
+export interface PlayerValuationLoadError {
   playerId: string;
   error: string;
 }
 
-export interface PlayerLoadResult {
+export interface PlayerValuationLoadResult {
   players: Player[];
-  errors: PlayerLoadError[];
+  rejected: PlayerValuationLoadError[];
 }
 
 type PlayerDatabaseExecutor = Pick<Database, "insert">;
@@ -107,26 +107,26 @@ export class PlayerRepository {
     return rows.map(toPlayer);
   }
 
-  async findAllForRecalculation(): Promise<PlayerLoadResult> {
+  async findPlayersForValuation(): Promise<PlayerValuationLoadResult> {
     const rows = await this.database
       .select()
       .from(players)
       .orderBy(asc(players.name), asc(players.id));
     const validPlayers: Player[] = [];
-    const errors: PlayerLoadError[] = [];
+    const rejected: PlayerValuationLoadError[] = [];
 
     for (const row of rows) {
       try {
         validPlayers.push(toPlayer(row));
       } catch (error) {
-        errors.push({
+        rejected.push({
           playerId: row.id,
           error: error instanceof Error ? error.message : "Invalid player data",
         });
       }
     }
 
-    return { players: validPlayers, errors };
+    return { players: validPlayers, rejected };
   }
 
   async findMany(filters: PlayerSearchFilters = {}, pagination: PlayerPagination = DEFAULT_PLAYER_PAGINATION): Promise<PlayerSearchResult> {
