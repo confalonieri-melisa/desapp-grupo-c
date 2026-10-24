@@ -38,7 +38,7 @@ export function GET(): Response {
           spec: ${openApiDocument},
           dom_id: "#swagger-ui",
           deepLinking: true,
-          supportedSubmitMethods: ["get"],
+          supportedSubmitMethods: ["get", "post"],
           presets: [SwaggerUIBundle.presets.apis],
           layout: "BaseLayout"
         });
