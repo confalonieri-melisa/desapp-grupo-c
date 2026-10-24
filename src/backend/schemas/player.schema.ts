@@ -1,5 +1,12 @@
 import { z } from "zod";
 import { League, Position } from "@/backend/models/enums";
+import { PLAYER_STATISTIC_KEYS } from "@/backend/models/player-statistics";
+
+const playerStatisticsSchema = z.object(
+  Object.fromEntries(
+    PLAYER_STATISTIC_KEYS.map((metric) => [metric, z.number().nonnegative().optional()]),
+  ) as Record<(typeof PLAYER_STATISTIC_KEYS)[number], z.ZodOptional<z.ZodNumber>>,
+).partial();
 
 /** HTTP input for creating or importing a player. */
 export const playerSchema = z.object({
@@ -7,9 +14,7 @@ export const playerSchema = z.object({
   team: z.string().trim().min(1),
   league: z.enum(League),
   position: z.enum(Position),
-  statistics: z
-    .record(z.string().trim().min(1), z.number().nonnegative())
-    .default({}),
+  statistics: playerStatisticsSchema.default({}),
 });
 
 export type PlayerDto = z.infer<typeof playerSchema>;

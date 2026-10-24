@@ -216,6 +216,54 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /valuation/active:
+    post:
+      summary: Seleccionar la estrategia de valuación activa
+      tags: [Valuation]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateStrategyRequest'
+      responses:
+        '200':
+          description: Estrategia activada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveStrategyResponse'
+        '400': { description: Request inválido }
+        '401': { description: Token ausente o inválido }
+        '403': { description: Se requiere SUPERUSER }
+
+  /quotes/recalculate:
+    post:
+      summary: Recalcular cotizaciones de todos los jugadores elegibles
+      tags: [Quotes]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+      responses:
+        '200':
+          description: Cotizaciones calculadas o publicación parcial
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecalculationResponse'
+        '400': { description: "El body debe ser {}" }
+        '401': { description: Token ausente o inválido }
+        '403': { description: Se requiere SUPERUSER }
+        '409': { description: No existe estrategia activa }
+
 components:
   securitySchemes:
     BearerAuth:
@@ -499,3 +547,60 @@ components:
         statusCode:
           type: integer
           example: 401
+
+    ActivateStrategyRequest:
+      type: object
+      required: [strategyCode]
+      properties:
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
+
+    ActiveStrategyResponse:
+      type: object
+      required: [strategyCode, version, isActive]
+      properties:
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
+        version: { type: string }
+        isActive: { type: boolean }
+
+    RecalculationResponse:
+      type: object
+      required: [status, season, strategyCode, version, calculated, rejected, quotes, errors]
+      properties:
+        status:
+          type: string
+          enum: [COMPLETED, PARTIAL, FAILED]
+        season: { type: integer }
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
+        version: { type: string }
+        calculated: { type: integer, minimum: 0 }
+        rejected: { type: integer, minimum: 0 }
+        quotes:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteResult'
+        errors:
+          type: array
+          items:
+            type: object
+            required: [playerId, error]
+            properties:
+              playerId: { type: string, format: uuid }
+              error: { type: string }
+
+    QuoteResult:
+      type: object
+      required: [playerId, quoteValue, teamScore]
+      properties:
+        playerId: { type: string, format: uuid }
+        quoteValue: { type: number, minimum: 1, maximum: 100 }
+        teamScore:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1

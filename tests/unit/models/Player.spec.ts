@@ -10,7 +10,7 @@ describe("Player", () => {
       team: "Manchester City",
       league: League.PREMIER_LEAGUE,
       position: Position.FORWARD,
-      statistics: { goals: 20, assists: 4, minutes: 1800 },
+      statistics: { goals: 20, assists: 4, minutesPlayed: 1800 },
     });
 
   it("creates a player from an official league", () => {
@@ -41,7 +41,7 @@ describe("Player", () => {
           team: "Team",
           league: League.SERIE_A,
           position: Position.DEFENDER,
-          statistics: { tackles: -1 },
+          statistics: { tacklesPerGame: -1 },
         }),
     ).toThrow(DomainValidationError);
 
@@ -52,7 +52,7 @@ describe("Player", () => {
           team: "Team",
           league: League.LIGUE_1,
           position: Position.DEFENDER,
-          statistics: { tackles: "many" as unknown as number },
+          statistics: { tacklesPerGame: "many" as unknown as number },
         }),
     ).toThrow(DomainValidationError);
   });
