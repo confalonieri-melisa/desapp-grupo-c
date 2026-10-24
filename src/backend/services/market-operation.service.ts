@@ -1,9 +1,34 @@
 import type { AuthTokenPayload } from "@/backend/utils/jwt";
-import type { MarketOperationRequest } from "@/backend/schemas/market-operation.schema";
+import type { MarketOperationRow } from "@/backend/db/schema";
+import type {
+  MarketOperationHistoryQuery,
+  MarketOperationRequest,
+} from "@/backend/schemas/market-operation.schema";
 import { MarketRepository } from "@/backend/repositories/market.repository";
 import { MarketTrade, type MarketTradeRequest } from "@/backend/models/MarketTrade";
 import type { MarketOperation } from "@/backend/models/MarketOperation";
 import { TokenHolding } from "@/backend/models/TokenHolding";
+import { ForbiddenError } from "@/backend/errors/http.error";
+
+export interface MarketOperationHistoryItem {
+  id: string;
+  type: string;
+  playerId: string;
+  quantity: number;
+  quoteId: string;
+  quoteValue: number;
+  total: number;
+  unit: string;
+  createdAt: Date;
+  correlationId: string | null;
+}
+
+export interface MarketOperationHistoryResult {
+  items: MarketOperationHistoryItem[];
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}
 
 export interface MarketTradeResult {
   operation: MarketOperation;
@@ -23,6 +48,23 @@ export class MarketOperationService {
 
   sell(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
     return this.trade("SELL", auth, input, correlationId);
+  }
+
+  async getHistory(auth: AuthTokenPayload, userId: string, query: MarketOperationHistoryQuery): Promise<MarketOperationHistoryResult> {
+    if (auth.sub !== userId) throw new ForbiddenError();
+
+    const page = await this.marketRepository.findOperationsByInvestorId(
+      userId,
+      query.limit,
+      query.offset,
+    );
+
+    return {
+      items: page.rows.map(toHistoryItem),
+      limit: query.limit,
+      offset: query.offset,
+      hasMore: page.hasMore,
+    };
   }
 
   private async trade(
@@ -51,4 +93,19 @@ export class MarketOperationService {
       holding: result.outcome.investorHolding,
     };
   }
+}
+
+function toHistoryItem(row: MarketOperationRow): MarketOperationHistoryItem {
+  return {
+    id: row.id,
+    type: row.type,
+    playerId: row.playerId,
+    quantity: row.quantity,
+    quoteId: row.quoteId,
+    quoteValue: Number(row.quoteValue),
+    total: Number(row.total),
+    unit: row.unit,
+    createdAt: row.createdAt,
+    correlationId: row.correlationId,
+  };
 }

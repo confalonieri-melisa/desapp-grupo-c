@@ -1,6 +1,13 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { db as defaultDatabase, type Database } from "@/backend/db";
-import { financialAuditRecords, marketOperations, players, tokenHoldings, users } from "@/backend/db/schema";
+import {
+  financialAuditRecords,
+  marketOperations,
+  players,
+  tokenHoldings,
+  users,
+  type MarketOperationRow,
+} from "@/backend/db/schema";
 import { NotFoundError } from "@/backend/errors/http.error";
 import type { MarketTradeOutcome, MarketTradeRequest, MarketTradeState } from "@/backend/models/MarketTrade";
 import { TokenHolding } from "@/backend/models/TokenHolding";
@@ -17,11 +24,29 @@ export interface MarketRepositoryResult {
   creditBalance: number;
 }
 
+export interface MarketOperationHistoryPage {
+  rows: MarketOperationRow[];
+  hasMore: boolean;
+}
+
 export class MarketRepository {
   constructor(
     private readonly database: Database = defaultDatabase,
     private readonly valuationRepository = new ValuationRepository(database),
   ) {}
+
+  async findOperationsByInvestorId(investorId: string, limit: number, offset: number): Promise<MarketOperationHistoryPage> {
+    const rows = await this.database.select().from(marketOperations)
+      .where(eq(marketOperations.investorId, investorId))
+      .orderBy(desc(marketOperations.createdAt), desc(marketOperations.id))
+      .limit(limit + 1)
+      .offset(offset);
+
+    return {
+      rows: rows.slice(0, limit),
+      hasMore: rows.length > limit,
+    };
+  }
 
   async assignInitialTokens(playerIds: string[]): Promise<void> {
     if (playerIds.length === 0) return;

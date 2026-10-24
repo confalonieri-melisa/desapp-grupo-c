@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { ForbiddenError } from "@/backend/errors/http.error";
 import { MarketOperationService } from "@/backend/services/market-operation.service";
 
 const auth = {
@@ -57,5 +58,54 @@ describe("MarketOperationService", () => {
       correlationId: "request-id",
     }, expect.any(Function));
     expect(sell).toHaveBeenCalledWith(expect.objectContaining({ investorId: "investor-id" }), state);
+  });
+
+  it("returns persisted history without recalculating values", async () => {
+    const findOperationsByInvestorId = vi.fn().mockResolvedValue({
+      rows: [{
+        id: "operation-id",
+        type: "BUY",
+        investorId: "investor-id",
+        playerId: "player-id",
+        quoteId: "quote-id",
+        quoteValue: "82.50",
+        quantity: 3,
+        total: "247.50",
+        unit: "CREDIT_PER_TOKEN",
+        correlationId: null,
+        createdAt: new Date("2026-10-24T15:00:00.000Z"),
+      }],
+      hasMore: false,
+    });
+    const service = new MarketOperationService({ findOperationsByInvestorId } as never, {} as never);
+
+    await expect(service.getHistory(auth, "investor-id", { limit: 50, offset: 0 })).resolves.toEqual({
+      items: [{
+        id: "operation-id",
+        type: "BUY",
+        playerId: "player-id",
+        quantity: 3,
+        quoteId: "quote-id",
+        quoteValue: 82.5,
+        total: 247.5,
+        unit: "CREDIT_PER_TOKEN",
+        createdAt: new Date("2026-10-24T15:00:00.000Z"),
+        correlationId: null,
+      }],
+      limit: 50,
+      offset: 0,
+      hasMore: false,
+    });
+
+    expect(findOperationsByInvestorId).toHaveBeenCalledWith("investor-id", 50, 0);
+  });
+
+  it("rejects another user before reading history", async () => {
+    const findOperationsByInvestorId = vi.fn();
+    const service = new MarketOperationService({ findOperationsByInvestorId } as never, {} as never);
+
+    await expect(service.getHistory(auth, "other-user", { limit: 50, offset: 0 }))
+      .rejects.toBeInstanceOf(ForbiddenError);
+    expect(findOperationsByInvestorId).not.toHaveBeenCalled();
   });
 });

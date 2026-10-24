@@ -1,6 +1,12 @@
-import type { MarketOperationService } from "@/backend/services/market-operation.service";
+import type {
+  MarketOperationHistoryResult,
+  MarketOperationService,
+} from "@/backend/services/market-operation.service";
 import type { AuthTokenPayload } from "@/backend/utils/jwt";
-import type { MarketOperationRequest } from "@/backend/schemas/market-operation.schema";
+import type {
+  MarketOperationHistoryQuery,
+  MarketOperationRequest,
+} from "@/backend/schemas/market-operation.schema";
 
 export class MarketOperationController {
   constructor(private readonly service: MarketOperationService) {}
@@ -11,6 +17,10 @@ export class MarketOperationController {
 
   async sell(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
     return toResponse(await this.service.sell(auth, input, correlationId));
+  }
+
+  getHistory(auth: AuthTokenPayload, userId: string, query: MarketOperationHistoryQuery): Promise<MarketOperationHistoryResult> {
+    return this.service.getHistory(auth, userId, query);
   }
 }
 
