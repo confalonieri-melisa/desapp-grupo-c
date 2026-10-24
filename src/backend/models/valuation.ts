@@ -86,5 +86,19 @@ export interface ValuationResult {
   explanation: QuoteExplanation;
 }
 
+export interface PlayerQuoteSnapshot {
+  id: string;
+  playerId: string;
+  individualScore: number;
+  teamScore: number | null;
+  finalScore: number;
+  quoteValue: number;
+  unit: string;
+  calculatedAt: Date;
+  strategyCode: ValuationStrategyCode;
+  strategyVersion: string;
+  explanation: QuoteExplanation;
+}
+
 export class ValuationDomainError extends Error {}
 export class InsufficientValuationDataError extends ValuationDomainError {}

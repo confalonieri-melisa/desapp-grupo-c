@@ -584,6 +584,90 @@
               "path": ["players", "00000000-0000-0000-0000-000000000099"]
             }
           }
+        },
+        {
+          "name": "7. Historial de Cotizaciones del Jugador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Historial de cotizaciones devuelve 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('La respuesta contiene items', function () {",
+                  "    pm.expect(pm.response.json()).to.have.property('items');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/players/{{playerId}}/quotes",
+              "host": ["{{baseUrl}}"],
+              "path": ["players", "{{playerId}}", "quotes"]
+            }
+          }
+        },
+        {
+          "name": "8. Cotización a una Fecha",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Consulta histórica por fecha devuelve 200 o 404', function () {",
+                  "    pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test('La respuesta contiene items cuando hay cotización', function () {",
+                  "    if (pm.response.code === 200) { pm.expect(pm.response.json()).to.have.property('items'); }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/players/{{playerId}}/quotes?date=2026-10-20",
+              "host": ["{{baseUrl}}"],
+              "path": ["players", "{{playerId}}", "quotes"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-10-20"
+                }
+              ]
+            }
+          }
         }
       ]
     }
