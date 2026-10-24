@@ -1,0 +1,84 @@
+openapi: 3.0.3
+info:
+  title: Competition Context API
+  version: 1.0.0
+paths:
+  /competition-context/updates:
+    post:
+      summary: Sincronizar contexto colectivo
+      description: Obtiene las tablas de posiciones de las cinco competiciones soportadas y publica una versión completa.
+      tags:
+        - Collective Context
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollectiveSyncRequest'
+      responses:
+        '200':
+          description: Sincronización válida publicada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectiveSyncResponse'
+        '400':
+          description: Temporada inválida
+        '401':
+          description: Token ausente o inválido
+        '403':
+          description: El usuario no es superusuario
+        '429':
+          description: Límite del proveedor
+        '502':
+          description: Proveedor no disponible o respuesta inválida
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    CollectiveSyncRequest:
+      type: object
+      required:
+        - season
+      properties:
+        season:
+          type: integer
+          minimum: 2000
+          example: 2026
+    CollectiveSyncResponse:
+      type: object
+      required:
+        - updateId
+        - season
+        - status
+        - competitions
+      properties:
+        updateId:
+          type: string
+          format: uuid
+        season:
+          type: integer
+        status:
+          type: string
+          enum:
+            - VALID
+        publishedAt:
+          type: string
+          format: date-time
+        competitions:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items:
+            type: string
+            enum:
+              - PREMIER_LEAGUE
+              - BUNDESLIGA
+              - LA_LIGA
+              - SERIE_A
+              - LIGUE_1

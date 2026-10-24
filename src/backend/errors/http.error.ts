@@ -20,6 +20,24 @@ export class UnauthorizedError extends HttpError {
   }
 }
 
+export class ForbiddenError extends HttpError {
+  constructor(message = "Forbidden") {
+    super(message, 403);
+  }
+}
+
+export class BadGatewayError extends HttpError {
+  constructor(message = "External provider unavailable") {
+    super(message, 502);
+  }
+}
+
+export class TooManyRequestsError extends HttpError {
+  constructor(message = "Provider rate limit exceeded") {
+    super(message, 429);
+  }
+}
+
 export class NotFoundError extends HttpError {
   constructor(message = "Resource not found") {
     super(message, 404);
