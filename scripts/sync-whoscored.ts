@@ -4,6 +4,7 @@ import { WhoScoredScraper } from "@/backend/adapters/whoscored.scraper";
 import { closeDatabase } from "@/backend/db";
 import { PlayerSyncService } from "@/backend/services/player-sync.service";
 import { PlayerRepository } from "@/backend/repositories/player.repository";
+import { MarketRepository } from "@/backend/repositories/market.repository";
 
 async function main(): Promise<void> {
   const scraper = new WhoScoredScraper({
@@ -15,7 +16,11 @@ async function main(): Promise<void> {
     headless: env.WHOSCORED_HEADLESS,
   });
   const adapter = new WhoScoredAdapter(() => scraper.fetchPlayers());
-  const playerSyncService = new PlayerSyncService(adapter, new PlayerRepository());
+  const playerSyncService = new PlayerSyncService(
+    adapter,
+    new PlayerRepository(),
+    new MarketRepository(),
+  );
   const players = await playerSyncService.syncFromSource();
 
   console.log(`Synchronized ${players.length} players from WhoScored`);

@@ -11,6 +11,7 @@ import type {
 } from "@/backend/models/valuation";
 
 type ValuationTransaction = Pick<Database, "select" | "insert" | "update">;
+type ValuationReader = Pick<Database, "select">;
 
 export class ValuationRepository {
   constructor(private readonly database: Database = defaultDatabase) {}
@@ -119,6 +120,28 @@ export class ValuationRepository {
         eq(playerQuotes.playerId, playerId),
         lt(playerQuotes.calculatedAt, upperBound),
       ))
+      .orderBy(desc(playerQuotes.calculatedAt), desc(playerQuotes.id))
+      .limit(1);
+
+    return rows[0] ? toPlayerQuoteSnapshot(rows[0]) : null;
+  }
+
+  async findLatestForPlayer(
+    playerId: string,
+    executor: ValuationReader = this.database,
+  ): Promise<PlayerQuoteSnapshot | null> {
+    const rows = await executor
+      .select({
+        quote: playerQuotes,
+        strategyCode: valuationStrategyVersions.strategyCode,
+        strategyVersion: valuationStrategyVersions.version,
+      })
+      .from(playerQuotes)
+      .innerJoin(
+        valuationStrategyVersions,
+        eq(playerQuotes.strategyVersionId, valuationStrategyVersions.id),
+      )
+      .where(eq(playerQuotes.playerId, playerId))
       .orderBy(desc(playerQuotes.calculatedAt), desc(playerQuotes.id))
       .limit(1);
 

@@ -29,6 +29,13 @@
       "when": 1792610711266,
       "tag": "0003_secret_luckman",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792869829031,
+      "tag": "0004_clumsy_lizard",
+      "breakpoints": true
     }
   ]
 }
