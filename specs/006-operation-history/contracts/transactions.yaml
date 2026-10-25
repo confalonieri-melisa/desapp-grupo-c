@@ -1,0 +1,105 @@
+openapi: 3.0.3
+info:
+  title: Player Token Market - Operation History
+  version: 1.0.0
+paths:
+  /users/{id}/transactions:
+    get:
+      summary: Get the authenticated investor's financial operation history
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Operation history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionHistoryResponse'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '500': { $ref: '#/components/responses/InternalServerError' }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    TransactionHistoryResponse:
+      type: object
+      required: [items, limit, offset, hasMore]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionHistoryItem'
+        limit:
+          type: integer
+        offset:
+          type: integer
+        hasMore:
+          type: boolean
+    TransactionHistoryItem:
+      type: object
+      required:
+        [id, type, playerId, quantity, quoteId, quoteValue, total, unit, createdAt, correlationId]
+      properties:
+        id: { type: string, format: uuid }
+        type: { type: string, enum: [BUY, SELL] }
+        playerId: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1 }
+        quoteId: { type: string, format: uuid }
+        quoteValue: { type: number, format: double }
+        total: { type: number, format: double }
+        unit: { type: string, example: CREDIT_PER_TOKEN }
+        createdAt: { type: string, format: date-time }
+        correlationId: { type: string, nullable: true }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid path or pagination parameters
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Forbidden:
+      description: The path user does not match the authenticated subject
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    InternalServerError:
+      description: Unexpected error without exposing persistence details
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }

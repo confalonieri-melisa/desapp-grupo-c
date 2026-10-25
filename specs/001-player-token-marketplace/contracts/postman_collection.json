@@ -22,6 +22,11 @@
       "type": "string"
     },
     {
+      "key": "userId",
+      "value": "",
+      "type": "string"
+    },
+    {
       "key": "userName",
       "value": "Lola Gol",
       "type": "string"
@@ -193,6 +198,7 @@
                   "var jsonData = pm.response.json();",
                   "if (jsonData.token) {",
                   "    pm.collectionVariables.set('authToken', jsonData.token);",
+                  "    if (jsonData.user && jsonData.user.id) { pm.collectionVariables.set('userId', jsonData.user.id); }",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -674,6 +680,56 @@
     {
       "name": "Market",
       "item": [
+        {
+          "name": "0. Consultar Historial de Operaciones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Historial autenticado devuelve 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('El historial devuelve paginación e items unificados', function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('items');",
+                  "    pm.expect(jsonData).to.have.property('hasMore');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/users/{{userId}}/transactions?limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "{{userId}}", "transactions"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
         {
           "name": "1. Consultar Portfolio",
           "event": [

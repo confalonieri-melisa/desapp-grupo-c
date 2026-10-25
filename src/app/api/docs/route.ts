@@ -28,13 +28,6 @@ export function GET(): Response {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Player Token Marketplace API</title>
     <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
-    <style>
-      .parameters-container input,
-      .parameters-container select,
-      .parameters-container textarea {
-        display: none;
-      }
-    </style>
   </head>
   <body>
     <div id="swagger-ui"></div>
@@ -45,7 +38,7 @@ export function GET(): Response {
           spec: ${openApiDocument},
           dom_id: "#swagger-ui",
           deepLinking: true,
-          supportedSubmitMethods: [],
+          supportedSubmitMethods: ["get", "post"],
           presets: [SwaggerUIBundle.presets.apis],
           layout: "BaseLayout"
         });

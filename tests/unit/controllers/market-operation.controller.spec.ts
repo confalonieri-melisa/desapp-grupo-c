@@ -70,4 +70,19 @@ describe("MarketOperationController", () => {
       holding: { quantity: 2 },
     });
   });
+
+  it("delegates history using the authenticated user and pagination", async () => {
+    const getHistory = vi.fn().mockResolvedValue({
+      items: [],
+      limit: 50,
+      offset: 0,
+      hasMore: false,
+    });
+    const controller = new MarketOperationController({ getHistory } as never);
+    const auth = { sub: "investor-id", email: "investor@example.com", role: "INVESTOR" };
+
+    await expect(controller.getHistory(auth, "investor-id", { limit: 50, offset: 0 }))
+      .resolves.toEqual({ items: [], limit: 50, offset: 0, hasMore: false });
+    expect(getHistory).toHaveBeenCalledWith(auth, "investor-id", { limit: 50, offset: 0 });
+  });
 });
