@@ -1,27 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatQuoteValue, formatQuoteTimestamp, isValidQuoteDate, formatScore, projectComponents } from "@/frontend/features/profile/utils/player-quotes";
+import { formatQuoteValue, formatQuoteTimestamp, formatQuoteValueDisplay, formatQuoteTimestampDisplay, formatQuoteDate, formatStrategy, isDemoQuote, isValidQuoteDate, formatScore } from "@/frontend/features/profile/utils/player-quotes";
 
 describe("quote presentation", () => {
-  it("preserves names, nesting, nulls, arrays, empty collections, zero and false", () => {
-    expect(projectComponents({ zero: 0, enabled: false, missing: null, nested: ["<script>", { score: 0 }], empty: {} })).toEqual({
-      kind: "object", entries: [
-        { name: "zero", node: { kind: "value", value: "0" } },
-        { name: "enabled", node: { kind: "value", value: "false" } },
-        { name: "missing", node: { kind: "value", value: "No disponible" } },
-        { name: "nested", node: { kind: "array", entries: [
-          { name: "[0]", node: { kind: "value", value: "<script>" } },
-          { name: "[1]", node: { kind: "object", entries: [{ name: "score", node: { kind: "value", value: "0" } }] } },
-        ] } },
-        { name: "empty", node: { kind: "object", entries: [] } },
-      ],
-    });
-  });
   it("keeps absent scores distinct from zero without deriving other values", () => {
     expect(formatScore(0)).toBe("0"); expect(formatScore(0.123456789)).toBe("0.123456789");
     expect(formatScore(null)).toBe("No disponible"); expect(formatScore(undefined)).toBe("No disponible");
-    expect(projectComponents(undefined)).toEqual({ kind: "value", value: "No disponible" });
-    expect(projectComponents([])).toEqual({ kind: "array", entries: [] });
-    expect(projectComponents("")).toEqual({ kind: "value", value: '""' });
   });
   it.each(["2028-02-29", "2026-12-31", "2030-01-01", "0100-01-01", "9999-12-31"])("accepts real calendar date %s including future", (date) => {
     expect(isValidQuoteDate(date)).toBe(true);
@@ -36,5 +19,17 @@ describe("quote presentation", () => {
   it("keeps seconds, all received fractional digits and explicit UTC", () => {
     expect(formatQuoteTimestamp("2026-10-20T10:02:03.123456Z")).toBe("2026-10-20 10:02:03.123456 UTC");
     expect(formatQuoteTimestamp("2026-10-20T10:02:03Z")).toBe("2026-10-20 10:02:03 UTC");
+  });
+  it("presents the value and effective timestamp without seconds or zone in the visible label", () => {
+    expect(formatQuoteValueDisplay(12.3456789)).toBe("12,3456789");
+    expect(formatQuoteTimestampDisplay("2026-10-20T10:02:03.123456Z")).toContain("10:02");
+    expect(formatQuoteTimestampDisplay("2026-10-20T10:02:03.123456Z")).not.toMatch(/:03|UTC|\.123456/);
+    expect(formatQuoteDate("2026-10-20")).toContain("20 de octubre de 2026");
+    expect(formatStrategy("INDIVIDUAL_PLUS_TEAM_CONTEXT")).toBe("Rendimiento y contexto del equipo");
+  });
+  it("identifies fixture quotes without labeling real ones as test data", () => {
+    expect(isDemoQuote({ demoFixture: "demo-quote-history-v1" })).toBe(true);
+    expect(isDemoQuote({ individual: [] })).toBe(false);
+    expect(isDemoQuote(null)).toBe(false);
   });
 });
