@@ -1,15 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import type { usePlayerQuotes } from "../../hooks/usePlayerQuotes";
 import QuoteSummary from "../QuoteSummary/QuoteSummary";
 import QuoteHistory from "../QuoteHistory/QuoteHistory";
 import QuoteDateQuery from "../QuoteDateQuery/QuoteDateQuery";
 import styles from "./PlayerQuotesSection.module.scss";
 
-export default function PlayerQuotesSection({ quotes }: {
+export default function PlayerQuotesSection({ quotes, hasTokens }: {
   quotes: ReturnType<typeof usePlayerQuotes>;
+  hasTokens?: boolean;
 }) {
+  const [historyOpen, setHistoryOpen] = useState(hasTokens !== false);
+
   if (quotes.expired) return null;
   if (quotes.playerError) return <section className={styles.section} role="alert"><p>{quotes.playerError}</p><Link href="/players">Volver al catálogo</Link></section>;
   return <section className={styles.section} aria-label="Cotizaciones">
@@ -29,6 +33,23 @@ export default function PlayerQuotesSection({ quotes }: {
       </div>
       <QuoteDateQuery quotes={quotes} />
     </div>
-    {(quotes.history.status === "success" || quotes.history.status === "empty") && <QuoteHistory items={quotes.history.items} generation={quotes.history.generation} />}
+    {(quotes.history.status === "success" || quotes.history.status === "empty") && <div className={styles.historyContainer}>
+      <div className={styles.subsectionHeading}>
+        <div>
+          <p className={styles.eyebrow}>Evolución</p>
+          <h3>Historial de cotizaciones</h3>
+        </div>
+        {quotes.history.items.length > 0 && <span className={styles.count}>{quotes.history.items.length} {quotes.history.items.length === 1 ? "registro" : "registros"}</span>}
+        <button
+          type="button"
+          className={styles.collapseButton}
+          aria-expanded={historyOpen}
+          onClick={() => setHistoryOpen((open) => !open)}
+        >
+          {historyOpen ? "Ocultar historial" : "Mostrar historial"}
+        </button>
+      </div>
+      {historyOpen && <QuoteHistory items={quotes.history.items} generation={quotes.history.generation} showHeading={false} />}
+    </div>}
   </section>;
 }

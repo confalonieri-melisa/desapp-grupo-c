@@ -194,6 +194,7 @@ describe("usePlayerTrading BUY", () => {
     expect(mocks.get).toHaveBeenCalledOnce();
     order.resolve(receipt); await flushPromises();
     expect(h.render().order).toMatchObject({ status: "succeeded", receipt, playerId: "player-a", playerName: "Jugador A" });
+    expect(h.render().draftQuantity).toBe("");
     expect(mocks.get).toHaveBeenCalledTimes(2);
     expect(h.render().portfolio.snapshot).toEqual(fresh);
     h.cleanup();
