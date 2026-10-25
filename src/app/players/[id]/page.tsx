@@ -7,6 +7,7 @@ import { useParams, useRouter } from "next/navigation";
 import PageContainer from "@/frontend/components/ui/PageContainer/PageContainer";
 import { useAuth } from "@/frontend/context/AuthContext";
 import PlayerInformation from "@/frontend/features/profile/components/PlayerInformation/PlayerInformation";
+import PlayerQuotesSection from "@/frontend/features/profile/components/PlayerQuotesSection/PlayerQuotesSection";
 import PlayerProfileHeader from "@/frontend/features/profile/components/PlayerProfileHeader/PlayerProfileHeader";
 import PlayerStatSection from "@/frontend/features/profile/components/PlayerStatSection/PlayerStatSection";
 import { detailedStatistics, summaryStatistics } from "@/frontend/features/profile/utils/player-profile";
@@ -57,6 +58,7 @@ export default function PlayerProfilePage() {
         {showPlayerProfile && player && (
           <>
             <PlayerProfileHeader player={player} />
+            {token && <PlayerQuotesSection key={`${player.id}:${token}`} playerId={player.id} token={token} onUnauthorized={handleUnauthorized} />}
             <div className={styles.overview}>
               <PlayerStatSection
                 title="Rendimiento"

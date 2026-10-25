@@ -1,0 +1,29 @@
+.section {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow-wrap: anywhere;
+
+  h2, h3 { color: var(--crimson-violet); margin-bottom: 0.75rem; }
+  h2 { font-size: 1.1rem; }
+  h3 { margin-top: 1.25rem; font-size: 1rem; }
+  ol { padding-left: 1.25rem; }
+  li { min-width: 0; margin-block: 1rem; }
+  h4 { font-size: 0.95rem; }
+  form { display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; margin-block: 1rem; }
+  form > div { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  details { margin-block: 0.75rem; padding: 0.75rem; min-width: 0; border: 1px solid var(--border); border-radius: 0.4rem; }
+  summary { cursor: pointer; color: var(--crimson-violet); }
+  details dl > div { display: block; }
+  details dd { padding-left: 0.5rem; }
+  details dl { max-width: 100%; }
+  dl > div { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
+  dt { color: var(--dusty-violet); }
+  dd { margin: 0; min-width: 0; color: var(--crimson-violet); }
+  button, input { max-width: 100%; font: inherit; padding: 0.6rem 0.8rem; border: 1px solid var(--border); border-radius: 0.4rem; }
+  button { cursor: pointer; background: var(--surface); color: var(--crimson-violet); }
+  button:focus-visible, input:focus-visible, summary:focus-visible, a:focus-visible { outline: 3px solid var(--crimson-violet); outline-offset: 3px; }
+}
