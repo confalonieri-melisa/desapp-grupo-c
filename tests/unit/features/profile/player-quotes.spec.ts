@@ -27,6 +27,12 @@ describe("quote presentation", () => {
     expect(formatQuoteDate("2026-10-20")).toContain("20 de octubre de 2026");
     expect(formatStrategy("INDIVIDUAL_PLUS_TEAM_CONTEXT")).toBe("Rendimiento y contexto del equipo");
   });
+  it("keeps invalid timestamps and dates readable and labels known and unknown strategies", () => {
+    expect(formatQuoteTimestampDisplay("invalid")).toBe("invalid");
+    expect(formatQuoteDate("2026-02-30")).toBe("2026-02-30");
+    expect(formatStrategy("INDIVIDUAL_PERFORMANCE")).toBe("Rendimiento individual");
+    expect(formatStrategy("CUSTOM_STRATEGY")).toBe("CUSTOM STRATEGY");
+  });
   it("identifies fixture quotes without labeling real ones as test data", () => {
     expect(isDemoQuote({ demoFixture: "demo-quote-history-v1" })).toBe(true);
     expect(isDemoQuote({ individual: [] })).toBe(false);
