@@ -49,7 +49,7 @@ async function parseApiResponse<T>(
         ? apiError.error
         : fallbackMessage;
 
-    throw new Error(message);
+    throw Object.assign(new Error(message), { status: response.status });
   }
 
   return data as T;

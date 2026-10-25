@@ -3,6 +3,12 @@ import { getPlayer, getPlayers } from "@/frontend/services/client/player.service
 import { League, Position } from "@/backend/models/enums";
 
 describe("client player service", () => {
+  it.each([400, 401, 404, 500])("preserves HTTP status %i in compatible errors", async (status) => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ error: "API failure" }, { status }));
+    const result = getPlayer("token", "player-1");
+    await expect(result).rejects.toBeInstanceOf(Error);
+    await expect(result).rejects.toMatchObject({ status, message: "API failure" });
+  });
   afterEach(() => {
     vi.restoreAllMocks();
   });
