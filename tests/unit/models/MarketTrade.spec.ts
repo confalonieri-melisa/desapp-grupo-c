@@ -50,7 +50,20 @@ describe("MarketTrade", () => {
     expect(state.pool.creditBalance).toBe(530);
     expect(outcome.investorHolding.quantity).toBe(3);
     expect(outcome.poolHolding.quantity).toBe(97);
+    expect(outcome.audit.previousState.investor).toMatchObject({
+      creditBalance: 100,
+      quantity: 0,
+    });
+    expect(outcome.audit.previousState.pool).toMatchObject({
+      creditBalance: 500,
+      quantity: 100,
+    });
+    expect(outcome.audit.newState.investor.creditBalance).toBe(70);
     expect(outcome.audit.newState.investor.quantity).toBe(3);
+    expect(outcome.audit.newState.pool).toMatchObject({
+      creditBalance: 530,
+      quantity: 97,
+    });
   });
 
   it("settles a sale back to the central pool", () => {
@@ -74,6 +87,22 @@ describe("MarketTrade", () => {
     expect(state.pool.creditBalance).toBe(490);
     expect(outcome.investorHolding.quantity).toBe(2);
     expect(outcome.poolHolding.quantity).toBe(101);
+    expect(outcome.audit.previousState.investor).toMatchObject({
+      creditBalance: 100,
+      quantity: 3,
+    });
+    expect(outcome.audit.previousState.pool).toMatchObject({
+      creditBalance: 500,
+      quantity: 100,
+    });
+    expect(outcome.audit.newState.investor).toMatchObject({
+      creditBalance: 110,
+      quantity: 2,
+    });
+    expect(outcome.audit.newState.pool).toMatchObject({
+      creditBalance: 490,
+      quantity: 101,
+    });
   });
 
   it("rejects a purchase when the pool has insufficient tokens", () => {

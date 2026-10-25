@@ -39,46 +39,65 @@ export class MarketTrade {
   buy(request: MarketTradeRequest, state: MarketTradeState): MarketTradeOutcome {
     this.ensureInvestorCanTrade(state);
     const operation = this.createOperation(request, state);
-    const updatedPositions = this.investorBuysFromPool(request, state, operation.total);
-    return this.completeTrade(request, state, operation, updatedPositions);
-  }
-
-  sell(request: MarketTradeRequest, state: MarketTradeState): MarketTradeOutcome {
-    this.ensureInvestorCanTrade(state);
-    const operation = this.createOperation(request, state);
-    const updatedPositions = this.investorSellsToPool(request, state, operation.total);
-    return this.completeTrade(request, state, operation, updatedPositions);
-  }
-
-  private completeTrade(
-    request: MarketTradeRequest,
-    state: MarketTradeState,
-    operation: MarketOperation,
-    updatedPositions: UpdatedPositions,
-  ): MarketTradeOutcome {
     const previousState = financialStateOf(
       state.investor,
       state.investorHolding,
       state.pool,
       state.poolHolding,
     );
+    const updatedPositions = this.investorBuysFromPool(request, state, operation.total);
+    return this.completeTrade(request, state, operation, previousState, updatedPositions);
+  }
+
+  sell(request: MarketTradeRequest, state: MarketTradeState): MarketTradeOutcome {
+    this.ensureInvestorCanTrade(state);
+    const operation = this.createOperation(request, state);
+    const previousState = financialStateOf(
+      state.investor,
+      state.investorHolding,
+      state.pool,
+      state.poolHolding,
+    );
+    const updatedPositions = this.investorSellsToPool(request, state, operation.total);
+    return this.completeTrade(request, state, operation, previousState, updatedPositions);
+  }
+
+  private completeTrade(
+    request: MarketTradeRequest,
+    state: MarketTradeState,
+    operation: MarketOperation,
+    previousState: FinancialStateSnapshot,
+    updatedPositions: UpdatedPositions,
+  ): MarketTradeOutcome {
+    const newState = financialStateOf(
+      state.investor,
+      updatedPositions.investorHolding,
+      state.pool,
+      updatedPositions.poolHolding,
+    );
+    const audit = this.createAudit(request, operation, previousState, newState);
+
     return {
       operation,
-      audit: new FinancialAuditRecord({
-        operationId: operation.id,
-        actorUserId: request.investorId,
-        action: request.type === "BUY" ? "TOKEN_BUY" : "TOKEN_SELL",
-        previousState,
-        newState: financialStateOf(
-          state.investor,
-          updatedPositions.investorHolding,
-          state.pool,
-          updatedPositions.poolHolding,
-        ),
-        correlationId: request.correlationId,
-      }),
+      audit,
       ...updatedPositions,
     };
+  }
+
+  private createAudit(
+    request: MarketTradeRequest,
+    operation: MarketOperation,
+    previousState: FinancialStateSnapshot,
+    newState: FinancialStateSnapshot,
+  ): FinancialAuditRecord {
+    return new FinancialAuditRecord({
+      operationId: operation.id,
+      actorUserId: request.investorId,
+      action: request.type === "BUY" ? "TOKEN_BUY" : "TOKEN_SELL",
+      previousState,
+      newState,
+      correlationId: request.correlationId,
+    });
   }
 
   private createOperation(request: MarketTradeRequest, state: MarketTradeState): MarketOperation {
