@@ -39,13 +39,15 @@ export class MarketTrade {
   buy(request: MarketTradeRequest, state: MarketTradeState): MarketTradeOutcome {
     this.ensureInvestorCanTrade(state);
     const operation = this.createOperation(request, state);
-    return this.completeTrade(request, state, operation, this.investorBuysFromPool(request, state, operation.total));
+    const updatedPositions = this.investorBuysFromPool(request, state, operation.total);
+    return this.completeTrade(request, state, operation, updatedPositions);
   }
 
   sell(request: MarketTradeRequest, state: MarketTradeState): MarketTradeOutcome {
     this.ensureInvestorCanTrade(state);
     const operation = this.createOperation(request, state);
-    return this.completeTrade(request, state, operation, this.investorSellsToPool(request, state, operation.total));
+    const updatedPositions = this.investorSellsToPool(request, state, operation.total);
+    return this.completeTrade(request, state, operation, updatedPositions);
   }
 
   private completeTrade(
