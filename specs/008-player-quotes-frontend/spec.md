@@ -6,7 +6,9 @@
 
 **Created**: 2026-10-25
 
-**Status**: Ready for Review
+**Status**: Approved for Implementation
+
+**Approval**: El usuario aprobó explícitamente esta especificación el 2026-10-25 en la conversación de implementación. La aprobación formal de entrega sigue pendiente.
 
 **Input**: User description: "Crear una feature independiente de frontend para que usuarios autenticados consulten desde el perfil existente del jugador su cotización actual, historial, último valor disponible hasta una fecha y explicación persistida, reutilizando el contrato de 004-player-quote-queries sin modificar el backend."
 

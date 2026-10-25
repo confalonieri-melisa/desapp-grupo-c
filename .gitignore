@@ -27,6 +27,17 @@ __pycache__/
 *.pem
 .idea/
 .vscode/
+Thumbs.db
+*.tmp
+*.swp
+.tmp/
+specs/008-player-quotes-frontend/evidence/
+*.log
+/dist/
+*.pyc
+.venv/
+venv/
+*.egg-info/
 
 # debug
 npm-debug.log*
