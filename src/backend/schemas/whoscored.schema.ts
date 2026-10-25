@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { League, Position } from "@/backend/models/enums";
-import { SCRAPED_PLAYER_STATISTICS } from "@/backend/adapters/player-data-source";
+import { PLAYER_STATISTIC_KEYS } from "@/backend/models/player-statistics";
 
 const rawStatistic = z.union([z.string(), z.number()]);
 
@@ -11,7 +11,7 @@ export const whoScoredPlayerRecordSchema = z.object({
   team: z.string().trim().min(1),
   league: z.enum(League),
   position: z.enum(Position),
-  ...Object.fromEntries(SCRAPED_PLAYER_STATISTICS.map((metric) => [metric, rawStatistic])) as Record<string, z.ZodTypeAny>,
+  ...Object.fromEntries(PLAYER_STATISTIC_KEYS.map((metric) => [metric, rawStatistic])) as Record<string, z.ZodTypeAny>,
 }).strict();
 
 export const whoScoredStatisticSchema = z.preprocess(

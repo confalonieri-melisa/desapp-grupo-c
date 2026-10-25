@@ -44,10 +44,7 @@ export class PlayerRepository {
     });
   }
 
-  private async upsertPlayer(
-      database: PlayerDatabaseExecutor,
-      playerData: PlayerPersistenceData,
-  ): Promise<Player> {
+  private async upsertPlayer(database: PlayerDatabaseExecutor, playerData: PlayerPersistenceData): Promise<Player> {
     const rows = await database
         .insert(players)
         .values({
@@ -92,10 +89,15 @@ export class PlayerRepository {
     return rows[0] ? toPlayer(rows[0]) : null;
   }
 
-  async findMany(
-    filters: PlayerSearchFilters = {},
-    pagination: PlayerPagination = DEFAULT_PLAYER_PAGINATION,
-  ): Promise<PlayerSearchResult> {
+  async findAll(): Promise<Player[]> {
+    const rows = await this.database
+      .select()
+      .from(players)
+      .orderBy(asc(players.name), asc(players.id));
+    return rows.map(toPlayer);
+  }
+
+  async findMany(filters: PlayerSearchFilters = {}, pagination: PlayerPagination = DEFAULT_PLAYER_PAGINATION): Promise<PlayerSearchResult> {
     const where = this.buildSearchConditions(filters);
 
     return {
@@ -104,10 +106,7 @@ export class PlayerRepository {
     };
   }
 
-  private async findPage(
-    where: SQL | undefined,
-    pagination: PlayerPagination,
-  ): Promise<Player[]> {
+  private async findPage(where: SQL | undefined, pagination: PlayerPagination): Promise<Player[]> {
     const offset = (pagination.page - 1) * pagination.limit;
     const rows = await this.database
       .select()
@@ -129,9 +128,7 @@ export class PlayerRepository {
     return Number(rows[0]?.count ?? 0);
   }
 
-  private buildSearchConditions(
-    filters: PlayerSearchFilters,
-  ): SQL | undefined {
+  private buildSearchConditions(filters: PlayerSearchFilters): SQL | undefined {
     const conditions: SQL[] = [];
 
     if (filters.league) {

@@ -1,24 +1,13 @@
 import { League, Position } from "@/backend/models/enums";
+import {
+  PLAYER_STATISTIC_KEYS,
+  type PlayerStatisticKey,
+  type PlayerStatistics,
+} from "@/backend/models/player-statistics";
 
-export const SCRAPED_PLAYER_STATISTICS = [
-  "appearances",
-  "minutesPlayed",
-  "rating",
-  "goals",
-  "assists",
-  "shotsPerGame",
-  "tacklesPerGame",
-  "interceptionsPerGame",
-  "foulsPerGame",
-  "yellowCards",
-  "redCards",
-] as const;
-
-export type ScrapedPlayerStatistic = (typeof SCRAPED_PLAYER_STATISTICS)[number];
-
-export type MinimalPlayerStatistics = Partial<
-  Record<ScrapedPlayerStatistic, number>
->;
+export { PLAYER_STATISTIC_KEYS };
+export type ScrapedPlayerStatistic = PlayerStatisticKey;
+export type MinimalPlayerStatistics = PlayerStatistics;
 
 /** Normalized boundary object produced by an external football data adapter. */
 export interface ScrapedPlayer {

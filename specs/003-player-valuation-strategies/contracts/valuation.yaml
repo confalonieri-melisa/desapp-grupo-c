@@ -1,0 +1,116 @@
+openapi: 3.0.3
+info:
+  title: Player Valuation API
+  version: 1.0.0
+  description: On-demand player quote recalculation using a versioned strategy.
+paths:
+  /valuation/active:
+    post:
+      summary: Select the active valuation strategy
+      tags: [Valuation]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivateStrategyRequest'
+      responses:
+        '200':
+          description: Active strategy selected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActiveStrategyResponse'
+        '400': { description: Invalid strategy code }
+        '401': { description: Unauthorized }
+        '403': { description: Superuser required }
+        '409': { description: Strategy configuration could not be activated }
+  /quotes/recalculate:
+    post:
+      summary: Recalculate player quotes on demand
+      tags: [Quotes]
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecalculateRequest'
+      responses:
+        '200':
+          description: Recalculation completed or partially completed, including per-player failures.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecalculationResponse'
+        '400': { description: "Invalid request; the body must be exactly {}" }
+        '401': { description: Unauthorized }
+        '403': { description: Superuser required }
+        '409': { description: No active global version }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ActivateStrategyRequest:
+      type: object
+      required: [strategyCode]
+      properties:
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
+    ActiveStrategyResponse:
+      type: object
+      required: [strategyCode, version, isActive]
+      properties:
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
+        version: { type: string }
+        isActive: { type: boolean }
+    RecalculateRequest:
+      type: object
+      additionalProperties: false
+      description: Empty request. The current market season is application configuration and is never supplied by the caller.
+    RecalculationResponse:
+      type: object
+      required: [strategyCode, version, status, calculated, rejected, quotes, errors]
+      properties:
+        strategyCode:
+          type: string
+          enum: [INDIVIDUAL_PERFORMANCE, INDIVIDUAL_PLUS_TEAM_CONTEXT]
+        version: { type: string }
+        status:
+          type: string
+          enum: [COMPLETED, PARTIAL, FAILED]
+        calculated: { type: integer, minimum: 0 }
+        rejected: { type: integer, minimum: 0 }
+        errors:
+          type: array
+          items:
+            type: object
+            required: [playerId, error]
+            properties:
+              playerId: { type: string, format: uuid }
+              error: { type: string }
+        quotes:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuoteResult'
+    QuoteResult:
+      type: object
+      required:
+        - playerId
+        - quoteValue
+        - teamScore
+      properties:
+        playerId: { type: string, format: uuid }
+        quoteValue: { type: number, minimum: 1, maximum: 100 }
+        teamScore:
+          type: number
+          nullable: true
+          minimum: 0
+          maximum: 1

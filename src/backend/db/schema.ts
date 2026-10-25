@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   check,
   integer,
+  index,
   jsonb,
   numeric,
   pgTable,
@@ -162,8 +163,51 @@ export const teamSourceLinks = pgTable(
   ],
 );
 
+export const valuationStrategyVersions = pgTable(
+  "valuation_strategy_versions",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    strategyCode: varchar("strategy_code", { length: 50 }).notNull(),
+    version: varchar("version", { length: 30 }).notNull(),
+    configuration: jsonb("configuration").notNull(),
+    isActive: integer("is_active").notNull().default(0),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    activatedAt: timestamp("activated_at", { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex("uq_valuation_strategy_version").on(table.strategyCode, table.version),
+    uniqueIndex("idx_valuation_active").on(table.isActive).where(sql`${table.isActive} = 1`),
+    check("chk_valuation_strategy_active", sql`${table.isActive} in (0, 1)`),
+  ],
+);
+
+export const playerQuotes = pgTable(
+  "player_quotes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    playerId: uuid("player_id").notNull().references(() => players.id),
+    strategyVersionId: uuid("strategy_version_id").notNull().references(() => valuationStrategyVersions.id),
+    individualScore: numeric("individual_score", { precision: 8, scale: 6 }).notNull(),
+    teamScore: numeric("team_score", { precision: 8, scale: 6 }),
+    finalScore: numeric("final_score", { precision: 8, scale: 6 }).notNull(),
+    quoteValue: numeric("quote_value", { precision: 10, scale: 2 }).notNull(),
+    unit: varchar("unit", { length: 30 }).notNull().default("CREDIT_PER_TOKEN"),
+    calculatedAt: timestamp("calculated_at", { withTimezone: true }).notNull().defaultNow(),
+    contextUpdateId: uuid("context_update_id").references(() => competitionContextUpdates.id),
+    explanation: jsonb("explanation").notNull(),
+  },
+  (table) => [
+    check("chk_player_quote_final_score", sql`${table.finalScore} >= 0 and ${table.finalScore} <= 1`),
+    check("chk_player_quote_value", sql`${table.quoteValue} >= 1 and ${table.quoteValue} <= 100`),
+    index("idx_player_quotes_player_date").on(table.playerId, table.calculatedAt),
+  ],
+);
+
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
 export type PlayerRow = typeof players.$inferSelect;
 export type NewPlayerRow = typeof players.$inferInsert;
 export type TokenHoldingRow = typeof tokenHoldings.$inferSelect;
+export type ValuationStrategyVersionRow = typeof valuationStrategyVersions.$inferSelect;
+export type PlayerQuoteRow = typeof playerQuotes.$inferSelect;
