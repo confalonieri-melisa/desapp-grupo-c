@@ -40,7 +40,7 @@
 - Sin `Authorization`: `401`.
 - `limit=101`, `page=0`, enum inválido o query param desconocido: `400`.
 - Sin estrategia activa: `409`.
-- Sin quotes de la versión activa: `200` con `items: []` y `totalPages: 0`.
+- Sin quotes de la versión activa: `200` con `players: []` y `totalPages: 0`.
 
 ## Tests
 

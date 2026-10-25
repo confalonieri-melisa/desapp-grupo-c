@@ -59,11 +59,11 @@ components:
       enum: [UNKNOWN, GOALKEEPER, DEFENDER, MIDFIELDER, FORWARD]
     RankingResponse:
       type: object
-      required: [strategyCode, strategyVersion, items, pagination]
+      required: [strategyCode, strategyVersion, players, pagination]
       properties:
         strategyCode: { type: string }
         strategyVersion: { type: string }
-        items:
+        players:
           type: array
           items:
             $ref: '#/components/schemas/RankingItem'

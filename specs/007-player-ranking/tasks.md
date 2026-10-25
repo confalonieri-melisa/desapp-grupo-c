@@ -11,20 +11,20 @@ activa, sin UI, cache, scheduler, dependencias ni migraciones nuevas.
 **Purpose**: Preparar los tipos y schemas compartidos sin cambiar el contrato
 existente del catálogo.
 
-- [ ] T001 Revisar `src/backend/db/schema.ts`, las migraciones vigentes y
+- [x] T001 Revisar `src/backend/db/schema.ts`, las migraciones vigentes y
   `specs/007-player-ranking/data-model.md` para confirmar que las tablas,
   constraints y relaciones existentes cubren el ranking; documentar que no se
   crea migración nueva.
-- [ ] T002 [P] Escribir tests de `playerFiltersSchema` y del schema de ranking
+- [x] T002 [P] Escribir tests de `playerFiltersSchema` y del schema de ranking
   en `tests/unit/schemas/player-ranking.schema.spec.ts` para enums válidos,
   `team.trim()`, equipo vacío, defaults de `page`/`limit`, límites inválidos y
   rechazo de parámetros desconocidos.
-- [ ] T003 Implementar `playerFiltersSchema` en
+- [x] T003 Implementar `playerFiltersSchema` en
   `src/backend/schemas/player.schema.ts` y hacer que
   `playerCatalogQuerySchema` lo extienda conservando su comportamiento actual.
-- [ ] T004 Implementar `src/backend/schemas/player-ranking.schema.ts` usando
+- [x] T004 Implementar `src/backend/schemas/player-ranking.schema.ts` usando
   el schema de filtros compartido, paginación `page`/`limit` y `.strict()`.
-- [ ] T005 [P] Crear los tipos de criterios, fila de lectura y resultado del
+- [x] T005 [P] Crear los tipos de criterios, fila de lectura y resultado del
   ranking en `src/backend/services/player-ranking.types.ts`, sin crear una
   entidad persistida.
 
@@ -44,34 +44,34 @@ activa y mantiene el orden esperado.
 
 ### Tests for User Story 1
 
-- [ ] T006 [P] [US1] Escribir el test de integración de
+- [x] T006 [P] [US1] Escribir el test de integración de
   `tests/integration/player-ranking.repository.spec.ts` para seleccionar la
   última quote por `calculatedAt DESC, id DESC`, excluir la versión inactiva y
   devolver una sola entrada por jugador.
-- [ ] T007 [P] [US1] Escribir tests unitarios en
+- [x] T007 [P] [US1] Escribir tests unitarios en
   `tests/unit/services/player-ranking.service.spec.ts` para capturar una única
   estrategia activa, pasar su `strategyVersionId`, lanzar `ConflictError` si
   no existe y no invocar `ValuationEngine` ni operaciones de escritura.
-- [ ] T008 [P] [US1] Escribir tests unitarios en
+- [x] T008 [P] [US1] Escribir tests unitarios en
   `tests/unit/controllers/player-ranking.controller.spec.ts` para verificar el
   DTO mínimo, estrategia/version, `rank` y omisión de `individualScore`,
   `teamScore` y `explanation`.
 
 ### Implementation for User Story 1
 
-- [ ] T009 Implementar `PlayerRankingRepository.findRankedPlayers` en
+- [x] T009 Implementar `PlayerRankingRepository.findRankedPlayers` en
   `src/backend/repositories/player-ranking.repository.ts` con una subconsulta
   o CTE de PostgreSQL que deduplica por `player_id`, filtra por
   `strategyVersionId` y selecciona la quote más reciente.
-- [ ] T010 Extender `PlayerRankingRepository` con filtros de jugador, orden
+- [x] T010 Extender `PlayerRankingRepository` con filtros de jugador, orden
   `finalScore DESC`, `quoteValue DESC`, `name ASC`, `id ASC`, conteo del
   conjunto deduplicado y `LIMIT/OFFSET` en
   `src/backend/repositories/player-ranking.repository.ts`.
-- [ ] T011 Implementar `PlayerRankingService` en
+- [x] T011 Implementar `PlayerRankingService` en
   `src/backend/services/player-ranking.service.ts` reutilizando
   `ValuationRepository.findActiveStrategyVersion()`, propagando `409` cuando
   no haya estrategia y calculando el rank global de cada elemento.
-- [ ] T012 Implementar `PlayerRankingController` en
+- [x] T012 Implementar `PlayerRankingController` en
   `src/backend/controllers/player-ranking.controller.ts` para delegar al
   service y serializar la proyección mínima del contrato.
 
@@ -91,28 +91,28 @@ consistente.
 
 ### Tests for User Story 2
 
-- [ ] T013 [P] [US2] Agregar a
+- [x] T013 [P] [US2] Agregar a
   `tests/integration/player-ranking.repository.spec.ts` casos de filtros
   combinados, coincidencia parcial de equipo sin distinguir mayúsculas,
   conteo después de deduplicar, `LIMIT/OFFSET` y orden global.
-- [ ] T014 [P] [US2] Agregar a
+- [x] T014 [P] [US2] Agregar a
   `tests/unit/services/player-ranking.service.spec.ts` casos de rank global en
   páginas posteriores y `totalPages=0` cuando `total=0`.
-- [ ] T015 [P] [US2] Agregar a
+- [x] T015 [P] [US2] Agregar a
   `tests/unit/schemas/player-ranking.schema.spec.ts` casos de filtros válidos,
   parámetros repetidos según el comportamiento del request y valores fuera de
   rango.
 
 ### Implementation for User Story 2
 
-- [ ] T016 Implementar en `src/backend/repositories/player-ranking.repository.ts`
+- [x] T016 Implementar en `src/backend/repositories/player-ranking.repository.ts`
   la construcción de condiciones para `league`, `team` normalizado y
   `position`, reutilizando los enums existentes y sin reutilizar una
   paginación previa del catálogo.
-- [ ] T017 Completar en `src/backend/services/player-ranking.service.ts` los
+- [x] T017 Completar en `src/backend/services/player-ranking.service.ts` los
   metadatos `total`, `page`, `limit` y `totalPages`, usando `0` cuando no haya
   resultados.
-- [ ] T018 Verificar con tests que la selección, orden y paginación ocurren en
+- [x] T018 Verificar con tests que la selección, orden y paginación ocurren en
   PostgreSQL antes de mapear la respuesta, sin cargar el catálogo completo en
   memoria.
 
@@ -133,20 +133,20 @@ respectivamente.
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Escribir tests de route en
+- [x] T019 [P] [US3] Escribir tests de route en
   `tests/integration/player-ranking.routes.spec.ts` para `401` sin/contra JWT
   inválido, `400` por query inválido o desconocido, `409` sin estrategia y
-  `200` con `items: []`/`totalPages: 0`.
-- [ ] T020 [P] [US3] Agregar al test de integración del repositorio el caso de
+  `200` con `players: []`/`totalPages: 0`.
+- [x] T020 [P] [US3] Agregar al test de integración del repositorio el caso de
   jugadores sin quote para la versión activa y verificar que no se les asigna
   una cotización por defecto.
 
 ### Implementation for User Story 3
 
-- [ ] T021 Implementar `GET` en `src/app/api/players/ranking/route.ts` con
+- [x] T021 Implementar `GET` en `src/app/api/players/ranking/route.ts` con
   `requireAuth`, lectura del query, validación estricta, delegación al
   controller y `toHttpResponse`.
-- [ ] T022 Verificar que `ConflictError`, `BadRequestError` y
+- [x] T022 Verificar que `ConflictError`, `BadRequestError` y
   `UnauthorizedError` existentes produzcan los statuses del contrato sin
   modificar el manejo global de errores.
 
@@ -159,20 +159,23 @@ validación y estados de datos completos, vacíos o inexistentes.
 
 **Purpose**: Sincronizar contratos, quickstart y validar toda la feature.
 
-- [ ] T023 [P] Actualizar `specs/007-player-ranking/contracts/ranking.yaml`
+- [x] T023 [P] Actualizar `specs/007-player-ranking/contracts/ranking.yaml`
   si la implementación final ajusta nombres, tipos, seguridad o respuestas.
-- [ ] T024 Actualizar `specs/001-player-token-marketplace/contracts/openapi.yaml`
+- [x] T024 Actualizar `specs/001-player-token-marketplace/contracts/openapi.yaml`
   con `/players/ranking`, Bearer security, parámetros, schemas de ranking y
   errores `400`, `401`, `409` y `500`.
-- [ ] T025 [P] Verificar `specs/007-player-ranking/quickstart.md` contra el
+- [x] T025 [P] Verificar `specs/007-player-ranking/quickstart.md` contra el
   endpoint implementado, incluyendo JWT, filtros, ranking vacío y comandos de
   test.
-- [ ] T026 Ejecutar tests unitarios y de route dirigidos, luego la suite
+- [x] T026 Ejecutar tests unitarios y de route dirigidos, luego la suite
   completa de Vitest; ejecutar la integración PostgreSQL con
   `RUN_DB_INTEGRATION_TESTS=true` cuando el entorno esté disponible.
-- [ ] T027 Ejecutar `npm run lint`, `npx tsc --noEmit`, `npm run build` y
+- [x] T027 Ejecutar lint dirigido, `npx tsc --noEmit`, `npm run build` y
   `git diff --check`; confirmar que no se agregaron migraciones, dependencias,
   UI, recalculación ni funcionalidades fuera del MVP.
+- [x] T028 [P] Extraer `toPagination` a
+  `src/backend/utils/pagination.ts`, reutilizarlo en catálogo y ranking, y
+  cubrirlo en `tests/unit/utils/pagination.spec.ts`.
 
 **Checkpoint final**: La ruta, persistencia read-only, tests, OpenAPI y
 quickstart están sincronizados y verificables.

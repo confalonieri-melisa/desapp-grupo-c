@@ -69,7 +69,7 @@ GET /api/players/ranking
   -> PlayerRankingController
   -> PlayerRankingService
        -> ValuationRepository.findActiveStrategyVersion()
-       -> PlayerRankingRepository.findRankedPlayers(strategyVersionId, filters, pagination)
+       -> PlayerRankingRepository.findRankedPlayers(strategyVersionId, criteria)
   -> Response JSON / toHttpResponse
 ```
 
@@ -197,7 +197,7 @@ Respuesta `200`:
 {
   "strategyCode": "INDIVIDUAL_PERFORMANCE",
   "strategyVersion": "1.0.0",
-  "items": [
+  "players": [
     {
       "rank": 1,
       "player": {
@@ -222,7 +222,7 @@ Respuesta `200`:
 }
 ```
 
-Cuando no haya resultados, `items` será `[]`, `total` será `0` y
+Cuando no haya resultados, `players` será `[]`, `total` será `0` y
 `totalPages` será `0`.
 
 HTTP outcomes:

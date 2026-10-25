@@ -19,7 +19,7 @@ export const playerSchema = z.object({
 
 export type PlayerDto = z.infer<typeof playerSchema>;
 
-export const playerCatalogQuerySchema = z.object({
+export const playerFiltersSchema = z.object({
   league: z.enum(League).optional(),
   team: z
     .string()
@@ -27,9 +27,14 @@ export const playerCatalogQuerySchema = z.object({
     .min(1)
     .optional(),
   position: z.enum(Position).optional(),
+});
+
+export const playerCatalogQuerySchema = playerFiltersSchema.extend({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
+
+export type PlayerFilters = z.infer<typeof playerFiltersSchema>;
 
 export type PlayerCatalogQuery = z.infer<typeof playerCatalogQuerySchema>;
 

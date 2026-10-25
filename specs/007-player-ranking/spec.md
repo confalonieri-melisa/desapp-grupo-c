@@ -114,7 +114,7 @@ verificando códigos y respuestas diferentes.
    **Then** responde `409 Conflict` y no devuelve resultados parciales.
 2. **Given** una estrategia activa pero ningún jugador con cotización de esa
    versión, **When** se solicita el ranking, **Then** responde `200` con
-   `items: []` y paginación válida.
+   `players: []` y paginación válida.
 3. **Given** que la estrategia activa cambia después de cotizaciones
    anteriores, **When** se solicita el ranking, **Then** el resultado usa solo
    la nueva versión activa y excluye cotizaciones de la versión anterior.
@@ -163,11 +163,11 @@ verificando códigos y respuestas diferentes.
 - **FR-010**: El filtro `team` DEBE normalizar espacios externos y aplicar una
   coincidencia parcial sin distinguir mayúsculas/minúsculas, consistente con
   el catálogo existente.
-- **FR-011**: La respuesta `200` DEBE incluir `items`, `strategyCode`,
+- **FR-011**: La respuesta `200` DEBE incluir `players`, `strategyCode`,
   `strategyVersion` y `pagination` con `total`, `page`, `limit` y `totalPages`.
 - **FR-011a**: Cuando `total` sea `0`, `totalPages` DEBE ser `0`; cuando
   `total` sea mayor que `0`, DEBE calcularse como `ceil(total / limit)`.
-- **FR-012**: El sistema DEBE responder `200` con `items: []` cuando no haya
+- **FR-012**: El sistema DEBE responder `200` con `players: []` cuando no haya
   jugadores rankeables para los filtros solicitados.
 - **FR-013**: El sistema DEBE responder `409 Conflict` cuando no exista una
   estrategia activa.
@@ -197,7 +197,7 @@ Respuesta `200`:
 {
   "strategyCode": "INDIVIDUAL_PERFORMANCE",
   "strategyVersion": "1.0.0",
-  "items": [
+  "players": [
     {
       "rank": 1,
       "player": {
