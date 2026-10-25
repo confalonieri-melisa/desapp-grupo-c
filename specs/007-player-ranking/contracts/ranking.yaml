@@ -1,0 +1,99 @@
+openapi: 3.0.3
+info:
+  title: Player Ranking API
+  version: 1.0.0
+  description: Ranking paginado según la versión activa de valuación.
+paths:
+  /players/ranking:
+    get:
+      summary: Get players ranked by the active valuation strategy
+      tags: [Players]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: league
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/LeagueEnum'
+        - name: team
+          in: query
+          required: false
+          schema: { type: string, minLength: 1 }
+        - name: position
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/PositionEnum'
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, default: 1 }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        '200':
+          description: Ranking for the captured active strategy version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RankingResponse'
+        '400': { description: Invalid or unknown query parameter }
+        '401': { description: Missing, invalid or expired JWT }
+        '409': { description: No active valuation strategy }
+        '500': { description: Unexpected server error }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LeagueEnum:
+      type: string
+      enum: [PREMIER_LEAGUE, BUNDESLIGA, LA_LIGA, SERIE_A, LIGUE_1]
+    PositionEnum:
+      type: string
+      enum: [UNKNOWN, GOALKEEPER, DEFENDER, MIDFIELDER, FORWARD]
+    RankingResponse:
+      type: object
+      required: [strategyCode, strategyVersion, players, pagination]
+      properties:
+        strategyCode: { type: string }
+        strategyVersion: { type: string }
+        players:
+          type: array
+          items:
+            $ref: '#/components/schemas/RankingItem'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+    RankingItem:
+      type: object
+      required: [rank, player, finalScore, quoteValue, unit, calculatedAt]
+      properties:
+        rank: { type: integer, minimum: 1 }
+        player:
+          type: object
+          required: [id, name, team, league, position]
+          properties:
+            id: { type: string, format: uuid }
+            name: { type: string }
+            team: { type: string }
+            league:
+              $ref: '#/components/schemas/LeagueEnum'
+            position:
+              $ref: '#/components/schemas/PositionEnum'
+        finalScore: { type: number, minimum: 0, maximum: 1 }
+        quoteValue: { type: number, minimum: 1, maximum: 100 }
+        unit: { type: string }
+        calculatedAt: { type: string, format: date-time }
+    Pagination:
+      type: object
+      required: [total, page, limit, totalPages]
+      properties:
+        total: { type: integer, minimum: 0 }
+        page: { type: integer, minimum: 1 }
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        totalPages: { type: integer, minimum: 0 }

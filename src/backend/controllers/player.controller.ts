@@ -1,8 +1,8 @@
 import { Player } from "@/backend/models/Player";
 import { playerCatalogQuerySchema } from "@/backend/schemas/player.schema";
 import { validate } from "@/backend/utils/validate";
+import { toPagination, type Pagination } from "@/backend/utils/pagination";
 import { PlayerService } from "@/backend/services/player.service";
-import type { PlayerCatalogResult } from "@/backend/services/player.types";
 
 interface PlayerSummaryResponse {
   id: string;
@@ -25,19 +25,14 @@ export class PlayerController {
 
   async getPlayers(query: unknown): Promise<{
     data: PlayerSummaryResponse[];
-    pagination: {
-      total: number;
-      page: number;
-      limit: number;
-      totalPages: number;
-    };
+    pagination: Pagination;
   }> {
     const criteria = validate(playerCatalogQuerySchema, query);
     const result = await this.playerService.catalog(criteria);
 
     return {
       data: result.players.map((player) => this.toSummary(player)),
-      pagination: this.toPagination(result),
+      pagination: toPagination(result.total, result.page, result.limit),
     };
   }
 
@@ -63,15 +58,6 @@ export class PlayerController {
       ...this.toSummary(player),
       createdAt: player.createdAt,
       updatedAt: player.updatedAt,
-    };
-  }
-
-  private toPagination(result: PlayerCatalogResult) {
-    return {
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      totalPages: Math.ceil(result.total / result.limit),
     };
   }
 }
