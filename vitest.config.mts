@@ -6,6 +6,7 @@ export default defineConfig({
     globals: true,
     environment: "node",
     passWithNoTests: true,
+    fileParallelism: process.env.RUN_DB_INTEGRATION_TESTS !== "true",
     include: ["tests/**/*.spec.ts", "tests/**/*.test.ts"],
     coverage: {
       provider: "v8",
