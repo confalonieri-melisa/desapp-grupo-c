@@ -34,9 +34,7 @@ function dependencies() {
       findActiveStrategyVersion: vi.fn().mockResolvedValue(activeVersion),
       saveQuote: vi.fn().mockResolvedValue({ id: "quote-1" }),
     },
-    playerRepository: {
-      findAll: vi.fn().mockResolvedValue([player]),
-    },
+    playerRepository: { findAll: vi.fn().mockResolvedValue([player]) },
     contextRepository: { findTeamContext: vi.fn() },
     engine: { calculate: vi.fn().mockReturnValue(result) },
   };
@@ -98,5 +96,4 @@ describe("QuoteRecalculationService", () => {
     expect(response.errors).toEqual([{ playerId: "player-2", error: "insufficient data" }]);
     expect(deps.valuationRepository.saveQuote).toHaveBeenCalledTimes(1);
   });
-
 });

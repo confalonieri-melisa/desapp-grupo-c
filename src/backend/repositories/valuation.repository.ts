@@ -1,10 +1,11 @@
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq, lt } from "drizzle-orm";
 import { db as defaultDatabase, type Database } from "@/backend/db";
 import {
   playerQuotes,
   valuationStrategyVersions,
 } from "@/backend/db/schema";
 import type {
+  PlayerQuoteSnapshot,
   ValuationConfig,
   ValuationStrategyCode,
 } from "@/backend/models/valuation";
@@ -83,4 +84,64 @@ export class ValuationRepository {
     }).returning();
     return rows[0];
   }
+
+  async findHistoryByPlayerId(playerId: string): Promise<PlayerQuoteSnapshot[]> {
+    const rows = await this.database
+      .select({
+        quote: playerQuotes,
+        strategyCode: valuationStrategyVersions.strategyCode,
+        strategyVersion: valuationStrategyVersions.version,
+      })
+      .from(playerQuotes)
+      .innerJoin(
+        valuationStrategyVersions,
+        eq(playerQuotes.strategyVersionId, valuationStrategyVersions.id),
+      )
+      .where(eq(playerQuotes.playerId, playerId))
+      .orderBy(desc(playerQuotes.calculatedAt), desc(playerQuotes.id));
+
+    return rows.map(toPlayerQuoteSnapshot);
+  }
+
+  async findLatestQuoteBefore(playerId: string, upperBound: Date): Promise<PlayerQuoteSnapshot | null> {
+    const rows = await this.database
+      .select({
+        quote: playerQuotes,
+        strategyCode: valuationStrategyVersions.strategyCode,
+        strategyVersion: valuationStrategyVersions.version,
+      })
+      .from(playerQuotes)
+      .innerJoin(
+        valuationStrategyVersions,
+        eq(playerQuotes.strategyVersionId, valuationStrategyVersions.id),
+      )
+      .where(and(
+        eq(playerQuotes.playerId, playerId),
+        lt(playerQuotes.calculatedAt, upperBound),
+      ))
+      .orderBy(desc(playerQuotes.calculatedAt), desc(playerQuotes.id))
+      .limit(1);
+
+    return rows[0] ? toPlayerQuoteSnapshot(rows[0]) : null;
+  }
+}
+
+function toPlayerQuoteSnapshot(row: {
+  quote: typeof playerQuotes.$inferSelect;
+  strategyCode: string;
+  strategyVersion: string;
+}): PlayerQuoteSnapshot {
+  return {
+    id: row.quote.id,
+    playerId: row.quote.playerId,
+    individualScore: Number(row.quote.individualScore),
+    teamScore: row.quote.teamScore === null ? null : Number(row.quote.teamScore),
+    finalScore: Number(row.quote.finalScore),
+    quoteValue: Number(row.quote.quoteValue),
+    unit: row.quote.unit,
+    calculatedAt: row.quote.calculatedAt,
+    strategyCode: row.strategyCode as ValuationStrategyCode,
+    strategyVersion: row.strategyVersion,
+    explanation: row.quote.explanation as PlayerQuoteSnapshot["explanation"],
+  };
 }
