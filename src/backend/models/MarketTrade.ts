@@ -52,12 +52,7 @@ export class MarketTrade {
   sell(request: MarketTradeRequest, state: MarketTradeState): MarketTradeOutcome {
     this.ensureInvestorCanTrade(state);
     const operation = this.createOperation(request, state);
-    const previousState = financialStateOf(
-      state.investor,
-      state.investorHolding,
-      state.pool,
-      state.poolHolding,
-    );
+    const previousState = financialStateOf(state.investor, state.investorHolding, state.pool, state.poolHolding);
     const updatedPositions = this.investorSellsToPool(request, state, operation.total);
     return this.completeTrade(request, state, operation, previousState, updatedPositions);
   }
@@ -69,12 +64,7 @@ export class MarketTrade {
     previousState: FinancialStateSnapshot,
     updatedPositions: UpdatedPositions,
   ): MarketTradeOutcome {
-    const newState = financialStateOf(
-      state.investor,
-      updatedPositions.investorHolding,
-      state.pool,
-      updatedPositions.poolHolding,
-    );
+    const newState = financialStateOf(state.investor, updatedPositions.investorHolding, state.pool, updatedPositions.poolHolding);
     const audit = this.createAudit(request, operation, previousState, newState);
 
     return {
@@ -120,12 +110,7 @@ export class MarketTrade {
   }
 
   private investorBuysFromPool(request: MarketTradeRequest, state: MarketTradeState, total: number): UpdatedPositions {
-    if (state.poolHolding.quantity < request.quantity) {
-      throw new ConflictError("Insufficient tokens in central pool");
-    }
-    if (!state.investor.hasSufficientBalance(total)) {
-      throw new ConflictError("Insufficient credit balance");
-    }
+    this.ensureBuyCanProceed(request, state, total);
 
     state.investor.debit(total);
     state.pool.credit(total);
@@ -135,13 +120,21 @@ export class MarketTrade {
     };
   }
 
+  private ensureBuyCanProceed(
+    request: MarketTradeRequest,
+    state: MarketTradeState,
+    total: number,
+  ): void {
+    if (state.poolHolding.quantity < request.quantity) {
+      throw new ConflictError("Insufficient tokens in central pool");
+    }
+    if (!state.investor.hasSufficientBalance(total)) {
+      throw new ConflictError("Insufficient credit balance");
+    }
+  }
+
   private investorSellsToPool(request: MarketTradeRequest, state: MarketTradeState, total: number): UpdatedPositions {
-    if (!state.investorHoldingExists || state.investorHolding.quantity < request.quantity) {
-      throw new ConflictError("Insufficient token holding");
-    }
-    if (state.pool.creditBalance < total) {
-      throw new ConflictError("Insufficient central pool balance");
-    }
+    this.ensureSellCanProceed(request, state, total);
 
     state.investor.credit(total);
     state.pool.debit(total);
@@ -149,6 +142,19 @@ export class MarketTrade {
       investorHolding: state.investorHolding.sell(request.quantity),
       poolHolding: state.poolHolding.buy(request.quantity, state.quote.quoteValue),
     };
+  }
+
+  private ensureSellCanProceed(
+    request: MarketTradeRequest,
+    state: MarketTradeState,
+    total: number,
+  ): void {
+    if (!state.investorHoldingExists || state.investorHolding.quantity < request.quantity) {
+      throw new ConflictError("Insufficient token holding");
+    }
+    if (state.pool.creditBalance < total) {
+      throw new ConflictError("Insufficient central pool balance");
+    }
   }
 }
 
