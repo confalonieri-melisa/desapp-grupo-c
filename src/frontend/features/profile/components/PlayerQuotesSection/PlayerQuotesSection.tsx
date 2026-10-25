@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { usePlayerQuotes } from "../../hooks/usePlayerQuotes";
+import type { usePlayerQuotes } from "../../hooks/usePlayerQuotes";
 import QuoteSummary from "../QuoteSummary/QuoteSummary";
 import QuoteHistory from "../QuoteHistory/QuoteHistory";
 import QuoteDateQuery from "../QuoteDateQuery/QuoteDateQuery";
 import styles from "./PlayerQuotesSection.module.scss";
 
-export default function PlayerQuotesSection({ token, playerId, onUnauthorized }: {
-  token: string; playerId: string; onUnauthorized: () => void;
+export default function PlayerQuotesSection({ quotes }: {
+  quotes: ReturnType<typeof usePlayerQuotes>;
 }) {
-  const quotes = usePlayerQuotes(token, playerId, onUnauthorized);
   if (quotes.expired) return null;
   if (quotes.playerError) return <section className={styles.section} role="alert"><p>{quotes.playerError}</p><Link href="/players">Volver al catálogo</Link></section>;
   return <section className={styles.section} aria-label="Cotizaciones">
