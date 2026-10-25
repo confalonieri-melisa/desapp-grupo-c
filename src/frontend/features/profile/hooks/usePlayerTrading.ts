@@ -218,6 +218,8 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
         if (identity.current.token !== token || submission.current !== key) return;
         setOrder({ token, status: "succeeded", receipt, error: null,
           playerId: confirmation.playerId, playerName: confirmation.playerName });
+        setDraft({ token, playerId, quantity: "", error: null });
+        if (typeof window !== "undefined") window.dispatchEvent(new Event("portfolio-updated"));
         await latestLoad.current();
       } catch (error) {
         if (identity.current.token !== token || submission.current !== key) return;

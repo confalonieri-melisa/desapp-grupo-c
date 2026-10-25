@@ -93,6 +93,17 @@
 .operationChoice input { accent-color: var(--crimson-violet); }
 .orderControls { display: grid; justify-items: start; gap: 0.4rem; max-width: 28rem; margin-top: 1rem; }
 .orderControls label { font-size: 0.84rem; font-weight: 700; }
+.operationSummary {
+  width: 100%;
+  margin: 0 0 0.35rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 8px;
+  background: #f9f3f7;
+  color: var(--dusty-violet);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+.operationSummary strong { color: var(--crimson-violet); }
 .orderControls input {
   width: 100%;
   min-height: 2.65rem;

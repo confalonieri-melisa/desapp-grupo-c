@@ -2,15 +2,15 @@ import type { PlayerQuoteDto } from "@/frontend/services/client/player-quotes.se
 import QuoteSummary from "../QuoteSummary/QuoteSummary";
 import styles from "../PlayerQuotesSection/PlayerQuotesSection.module.scss";
 
-export default function QuoteHistory({ items, generation }: { items: PlayerQuoteDto[]; generation: number }) {
-  return <section className={styles.history} aria-labelledby="quote-history-title">
-    <div className={styles.subsectionHeading}>
+export default function QuoteHistory({ items, generation, showHeading = true }: { items: PlayerQuoteDto[]; generation: number; showHeading?: boolean }) {
+  return <section className={styles.history} aria-label={showHeading ? undefined : "Historial de cotizaciones"}>
+    {showHeading && <div className={styles.subsectionHeading}>
       <div>
         <p className={styles.eyebrow}>Evolución</p>
         <h3 id="quote-history-title">Historial completo</h3>
       </div>
       {items.length > 0 && <span className={styles.count}>{items.length} {items.length === 1 ? "registro" : "registros"}</span>}
-    </div>
+    </div>}
     {items.length === 0 ? <p className={styles.empty}>No existen cotizaciones históricas</p> : <ol className={styles.historyList}>
       {items.map((quote, index) => <li key={`${generation}:${index}`} className={styles.historyItem}>
         <div className={styles.historyMarker} aria-hidden="true" />
