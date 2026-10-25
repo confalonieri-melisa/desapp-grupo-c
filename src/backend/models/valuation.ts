@@ -99,6 +99,5 @@ export interface PlayerQuoteSnapshot {
   strategyVersion: string;
   explanation: QuoteExplanation;
 }
-
 export class ValuationDomainError extends Error {}
 export class InsufficientValuationDataError extends ValuationDomainError {}

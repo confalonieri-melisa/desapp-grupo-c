@@ -10,7 +10,7 @@ const configuration = {
 } as never;
 
 const payload = {
-  standings: [{ table: [{
+  standings: [{ type: "TOTAL", table: [{
     position: 1, playedGames: 1, points: 3, goalDifference: 2,
     team: { id: 1, name: "Example" },
   }] }],
