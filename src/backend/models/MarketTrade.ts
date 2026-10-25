@@ -35,6 +35,11 @@ export interface MarketTradeOutcome {
   poolHolding: TokenHolding;
 }
 
+interface UpdatedPositions {
+  investorHolding: TokenHolding;
+  poolHolding: TokenHolding;
+}
+
 export class MarketTrade {
   buy(request: MarketTradeRequest, state: MarketTradeState): MarketTradeOutcome {
     this.ensureInvestorCanTrade(state);
@@ -120,11 +125,7 @@ export class MarketTrade {
     };
   }
 
-  private ensureBuyCanProceed(
-    request: MarketTradeRequest,
-    state: MarketTradeState,
-    total: number,
-  ): void {
+  private ensureBuyCanProceed(request: MarketTradeRequest, state: MarketTradeState, total: number): void {
     if (state.poolHolding.quantity < request.quantity) {
       throw new ConflictError("Insufficient tokens in central pool");
     }
@@ -144,11 +145,7 @@ export class MarketTrade {
     };
   }
 
-  private ensureSellCanProceed(
-    request: MarketTradeRequest,
-    state: MarketTradeState,
-    total: number,
-  ): void {
+  private ensureSellCanProceed(request: MarketTradeRequest, state: MarketTradeState, total: number): void {
     if (!state.investorHoldingExists || state.investorHolding.quantity < request.quantity) {
       throw new ConflictError("Insufficient token holding");
     }
@@ -156,11 +153,6 @@ export class MarketTrade {
       throw new ConflictError("Insufficient central pool balance");
     }
   }
-}
-
-interface UpdatedPositions {
-  investorHolding: TokenHolding;
-  poolHolding: TokenHolding;
 }
 
 function financialStateOf(
