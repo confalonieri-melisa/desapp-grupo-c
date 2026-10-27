@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Coins, LogOut } from 'lucide-react';
-import {useRouter} from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {useAuth} from '@/frontend/context/AuthContext';
 import ActionButton from '@/frontend/components/ui/ActionButton/ActionButton';
 import { getPortfolio } from '@/frontend/services/client/player-trading.service';
@@ -11,8 +11,10 @@ import styles from './GlobalNav.module.scss';
 
 export default function GlobalNav() {
     const router = useRouter();
-    const { logout, token } = useAuth();
+    const pathname = usePathname();
+    const { logout, token, isAuthenticated, isHydrated } = useAuth();
     const [creditBalance, setCreditBalance] = useState<number | null>(null);
+    const [loadedToken, setLoadedToken] = useState<string | null>(null);
     const [isLoadingBalance, setIsLoadingBalance] = useState(true);
 
     const handleLogout = useCallback(() => {
@@ -27,13 +29,16 @@ export default function GlobalNav() {
             setIsLoadingBalance(true);
             try {
                 const portfolio = await getPortfolio(token, controller.signal);
-                setCreditBalance(portfolio.creditBalance);
+                if (!controller.signal.aborted) setCreditBalance(portfolio.creditBalance);
             } catch (error) {
                 if (!controller.signal.aborted && (error as { status?: number }).status === 401) {
                     handleLogout();
                 }
             } finally {
-                if (!controller.signal.aborted) setIsLoadingBalance(false);
+                if (!controller.signal.aborted) {
+                    setLoadedToken(token);
+                    setIsLoadingBalance(false);
+                }
             }
         };
         void loadBalance();
@@ -53,21 +58,26 @@ export default function GlobalNav() {
                 </img>
                 <h1 className={styles.brandText}>MedioCampo</h1>
             </Link>
-            <Link className={styles.activeLink} href="/players" aria-current="page">
-                Jugadores
-            </Link>
-            <div className={styles.balance} aria-live="polite">
+            {isHydrated && isAuthenticated && <div className={styles.actions}>
+                <Link className={styles.navLink} href="/players" aria-current={pathname.startsWith('/players') ? 'page' : undefined}>
+                    Jugadores
+                </Link>
+                <Link className={styles.navLink} href="/transactions" aria-current={pathname === '/transactions' ? 'page' : undefined}>
+                    Mi historial
+                </Link>
+            </div>}
+            {isHydrated && isAuthenticated && <div className={styles.balance} aria-live="polite">
                 <Coins aria-hidden="true" size={18}/>
                 <span className={styles.balanceLabel}>Saldo</span>
-                <strong>{isLoadingBalance ? 'Cargando…' : creditBalance === null ? 'No disponible' : `${new Intl.NumberFormat('es-AR').format(creditBalance)} créditos`}</strong>
-            </div>
-            <ActionButton
+                <strong>{loadedToken !== token || isLoadingBalance ? 'Cargando…' : creditBalance === null ? 'No disponible' : `${new Intl.NumberFormat('es-AR').format(creditBalance)} créditos`}</strong>
+            </div>}
+            {isHydrated && isAuthenticated && <ActionButton
                 className={styles.logoutButton}
                 text="Cerrar sesión"
                 type="button"
                 icon={<LogOut aria-hidden="true" size={18}/>}
                 onClick={handleLogout}
-            />
+            />}
         </nav>
     );
 }

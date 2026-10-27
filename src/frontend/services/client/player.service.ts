@@ -28,6 +28,13 @@ interface PlayerApiResponse {
   };
 }
 
+export class PlayerHttpError extends Error {
+  constructor(message: string, public readonly status: number) {
+    super(message);
+    this.name = 'PlayerHttpError';
+  }
+}
+
 async function parseApiResponse<T>(
   response: Response,
   fallbackMessage: string,
@@ -49,7 +56,7 @@ async function parseApiResponse<T>(
         ? apiError.error
         : fallbackMessage;
 
-    throw Object.assign(new Error(message), { status: response.status });
+    throw new PlayerHttpError(message, response.status);
   }
 
   return data as T;

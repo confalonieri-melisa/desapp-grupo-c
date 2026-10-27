@@ -1,0 +1,73 @@
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.65rem; }
+.row {
+  display: grid;
+  grid-template-columns: 80px minmax(220px, 1.6fr) minmax(370px, 1.65fr) 106px;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgb(255 251 254 / 90%);
+  box-shadow: 0 10px 30px rgb(70 27 59 / 8%);
+}
+.typeBadge { display: grid; place-items: center; gap: 0.15rem; min-height: 82px; border-radius: 18px; font-size: 0.85rem; }
+.buy { color: #c71936; background: #fff0f3; }
+.sell { color: #258d50; background: #eef9f1; }
+.player { display: flex; align-items: center; gap: 0.8rem; min-width: 0; }
+.playerImage {
+  position: relative;
+  flex: 0 0 68px;
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ffe8ed, #fff5e7);
+  color: var(--rose-punch);
+}
+.playerImage img { object-fit: cover; }
+.playerInfo { min-width: 0; }
+.playerLink, .playerId { color: var(--crimson-violet); font-size: 1rem; font-weight: 750; text-decoration: none; overflow-wrap: anywhere; }
+.playerLink:hover { text-decoration: underline; }
+.playerLink:focus-visible { outline: 2px solid var(--rose-punch); outline-offset: 3px; border-radius: 2px; }
+.playerMeta { display: flex; flex-wrap: wrap; gap: 0.25rem 0.8rem; margin-top: 0.35rem; color: var(--dusty-violet); font-size: 0.8rem; }
+.playerMeta span { display: inline-flex; align-items: center; gap: 0.3rem; }
+.playerMeta svg { color: var(--watermelon); flex: none; }
+.fields { margin: 0; display: grid; grid-template-columns: 0.8fr 1.3fr 1.2fr; align-items: stretch; min-width: 0; }
+.fields > div { min-width: 0; padding: 0.35rem 0.9rem; border-left: 1px solid var(--border); }
+.fields dt { color: var(--dusty-violet); font-size: 0.75rem; }
+.fields dd { margin: 0.35rem 0 0; color: var(--crimson-violet); font-size: 0.9rem; font-weight: 650; overflow-wrap: anywhere; }
+.fields .total { border-left: 0; border-radius: 15px; padding: 0.5rem 0.8rem; }
+.totalBuy { background: #fff0f3; }
+.totalSell { background: #eef9f1; }
+.fields .totalBuy dt, .fields .totalBuy dd { color: #bd1634; }
+.fields .totalSell dt, .fields .totalSell dd { color: #258d50; }
+.fields .total dd { font-size: 1.12rem; font-weight: 800; line-height: 1.1; }
+.fields .total dd span { display: block; margin-top: 0.15rem; font-size: 0.72rem; font-weight: 500; }
+.date { display: grid; gap: 0.15rem; color: var(--dusty-violet); font-size: 0.82rem; }
+.date strong { color: var(--crimson-violet); font-size: 0.9rem; }
+.srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.noMatches, .end { margin: 1rem 0; padding: 1rem; color: var(--crimson-violet); text-align: center; }
+.error { border: 1px solid var(--cherry-bomb); border-radius: var(--radius); padding: 1rem; margin: 1rem 0; color: var(--cherry-bomb); background: rgb(219 4 40 / 8%); }
+.pagination { margin: 1.5rem 0; text-align: center; }
+.pagination button, .error button { cursor: pointer; border: 0; border-radius: 999px; background: var(--crimson-violet); color: white; padding: 0.75rem 1.25rem; font: inherit; font-weight: 700; }
+.pagination button:disabled { opacity: 0.65; cursor: wait; }
+.pagination button:focus-visible, .error button:focus-visible { outline: 3px solid var(--rose-punch); outline-offset: 3px; }
+
+@media (max-width: 1050px) {
+  .row { grid-template-columns: 80px minmax(200px, 1fr) 112px; }
+  .fields { grid-column: 2 / 4; grid-row: 2; }
+  .date { justify-self: end; }
+}
+@media (max-width: 620px) {
+  .row { grid-template-columns: 68px minmax(0, 1fr); gap: 0.7rem; }
+  .typeBadge { min-height: 68px; font-size: 0.72rem; }
+  .playerImage { flex-basis: 56px; width: 56px; height: 56px; }
+  .playerMeta { font-size: 0.72rem; }
+  .fields { grid-column: 1 / -1; grid-row: auto; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.35rem; }
+  .fields > div { border-left: 0; padding: 0.35rem; }
+  .fields .total { grid-column: 1 / -1; }
+  .date { grid-column: 1 / -1; justify-self: start; display: flex; gap: 0.5rem; border-top: 1px solid var(--border); width: 100%; padding-top: 0.5rem; }
+}
