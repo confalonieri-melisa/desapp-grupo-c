@@ -399,6 +399,10 @@
   margin-top: 0.75rem;
 }
 
+.individualScores {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .scores > div {
   min-width: 0;
   padding: 0.6rem;
@@ -426,7 +430,7 @@
   .sectionHeading > p { font-size: 0.8rem; }
   .currentPanel, .datePanel { padding: 1rem; }
   .dateControls input { flex-basis: 100%; }
-  .scores { grid-template-columns: 1fr; }
+  .scores, .individualScores { grid-template-columns: 1fr; }
   .historyContent { padding: 0.8rem; }
   .compact .quoteValue { display: grid; }
 }
