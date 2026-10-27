@@ -70,4 +70,12 @@ describe("PlayerController", () => {
     });
   });
 
+  it("validates and forwards a trimmed name search", async () => {
+    const service = { catalog: vi.fn().mockResolvedValue({ players: [], total: 0, page: 1, limit: 12 }) } as unknown as PlayerService;
+    const controller = new PlayerController(service);
+    await controller.getPlayers({ name: "  Mbappé  ", page: "1", limit: "12" });
+    expect(service.catalog).toHaveBeenCalledWith({ name: "Mbappé", page: 1, limit: 12 });
+    await expect(controller.getPlayers({ name: "   " })).rejects.toThrow();
+  });
+
 });

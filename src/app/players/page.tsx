@@ -7,6 +7,7 @@ import PageContainer from '@/frontend/components/ui/PageContainer/PageContainer'
 import PlayerFilters from '@/frontend/features/catalog/components/PlayerFilters/PlayerFilters';
 import PlayerGrid from '@/frontend/features/catalog/components/PlayerGrid/PlayerGrid';
 import PlayerPagination from '@/frontend/features/catalog/components/PlayerPagination/PlayerPagination';
+import PlayerNameSearch from '@/frontend/features/catalog/components/PlayerNameSearch/PlayerNameSearch';
 import type {PlayerCatalogFilters} from '@/frontend/features/catalog/player-catalog';
 import {League, Position} from '@/backend/models/enums';
 import {usePlayerCatalog} from '@/frontend/features/catalog/hooks/usePlayerCatalog';
@@ -82,6 +83,11 @@ function PlayersPageContent() {
                     <h1 id="players-title" className={styles.title}>Jugadores</h1>
                     <p className={styles.description}>Explora y analiza el catálogo de jugadores de futbol.</p>
                 </div>
+                <PlayerNameSearch
+                    key={filters.name ?? ''}
+                    initialValue={filters.name ?? ''}
+                    onSearch={(name) => updateFilters({...filters, name})}
+                />
                 <div className={styles.catalogLayout}>
                     <aside className={styles.sidebar}>
                         <PlayerFilters
@@ -100,7 +106,7 @@ function PlayersPageContent() {
                         {error && <p className={styles.errorState} role="alert">{error}</p>}
                         {showPlayerGrid ?
                             <PlayerGrid players={players}/> :
-                            <p className={styles.emptyState}>
+                            hasLoadedCatalog && <p className={styles.emptyState}>
                                 No hay jugadores que coincidan con los filtros seleccionados.
                             </p>
                         }

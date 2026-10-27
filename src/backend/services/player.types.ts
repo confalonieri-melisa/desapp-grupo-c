@@ -2,6 +2,7 @@ import { League, Position } from "@/backend/models/enums";
 import type { Player } from "@/backend/models/Player";
 
 export interface PlayerCatalogCriteria {
+  name?: string;
   league?: League;
   team?: string;
   position?: Position;

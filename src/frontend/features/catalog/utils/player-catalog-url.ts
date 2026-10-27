@@ -2,6 +2,7 @@ import type { PlayerCatalogFilters } from "@/frontend/features/catalog/player-ca
 import { isOfficialLeague, isPosition } from "@/backend/models/enums";
 
 export const emptyPlayerCatalogFilters: PlayerCatalogFilters = {
+  name: "",
   league: "",
   team: "",
   position: "",
@@ -20,6 +21,7 @@ export function parsePlayerCatalogFilters(
   searchParams: URLSearchParams,
 ): PlayerCatalogFilters {
   return {
+    name: searchParams.get("name") ?? "",
     league: getEnumParam(searchParams, "league", isOfficialLeague),
     team: searchParams.get("team") ?? "",
     position: getEnumParam(searchParams, "position", isPosition),
@@ -37,6 +39,7 @@ export function serializePlayerCatalogFilters(
 ): string {
   const searchParams = new URLSearchParams();
 
+  if (filters.name?.trim()) searchParams.set("name", filters.name.trim());
   if (filters.league) searchParams.set("league", filters.league);
   if (filters.team) searchParams.set("team", filters.team);
   if (filters.position) searchParams.set("position", filters.position);

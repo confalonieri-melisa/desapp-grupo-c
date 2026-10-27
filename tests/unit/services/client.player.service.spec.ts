@@ -64,6 +64,17 @@ describe("client player service", () => {
     );
   });
 
+  it("passes a name query to the paginated catalog API", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ data: [], pagination: { total: 0, page: 1, limit: 12, totalPages: 0 } })),
+    );
+    await getPlayers("token", { name: "  Mbappé  ", league: "", team: "", position: "" }, 1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/players?page=1&limit=12&name=Mbapp%C3%A9",
+      expect.objectContaining({ headers: { Authorization: "Bearer token" } }),
+    );
+  });
+
   it("requests a player detail with an encoded id", async () => {
     const response = { id: "player/1" };
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
