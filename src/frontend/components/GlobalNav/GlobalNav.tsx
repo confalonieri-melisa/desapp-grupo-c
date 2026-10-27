@@ -7,12 +7,14 @@ import {useRouter} from 'next/navigation';
 import {useAuth} from '@/frontend/context/AuthContext';
 import ActionButton from '@/frontend/components/ui/ActionButton/ActionButton';
 import { getPortfolio } from '@/frontend/services/client/player-trading.service';
+import { PORTFOLIO_UPDATED_EVENT, type PortfolioUpdate } from '@/frontend/services/client/portfolio-events';
 import styles from './GlobalNav.module.scss';
 
 export default function GlobalNav() {
     const router = useRouter();
     const { logout, token } = useAuth();
     const [creditBalance, setCreditBalance] = useState<number | null>(null);
+    const [balanceToken, setBalanceToken] = useState<string | null>(null);
     const [isLoadingBalance, setIsLoadingBalance] = useState(true);
 
     const handleLogout = useCallback(() => {
@@ -23,25 +25,38 @@ export default function GlobalNav() {
     useEffect(() => {
         if (!token) return;
         const controller = new AbortController();
+        let latestRequest = 0;
         const loadBalance = async () => {
+            const request = ++latestRequest;
+            setBalanceToken(token);
+            setCreditBalance(null);
             setIsLoadingBalance(true);
             try {
                 const portfolio = await getPortfolio(token, controller.signal);
-                setCreditBalance(portfolio.creditBalance);
+                if (!controller.signal.aborted && request === latestRequest) {
+                    setCreditBalance(portfolio.creditBalance);
+                }
             } catch (error) {
-                if (!controller.signal.aborted && (error as { status?: number }).status === 401) {
+                if (!controller.signal.aborted && request === latestRequest && (error as { status?: number }).status === 401) {
                     handleLogout();
                 }
             } finally {
-                if (!controller.signal.aborted) setIsLoadingBalance(false);
+                if (!controller.signal.aborted && request === latestRequest) setIsLoadingBalance(false);
             }
         };
         void loadBalance();
-        const refreshBalance = () => { void loadBalance(); };
-        window.addEventListener('portfolio-updated', refreshBalance);
+        const receivePortfolioUpdate = (event: Event) => {
+            const update = (event as CustomEvent<PortfolioUpdate>).detail;
+            if (!update || update.token !== token) return;
+            latestRequest++;
+            setBalanceToken(token);
+            setCreditBalance(update.snapshot?.creditBalance ?? null);
+            setIsLoadingBalance(update.status === 'loading');
+        };
+        window.addEventListener(PORTFOLIO_UPDATED_EVENT, receivePortfolioUpdate);
         return () => {
             controller.abort();
-            window.removeEventListener('portfolio-updated', refreshBalance);
+            window.removeEventListener(PORTFOLIO_UPDATED_EVENT, receivePortfolioUpdate);
         };
     }, [handleLogout, token]);
 
@@ -59,7 +74,7 @@ export default function GlobalNav() {
             <div className={styles.balance} aria-live="polite">
                 <Coins aria-hidden="true" size={18}/>
                 <span className={styles.balanceLabel}>Saldo</span>
-                <strong>{isLoadingBalance ? 'Cargando…' : creditBalance === null ? 'No disponible' : `${new Intl.NumberFormat('es-AR').format(creditBalance)} créditos`}</strong>
+                <strong>{token && (balanceToken !== token || isLoadingBalance) ? 'Cargando…' : balanceToken !== token || creditBalance === null ? 'No disponible' : `${new Intl.NumberFormat('es-AR').format(creditBalance)} créditos`}</strong>
             </div>
             <ActionButton
                 className={styles.logoutButton}

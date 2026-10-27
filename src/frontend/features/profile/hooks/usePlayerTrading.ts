@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { buyPlayerTokens, getPortfolio, sellPlayerTokens, type MarketOperationResult, type PortfolioSnapshot } from "@/frontend/services/client/player-trading.service";
+import { publishPortfolioUpdate } from "@/frontend/services/client/portfolio-events";
 import { classifyBuyError, classifySellError, selectPlayerPosition, validateBuyQuantity, validateSellQuantity } from "../utils/player-trading";
 
 export type PortfolioStatus = "idle" | "loading" | "success" | "empty" | "error" | "refreshing";
@@ -114,6 +115,7 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
         snapshot: null, error: null, generation,
       },
     }));
+    publishPortfolioUpdate({ token, status: "loading", snapshot: null });
 
     try {
       const snapshot = await getPortfolio(token, controller.signal);
@@ -121,9 +123,11 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
       setState({ token, playerId, portfolio: {
         status: snapshot.items.length ? "success" : "empty", snapshot, error: null, generation,
       } });
+      publishPortfolioUpdate({ token, status: "success", snapshot });
     } catch (error) {
       if (!valid()) return;
       if ((error as { status?: number })?.status === 401) {
+        publishPortfolioUpdate({ token, status: "error", snapshot: null });
         invalidate(slot);
         setState(initial(token, playerId));
         setDraft({ token, playerId, quantity: "", error: null });
@@ -137,6 +141,7 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
         error: error instanceof Error ? error.message : "No se pudo cargar el portfolio",
         generation,
       } });
+      publishPortfolioUpdate({ token, status: "error", snapshot: null });
     }
   };
 
@@ -219,7 +224,6 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
         setOrder({ token, status: "succeeded", receipt, error: null,
           playerId: confirmation.playerId, playerName: confirmation.playerName });
         setDraft({ token, playerId, quantity: "", error: null });
-        if (typeof window !== "undefined") window.dispatchEvent(new Event("portfolio-updated"));
         await latestLoad.current();
       } catch (error) {
         if (identity.current.token !== token || submission.current !== key) return;

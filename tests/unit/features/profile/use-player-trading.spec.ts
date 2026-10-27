@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PortfolioSnapshot } from "@/frontend/services/client/player-trading.service";
+import { PORTFOLIO_UPDATED_EVENT, type PortfolioUpdate } from "@/frontend/services/client/portfolio-events";
 import { createHookHarness, deferred, flushPromises } from "./hook-harness";
 
 const mocks = vi.hoisted(() => ({ get: vi.fn(), buy: vi.fn(), sell: vi.fn(), state: vi.fn(), ref: vi.fn(), effect: vi.fn() }));
@@ -40,6 +41,26 @@ function setup(token: string | null = "token", playerId = "player-a") {
 
 describe("usePlayerTrading portfolio", () => {
   beforeEach(() => vi.clearAllMocks());
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("publishes the same loading, success and failure state for the navbar", async () => {
+    vi.stubGlobal("window", new EventTarget());
+    const updates: PortfolioUpdate[] = [];
+    window.addEventListener(PORTFOLIO_UPDATED_EVENT, (event) => {
+      updates.push((event as CustomEvent<PortfolioUpdate>).detail);
+    });
+    mocks.get.mockResolvedValueOnce(snapshot).mockRejectedValueOnce(new Error("Offline"));
+    const h = setup();
+    expect(updates).toEqual([{ token: "token", status: "loading", snapshot: null }]);
+    await flushPromises();
+    expect(updates.at(-1)).toEqual({ token: "token", status: "success", snapshot });
+    h.render().retryPortfolio(); await flushPromises();
+    expect(updates.slice(-2)).toEqual([
+      { token: "token", status: "loading", snapshot: null },
+      { token: "token", status: "error", snapshot: null },
+    ]);
+    h.cleanup();
+  });
 
   it("stays idle without confirmed token and player", () => {
     const withoutToken = setup(null);
