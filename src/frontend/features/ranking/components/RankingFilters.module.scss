@@ -1,0 +1,10 @@
+.panel { display: grid; grid-template-columns: minmax(9rem, 1fr) minmax(15rem, 1.5fr) minmax(9rem, 1fr) auto; gap: 1rem; align-items: end; padding: 1.25rem; border-radius: 1rem; background: #f8f1f6; }
+.panel label, .teamForm { display: grid; gap: 0.4rem; font-weight: 600; color: var(--crimson-violet); }
+.panel select, .panel input { width: 100%; min-height: 2.75rem; padding: 0.5rem 0.7rem; border: 1px solid #c9afc0; border-radius: 0.5rem; background: white; color: inherit; font: inherit; }
+.panel button { min-height: 2.75rem; padding: 0.5rem 0.9rem; border: 0; border-radius: 0.5rem; background: var(--crimson-violet); color: white; font: inherit; font-weight: 600; cursor: pointer; }
+.panel :is(button, input, select):focus-visible { outline: 2px solid var(--rose-punch); outline-offset: 2px; }
+.teamInput { display: flex; gap: 0.5rem; }
+.teamInput button { white-space: nowrap; }
+.teamInput input { min-width: 0; }
+@media (max-width: 900px) { .panel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .panel { grid-template-columns: 1fr; } .teamInput { flex-wrap: wrap; } }
