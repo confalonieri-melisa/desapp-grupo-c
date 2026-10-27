@@ -43,7 +43,9 @@ export default function PlayerProfileHeader({player}: PlayerProfileHeaderProps) 
             </span>
                     </div>
                 </div>
-                <PlayerCardRating rating={player.statistics.rating}/>
+                <div className={styles.profileRating}>
+                    <PlayerCardRating rating={player.statistics.rating}/>
+                </div>
             </div>
         </section>
     );

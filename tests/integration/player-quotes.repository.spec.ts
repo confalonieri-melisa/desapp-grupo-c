@@ -11,6 +11,7 @@ import { ValuationRepository } from "@/backend/repositories/valuation.repository
 
 const playerId = "00000000-0000-4000-8000-000000000301";
 const versionId = "00000000-0000-4000-8000-000000000302";
+const strategyVersion = "99.0.0";
 const firstQuoteId = "00000000-0000-4000-8000-000000000303";
 const latestQuoteId = "00000000-0000-4000-8000-000000000304";
 const sameDateQuoteId = "00000000-0000-4000-8000-000000000305";
@@ -43,7 +44,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       await db.insert(valuationStrategyVersions).values({
         id: versionId,
         strategyCode: "INDIVIDUAL_PERFORMANCE",
-        version: "1.0.0",
+        version: strategyVersion,
         configuration: {},
       });
       await db.insert(playerQuotes).values([
@@ -88,7 +89,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       expect(rows[0]?.id).toBe(sameDateQuoteId);
       expect(rows[1]?.id).toBe(latestQuoteId);
       expect(rows[1]?.strategyCode).toBe("INDIVIDUAL_PERFORMANCE");
-      expect(rows[1]?.strategyVersion).toBe("1.0.0");
+      expect(rows[1]?.strategyVersion).toBe(strategyVersion);
       expect(rows[2]?.id).toBe(firstQuoteId);
     });
 
@@ -106,7 +107,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       await db.insert(valuationStrategyVersions).values({
         id: versionId,
         strategyCode: "INDIVIDUAL_PERFORMANCE",
-        version: "1.0.0",
+        version: strategyVersion,
         configuration: {},
       });
       await db.insert(playerQuotes).values([

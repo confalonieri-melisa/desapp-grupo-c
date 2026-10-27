@@ -1,0 +1,436 @@
+.section {
+  min-width: 0;
+  padding: clamp(1.1rem, 2.5vw, 2rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  color: var(--crimson-violet);
+}
+
+.sectionHeading,
+.subsectionHeading,
+.panelHeading,
+.historyLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.sectionHeading {
+  align-items: end;
+  padding-bottom: 1.25rem;
+}
+
+.sectionHeading > p,
+.helper,
+.quoteTime,
+.strategy,
+.queryStatus {
+  color: var(--dusty-violet);
+  font-size: 0.86rem;
+}
+
+.eyebrow {
+  color: var(--rose-punch);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.section h2 {
+  margin-top: 0.15rem;
+  font-size: clamp(1.35rem, 2vw, 1.65rem);
+  line-height: 1.2;
+}
+
+.section h3 {
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.topGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.currentPanel,
+.datePanel {
+  min-width: 0;
+  padding: clamp(1rem, 2vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.currentPanel {
+  background: linear-gradient(145deg, #fff6fa, #fff 72%);
+  border-color: #efd9e4;
+}
+
+.datePanel {
+  background: #fff;
+}
+
+.currentBadge,
+.count {
+  flex: none;
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: #f8e5ed;
+  color: #842a55;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.demoBadge {
+  display: inline-block;
+  width: fit-content;
+  margin-bottom: 0.4rem;
+  padding: 0.2rem 0.45rem;
+  border: 1px solid #ddb862;
+  border-radius: 5px;
+  background: #fff5d8;
+  color: #6d4b0b;
+  font-size: 0.67rem;
+  font-weight: 800;
+}
+
+.state {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
+}
+
+.quote {
+  min-width: 0;
+}
+
+.featured {
+  padding-top: 1.35rem;
+}
+
+.quoteValue {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.5rem;
+}
+
+.quoteValue strong {
+  color: var(--crimson-violet);
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.quoteValue span {
+  color: var(--dusty-violet);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.featured .quoteValue {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.featured .quoteValue strong {
+  color: #8b174f;
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+}
+
+.featured .quoteValue span {
+  font-size: 0.9rem;
+}
+
+.quoteTime {
+  margin-top: 0.7rem;
+  overflow-wrap: anywhere;
+}
+
+.quoteTime span {
+  color: var(--dusty-violet);
+}
+
+.quoteTime time {
+  color: var(--crimson-violet);
+  font-weight: 600;
+}
+
+.quoteFooter {
+  min-width: 0;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.strategy {
+  overflow-wrap: anywhere;
+}
+
+.strategy > span:first-child {
+  color: var(--dusty-violet);
+  font-weight: 600;
+}
+
+.version {
+  white-space: nowrap;
+}
+
+.datePanel .helper {
+  margin-top: 0.75rem;
+  max-width: 40ch;
+}
+
+.dateForm {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 1.15rem;
+}
+
+.dateForm label {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.dateControls {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dateControls input {
+  flex: 1 1 150px;
+  min-width: 0;
+}
+
+.section input,
+.section button {
+  min-height: 2.65rem;
+  max-width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid #d8cbd5;
+  border-radius: 8px;
+  font: inherit;
+}
+
+.section button {
+  cursor: pointer;
+  background: var(--crimson-violet);
+  border-color: var(--crimson-violet);
+  color: #fff;
+  font-size: 0.83rem;
+  font-weight: 700;
+}
+
+.section button:hover {
+  background: #70204e;
+}
+
+.section .clearButton {
+  background: transparent;
+  color: var(--crimson-violet);
+}
+
+.section .clearButton:hover {
+  background: #f8e5ed;
+}
+
+.section :is(button, input, summary, a):focus-visible {
+  outline: 3px solid var(--rose-punch);
+  outline-offset: 3px;
+}
+
+.errorText {
+  margin-top: 0.5rem;
+  color: #a32032;
+  font-size: 0.8rem;
+}
+
+.queryStatus:not(:empty),
+.dateResult {
+  margin-top: 1rem;
+}
+
+.queryStatus button {
+  margin-top: 0.6rem;
+}
+
+.dateResult {
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border);
+}
+
+.resultLabel {
+  color: #842a55;
+  font-size: 0.77rem;
+  font-weight: 700;
+}
+
+.result .quoteMain {
+  margin-top: 0.5rem;
+}
+
+.history {
+  margin-top: 1.6rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.subsectionHeading {
+  align-items: end;
+  margin-bottom: 0.8rem;
+}
+
+.subsectionHeading h3 {
+  margin-top: 0.15rem;
+}
+
+.count {
+  background: #f4f1f5;
+  color: var(--dusty-violet);
+}
+
+.empty {
+  padding: 1rem;
+  border: 1px dashed #dacbd7;
+  border-radius: 10px;
+  color: var(--dusty-violet);
+  font-size: 0.88rem;
+}
+
+.historyList {
+  list-style: none;
+  padding: 0;
+}
+
+.historyItem {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.historyMarker {
+  position: relative;
+  margin-top: 1.4rem;
+}
+
+.historyMarker::before {
+  content: "";
+  display: block;
+  width: 11px;
+  height: 11px;
+  border: 3px solid var(--rose-punch);
+  border-radius: 50%;
+  background: white;
+}
+
+.historyItem:not(:last-child) .historyMarker::after {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: 5px;
+  bottom: -0.65rem;
+  width: 1px;
+  background: #dfd0dc;
+}
+
+.historyContent {
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.historyLabel h4 {
+  font-size: 0.79rem;
+  color: #842a55;
+}
+
+.compact .quoteMain {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0 1rem;
+  margin-top: 0.55rem;
+}
+
+.compact .quoteTime {
+  margin-top: 0.3rem;
+}
+
+.compact .quoteFooter {
+  margin-top: 0.55rem;
+  padding-top: 0.5rem;
+}
+
+.explanation {
+  min-width: 0;
+  margin-top: 0.7rem;
+  font-size: 0.81rem;
+}
+
+.compact .explanation {
+  margin-top: 0.45rem;
+}
+
+.explanation summary {
+  width: fit-content;
+  cursor: pointer;
+  color: #9d285d;
+  font-weight: 700;
+}
+
+.scores {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.individualScores {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.scores > div {
+  min-width: 0;
+  padding: 0.6rem;
+  border-radius: 8px;
+  background: #f9f3f7;
+}
+
+.scores dt {
+  color: var(--dusty-violet);
+  overflow-wrap: anywhere;
+}
+
+.scores dd {
+  margin: 0.25rem 0 0;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 780px) {
+  .topGrid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .sectionHeading { align-items: start; flex-direction: column; }
+  .sectionHeading > p { font-size: 0.8rem; }
+  .currentPanel, .datePanel { padding: 1rem; }
+  .dateControls input { flex-basis: 100%; }
+  .scores, .individualScores { grid-template-columns: 1fr; }
+  .historyContent { padding: 0.8rem; }
+  .compact .quoteValue { display: grid; }
+}

@@ -38,6 +38,21 @@
   height: 150px;
 }
 
+.profileRating > div {
+  min-width: 88px;
+  min-height: 88px;
+  padding: 0.6rem;
+}
+
+.profileRating > div strong {
+  font-size: 1.85rem;
+}
+
+.profileRating > div span {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .eyebrow {
   color: var(--rose-punch);
   font-size: 0.8rem;
