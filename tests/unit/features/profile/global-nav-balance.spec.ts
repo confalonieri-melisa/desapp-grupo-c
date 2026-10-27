@@ -12,8 +12,10 @@ vi.mock("react", async (importOriginal) => ({
   useEffect: (effect: () => void | (() => void), deps?: unknown[]) => harness.useEffect(effect, deps),
   useCallback: (callback: unknown) => callback,
 }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: mocks.replace }) }));
-vi.mock("@/frontend/context/AuthContext", () => ({ useAuth: () => ({ token: mocks.token, logout: mocks.logout }) }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/players", useRouter: () => ({ replace: mocks.replace }) }));
+vi.mock("@/frontend/context/AuthContext", () => ({ useAuth: () => ({
+  token: mocks.token, logout: mocks.logout, isAuthenticated: !!mocks.token, isHydrated: true,
+}) }));
 vi.mock("@/frontend/services/client/player-trading.service", () => ({ getPortfolio: mocks.getPortfolio }));
 
 import GlobalNav from "@/frontend/components/GlobalNav/GlobalNav";

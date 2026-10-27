@@ -38,11 +38,10 @@
   gap: 1.25rem;
 }
 
-.activeLink {
-  color: var(--watermelon);
+.navLink {
+  color: var(--crimson-violet);
   font-weight: 700;
   text-decoration: none;
-  border-bottom: 2px solid var(--watermelon);
   padding: 0.5rem 0;
 }
 
@@ -59,6 +58,11 @@
 .balanceLabel { color: var(--dusty-violet); }
 .balance strong { font-size: 0.9rem; }
 
+.navLink[aria-current="page"] {
+  color: var(--watermelon);
+  border-bottom: 2px solid var(--watermelon);
+}
+
 .logoutButton {
   width: auto;
   min-width: 0;
@@ -66,7 +70,7 @@
   border: none;
 }
 
-.activeLink:focus-visible,
+.navLink:focus-visible,
 .brand:focus-visible {
   outline: 2px solid var(--rose-punch);
   outline-offset: 4px;
@@ -83,6 +87,7 @@
 
   .actions {
     width: 100%;
-    justify-content: space-between;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 }
