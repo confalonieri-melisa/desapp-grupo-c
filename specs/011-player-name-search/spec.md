@@ -1,7 +1,7 @@
 # Feature Specification: búsqueda de jugadores por nombre
 
 **Feature Branch**: `feature/011-player-name-search`
-**PR Base**: `feature/009-player-token-trading-frontend`
+**PR Base**: `feature/010-transaction-history-frontend`
 **Status**: Implemented for review
 
 ## Objective
