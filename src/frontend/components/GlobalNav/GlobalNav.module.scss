@@ -8,10 +8,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
-  padding: 20px 30px;
-  background: rgb(248 241 241 / 0.82);
-  box-shadow: 0 12px 30px rgb(116 19 72 / 12%);
+  gap: 1.5rem;
+  padding: 12px 24px;
+  background: rgb(255 249 251 / 0.9);
+  box-shadow: 0 8px 24px rgb(116 19 72 / 10%);
   backdrop-filter: blur(8px);
 }
 
@@ -35,14 +35,14 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1.5rem;
 }
 
 .navLink {
   color: var(--crimson-violet);
   font-weight: 700;
   text-decoration: none;
-  padding: 0.5rem 0;
+  padding: 0.4rem 0;
 }
 
 .balance {

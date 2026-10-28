@@ -11,6 +11,7 @@ import { usePlayerRanking } from '@/frontend/features/ranking/hooks/usePlayerRan
 import type { RankingSelection } from '@/frontend/features/ranking/ranking';
 import { parseRankingSelection, serializeRankingSelection } from '@/frontend/features/ranking/utils/ranking-url';
 import { formatStrategy } from '@/frontend/features/profile/utils/player-quotes';
+import { ListFilter } from 'lucide-react';
 import styles from './RankingPage.module.scss';
 
 function RankingPageContent() {
@@ -71,7 +72,7 @@ function RankingPageContent() {
         </div>}
         {ranking.phase === 'empty' && !needsPageCorrection && <p role="status">No hay jugadores rankeados.</p>}
         {ranking.phase === 'content' && ranking.data && !needsPageCorrection && <>
-          <p className={styles.strategy}>Estrategia activa: {formatStrategy(ranking.data.strategyCode)} · versión {ranking.data.strategyVersion}</p>
+          <div className={styles.strategy}><span><ListFilter size={15} aria-hidden="true" />Estrategia activa: {formatStrategy(ranking.data.strategyCode)} · versión {ranking.data.strategyVersion}</span>{ranking.data.players[0] && <small>Última actualización: {new Intl.DateTimeFormat('es-AR', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(ranking.data.players[0].calculatedAt))} UTC</small>}</div>
           <RankingList players={ranking.data.players} />
           <RankingPagination
             pagination={ranking.data.pagination}

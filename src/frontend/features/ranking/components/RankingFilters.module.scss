@@ -1,10 +1,12 @@
-.panel { display: grid; grid-template-columns: minmax(9rem, 1fr) minmax(15rem, 1.5fr) minmax(9rem, 1fr) auto; gap: 1rem; align-items: end; padding: 1.25rem; border-radius: 1rem; background: #f8f1f6; }
-.panel label, .teamForm { display: grid; gap: 0.4rem; font-weight: 600; color: var(--crimson-violet); }
-.panel select, .panel input { width: 100%; min-height: 2.75rem; padding: 0.5rem 0.7rem; border: 1px solid #c9afc0; border-radius: 0.5rem; background: white; color: inherit; font: inherit; }
-.panel button { min-height: 2.75rem; padding: 0.5rem 0.9rem; border: 0; border-radius: 0.5rem; background: var(--crimson-violet); color: white; font: inherit; font-weight: 600; cursor: pointer; }
-.panel :is(button, input, select):focus-visible { outline: 2px solid var(--rose-punch); outline-offset: 2px; }
-.teamInput { display: flex; gap: 0.5rem; }
-.teamInput button { white-space: nowrap; }
-.teamInput input { min-width: 0; }
-@media (max-width: 900px) { .panel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 560px) { .panel { grid-template-columns: 1fr; } .teamInput { flex-wrap: wrap; } }
+.panel { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(175px, 1.3fr) minmax(140px, 1.1fr) auto; gap: 16px; align-items: end; padding: 17px; border: 1px solid #f5eaf0; border-radius: 14px; background: rgb(255 252 255 / 79%); box-shadow: 0 9px 28px rgb(96 45 79 / 8%); }
+.panel label, .teamForm { display: grid; gap: 7px; min-width: 0; color: #4b213e; font-size: 13px; font-weight: 700; }
+.labelText { display: flex !important; align-items: center; gap: 5px !important; } .labelText svg { color: #fa3e68; }
+.panel select, .panel input { width: 100%; min-width: 0; height: 42px; padding: 8px 11px; border: 1px solid #f1e9f0; border-radius: 6px; background: white; box-shadow: 0 4px 12px rgb(67 23 47 / 5%); color: #5b4b67; font-size: 13px; font-weight: 400; }
+.panel select { cursor: pointer; } .panel input::placeholder { color: #9a90a4; }
+.teamInput { position: relative; display: flex; align-items: center; } .teamInput > svg { position: absolute; left: 11px; color: #684f75; } .teamInput input { padding-left: 34px; padding-right: 65px; }
+.teamInput button { position: absolute; right: 3px; height: 34px; padding: 0 9px; border: 0; border-radius: 5px; background: #fff1f5; color: #ec4268; font-size: 12px; font-weight: 700; cursor: pointer; }
+.clear { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 42px; padding: 0 14px; border: 1px solid #ff486b; border-radius: 99px; background: white; color: #f13861; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.clear:hover, .teamInput button:hover { background: #ffe7ee; }
+.panel :is(button, input, select):focus-visible { outline: 2px solid #f14770; outline-offset: 2px; }
+@media (max-width: 780px) { .panel { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 480px) { .panel { grid-template-columns: 1fr; } .clear { justify-self: start; } }
