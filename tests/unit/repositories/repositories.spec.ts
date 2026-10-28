@@ -7,6 +7,8 @@ import { User } from "@/backend/models/User";
 import { PlayerRepository } from "@/backend/repositories/player.repository";
 import { UserRepository } from "@/backend/repositories/user.repository";
 import type { Database } from "@/backend/db";
+import { PgDialect } from "drizzle-orm/pg-core";
+import type { SQL } from "drizzle-orm";
 
 describe("persistence domain mappings", () => {
   it("maps a user row to the User aggregate", () => {
@@ -59,7 +61,7 @@ function selectDatabase(rows: unknown[]): Database {
 function playerSearchDatabase(
   playerRows: unknown[],
   total: number,
-): { database: Database; orderBy: ReturnType<typeof vi.fn> } {
+): { database: Database; orderBy: ReturnType<typeof vi.fn>; where: ReturnType<typeof vi.fn> } {
   const dataQuery = {
     from: vi.fn(() => dataQuery),
     where: vi.fn(() => dataQuery),
@@ -83,6 +85,7 @@ function playerSearchDatabase(
     }),
     } as unknown as Database,
     orderBy: dataQuery.orderBy,
+    where: dataQuery.where,
   };
 }
 
@@ -238,6 +241,16 @@ describe("PlayerRepository", () => {
       expect.anything(),
       expect.anything(),
     );
+  });
+
+  it("applies a case-insensitive name condition before paginating", async () => {
+    const { database, where } = playerSearchDatabase([], 0);
+    await new PlayerRepository(database).findMany({ name: "Mbappé" }, { page: 2, limit: 12 });
+    const condition = where.mock.calls[0]?.[0] as SQL;
+    const query = new PgDialect().sqlToQuery(condition);
+    expect(query.sql.toLowerCase()).toContain('ilike');
+    expect(query.params).toContain('%Mbappé%');
+    expect(where).toHaveBeenCalledTimes(1);
   });
 
   it("returns null when a player id does not exist", async () => {

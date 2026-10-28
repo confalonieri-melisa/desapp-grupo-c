@@ -12,6 +12,7 @@ describe("player catalog URL filters", () => {
     expect(parsePlayerCatalogFilters(new URLSearchParams(
       "league=BUNDESLIGA&team=Schalke&position=DEFENDER",
     ))).toEqual({
+      name: "",
       league: League.BUNDESLIGA,
       team: "Schalke",
       position: Position.DEFENDER,
@@ -58,5 +59,12 @@ describe("player catalog URL filters", () => {
   it("serializes the page only when it is greater than one", () => {
     expect(serializePlayerCatalogFilters(emptyPlayerCatalogFilters, 1)).toBe("");
     expect(serializePlayerCatalogFilters(emptyPlayerCatalogFilters, 3)).toBe("page=3");
+  });
+
+  it("keeps a name search in the URL and combines it with pagination", () => {
+    const filters = parsePlayerCatalogFilters(new URLSearchParams("name=%C3%81lvaro+Valles&league=LA_LIGA"));
+    expect(filters.name).toBe("Álvaro Valles");
+    expect(serializePlayerCatalogFilters(filters, 2)).toBe("name=%C3%81lvaro+Valles&league=LA_LIGA&page=2");
+    expect(serializePlayerCatalogFilters({ ...emptyPlayerCatalogFilters, name: "   " })).toBe("");
   });
 });

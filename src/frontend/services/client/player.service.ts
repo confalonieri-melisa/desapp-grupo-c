@@ -75,6 +75,10 @@ function getQueryString(filters: PlayerCatalogFilters, page: number): string {
     limit: "12",
   });
 
+  if (filters.name?.trim()) {
+    query.set("name", filters.name.trim());
+  }
+
   if (filters.league) {
     query.set("league", filters.league);
   }

@@ -62,6 +62,15 @@ describe("PlayerService", () => {
     });
   });
 
+  it("normalizes a name search before querying the paginated repository", async () => {
+    const repository = { findMany: vi.fn().mockResolvedValue({ data: [player], total: 1 }) } as unknown as PlayerRepository;
+    await new PlayerService(repository).catalog({ name: "  Mbappé  ", page: 2, limit: 12 });
+    expect(repository.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "Mbappé" }),
+      { page: 2, limit: 12 },
+    );
+  });
+
   it("returns a player by id", async () => {
     const repository = { findById: vi.fn().mockResolvedValue(player) } as unknown as PlayerRepository;
     const service = new PlayerService(repository);

@@ -14,6 +14,7 @@ export interface CatalogPlayer {
 }
 
 export interface PlayerCatalogFilters {
+    name?: string;
     league: League | '';
     team: string;
     position: Position | '';

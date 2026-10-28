@@ -29,6 +29,7 @@ export class PlayerService {
     };
     const result = await this.playerRepository.findMany(
       {
+        ...(criteria.name ? { name: criteria.name.trim() } : {}),
         league: criteria.league,
         team: criteria.team?.trim() || undefined,
         position: criteria.position,

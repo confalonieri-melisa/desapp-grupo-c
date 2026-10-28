@@ -91,13 +91,20 @@ paths:
       summary: Catálogo de Jugadores
       description: >
         Retorna la lista paginada de jugadores de las 5 ligas europeas oficiales.
-        Permite filtrar de manera combinada por liga, equipo y posición.
+        Permite filtrar de manera combinada por nombre, liga, equipo y posición.
         Requiere autenticación JWT.
       tags:
         - Players
       security:
         - BearerAuth: []
       parameters:
+        - name: name
+          in: query
+          required: false
+          description: Búsqueda parcial de nombre de jugador, sin distinguir mayúsculas
+          schema:
+            type: string
+            minLength: 1
         - name: league
           in: query
           required: false

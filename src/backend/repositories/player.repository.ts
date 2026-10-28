@@ -11,6 +11,7 @@ export interface PlayerPersistenceData {
 }
 
 export interface PlayerSearchFilters {
+  name?: string;
   league?: League;
   team?: string;
   position?: Position;
@@ -130,6 +131,10 @@ export class PlayerRepository {
 
   private buildSearchConditions(filters: PlayerSearchFilters): SQL | undefined {
     const conditions: SQL[] = [];
+
+    if (filters.name) {
+      conditions.push(ilike(players.name, `%${filters.name}%`));
+    }
 
     if (filters.league) {
       conditions.push(eq(players.league, filters.league));

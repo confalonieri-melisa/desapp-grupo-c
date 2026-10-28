@@ -59,6 +59,16 @@ describe("player routes", () => {
     expect(getPlayers).toHaveBeenCalledWith({ page: "2", limit: "10" });
   });
 
+  it("forwards a name search with pagination", async () => {
+    const response = await getPlayersRoute(
+      new Request("http://localhost/api/players?name=Mbapp&page=2&limit=12", {
+        headers: { authorization: "Bearer token" },
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(getPlayers).toHaveBeenCalledWith({ name: "Mbapp", page: "2", limit: "12" });
+  });
+
   it("authenticates and delegates the player detail request", async () => {
     const response = await getPlayerRoute(
       new Request("http://localhost/api/players/00000000-0000-4000-8000-000000000001", {
