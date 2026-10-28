@@ -1,0 +1,10 @@
+.panel { width: 100%; max-width: 450px; min-width: 0; padding: clamp(1rem, 2vw, 1.5rem); border: 1px solid #efd9e4; border-radius: var(--radius); background: linear-gradient(145deg, #fff6fa, #fff 72%); box-shadow: var(--shadow); }
+.panel h2 { margin: 0 0 .75rem; font-size: 1.1rem; }
+.panel button { margin-top: .6rem; padding: .45rem .7rem; border: 1px solid var(--crimson-violet); border-radius: 8px; background: var(--crimson-violet); color: white; font: inherit; cursor: pointer; }
+.panel button:focus-visible { outline: 3px solid var(--rose-punch); outline-offset: 3px; }
+.state { margin: .5rem 0 0; color: var(--dusty-violet); font-size: .86rem; }
+.content { display: grid; grid-template-columns: minmax(0, 1fr); gap: .5rem; }
+.content svg { display: block; width: 100%; height: 85px; }
+.up { color: var(--watermelon); }
+.down { color: #b94a73; }
+.change { margin: 0; color: var(--crimson-violet); font-size: .78rem; font-weight: 700; }

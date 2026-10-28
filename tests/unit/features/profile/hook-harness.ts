@@ -7,6 +7,13 @@ export function createHookHarness() {
   let pending: (() => void)[] = [];
   const equal = (a?: unknown[], b?: unknown[]) => !!a && !!b && a.length === b.length && a.every((x, i) => Object.is(x, b[i]));
   return {
+    useCallback<T extends (...args: never[]) => unknown>(callback: T, deps: unknown[]): T {
+      const i = cursor++;
+      const previous = slots[i] as { callback: T; deps: unknown[] } | undefined;
+      if (previous && equal(previous.deps, deps)) return previous.callback;
+      slots[i] = { callback, deps };
+      return callback;
+    },
     useState<T>(initial: T | (() => T)) {
       const i = cursor++;
       if (!(i in slots)) slots[i] = typeof initial === "function" ? (initial as () => T)() : initial;

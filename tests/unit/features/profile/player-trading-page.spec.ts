@@ -18,12 +18,13 @@ vi.mock("@/frontend/features/profile/components/PlayerQuotesSection/PlayerQuotes
 vi.mock("@/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection", () => ({ default: function PlayerTradingSection() {} }));
 vi.mock("@/frontend/features/profile/components/PlayerProfileHeader/PlayerProfileHeader", () => ({ default: function PlayerProfileHeader() {} }));
 vi.mock("@/frontend/features/profile/components/PlayerStatSection/PlayerStatSection", () => ({ default: function PlayerStatSection() {} }));
-vi.mock("@/frontend/features/profile/components/PlayerInformation/PlayerInformation", () => ({ default: function PlayerInformation() {} }));
+vi.mock("@/frontend/features/profile/components/QuoteTrend/QuoteTrendCard", () => ({ default: function QuoteTrendCard() {} }));
 vi.mock("@/frontend/components/ui/PageContainer/PageContainer", () => ({ default: function PageContainer() {} }));
 
 import PlayerProfilePage from "@/app/players/[id]/page";
 import PlayerQuotesSection from "@/frontend/features/profile/components/PlayerQuotesSection/PlayerQuotesSection";
 import PlayerTradingSection from "@/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection";
+import QuoteTrendCard from "@/frontend/features/profile/components/QuoteTrend/QuoteTrendCard";
 
 type ElementNode = { type?: unknown; props?: { children?: unknown; [key: string]: unknown } };
 function elements(node: unknown): ElementNode[] {
@@ -50,6 +51,8 @@ describe("player profile quote ownership", () => {
     const section = elements(tree).find((element) => element.type === PlayerQuotesSection);
     expect(section?.props?.quotes).toBe(mocks.quotes.mock.results[0].value);
     expect(section?.props?.quotes).toHaveProperty("current.quoteValue", 12);
+    const trendCard = elements(tree).find((element) => element.type === QuoteTrendCard);
+    expect(trendCard?.props).toMatchObject({ quotes: mocks.quotes.mock.results[0].value, playerName: "Jugador A" });
     const tradingSection = elements(tree).find((element) => element.type === PlayerTradingSection);
     expect(mocks.trading).toHaveBeenCalledOnce();
     expect(mocks.trading).toHaveBeenCalledWith("token-a", "player-a", expect.any(Function));

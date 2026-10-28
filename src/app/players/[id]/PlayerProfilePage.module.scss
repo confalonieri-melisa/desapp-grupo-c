@@ -15,7 +15,14 @@
 .overview {
   display: grid;
   grid-template-columns: minmax(0, 1.55fr) minmax(280px, 0.9fr);
+  align-items: start;
   gap: 1.25rem;
+}
+
+.overviewAside {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
 }
 
 .state {
