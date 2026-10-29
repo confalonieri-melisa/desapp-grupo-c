@@ -21,7 +21,8 @@ describe("player trend card", () => {
     const newer = { ...quote, quoteValue: 12, calculatedAt: "2026-10-20T10:00:00.000Z" };
     const html = renderToStaticMarkup(createElement(QuoteTrendCard, { quotes: quotesWith([newer, older]), playerName: "Jugador A" }));
     expect(html).toContain("Valor del jugador");
-    expect(html).toContain('points="8,60 232,12"');
+    expect(html).toContain("Créditos por token");
+    expect(html).toContain("Evolución de Jugador A: 8,0000 créditos por token el 19/10/2026 a 12,0000 créditos por token el 20/10/2026");
   });
 
   it("shows an honest empty state in the profile", () => {

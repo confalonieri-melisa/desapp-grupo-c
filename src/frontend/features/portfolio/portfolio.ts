@@ -31,5 +31,5 @@ export function formatNumber(value: number): string {
 }
 
 export function formatCredits(value: number | null): string {
-  return value === null ? "No disponible" : `${formatNumber(value)} créditos`;
+  return value === null ? "No disponible" : `${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(value)} créditos`;
 }

@@ -28,7 +28,8 @@ describe("portfolio page", () => {
     expect(html).toContain("Jugador A");
     expect(html).not.toContain("Evolución del token");
     expect(html).not.toContain("Valor de cada jugador");
-    expect(html).toContain("Resultado no realizado por jugador");
+    expect(html).toContain("Ganancia o pérdida por jugador");
+    expect(html).not.toContain("Resultado no realizado");
   });
 
   it("shows an empty portfolio with zero holdings and the existing balance", () => {

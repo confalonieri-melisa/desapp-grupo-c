@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { derivePortfolioSummary } from "@/frontend/features/portfolio/portfolio";
+import { derivePortfolioSummary, formatCredits } from "@/frontend/features/portfolio/portfolio";
 import type { PortfolioItem } from "@/frontend/services/client/player-trading.service";
 
 const item = (value: number | null, pnl: number | null): PortfolioItem => ({
@@ -8,6 +8,11 @@ const item = (value: number | null, pnl: number | null): PortfolioItem => ({
 });
 
 describe("portfolio totals", () => {
+  it("shows credit amounts with at most two decimal places", () => {
+    expect(formatCredits(786.1437)).toBe("786,14 créditos");
+    expect(formatCredits(-17.656)).toBe("-17,66 créditos");
+    expect(formatCredits(100)).toBe("100 créditos");
+  });
   it("keeps zero totals for an empty portfolio and adds the balance to net worth", () => {
     expect(derivePortfolioSummary({ creditBalance: 0, items: [] })).toEqual({
       holdingsValue: { value: 0, excludedCount: 0, status: "complete" },

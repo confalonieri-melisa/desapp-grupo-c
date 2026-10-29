@@ -19,7 +19,8 @@ describe("unrealized result chart", () => {
     expect(html).toContain("Sin variación");
     expect(html).toContain("unknown: sin cotización");
     expect(html).toContain('href="/players/gain"');
-    expect(html).toContain("Ver jugador y vender");
+    expect(html).toContain("Ver jugador");
+    expect(html).not.toContain("Ver jugador y vender");
     expect(html).toMatch(/class="[^"]*positiveBar[^"]*"/);
     expect(html).toMatch(/class="[^"]*negativeBar[^"]*"/);
     expect(html.indexOf("gain")).toBeLessThan(html.indexOf("loss"));
@@ -31,7 +32,7 @@ describe("unrealized result chart", () => {
       { playerId: "flat", quantity: 1, averagePurchasePrice: 1, currentQuoteValue: 1, currentValue: 1, unrealizedPnl: 0 },
     ] };
     const html = renderToStaticMarkup(createElement(PortfolioPnlChart, { snapshot, names: {} }));
-    expect(html).toContain("Todos los resultados disponibles son cero");
+    expect(html).toContain("La ganancia o pérdida de todos los jugadores disponibles es cero");
     expect(html).toContain('href="/players/flat"');
     expect(html).toContain("pnlTrack");
     expect(html).toContain("Ganancia");
@@ -42,7 +43,7 @@ describe("unrealized result chart", () => {
       { playerId: "missing", quantity: 1, averagePurchasePrice: 1, currentQuoteValue: null, currentValue: null, unrealizedPnl: null },
     ] };
     const html = renderToStaticMarkup(createElement(PortfolioPnlChart, { snapshot, names: {} }));
-    expect(html).toContain("No hay resultados disponibles para comparar.");
+    expect(html).toContain("No hay datos de ganancia o pérdida para comparar.");
     expect(html).toContain('href="/players/missing"');
     expect(html).not.toContain("pnlTrack");
   });

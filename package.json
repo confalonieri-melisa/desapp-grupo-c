@@ -35,6 +35,7 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-icons": "^5.7.0",
+    "recharts": "^3.10.1",
     "sass": "^1.99.0",
     "swagger-ui-dist": "^5.32.15",
     "yaml": "^2.9.1",

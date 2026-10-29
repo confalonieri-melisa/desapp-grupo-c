@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getPortfolio, type PortfolioSnapshot } from "@/frontend/services/client/player-trading.service";
-import { getPlayer } from "@/frontend/services/client/player.service";
+import { getPlayer, type PlayerApiDetail } from "@/frontend/services/client/player.service";
 import { PORTFOLIO_UPDATED_EVENT, type PortfolioUpdate } from "@/frontend/services/client/portfolio-events";
 
 type Phase = "initial-loading" | "content" | "empty" | "refreshing" | "initial-error" | "stale-error";
-type DashboardState = { token: string | null; snapshot: PortfolioSnapshot | null; names: Record<string, string>; phase: Phase; error: string | null };
-const initial = (token: string | null = null): DashboardState => ({ token, snapshot: null, names: {}, phase: "initial-loading", error: null });
+type DashboardState = { token: string | null; snapshot: PortfolioSnapshot | null; names: Record<string, string>; players: Record<string, PlayerApiDetail>; phase: Phase; error: string | null };
+const initial = (token: string | null = null): DashboardState => ({ token, snapshot: null, names: {}, players: {}, phase: "initial-loading", error: null });
 
 export function usePortfolioDashboard(token: string | null, onUnauthorized: () => void) {
   const [state, setState] = useState<DashboardState>(() => initial(token));
@@ -28,7 +28,7 @@ export function usePortfolioDashboard(token: string | null, onUnauthorized: () =
       void getPlayer(currentToken, id, controller.signal).then((player) => {
         if (identity.current !== currentToken || controller.signal.aborted) return;
         knownNames.current[id] = player.name;
-        setState((old) => old.token === currentToken ? { ...old, names: { ...old.names, [id]: player.name } } : old);
+        setState((old) => old.token === currentToken ? { ...old, names: { ...old.names, [id]: player.name }, players: { ...old.players, [id]: player } } : old);
       }).catch(() => { /* The identifier remains visible. */ }).finally(() => pendingNames.current.delete(id));
     }
   }, []);
@@ -40,11 +40,11 @@ export function usePortfolioDashboard(token: string | null, onUnauthorized: () =
     portfolioController.current = controller;
     const request = ++generation.current;
     setState((old) => ({ token, snapshot: old.token === token ? old.snapshot : null,
-      names: old.token === token ? old.names : {},
+      names: old.token === token ? old.names : {}, players: old.token === token ? old.players : {},
       phase: old.token === token && old.snapshot ? "refreshing" : "initial-loading", error: null }));
     void getPortfolio(token, controller.signal).then((snapshot) => {
       if (controller.signal.aborted || identity.current !== token || generation.current !== request) return;
-      setState((old) => ({ token, snapshot, names: old.token === token ? old.names : {},
+      setState((old) => ({ token, snapshot, names: old.token === token ? old.names : {}, players: old.token === token ? old.players : {},
         phase: snapshot.items.length ? "content" : "empty", error: null }));
       resolveNames(snapshot, token);
     }).catch((error: unknown) => {
@@ -88,7 +88,7 @@ export function usePortfolioDashboard(token: string | null, onUnauthorized: () =
         setState((old) => old.token === token ? { ...old, phase: old.snapshot ? "refreshing" : "initial-loading", error: null } : old);
       } else if (update.status === "success" && update.snapshot) {
         const snapshot = update.snapshot;
-        setState((old) => ({ token, snapshot, names: old.token === token ? old.names : {},
+        setState((old) => ({ token, snapshot, names: old.token === token ? old.names : {}, players: old.token === token ? old.players : {},
           phase: snapshot.items.length ? "content" : "empty", error: null }));
         resolveNames(snapshot, token);
       } else if (update.status === "error") {
