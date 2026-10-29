@@ -6,7 +6,6 @@ import {useCallback, useEffect} from "react";
 import {useParams, useRouter} from "next/navigation";
 import PageContainer from "@/frontend/components/ui/PageContainer/PageContainer";
 import {useAuth} from "@/frontend/context/AuthContext";
-import PlayerInformation from "@/frontend/features/profile/components/PlayerInformation/PlayerInformation";
 import QuoteTrendCard from "@/frontend/features/profile/components/QuoteTrend/QuoteTrendCard";
 import PlayerQuotesSection from "@/frontend/features/profile/components/PlayerQuotesSection/PlayerQuotesSection";
 import PlayerTradingSection from "@/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection";
@@ -72,10 +71,7 @@ export default function PlayerProfilePage() {
                                 statistics={player.statistics}
                                 items={summaryStatistics}
                             />
-                            <div className={styles.overviewAside}>
-                                <PlayerInformation player={player}/>
-                                <QuoteTrendCard quotes={quotes} playerName={player.name}/>
-                            </div>
+                            <QuoteTrendCard quotes={quotes} playerName={player.name}/>
                         </div>
                         <PlayerStatSection
                             title="Estadísticas detalladas"
