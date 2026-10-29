@@ -1,0 +1,10 @@
+.panel { display: flex; flex-direction: column; align-self: start; width: 100%; max-height: 320px; min-width: 0; padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); }
+.panel h2 { display: flex; align-items: center; gap: .45rem; margin: 0 0 .75rem; font-size: 1.1rem; }
+.panel h2 svg { color: var(--rose-punch); }
+.panel button { margin-top: .6rem; padding: .45rem .7rem; border: 1px solid var(--crimson-violet); border-radius: 8px; background: var(--crimson-violet); color: white; font: inherit; cursor: pointer; }
+.panel button:focus-visible { outline: 3px solid var(--rose-punch); outline-offset: 3px; }
+.state { margin: .5rem 0 0; color: var(--dusty-violet); font-size: .86rem; }
+.content { display: flex; flex-direction: column; min-width: 0; }
+.chartMeta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .15rem .75rem; margin: .1rem 0 .35rem; }
+.chartLabel, .chartCount { color: var(--dusty-violet); font-size: .8rem; }
+.chart { width: 100%; height: 170px; flex: none; }

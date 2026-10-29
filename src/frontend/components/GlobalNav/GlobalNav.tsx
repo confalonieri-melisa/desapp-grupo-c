@@ -13,7 +13,7 @@ import styles from './GlobalNav.module.scss';
 export default function GlobalNav() {
     const router = useRouter();
     const pathname = usePathname();
-    const { logout, token, isAuthenticated, isHydrated } = useAuth();
+    const { logout, token, user, isAuthenticated, isHydrated } = useAuth();
     const [creditBalance, setCreditBalance] = useState<number | null>(null);
     const [balanceToken, setBalanceToken] = useState<string | null>(null);
     const [isLoadingBalance, setIsLoadingBalance] = useState(true);
@@ -79,6 +79,9 @@ export default function GlobalNav() {
                 <Link className={styles.navLink} href="/transactions" aria-current={pathname === '/transactions' ? 'page' : undefined}>
                     Mi historial
                 </Link>
+                {user?.role === 'INVESTOR' && <Link className={styles.navLink} href="/portfolio" aria-current={pathname === '/portfolio' ? 'page' : undefined}>
+                    Mi portfolio
+                </Link>}
             </div>}
             {isHydrated && isAuthenticated && <div className={styles.balance} aria-live="polite">
                 <Coins aria-hidden="true" size={18}/>
