@@ -19,7 +19,7 @@ export default function QuoteSummary({ quote, context, variant = "compact" }: {
       </p>
     </div>
     <div className={styles.quoteFooter}>
-      <p className={styles.strategy}><span>Estrategia</span> {formatStrategy(quote.strategyCode)} <span className={styles.version}>· v{quote.strategyVersion}</span></p>
+      <p className={styles.strategy}><span>Estrategia</span> {formatStrategy(quote.strategyCode)}</p>
       <QuoteExplanation quote={quote} context={context} />
     </div>
   </article>;

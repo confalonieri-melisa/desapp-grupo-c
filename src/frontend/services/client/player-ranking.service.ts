@@ -7,11 +7,14 @@ export class PlayerRankingHttpError extends Error {
   }
 }
 
-export async function getPlayerRanking(token: string, signal?: AbortSignal, selection: RankingSelection = { page: 1 }): Promise<RankingResponse> {
-  const query = new URLSearchParams({ page: String(selection.page), limit: String(RANKING_PAGE_SIZE) });
-  if (selection.league) query.set('league', selection.league);
-  if (selection.team?.trim()) query.set('team', selection.team.trim());
-  if (selection.position) query.set('position', selection.position);
+const DEFAULT_RANKING_SELECTION: RankingSelection = { page: 1 };
+
+export async function getPlayerRanking(token: string, signal?: AbortSignal, selection?: RankingSelection): Promise<RankingResponse> {
+  const currentSelection = selection ?? DEFAULT_RANKING_SELECTION;
+  const query = new URLSearchParams({ page: String(currentSelection.page), limit: String(RANKING_PAGE_SIZE) });
+  if (currentSelection.league) query.set('league', currentSelection.league);
+  if (currentSelection.team?.trim()) query.set('team', currentSelection.team.trim());
+  if (currentSelection.position) query.set('position', currentSelection.position);
   let response: Response;
   try {
     response = await fetch(`/api/players/ranking?${query}`, {

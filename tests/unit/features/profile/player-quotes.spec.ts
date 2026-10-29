@@ -16,14 +16,15 @@ describe("quote presentation", () => {
     expect(formatQuoteValue(0)).toBe("0 créditos por token");
     expect(formatQuoteValue(12.3456789)).toBe("12.3456789 créditos por token");
   });
-  it("keeps seconds, all received fractional digits and explicit UTC", () => {
-    expect(formatQuoteTimestamp("2026-10-20T10:02:03.123456Z")).toBe("2026-10-20 10:02:03.123456 UTC");
-    expect(formatQuoteTimestamp("2026-10-20T10:02:03Z")).toBe("2026-10-20 10:02:03 UTC");
+  it("keeps seconds and received fractional digits without showing UTC", () => {
+    expect(formatQuoteTimestamp("2026-10-20T10:02:03.123456Z")).toBe("2026-10-20 10:02:03.123456");
+    expect(formatQuoteTimestamp("2026-10-20T10:02:03Z")).toBe("2026-10-20 10:02:03");
   });
   it("presents the value and effective timestamp without seconds or zone in the visible label", () => {
     expect(formatQuoteValueDisplay(12.3456789)).toBe("12,3456789");
-    expect(formatQuoteTimestampDisplay("2026-10-20T10:02:03.123456Z")).toContain("10:02");
+    expect(formatQuoteTimestampDisplay("2026-10-20T10:02:03.123456Z")).toContain("07:02");
     expect(formatQuoteTimestampDisplay("2026-10-20T10:02:03.123456Z")).not.toMatch(/:03|UTC|\.123456/);
+    expect(formatQuoteTimestampDisplay("2026-10-20T01:02:03Z")).toContain("19 de oct de 2026, 22:02");
     expect(formatQuoteDate("2026-10-20")).toContain("20 de octubre de 2026");
     expect(formatStrategy("INDIVIDUAL_PLUS_TEAM_CONTEXT")).toBe("Rendimiento y contexto del equipo");
   });

@@ -37,8 +37,9 @@ describe('RankingPage MVP', () => {
     expect(html).toContain('Puesto 1');
     expect(html).toContain('83,5');
     expect(html).toContain('créditos por token');
-    expect(html).toContain('UTC');
-    expect(html).toContain('1.0.0');
+    expect(html).toContain('09:00');
+    expect(html).not.toContain('UTC');
+    expect(html).not.toContain('1.0.0');
     expect(html).toContain('href="/players/a"');
   });
 
