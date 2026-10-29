@@ -36,10 +36,6 @@ export default function PlayerProfilePage() {
   const confirmedPlayer = isHydrated && isAuthenticated && token && !isLoading && !error && player?.id === playerId ? player : null;
   const quotes = usePlayerQuotes(confirmedPlayer ? token : null, confirmedPlayer?.id ?? "", handleUnauthorized);
   const trading = usePlayerTrading(confirmedPlayer ? token : null, confirmedPlayer?.id ?? "", handleUnauthorized);
-  const tradingSnapshot = trading.portfolio.status === "success" || trading.portfolio.status === "empty"
-    ? trading.portfolio.snapshot
-    : null;
-  const hasTokens = tradingSnapshot?.items.some((item) => item.playerId === confirmedPlayer?.id && item.quantity > 0);
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
@@ -68,7 +64,7 @@ export default function PlayerProfilePage() {
         {showPlayerProfile && player && (
           <>
             <PlayerProfileHeader player={player} />
-            <PlayerQuotesSection key={tradingSnapshot ? (hasTokens ? "has-tokens" : "no-tokens") : "portfolio-loading"} quotes={quotes} hasTokens={tradingSnapshot ? hasTokens : undefined} />
+            <PlayerQuotesSection quotes={quotes} />
             <PlayerTradingSection playerId={player.id} playerName={player.name} role={user?.role ?? ""} quotes={quotes} trading={trading} />
             <div className={styles.overview}>
               <PlayerStatSection

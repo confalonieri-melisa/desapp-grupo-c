@@ -1,0 +1,7 @@
+# Prompt para speckit-specify
+
+Crear una feature independiente de frontend para el ranking de jugadores de la feature 007, partiendo de la branch actual `feature/011-player-name-search`, sin crear ni cambiar de branch. Mantener intactos los artefactos históricos de `specs/007-player-ranking` y crear `specs/012-player-ranking-frontend`.
+
+Usuarios autenticados deben poder descubrir, consultar y recorrer el ranking de la versión activa de valuación mediante el contrato existente `GET /api/players/ranking`. Mostrar posición global, identidad del jugador y acceso a su perfil, liga, equipo, posición, `finalScore`, `quoteValue`, unidad, momento de cálculo y estrategia/versión activa. Respetar exactamente el orden y el `rank` devueltos por el backend. Permitir combinar filtros por liga, equipo y posición, limpiar filtros y paginar sin perderlos; los filtros nuevos reinician la primera página. Cubrir carga, vacío, errores recuperables, ausencia de estrategia activa y sesión ausente o vencida. Evitar resultados obsoletos al cambiar filtros, páginas o sesión. La vista debe ser accesible y usable en móvil y escritorio, y seguir el diseño y la navegación existentes. No modificar backend, reglas de valuación ni contratos; no incluir búsqueda por nombre, trading, portfolio, recálculo ni rankings históricos. Registrar como supuesto revisable la ubicación de la vista de ranking dentro de la experiencia existente.
+
+En la especificación, describir comportamiento y criterios de aceptación observables; dejar decisiones de implementación para plan.

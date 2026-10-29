@@ -10,7 +10,7 @@ export function formatQuoteValue(value: number): string {
 }
 
 export function formatQuoteTimestamp(value: string): string {
-  return value.replace("T", " ").replace(/Z$/, " UTC");
+  return value.replace("T", " ").replace(/Z$/, "");
 }
 
 export function formatQuoteValueDisplay(value: number): string {
@@ -21,7 +21,7 @@ export function formatQuoteTimestampDisplay(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return formatQuoteTimestamp(value);
   return new Intl.DateTimeFormat("es-AR", {
-    timeZone: "UTC", day: "numeric", month: "short", year: "numeric",
+    timeZone: "America/Argentina/Buenos_Aires", day: "numeric", month: "short", year: "numeric",
     hour: "2-digit", minute: "2-digit", hour12: false,
   }).format(date);
 }

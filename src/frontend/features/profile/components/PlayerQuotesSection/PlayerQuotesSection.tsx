@@ -8,11 +8,10 @@ import QuoteHistory from "../QuoteHistory/QuoteHistory";
 import QuoteDateQuery from "../QuoteDateQuery/QuoteDateQuery";
 import styles from "./PlayerQuotesSection.module.scss";
 
-export default function PlayerQuotesSection({ quotes, hasTokens }: {
+export default function PlayerQuotesSection({ quotes }: {
   quotes: ReturnType<typeof usePlayerQuotes>;
-  hasTokens?: boolean;
 }) {
-  const [historyOpen, setHistoryOpen] = useState(hasTokens !== false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   if (quotes.expired) return null;
   if (quotes.playerError) return <section className={styles.section} role="alert"><p>{quotes.playerError}</p><Link href="/players">Volver al catálogo</Link></section>;

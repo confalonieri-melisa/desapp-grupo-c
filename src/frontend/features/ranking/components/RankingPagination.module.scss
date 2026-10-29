@@ -1,0 +1,5 @@
+.pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; color: var(--crimson-violet); font-weight: 600; }
+.actions { display: flex; gap: 0.5rem; }
+.actions button { min-height: 2.5rem; padding: 0.5rem 0.9rem; border: 1px solid var(--crimson-violet); border-radius: 0.5rem; background: white; color: var(--crimson-violet); font: inherit; cursor: pointer; }
+.actions button:disabled { opacity: 0.5; cursor: default; }
+.actions button:focus-visible { outline: 2px solid var(--rose-punch); outline-offset: 2px; }
