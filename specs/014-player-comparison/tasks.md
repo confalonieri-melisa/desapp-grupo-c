@@ -12,17 +12,17 @@ description: "Task list for Comparador de jugadores"
 
 ## Phase 1: Setup
 
-- [ ] T001 Crear la estructura de la feature en `src/app/comparison/`, `src/frontend/features/comparison/` y `tests/unit/features/comparison/` según `plan.md`.
-- [ ] T002 [P] Crear `src/frontend/features/comparison/comparison.ts` con tipos, máximo de 3 jugadores, límite de búsqueda 12, máximo de 15 puntos y las cinco filas de la matriz.
-- [ ] T003 [P] Crear `src/app/comparison/ComparisonPage.module.scss` con variables y patrones visuales existentes.
+- [x] T001 Crear la estructura de la feature en `src/app/comparison/`, `src/frontend/features/comparison/` y `tests/unit/features/comparison/` según `plan.md`.
+- [x] T002 [P] Crear `src/frontend/features/comparison/comparison.ts` con tipos, máximo de 3 jugadores, límite de búsqueda 12, máximo de 15 puntos y las cinco filas de la matriz.
+- [x] T003 [P] Crear `src/app/comparison/ComparisonPage.module.scss` con variables y patrones visuales existentes.
 
 ## Phase 2: Foundational
 
-- [ ] T004 [P] [US1] Escribir en `tests/unit/features/comparison/comparison.spec.ts` pruebas de selección ordenada, deduplicación, máximo 3, eliminación y marcado de resultados seleccionados.
-- [ ] T005 [P] [US2] Escribir en `tests/unit/features/comparison/comparison.spec.ts` pruebas de las cinco filas, `items[0]` como cotización actual y valores faltantes.
-- [ ] T006 [P] [US3] Escribir en `tests/unit/features/comparison/comparison.spec.ts` pruebas de orden temporal, recorte a 15 puntos, mínimo de 2 puntos y variación entre las dos cotizaciones recientes.
-- [ ] T007 Implementar `src/frontend/features/comparison/utils/comparison.ts` con selección, eliminación, filas, variación y series históricas; hacer pasar T004-T006.
-- [ ] T008 Implementar `src/frontend/features/comparison/hooks/usePlayerComparison.ts` reutilizando `getPlayers` y `getPlayerQuotes`, con estado por jugador, abortado/generación y manejo de 401.
+- [x] T004 [P] [US1] Escribir en `tests/unit/features/comparison/comparison.spec.ts` pruebas de selección ordenada, deduplicación, máximo 3, eliminación y marcado de resultados seleccionados.
+- [x] T005 [P] [US2] Escribir en `tests/unit/features/comparison/comparison.spec.ts` pruebas de las cinco filas, `items[0]` como cotización actual y valores faltantes.
+- [x] T006 [P] [US3] Escribir en `tests/unit/features/comparison/comparison.spec.ts` pruebas de orden temporal, recorte a 15 puntos, mínimo de 2 puntos y variación entre las dos cotizaciones recientes.
+- [x] T007 Implementar `src/frontend/features/comparison/utils/comparison.ts` con selección, eliminación, filas, variación y series históricas; hacer pasar T004-T006.
+- [x] T008 Implementar `src/frontend/features/comparison/hooks/usePlayerComparison.ts` reutilizando `getPlayers` y `getPlayerQuotes`, con estado por jugador, abortado/generación y manejo de 401.
 - [ ] T009 [P] Crear `tests/unit/features/comparison/usePlayerComparison.spec.ts` para carga, cambio de selección, eliminación durante consulta, error parcial, reintento, respuesta tardía y 401.
 
 **Checkpoint**: derivaciones y carga reutilizan contratos existentes y no requieren backend nuevo.
@@ -40,12 +40,12 @@ description: "Task list for Comparador de jugadores"
 
 ### Implementation
 
-- [ ] T012 [US1] Implementar `src/frontend/features/comparison/components/ComparisonSearch.tsx` con búsqueda por nombre, resultados de catálogo, acción de agregar y marca de seleccionado.
-- [ ] T013 [US1] Implementar `src/app/comparison/page.tsx` con sesión, título, buscador, contador y estados inicial/con un jugador.
-- [ ] T014 [US1] Agregar en `src/frontend/components/GlobalNav/GlobalNav.tsx` el enlace autenticado «Comparador» hacia `/comparison` y `aria-current`.
-- [ ] T015 [US1] Implementar `src/frontend/features/comparison/components/ComparisonStates.tsx` para carga, búsqueda vacía, error, selección incompleta y reintento.
-- [ ] T016 [US1] Implementar en `src/frontend/features/comparison/components/ComparisonMatrix.tsx` el encabezado único por jugador con botón `X`, sin chips ni tarjetas duplicadas.
-- [ ] T017 [US1] Completar `src/app/comparison/ComparisonPage.module.scss` para buscador, contador, encabezados, `X`, estados y foco visible.
+- [x] T012 [US1] Implementar `src/frontend/features/comparison/components/ComparisonSearch.tsx` con búsqueda por nombre, resultados de catálogo, acción de agregar y marca de seleccionado.
+- [x] T013 [US1] Implementar `src/app/comparison/page.tsx` con sesión, título, buscador, contador y estados inicial/con un jugador.
+- [x] T014 [US1] Agregar en `src/frontend/components/GlobalNav/GlobalNav.tsx` el enlace autenticado «Comparador» hacia `/comparison` y `aria-current`.
+- [x] T015 [US1] Implementar `src/frontend/features/comparison/components/ComparisonStates.tsx` para carga, búsqueda vacía, error, selección incompleta y reintento.
+- [x] T016 [US1] Implementar en `src/frontend/features/comparison/components/ComparisonMatrix.tsx` el encabezado único por jugador con botón `X`, sin chips ni tarjetas duplicadas.
+- [x] T017 [US1] Completar `src/app/comparison/ComparisonPage.module.scss` para buscador, contador, encabezados, `X`, estados y foco visible.
 
 **Checkpoint**: búsqueda, selección máxima y eliminación son demostrables sin depender del gráfico.
 
@@ -55,12 +55,12 @@ description: "Task list for Comparador de jugadores"
 
 **Independent Test**: Seleccionar 2 y luego 3 jugadores; verificar cotización, variación, scores, “No disponible” y ausencia de estadísticas/ranking.
 
-- [ ] T018 [P] [US2] Crear `tests/unit/features/comparison/ComparisonMatrix.spec.tsx` para tabla semántica, orden de selección, cinco filas, unidades, `items[0]` y datos faltantes.
+- [x] T018 [P] [US2] Crear `tests/unit/features/comparison/ComparisonMatrix.spec.ts` para tabla semántica, orden de selección, cinco filas, unidades, `items[0]` y datos faltantes.
 - [ ] T019 [P] [US2] Extender `tests/unit/features/comparison/ComparisonPage.spec.tsx` para transición automática al segundo jugador y eliminación de columna/serie.
-- [ ] T020 [US2] Completar `src/frontend/features/comparison/components/ComparisonMatrix.tsx` con cotización actual, variación, score individual, score colectivo y score final.
-- [ ] T021 [US2] Completar `src/frontend/features/comparison/utils/comparison.ts` con formato de créditos, score, porcentaje con signo y “No disponible”, preservando ceros válidos.
-- [ ] T022 [US2] Integrar matriz, selección y estados en `src/app/comparison/page.tsx`; mostrar comparación automáticamente desde 2 jugadores.
-- [ ] T023 [US2] Ajustar `src/app/comparison/ComparisonPage.module.scss` para jerarquía de métricas, encabezados y dos/tres columnas.
+- [x] T020 [US2] Completar `src/frontend/features/comparison/components/ComparisonMatrix.tsx` con cotización actual, variación, score individual, score colectivo y score final.
+- [x] T021 [US2] Completar `src/frontend/features/comparison/utils/comparison.ts` con formato de créditos, score, porcentaje con signo y “No disponible”, preservando ceros válidos.
+- [x] T022 [US2] Integrar matriz, selección y estados en `src/app/comparison/page.tsx`; mostrar comparación automáticamente desde 2 jugadores.
+- [x] T023 [US2] Ajustar `src/app/comparison/ComparisonPage.module.scss` para jerarquía de métricas, encabezados y dos/tres columnas.
 
 **Checkpoint**: la comparación completa usa solo datos reales y no duplica la identidad.
 
@@ -70,12 +70,12 @@ description: "Task list for Comparador de jugadores"
 
 **Independent Test**: Usar historiales con 0, 1 y varios registros; verificar series, orden, recorte, estados y ausencia de recomendaciones.
 
-- [ ] T024 [P] [US3] Crear `tests/unit/features/comparison/ComparisonChart.spec.tsx` para series reales, orden temporal, máximo 15, leyenda, no interpolación y menos de 2 puntos.
+- [x] T024 [P] [US3] Crear `tests/unit/features/comparison/ComparisonChart.spec.ts` para series reales, orden temporal, máximo 15, leyenda, no interpolación y menos de 2 puntos.
 - [ ] T025 [P] [US3] Extender `tests/unit/features/comparison/ComparisonPage.spec.tsx` para gráfico parcial y eliminación de serie/leyenda al quitar un jugador.
-- [ ] T026 [US3] Implementar `src/frontend/features/comparison/components/ComparisonChart.tsx` con `recharts`, una serie por jugador, eje en créditos por token y máximo 15 puntos.
-- [ ] T027 [US3] Implementar en `src/frontend/features/comparison/components/ComparisonChart.tsx` estados por serie: carga, sin historial, un punto, error y serie válida; conservar series válidas.
-- [ ] T028 [US3] Integrar `ComparisonChart` en `src/app/comparison/page.tsx` junto a la matriz para 2/3 jugadores.
-- [ ] T029 [US3] Completar `src/app/comparison/ComparisonPage.module.scss` para panel, leyenda, tooltip, densidad compacta y desktop.
+- [x] T026 [US3] Implementar `src/frontend/features/comparison/components/ComparisonChart.tsx` con `recharts`, una serie por jugador, eje en créditos por token y máximo 15 puntos.
+- [x] T027 [US3] Implementar en `src/frontend/features/comparison/components/ComparisonChart.tsx` estados por serie: carga, sin historial, un punto, error y serie válida; conservar series válidas.
+- [x] T028 [US3] Integrar `ComparisonChart` en `src/app/comparison/page.tsx` junto a la matriz para 2/3 jugadores.
+- [x] T029 [US3] Completar `src/app/comparison/ComparisonPage.module.scss` para panel, leyenda, tooltip, densidad compacta y desktop.
 
 **Checkpoint**: la evolución usa puntos históricos reales, sin interpolación ni conclusiones financieras.
 

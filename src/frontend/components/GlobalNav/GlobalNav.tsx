@@ -76,6 +76,9 @@ export default function GlobalNav() {
                 <Link className={styles.navLink} href="/ranking" aria-current={pathname === '/ranking' ? 'page' : undefined}>
                     Ranking
                 </Link>
+                <Link className={styles.navLink} href="/comparison" aria-current={pathname === '/comparison' ? 'page' : undefined}>
+                    Comparador
+                </Link>
                 <Link className={styles.navLink} href="/transactions" aria-current={pathname === '/transactions' ? 'page' : undefined}>
                     Mi historial
                 </Link>
