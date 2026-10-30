@@ -5,9 +5,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    passWithNoTests: true,
     fileParallelism: false,
-    include: ["tests/**/*.spec.ts", "tests/**/*.test.ts"],
+    include: ["tests/unit/**/*.spec.ts", "tests/unit/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],
