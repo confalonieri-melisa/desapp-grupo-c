@@ -119,7 +119,7 @@ export default function ComparisonChart({
                     stroke={colors[index]}
                     strokeWidth={2.5}
                     dot={{ r: 3 }}
-                    connectNulls={false}
+                    connectNulls
                     isAnimationActive={false}
                   />
                 ))}
