@@ -1,10 +1,12 @@
 .table { overflow: hidden; border: 1px solid #f3e9ef; border-radius: 14px; background: rgb(255 253 255 / 91%); box-shadow: 0 12px 34px rgb(87 35 68 / 10%); }
-.tableHead, .entry { display: grid; grid-template-columns: 38px minmax(145px, 2fr) minmax(85px, 1.1fr) minmax(78px, 1fr) minmax(78px, 1fr) minmax(90px, 1fr) minmax(92px, 1fr) 64px; align-items: center; gap: 10px; }
+.tableHead, .entry { display: grid; grid-template-columns: 38px minmax(145px, 2fr) minmax(85px, 0.95fr) minmax(95px, 1fr) minmax(92px, 1.15fr) minmax(90px, 1fr) minmax(92px, 1fr) 64px; align-items: center; gap: 10px; }
 .tableHead { min-height: 57px; padding: 12px 17px; color: #55445d; font-size: 12px; font-weight: 700; }
-.tableHead small { display: block; color: #8d8295; font-size: 11px; font-weight: 400; }
+.tableHead > :not(:nth-child(2)) { text-align: center; }
+.quoteHeading { display: flex; align-items: center; justify-content: center; gap: 5px; }
+.quoteHeading svg { flex: none; color: #f24266; }
 .list { list-style: none; padding: 0 17px 9px; margin: 0; }
 .entry { min-height: 82px; border-top: 1px solid #f2edf2; color: #5e5266; font-size: 13px; }
-.rank { position: relative; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 6px; background: #f5f0f5; color: #48253c; font-size: 15px; font-weight: 700; }
+.rank { position: relative; display: grid; place-items: center; justify-self: center; width: 32px; height: 32px; border-radius: 6px; background: #f5f0f5; color: #48253c; font-size: 15px; font-weight: 700; }
 .rank1 { background: #ffdc88; } .rank2 { background: #dedde4; } .rank3 { background: #f3b77f; }
 .crown { position: absolute; top: -14px; color: #f7a400; }
 .identity { display: flex; align-items: center; gap: 9px; min-width: 0; }
@@ -14,15 +16,14 @@
 .identityText a { overflow: hidden; color: #491832; font-size: 14px; font-weight: 700; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
 .identityText a:hover { color: #f43f65; }
 .mobileTeam { display: none; }
-.team, .league { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.league { display: flex; align-items: center; gap: 5px; } .league > span { font-size: 16px; }
-.position { justify-self: start; max-width: 100%; overflow: hidden; padding: 5px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.team, .league { overflow: hidden; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.position { justify-self: center; max-width: 100%; overflow: hidden; padding: 5px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; text-align: center; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
 .goalkeeper { background: #fff0d9; color: #df7300; } .defender { background: #ffe5eb; color: #ed4765; } .midfielder { background: #f7e5f5; color: #c4459d; } .forward { background: #ffe6e2; color: #df4b36; } .unknown { background: #eee9ef; color: #5f4d61; }
-.score { display: grid; justify-items: start; color: #48172e; } .score strong, .quote strong { font-size: 14px; font-weight: 700; }
-.quote { color: #48172e; }
-.view { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 34px; padding: 5px 11px; border: 1px solid #ff476b; border-radius: 99px; color: #f24266; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; } .view:hover { background: #fff0f4; }
+.score { display: grid; justify-items: center; color: #48172e; } .score strong, .quote strong { font-size: 14px; font-weight: 700; }
+.quote { color: #48172e; text-align: center; }
+.view { display: inline-flex; align-items: center; justify-content: center; justify-self: center; gap: 5px; min-height: 34px; padding: 5px 11px; border: 1px solid #ff476b; border-radius: 99px; color: #f24266; font-size: 12px; font-weight: 600; text-decoration: none; white-space: nowrap; } .view:hover { background: #fff0f4; }
 .table a:focus-visible { outline: 2px solid #ef416b; outline-offset: 3px; }
-@media (max-width: 960px) { .tableHead, .entry { grid-template-columns: 34px minmax(135px, 1.8fr) minmax(76px, 1fr) minmax(78px, 1fr) minmax(78px, 1fr) minmax(80px, 1fr) minmax(82px, 1fr) 60px; gap: 6px; } .tableHead { padding-inline: 12px; } .list { padding-inline: 12px; } .avatar { flex-basis: 46px; width: 46px; height: 46px; } }
+@media (max-width: 960px) { .tableHead, .entry { grid-template-columns: 34px minmax(135px, 1.8fr) minmax(76px, 0.85fr) minmax(92px, 1fr) minmax(88px, 1.15fr) minmax(80px, 1fr) minmax(82px, 1fr) 60px; gap: 6px; } .tableHead { padding-inline: 12px; } .list { padding-inline: 12px; } .avatar { flex-basis: 46px; width: 46px; height: 46px; } }
 @media (max-width: 800px) { .tableHead, .entry { grid-template-columns: 34px minmax(130px, 1fr) 85px 90px 60px; gap: 8px; } .tableHead > :nth-child(3), .tableHead > :nth-child(4), .tableHead > :nth-child(5), .team, .league, .position { display: none; } .entry { padding: 12px 0; } .mobileTeam { display: block; overflow: hidden; color: #817588; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; } .list { padding-top: 3px; } }
 @media (max-width: 540px) { .tableHead { display: none; } .entry { grid-template-columns: 32px minmax(100px, 1fr) 70px 70px 55px; gap: 5px; } .avatar { flex-basis: 42px; width: 42px; height: 42px; } .identity { gap: 5px; } .identityText a { font-size: 13px; } .score strong, .quote strong { font-size: 12px; } }
 @media (max-width: 390px) { .entry { grid-template-columns: 32px minmax(95px, 1fr) 58px 58px 50px; } .view { padding-inline: 6px; } }

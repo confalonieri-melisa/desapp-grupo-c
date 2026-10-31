@@ -5,6 +5,7 @@ import {
   type PlayerHttpError,
 } from '@/frontend/services/client/player.service';
 import { getPlayerQuotes } from '@/frontend/services/client/player-quotes.service';
+import { readLastComparison, saveLastComparison } from '@/frontend/features/comparison/comparison-storage';
 import {
   addSelectedPlayer,
   emptyQuoteChannel,
@@ -25,11 +26,14 @@ const initialSearch: SearchState = {
 
 export function usePlayerComparison(
   token: string | null,
+  userId: string | null,
   onUnauthorized: () => void,
 ) {
   const [search, setSearch] = useState<SearchState>(initialSearch);
   const [selected, setSelected] = useState<CatalogPlayer[]>([]);
   const [histories, setHistories] = useState<Record<string, QuoteChannel>>({});
+  const [restoredUserId, setRestoredUserId] = useState<string | null>(null);
+  const restoredSession = useRef<string | null>(null);
   const searchGeneration = useRef(0);
   const historyGenerations = useRef<Record<string, number>>({});
   const unauthorized = useRef(onUnauthorized);
@@ -153,6 +157,37 @@ export function usePlayerComparison(
     [token],
   );
 
+  useEffect(() => {
+    if (!token || !userId || restoredSession.current === userId) return;
+    restoredSession.current = userId;
+    searchGeneration.current += 1;
+    for (const id of Object.keys(historyGenerations.current)) {
+      historyGenerations.current[id] += 1;
+    }
+
+    let restored: CatalogPlayer[] = [];
+    try {
+      restored = readLastComparison(window.localStorage, userId);
+    } catch {
+      // Storage may be unavailable in private browsing modes.
+    }
+
+    setSearch(initialSearch);
+    setSelected(restored);
+    setHistories({});
+    restored.forEach((player) => void loadHistory(player));
+    setRestoredUserId(userId);
+  }, [token, userId, loadHistory]);
+
+  useEffect(() => {
+    if (!userId || restoredUserId !== userId) return;
+    try {
+      saveLastComparison(window.localStorage, userId, selected);
+    } catch {
+      // Keep the comparison usable when storage is unavailable.
+    }
+  }, [userId, restoredUserId, selected]);
+
   const addPlayer = useCallback(
     (player: CatalogPlayer) => {
       setSelected((current) => {
@@ -190,6 +225,7 @@ export function usePlayerComparison(
     search,
     selected,
     players,
+    isRestoring: userId !== restoredUserId,
     searchPlayers,
     addPlayer,
     removePlayer,

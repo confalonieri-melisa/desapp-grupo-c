@@ -179,7 +179,14 @@ export function formatComparisonValue(
     return `${sign}${formatted}%`;
   }
 
+  if (key === 'individualScore' || key === 'teamScore' || key === 'finalScore') {
+    return new Intl.NumberFormat('es-AR', {
+      maximumFractionDigits: 1,
+    }).format(value * 100);
+  }
+
   return new Intl.NumberFormat('es-AR', {
+    minimumFractionDigits: 2,
     maximumFractionDigits: 4,
   }).format(value);
 }
