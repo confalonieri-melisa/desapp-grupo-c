@@ -47,6 +47,7 @@
   "devDependencies": {
     "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/react": "^16.3.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.20.2",
@@ -57,6 +58,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "jsdom": "^26.1.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.13",
     "typescript": "^5",
