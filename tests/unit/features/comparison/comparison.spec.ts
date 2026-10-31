@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { PlayerQuoteDto } from '@/frontend/services/client/player-quotes.service';
 import { League, Position } from '@/backend/models/enums';
-import { addSelectedPlayer, buildComparisonRows, buildQuoteSeries, calculateQuoteVariation, removeSelectedPlayer, type ComparisonPlayer } from '@/frontend/features/comparison/comparison';
+import { addSelectedPlayer, buildComparisonRows, buildQuoteSeries, calculateQuoteVariation, formatComparisonValue, removeSelectedPlayer, type ComparisonPlayer } from '@/frontend/features/comparison/comparison';
 
 const player = (id: string): ComparisonPlayer => ({ id, name: `Jugador ${id}`, team: 'Equipo', league: League.LA_LIGA, position: Position.FORWARD, statistics: {}, currentQuote: 1, totalTokens: 100, history: { phase: 'success', items: [], error: null, generation: 0 } });
 const quote = (value: number, date: string, teamScore: number | null = 0.7): PlayerQuoteDto => ({ playerId: 'a', quoteValue: value, unit: 'CREDIT_PER_TOKEN', calculatedAt: date, strategyCode: 'TEST', strategyVersion: '1', score: { individualScore: 0.8, teamScore, finalScore: 0.75 } });
@@ -18,6 +18,13 @@ describe('comparison derivations', () => {
   it('removes only the requested player', () => expect(removeSelectedPlayer(['a', 'b', 'c'].map(player), 'b').map((item) => item.id)).toEqual(['a', 'c']));
 
   it('calculates percentage variation from the two newest records', () => expect(calculateQuoteVariation([quote(110, '2026-10-02'), quote(100, '2026-10-01')])).toBe(10));
+
+  it('shows normalized scores on a 0 to 100 scale and keeps quote precision', () => {
+    expect(formatComparisonValue(0.8, 'individualScore')).toBe('80');
+    expect(formatComparisonValue(0.825, 'finalScore')).toBe('82,5');
+    expect(formatComparisonValue(128.4, 'currentQuote')).toBe('128,40');
+    expect(formatComparisonValue(null, 'teamScore')).toBe('No disponible');
+  });
 
   it('builds exactly the five requested rows and preserves missing scores', () => {
     const current = player('a');

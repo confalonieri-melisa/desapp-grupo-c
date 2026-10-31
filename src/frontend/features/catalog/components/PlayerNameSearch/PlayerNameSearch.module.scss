@@ -16,6 +16,7 @@
 .field { display: flex; align-items: center; gap: 0.7rem; flex: 1; min-width: 0; padding-left: 0.9rem; color: var(--watermelon); }
 .field input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--crimson-violet); font-size: 1rem; }
 .field input::placeholder { color: var(--dusty-violet); opacity: 1; }
+.field input::-webkit-search-cancel-button { display: none; }
 .clear { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: var(--dusty-violet); cursor: pointer; }
 .submit { flex: none; border: 0; border-radius: 999px; padding: 0.6rem 1.15rem; background: var(--watermelon); color: white; font-weight: 700; cursor: pointer; }
 .clear:focus-visible, .submit:focus-visible { outline: 3px solid var(--crimson-violet); outline-offset: 2px; }
