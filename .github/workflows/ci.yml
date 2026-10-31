@@ -10,24 +10,9 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build-and-test:
-    name: Build, Lint, Test & SonarCloud
+  unit:
+    name: Build, Lint, Unit Tests & SonarCloud
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_DB: desapp_db
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres -d desapp_db"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,23 +31,13 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
-      - name: Run Database Migrations
-        run: npm run db:migrate
-        env:
-          DATABASE_URL: "postgres://postgres:postgres@localhost:5432/desapp_db"
-
-      - name: Run Tests with Coverage
+      - name: Run Unit Tests with Coverage
         run: npm run test:coverage
-        env:
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/desapp_db"
-          JWT_SECRET: "secret-jwt-key-desapp-grupo-c-min-32-chars"
-          NODE_ENV: "test"
-          RUN_DB_INTEGRATION_TESTS: "true"
 
       - name: Build Next.js Application
         run: npm run build
         env:
-          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/desapp_db"
+          DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/desapp_integration"
           JWT_SECRET: "secret-jwt-key-desapp-grupo-c-min-32-chars"
           NODE_ENV: "production"
 
@@ -71,3 +46,118 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: desapp_integration
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d desapp_integration"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/desapp_integration"
+      JWT_SECRET: "secret-jwt-key-desapp-grupo-c-min-32-chars"
+      NODE_ENV: "test"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Database Migrations
+        run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+
+      - name: Run Integration Tests
+        run: npm run test:integration
+
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: desapp_e2e
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d desapp_e2e"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      E2E_DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/desapp_e2e"
+      JWT_SECRET: "secret-jwt-key-desapp-grupo-c-min-32-chars"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for E2E specs
+        id: specs
+        run: |
+          if [ -n "$(find tests/e2e -type f -name '*.spec.ts' -print -quit)" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No E2E specs yet; E2E setup and execution are skipped."
+          fi
+
+      - name: Setup Node.js
+        if: steps.specs.outputs.present == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install dependencies
+        if: steps.specs.outputs.present == 'true'
+        run: npm ci
+
+      - name: Install Chromium
+        if: steps.specs.outputs.present == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Database Migrations
+        if: steps.specs.outputs.present == 'true'
+        run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ env.E2E_DATABASE_URL }}
+
+      - name: Build Next.js Application
+        if: steps.specs.outputs.present == 'true'
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ env.E2E_DATABASE_URL }}
+          NODE_ENV: "production"
+
+      - name: Run E2E Tests
+        if: steps.specs.outputs.present == 'true'
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always() && steps.specs.outputs.present == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore

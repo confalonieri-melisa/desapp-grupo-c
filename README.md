@@ -74,10 +74,38 @@ La aplicación queda disponible en
 
 ```bash
 npm run lint
-npm test
+npm test                 # Solo pruebas unitarias
 npm run build
-npm run test:coverage
+npm run test:coverage    # Cobertura unitaria para SonarCloud
 ```
+
+Las pruebas de integración usan PostgreSQL y una base separada de desarrollo.
+En PowerShell, por ejemplo:
+
+```powershell
+docker compose exec postgres createdb -U postgres desapp_integration
+$env:TEST_DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/desapp_integration"
+$env:DATABASE_URL = $env:TEST_DATABASE_URL
+npm run db:migrate
+npm run test:integration
+```
+
+El perfil E2E usa Playwright y otra base exclusiva. La configuración inicia la
+aplicación en el puerto 3100. Todavía no hay casos E2E, así que localmente el
+comando informa `No tests found`. Empezará a ejecutarlos cuando se agreguen
+archivos `tests/e2e/*.spec.ts`.
+
+```powershell
+docker compose exec postgres createdb -U postgres desapp_e2e
+$env:E2E_DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/desapp_e2e"
+$env:DATABASE_URL = $env:E2E_DATABASE_URL
+npm run db:migrate
+npx playwright install chromium
+npm run test:e2e
+```
+
+En GitHub Actions, unitarios, integración y E2E tienen jobs separados. El job
+E2E omite la preparación y ejecución hasta que exista el primer caso.
 
 ## Verificación manual con Postman
 
