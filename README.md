@@ -91,9 +91,10 @@ npm run test:integration
 ```
 
 El perfil E2E usa Playwright y otra base exclusiva. La configuración inicia la
-aplicación en el puerto 3100. Todavía no hay casos E2E, así que localmente el
-comando informa `No tests found`. Empezará a ejecutarlos cuando se agreguen
-archivos `tests/e2e/*.spec.ts`.
+aplicación en el puerto 3100. El proyecto de setup carga datos deterministas
+(21 jugadores, cotizaciones, usuarios, tenencias e historial) y prepara sesiones
+de inversor y superusuario. El proyecto de teardown elimina esos datos al terminar.
+La base indicada por `E2E_DATABASE_URL` debe tener `e2e` en el nombre.
 
 ```powershell
 docker compose exec postgres createdb -U postgres desapp_e2e
@@ -104,8 +105,16 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
+Si Chrome ya está instalado localmente, se puede usar sin descargar Chromium:
+
+```powershell
+$env:E2E_BROWSER_CHANNEL = "chrome"
+npm run test:e2e
+```
+
 En GitHub Actions, unitarios, integración y E2E tienen jobs separados. El job
-E2E omite la preparación y ejecución hasta que exista el primer caso.
+E2E instala Chromium y ejecuta la suite cuando existen archivos
+`tests/e2e/*.spec.ts`.
 
 ## Verificación manual con Postman
 
