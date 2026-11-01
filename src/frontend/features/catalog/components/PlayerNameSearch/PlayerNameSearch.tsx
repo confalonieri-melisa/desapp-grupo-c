@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, type FormEvent } from 'react';
-import { Search, X } from 'lucide-react';
-import styles from './PlayerNameSearch.module.scss';
+import { useState, type FormEvent } from "react";
+import { Search, X } from "lucide-react";
+import styles from "./PlayerNameSearch.module.scss";
 
 interface Props {
   initialValue: string;
@@ -30,10 +30,22 @@ export default function PlayerNameSearch({ initialValue, onSearch }: Props) {
           onChange={(event) => setName(event.target.value)}
         />
       </label>
-      {name && <button className={styles.clear} type="button" onClick={() => { setName(''); onSearch(''); }} aria-label="Limpiar búsqueda">
-        <X aria-hidden="true" size={18} />
-      </button>}
-      <button className={styles.submit} type="submit">Buscar</button>
+      {name && (
+        <button
+          className={styles.clear}
+          type="button"
+          onClick={() => {
+            setName("");
+            onSearch("");
+          }}
+          aria-label="Limpiar búsqueda"
+        >
+          <X aria-hidden="true" size={18} />
+        </button>
+      )}
+      <button className={styles.submit} type="submit">
+        Buscar
+      </button>
     </form>
   );
 }

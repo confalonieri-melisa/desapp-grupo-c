@@ -28,21 +28,21 @@ En DevTools, filtrar la pestaña Network por `/api/players/{id}/quotes`, `/api/p
 
 ## Recorridos de aceptación
 
-| Escenario | Acción | Resultado esperado |
-|---|---|---|
-| Consulta | Abrir perfil con posición y consultar la respuesta de portfolio. | Cotización en créditos/token, saldo, cantidad, promedio, valor actual y PnL del jugador abierto; ninguna otra posición. `0`, negativo y `null` se distinguen. |
-| Portfolio vacío | Abrir con `items=[]`. | Mensaje de portfolio vacío, saldo visible, cero tokens y sin promedio/valor/PnL ficticios. |
-| Sin posición del jugador | Usar portfolio con otras posiciones. | Cero tokens del jugador, sin mostrar los otros items; no se etiqueta todo el portfolio como vacío. |
-| Carga y fallo de GET | Demorar y luego fallar `GET /api/portfolio`. | Carga diferenciada; después error y reintento, manteniendo la cotización válida. |
-| Falta de cotización | Abrir jugador sin cotización. | Mensaje explícito; saldo/posición disponibles; órdenes indisponibles. |
-| Entrada y confirmación | Probar vacío, 0, negativo, decimal, texto, exponente, fuera de rango, mayor al saldo/tenencia; luego entero válido. | Error ligado al campo y cero POST en entradas inválidas. Confirmación válida muestra jugador, tipo, cantidad, cotización y total orientativo; cancelar conserva cantidad y no envía POST. |
-| Compra | Confirmar una compra válida y observar red. | Un POST `/api/orders/buy` con solo `playerId` y `quantity`; progreso, un solo envío con doble activación, comprobante con precio/total del 201 y GET portfolio posterior. |
-| Venta parcial y total | Vender cantidad válida y luego toda la tenencia. | Un POST `/api/orders/sell` por confirmación; nuevo GET actualiza posición. Venta total muestra cero y elimina métricas de posición ausente. |
-| Rechazo | Provocar 409 por saldo y por tenencia; comprobar también conflicto desconocido. | Mensaje correcto o genérico según respuesta; ningún éxito ficticio; cantidad preservada y posibilidad de actualizar datos. |
-| Orden incierta | Cortar la respuesta de POST o devolver 5xx. | Estado indeterminado, sin afirmar ejecución; acción de consultar portfolio y sin POST automático. |
-| Éxito, GET fallido | Devolver 201 y fallar el GET posterior. | Comprobante conservado; cifras previas no figuran como actuales; acción de reintento de GET. |
-| Sesión y rol | Expirar JWT; iniciar como SUPERUSER. | 401 usa logout y retira datos; SUPERUSER puede consultar datos autorizados y carece de controles para operar. |
-| Respuestas tardías | Demorar GET/POST, cambiar jugador y sesión antes de responder. | Ningún dato anterior reemplaza el perfil actual; comprobante de POST confirmado, si se presenta en la misma sesión, identifica al jugador original; sesión nueva no ve datos de la anterior. |
+| Escenario                | Acción                                                                                                              | Resultado esperado                                                                                                                                                                           |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Consulta                 | Abrir perfil con posición y consultar la respuesta de portfolio.                                                    | Cotización en créditos/token, saldo, cantidad, promedio, valor actual y PnL del jugador abierto; ninguna otra posición. `0`, negativo y `null` se distinguen.                                |
+| Portfolio vacío          | Abrir con `items=[]`.                                                                                               | Mensaje de portfolio vacío, saldo visible, cero tokens y sin promedio/valor/PnL ficticios.                                                                                                   |
+| Sin posición del jugador | Usar portfolio con otras posiciones.                                                                                | Cero tokens del jugador, sin mostrar los otros items; no se etiqueta todo el portfolio como vacío.                                                                                           |
+| Carga y fallo de GET     | Demorar y luego fallar `GET /api/portfolio`.                                                                        | Carga diferenciada; después error y reintento, manteniendo la cotización válida.                                                                                                             |
+| Falta de cotización      | Abrir jugador sin cotización.                                                                                       | Mensaje explícito; saldo/posición disponibles; órdenes indisponibles.                                                                                                                        |
+| Entrada y confirmación   | Probar vacío, 0, negativo, decimal, texto, exponente, fuera de rango, mayor al saldo/tenencia; luego entero válido. | Error ligado al campo y cero POST en entradas inválidas. Confirmación válida muestra jugador, tipo, cantidad, cotización y total orientativo; cancelar conserva cantidad y no envía POST.    |
+| Compra                   | Confirmar una compra válida y observar red.                                                                         | Un POST `/api/orders/buy` con solo `playerId` y `quantity`; progreso, un solo envío con doble activación, comprobante con precio/total del 201 y GET portfolio posterior.                    |
+| Venta parcial y total    | Vender cantidad válida y luego toda la tenencia.                                                                    | Un POST `/api/orders/sell` por confirmación; nuevo GET actualiza posición. Venta total muestra cero y elimina métricas de posición ausente.                                                  |
+| Rechazo                  | Provocar 409 por saldo y por tenencia; comprobar también conflicto desconocido.                                     | Mensaje correcto o genérico según respuesta; ningún éxito ficticio; cantidad preservada y posibilidad de actualizar datos.                                                                   |
+| Orden incierta           | Cortar la respuesta de POST o devolver 5xx.                                                                         | Estado indeterminado, sin afirmar ejecución; acción de consultar portfolio y sin POST automático.                                                                                            |
+| Éxito, GET fallido       | Devolver 201 y fallar el GET posterior.                                                                             | Comprobante conservado; cifras previas no figuran como actuales; acción de reintento de GET.                                                                                                 |
+| Sesión y rol             | Expirar JWT; iniciar como SUPERUSER.                                                                                | 401 usa logout y retira datos; SUPERUSER puede consultar datos autorizados y carece de controles para operar.                                                                                |
+| Respuestas tardías       | Demorar GET/POST, cambiar jugador y sesión antes de responder.                                                      | Ningún dato anterior reemplaza el perfil actual; comprobante de POST confirmado, si se presenta en la misma sesión, identifica al jugador original; sesión nueva no ve datos de la anterior. |
 
 ## Verificación automatizada y visual
 
@@ -80,13 +80,13 @@ Al probar con los datos locales preparados arriba:
 
 ## Trazabilidad y estado de cierre
 
-| Requisitos | Evidencia automatizada o de código | Pendiente manual |
-|---|---|---|
-| FR-001–005, FR-008, FR-013; SC-001 | Pruebas de página, cliente GET, selección, hook de portfolio y cotizaciones; sección integrada. | Datos reales/visuales, vacío y cotización ausente. |
+| Requisitos                         | Evidencia automatizada o de código                                                                          | Pendiente manual                                                |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| FR-001–005, FR-008, FR-013; SC-001 | Pruebas de página, cliente GET, selección, hook de portfolio y cotizaciones; sección integrada.             | Datos reales/visuales, vacío y cotización ausente.              |
 | FR-006–007, FR-009–016; SC-002–005 | Pruebas de validación, cliente POST y hook BUY/SELL, rechazo, incertidumbre, GET posterior y bloqueo doble. | Diálogo, teclado, red y contadores de solicitudes en navegador. |
-| FR-017–018 | Pruebas de aislamiento por sesión, jugador y solicitudes tardías; logout por 401. | Navegación y sesión vencida en navegador. |
-| FR-019–020; SC-006 | Etiquetas, `aria-*`, `<dialog>`, estados anunciados, foco y CSS implementados; build aprobado. | Foco/teclado/lectores de pantalla y anchos 360/1280. |
-| FR-021–022; SC-007 | Cambios limitados a frontend; rol INVESTOR controla las acciones en el componente y página. | Verificar SUPERUSER e INVESTOR en navegador. |
+| FR-017–018                         | Pruebas de aislamiento por sesión, jugador y solicitudes tardías; logout por 401.                           | Navegación y sesión vencida en navegador.                       |
+| FR-019–020; SC-006                 | Etiquetas, `aria-*`, `<dialog>`, estados anunciados, foco y CSS implementados; build aprobado.              | Foco/teclado/lectores de pantalla y anchos 360/1280.            |
+| FR-021–022; SC-007                 | Cambios limitados a frontend; rol INVESTOR controla las acciones en el componente y página.                 | Verificar SUPERUSER e INVESTOR en navegador.                    |
 
 La aprobación formal de la **especificación** fue confirmada antes de implementar. La revisión y aprobación formal de la **entrega** del principio IX todavía dependen de la aceptación de la Project Owner. No hay incidencias automatizadas abiertas; la aceptación manual es la limitación restante.
 

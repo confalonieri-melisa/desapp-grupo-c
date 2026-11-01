@@ -303,8 +303,12 @@
   overflow-wrap: anywhere;
 }
 
-.selectionMetric strong.positive { color: #16ad46; }
-.selectionMetric strong.negative { color: #ed245f; }
+.selectionMetric strong.positive {
+  color: #16ad46;
+}
+.selectionMetric strong.negative {
+  color: #ed245f;
+}
 
 .selectionMetric small {
   color: var(--dusty-violet);
@@ -666,7 +670,7 @@
   position: absolute;
   left: 50%;
   background: #ef3d91;
-  content: '';
+  content: "";
   transform: translateX(-50%);
 }
 
@@ -712,9 +716,15 @@
   background: #f59cc6;
 }
 
-.emptyBars span:nth-child(1) { height: 12px; }
-.emptyBars span:nth-child(2) { height: 21px; }
-.emptyBars span:nth-child(3) { height: 30px; }
+.emptyBars span:nth-child(1) {
+  height: 12px;
+}
+.emptyBars span:nth-child(2) {
+  height: 21px;
+}
+.emptyBars span:nth-child(3) {
+  height: 30px;
+}
 
 .emptyComparison h2 {
   margin: 0 0 0.35rem;

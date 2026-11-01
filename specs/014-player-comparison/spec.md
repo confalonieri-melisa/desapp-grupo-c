@@ -45,7 +45,7 @@ de los dos registros históricos más recientes, sin crear ni modificar datos de
 mercado. No se muestra disponibilidad de tokens calculada para la comparación
 ni un score independiente del registro de cotización seleccionado.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Seleccionar jugadores para comparar (Priority: P1)
 
@@ -162,8 +162,8 @@ serie conserva sus fechas y valores.
 ### User Story 4 - Entender estados y recuperarse de fallos (Priority: P2)
 
 Como usuario, quiero distinguir selección incompleta, carga, ausencia de datos
- y error para saber qué acción puedo realizar y no confundir un fallo con una
- comparación válida.
+y error para saber qué acción puedo realizar y no confundir un fallo con una
+comparación válida.
 
 **Why this priority**: La vista combina búsquedas y varias consultas; un estado
 parcial o tardío puede inducir decisiones equivocadas.
@@ -219,7 +219,7 @@ cambiar la selección.
   operables, la matriz puede recorrerse sin perder el encabezado de jugador y
   ningún dato depende exclusivamente del color.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Alcance funcional
 
@@ -348,7 +348,7 @@ La matriz NO DEBE repetir:
   escritorio y pantallas estrechas, sin exigir que la matriz se convierta en
   tres fichas independientes.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Jugador seleccionable**: Jugador existente identificado por `id`, con
   nombre, equipo, liga, posición y estadísticas opcionales provenientes del
@@ -366,7 +366,7 @@ La matriz NO DEBE repetir:
 - **Estado de comparación**: Estado observable de selección, búsqueda,
   carga, contenido, ausencia de datos, error o sesión no válida.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

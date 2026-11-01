@@ -38,12 +38,17 @@ const player: PlayerApiItem = {
 };
 
 function useTestHook(token: string | null = "token") {
-  const state = [[], false, null, {
-    total: 0,
-    page: 1,
-    limit: 12,
-    totalPages: 0,
-  }] as [
+  const state = [
+    [],
+    false,
+    null,
+    {
+      total: 0,
+      page: 1,
+      limit: 12,
+      totalPages: 0,
+    },
+  ] as [
     PlayerApiItem[],
     boolean,
     string | null,
@@ -56,18 +61,30 @@ function useTestHook(token: string | null = "token") {
   ];
 
   useStateMock
-    .mockImplementationOnce(() => [state[0], (value: PlayerApiItem[]) => {
-      state[0] = value;
-    }])
-    .mockImplementationOnce(() => [state[1], (value: boolean) => {
-      state[1] = value;
-    }])
-    .mockImplementationOnce(() => [state[2], (value: string | null) => {
-      state[2] = value;
-    }])
-    .mockImplementationOnce(() => [state[3], (value: typeof state[3]) => {
-      state[3] = value;
-    }]);
+    .mockImplementationOnce(() => [
+      state[0],
+      (value: PlayerApiItem[]) => {
+        state[0] = value;
+      },
+    ])
+    .mockImplementationOnce(() => [
+      state[1],
+      (value: boolean) => {
+        state[1] = value;
+      },
+    ])
+    .mockImplementationOnce(() => [
+      state[2],
+      (value: string | null) => {
+        state[2] = value;
+      },
+    ])
+    .mockImplementationOnce(() => [
+      state[3],
+      (value: (typeof state)[3]) => {
+        state[3] = value;
+      },
+    ]);
 
   const unauthorized = vi.fn();
   const result = usePlayerCatalog(token, filters, 1, unauthorized);

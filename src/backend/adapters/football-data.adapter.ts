@@ -1,8 +1,6 @@
 import { env as defaultEnv, type Env } from "@/backend/config/env";
 import { League } from "@/backend/models/enums";
-import {
-  type TeamCompetitionStanding,
-} from "@/backend/models/competition-context";
+import { type TeamCompetitionStanding } from "@/backend/models/competition-context";
 import { normalizeStandings } from "@/backend/schemas/football-data.schema";
 
 const providerCodes: Record<League, string> = {
@@ -40,10 +38,7 @@ export class FootballDataAdapter {
     private readonly httpClient: HttpClient = { fetch: globalThis.fetch },
   ) {}
 
-  async getStandings(
-    league: League,
-    season: number,
-  ): Promise<CompetitionStandingResult> {
+  async getStandings(league: League, season: number): Promise<CompetitionStandingResult> {
     const competitionCode = providerCodes[league];
     const endpointPath = this.buildEndpointPath(competitionCode, season);
     const response = await this.fetchWithRetries(endpointPath);
@@ -110,11 +105,7 @@ export class FootballDataAdapter {
         signal: controller.signal,
       });
     } catch {
-      throw new FootballDataError(
-        "football-data.org request failed",
-        undefined,
-        true,
-      );
+      throw new FootballDataError("football-data.org request failed", undefined, true);
     } finally {
       clearTimeout(timeout);
     }

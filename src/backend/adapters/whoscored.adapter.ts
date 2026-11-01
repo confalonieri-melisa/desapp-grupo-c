@@ -28,9 +28,7 @@ export class WhoScoredAdapter implements PlayerDataSource {
 
   async fetchPlayers(): Promise<ScrapedPlayer[]> {
     const playerRecords = await this.fetcher();
-    return playerRecords.map((playerRecord) =>
-      normalizeWhoScoredPlayer(playerRecord),
-    );
+    return playerRecords.map((playerRecord) => normalizeWhoScoredPlayer(playerRecord));
   }
 }
 

@@ -37,14 +37,16 @@ function tradeDatabase() {
   const playersQuery = query([{ id: playerId }]);
   const investorQuery = query([userRow(investorId, UserRole.INVESTOR, "1000.00")]);
   const poolQuery = query([userRow(poolId, UserRole.SUPERUSER, "500.00")]);
-  const holdingsQuery = query([{
-    id: "pool-holding-id",
-    userId: poolId,
-    playerId,
-    quantity: 100,
-    averagePurchasePrice: "1.00",
-    updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-  }]);
+  const holdingsQuery = query([
+    {
+      id: "pool-holding-id",
+      userId: poolId,
+      playerId,
+      quantity: 100,
+      averagePurchasePrice: "1.00",
+      updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+    },
+  ]);
   const queries = [playersQuery, investorQuery, poolQuery, holdingsQuery];
   const update = vi.fn(() => ({
     set: vi.fn(() => ({
@@ -61,7 +63,8 @@ function tradeDatabase() {
       select: vi.fn(() => queries.shift()),
       update,
       insert,
-    } as unknown as Database));
+    } as unknown as Database),
+  );
 
   return {
     database: { transaction } as unknown as Database,
@@ -74,26 +77,32 @@ function tradeDatabase() {
 describe("MarketRepository", () => {
   it("loads the locked trade state and persists the complete operation in one transaction", async () => {
     const fake = tradeDatabase();
-    const repository = new MarketRepository(
-      fake.database,
-      { findLatestForPlayer: vi.fn().mockResolvedValue({
+    const repository = new MarketRepository(fake.database, {
+      findLatestForPlayer: vi.fn().mockResolvedValue({
         id: "quote-id",
         quoteValue: 10,
         unit: "CREDIT_PER_TOKEN",
-      }) } as never,
-    );
+      }),
+    } as never);
 
-    const result = await repository.executeTrade({
-      type: "BUY",
-      investorId,
-      playerId,
-      quantity: 3,
-    }, (state) => new MarketTrade().buy({
-      type: "BUY",
-      investorId,
-      playerId,
-      quantity: 3,
-    }, state));
+    const result = await repository.executeTrade(
+      {
+        type: "BUY",
+        investorId,
+        playerId,
+        quantity: 3,
+      },
+      (state) =>
+        new MarketTrade().buy(
+          {
+            type: "BUY",
+            investorId,
+            playerId,
+            quantity: 3,
+          },
+          state,
+        ),
+    );
 
     expect(fake.transaction).toHaveBeenCalledOnce();
     expect(result.creditBalance).toBe(970);
@@ -111,18 +120,20 @@ describe("MarketRepository", () => {
       callback({
         select: vi.fn(() => query([userRow(poolId, UserRole.SUPERUSER, "500.00")])),
         insert,
-      } as unknown as Database));
+      } as unknown as Database),
+    );
     const repository = new MarketRepository({ transaction } as unknown as Database);
 
     await repository.assignInitialTokens([playerId]);
 
     expect(transaction).toHaveBeenCalledOnce();
-    expect(values).toHaveBeenCalledWith([expect.objectContaining({
-      userId: poolId,
-      playerId,
-      quantity: 100,
-      averagePurchasePrice: "1.00",
-    })]);
+    expect(values).toHaveBeenCalledWith([
+      expect.objectContaining({
+        userId: poolId,
+        playerId,
+        quantity: 100,
+        averagePurchasePrice: "1.00",
+      }),
+    ]);
   });
-
 });

@@ -30,9 +30,7 @@ const clamp = (value: number) => Math.max(0, Math.min(1, value));
 
 export function normalizeMetricValue(value: number, metric: MetricConfig): number {
   if (metric.minimum === metric.maximum) return 0.5;
-  const normalized = clamp(
-    (value - metric.minimum) / (metric.maximum - metric.minimum),
-  );
+  const normalized = clamp((value - metric.minimum) / (metric.maximum - metric.minimum));
   return metric.polarity === "POSITIVE" ? normalized : 1 - normalized;
 }
 
@@ -83,18 +81,15 @@ export class ValuationEngine {
       teamScore,
       finalScore,
       quoteValue: quoteFromScore(finalScore),
-      explanation: buildExplanation(
-        strategyCode,
-        individual,
-        team,
-        teamContext,
-        config,
-        version,
-      ),
+      explanation: buildExplanation(strategyCode, individual, team, teamContext, config, version),
     };
   }
 
-  private calculateTeamComponent(strategyCode: ValuationStrategyCode, config: ValuationConfig, context?: TeamContext): ScoreComponent {
+  private calculateTeamComponent(
+    strategyCode: ValuationStrategyCode,
+    config: ValuationConfig,
+    context?: TeamContext,
+  ): ScoreComponent {
     if (strategyCode !== VALUATION_STRATEGY_CODES.INDIVIDUAL_PLUS_TEAM_CONTEXT || !context) {
       return scoreComponent([], []);
     }
@@ -104,21 +99,25 @@ export class ValuationEngine {
 
 export function calculateIndividualScore(player: Player, config: ValuationConfig): ScoreComponent {
   const evaluated = config.individualMetrics.map((metric) =>
-    evaluateIndividualMetric(player, metric)
+    evaluateIndividualMetric(player, metric),
   );
-  const contributions = evaluated.flatMap((item) =>
-    item.contribution ? [item.contribution] : []
-  );
-  const missing = evaluated
-    .filter((item) => item.missing)
-    .map((item) => item.metric);
+  const contributions = evaluated.flatMap((item) => (item.contribution ? [item.contribution] : []));
+  const missing = evaluated.filter((item) => item.missing).map((item) => item.metric);
   requireIndividualContributions(player, contributions);
   return scoreComponent(contributions, missing);
 }
 
-function evaluateIndividualMetric(player: Player, metric: MetricConfig & { metric: IndividualMetric }): MetricEvaluation {
+function evaluateIndividualMetric(
+  player: Player,
+  metric: MetricConfig & { metric: IndividualMetric },
+): MetricEvaluation {
   const weight = metric.positionWeights?.[player.position] ?? metric.weight;
-  const contribution = buildMetricContribution(metric, player.statistics[metric.metric], DATA_SOURCES.WHOSCORED, weight);
+  const contribution = buildMetricContribution(
+    metric,
+    player.statistics[metric.metric],
+    DATA_SOURCES.WHOSCORED,
+    weight,
+  );
   if (!contribution) {
     return { metric: metric.metric, missing: true };
   }
@@ -132,19 +131,16 @@ function requireIndividualContributions(player: Player, contributions: MetricCon
 }
 
 export function calculateTeamScore(config: ValuationConfig, context: TeamContext): ScoreComponent {
-  const evaluated = config.teamMetrics.map((metric) =>
-    evaluateTeamMetric(metric, context)
-  );
-  const contributions = evaluated.flatMap((item) =>
-    item.contribution ? [item.contribution] : []
-  );
-  const missing = evaluated
-    .filter((item) => item.missing)
-    .map((item) => item.metric);
+  const evaluated = config.teamMetrics.map((metric) => evaluateTeamMetric(metric, context));
+  const contributions = evaluated.flatMap((item) => (item.contribution ? [item.contribution] : []));
+  const missing = evaluated.filter((item) => item.missing).map((item) => item.metric);
   return scoreComponent(contributions, missing);
 }
 
-function evaluateTeamMetric(metric: MetricConfig & { metric: TeamMetric }, context: TeamContext): MetricEvaluation {
+function evaluateTeamMetric(
+  metric: MetricConfig & { metric: TeamMetric },
+  context: TeamContext,
+): MetricEvaluation {
   const contribution = buildMetricContribution(
     metric,
     context[metric.metric],
@@ -175,7 +171,11 @@ function scoreComponent(contributions: MetricContribution[], missing: string[]):
   };
 }
 
-export function combineScores(individualScore: number, teamScore: number | null, config: ValuationConfig): number {
+export function combineScores(
+  individualScore: number,
+  teamScore: number | null,
+  config: ValuationConfig,
+): number {
   if (teamScore === null) return individualScore;
   return config.individualShare * individualScore + config.teamShare * teamScore;
 }
@@ -188,7 +188,8 @@ function buildExplanation(
   config: ValuationConfig,
   version: string,
 ): QuoteExplanation {
-  const degraded = strategyCode === VALUATION_STRATEGY_CODES.INDIVIDUAL_PLUS_TEAM_CONTEXT && !teamContext;
+  const degraded =
+    strategyCode === VALUATION_STRATEGY_CODES.INDIVIDUAL_PLUS_TEAM_CONTEXT && !teamContext;
   return {
     strategyCode,
     version,

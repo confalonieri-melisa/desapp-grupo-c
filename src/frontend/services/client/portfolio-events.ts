@@ -10,6 +10,8 @@ export type PortfolioUpdate = {
 
 export function publishPortfolioUpdate(update: PortfolioUpdate): void {
   if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent<PortfolioUpdate>(PORTFOLIO_UPDATED_EVENT, { detail: update }));
+    window.dispatchEvent(
+      new CustomEvent<PortfolioUpdate>(PORTFOLIO_UPDATED_EVENT, { detail: update }),
+    );
   }
 }

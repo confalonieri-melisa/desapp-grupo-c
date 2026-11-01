@@ -1,8 +1,5 @@
 import { Position } from "@/backend/models/enums";
-import {
-  PLAYER_STATISTIC_KEYS,
-  type PlayerStatisticKey,
-} from "@/backend/models/player-statistics";
+import { PLAYER_STATISTIC_KEYS, type PlayerStatisticKey } from "@/backend/models/player-statistics";
 import type { DataSource } from "@/backend/models/data-sources";
 
 export const VALUATION_STRATEGY_CODES = {
@@ -19,12 +16,7 @@ export const VALUATION_STRATEGIES = Object.values(VALUATION_STRATEGY_CODES) as [
 export { PLAYER_STATISTIC_KEYS };
 export type IndividualMetric = PlayerStatisticKey;
 
-export const TEAM_METRICS = [
-  "position",
-  "points",
-  "playedGames",
-  "goalDifference",
-] as const;
+export const TEAM_METRICS = ["position", "points", "playedGames", "goalDifference"] as const;
 export type TeamMetric = (typeof TEAM_METRICS)[number];
 
 export interface MetricConfig {

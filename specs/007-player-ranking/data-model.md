@@ -6,12 +6,12 @@
 
 Se lee la fila con `is_active = 1`.
 
-| Campo | Uso |
-|---|---|
-| `id` | Identificador exacto que se pasa al filtro de quotes |
-| `strategy_code` | `strategyCode` de la respuesta |
-| `version` | `strategyVersion` de la respuesta |
-| `is_active` | Resolución de la única versión activa |
+| Campo           | Uso                                                  |
+| --------------- | ---------------------------------------------------- |
+| `id`            | Identificador exacto que se pasa al filtro de quotes |
+| `strategy_code` | `strategyCode` de la respuesta                       |
+| `version`       | `strategyVersion` de la respuesta                    |
+| `is_active`     | Resolución de la única versión activa                |
 
 La constraint/index parcial `idx_valuation_active` ya impide más de una fila
 activa.
@@ -20,27 +20,27 @@ activa.
 
 Se filtra por `strategy_version_id` y se deduplica por `player_id`.
 
-| Campo | Uso |
-|---|---|
-| `player_id` | Join con `players` y clave de deduplicación |
-| `strategy_version_id` | Coincidencia exacta con la versión activa capturada |
-| `final_score` | Primer criterio de orden descendente y salida `finalScore` |
-| `quote_value` | Segundo criterio de orden descendente y salida `quoteValue` |
-| `unit` | Unidad de la cotización |
-| `calculated_at` | Selección de la última quote y salida `calculatedAt` |
-| `id` | Desempate temporal y estabilidad de selección |
+| Campo                 | Uso                                                         |
+| --------------------- | ----------------------------------------------------------- |
+| `player_id`           | Join con `players` y clave de deduplicación                 |
+| `strategy_version_id` | Coincidencia exacta con la versión activa capturada         |
+| `final_score`         | Primer criterio de orden descendente y salida `finalScore`  |
+| `quote_value`         | Segundo criterio de orden descendente y salida `quoteValue` |
+| `unit`                | Unidad de la cotización                                     |
+| `calculated_at`       | Selección de la última quote y salida `calculatedAt`        |
+| `id`                  | Desempate temporal y estabilidad de selección               |
 
 ### `players`
 
 Se usa para identidad y filtros.
 
-| Campo | Uso |
-|---|---|
-| `id` | Identidad y desempate final |
-| `name` | Salida y desempate ascendente |
-| `team` | Filtro parcial case-insensitive y salida |
-| `league` | Filtro exacto y salida |
-| `position` | Filtro exacto y salida |
+| Campo      | Uso                                      |
+| ---------- | ---------------------------------------- |
+| `id`       | Identidad y desempate final              |
+| `name`     | Salida y desempate ascendente            |
+| `team`     | Filtro parcial case-insensitive y salida |
+| `league`   | Filtro exacto y salida                   |
+| `position` | Filtro exacto y salida                   |
 
 ## Proyección de lectura
 

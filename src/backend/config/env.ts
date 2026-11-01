@@ -4,29 +4,19 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const envSchema = z.object({
-  DATABASE_URL: z
-    .string()
-    .default("postgresql://postgres:postgres@localhost:5432/desapp_db"),
+  DATABASE_URL: z.string().default("postgresql://postgres:postgres@localhost:5432/desapp_db"),
   JWT_SECRET: z
     .string()
     .min(16, "JWT_SECRET must be at least 16 characters long")
     .default("secret-jwt-key-desapp-grupo-c-min-32-chars"),
-  NODE_ENV: z
-    .enum(["development", "production", "test"])
-    .default("development"),
-  PORT: z
-    .coerce
-    .number()
-    .default(3000),
+  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+  PORT: z.coerce.number().default(3000),
   WHOSCORED_PYTHON_PATH: z.string().trim().min(1).default("python"),
   WHOSCORED_SCRIPT_PATH: z.string().trim().min(1).default("scripts/whoscored_scraper.py"),
   WHOSCORED_URL: z.string().url().default("https://www.whoscored.com/Statistics"),
   WHOSCORED_MAX_PAGES: z.coerce.number().int().positive().max(140).default(140),
   WHOSCORED_LIMIT: z.coerce.number().int().positive().optional(),
-  WHOSCORED_HEADLESS: z.preprocess(
-    parseBooleanEnvironmentValue,
-    z.boolean().default(false),
-  ),
+  WHOSCORED_HEADLESS: z.preprocess(parseBooleanEnvironmentValue, z.boolean().default(false)),
   FOOTBALL_DATA_BASE_URL: z.string().url().default("https://api.football-data.org"),
   FOOTBALL_DATA_TOKEN: z.string().trim().min(1).default("test-football-data-token"),
   FOOTBALL_DATA_TIMEOUT_MS: z.coerce.number().int().positive().default(10000),

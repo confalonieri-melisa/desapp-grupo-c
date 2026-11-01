@@ -18,12 +18,12 @@ paths:
       tags:
         - System
       responses:
-        '200':
+        "200":
           description: Servicio saludable
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HealthResponse'
+                $ref: "#/components/schemas/HealthResponse"
 
   /auth/register:
     post:
@@ -37,26 +37,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterRequest'
+              $ref: "#/components/schemas/RegisterRequest"
       responses:
-        '201':
+        "201":
           description: Usuario registrado exitosamente
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RegisterResponse'
-        '400':
+                $ref: "#/components/schemas/RegisterResponse"
+        "400":
           description: Datos de entrada inválidos
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
           description: El email ya se encuentra registrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /auth/login:
     post:
@@ -71,20 +71,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: "#/components/schemas/LoginRequest"
       responses:
-        '200':
+        "200":
           description: Login exitoso y emisión de token JWT
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '401':
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
           description: Credenciales inválidas
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /players:
     get:
@@ -110,7 +110,7 @@ paths:
           required: false
           description: Filtro por liga oficial
           schema:
-            $ref: '#/components/schemas/LeagueEnum'
+            $ref: "#/components/schemas/LeagueEnum"
         - name: team
           in: query
           required: false
@@ -122,7 +122,7 @@ paths:
           required: false
           description: Filtro por posición en el campo
           schema:
-            $ref: '#/components/schemas/PositionEnum'
+            $ref: "#/components/schemas/PositionEnum"
         - name: page
           in: query
           required: false
@@ -141,18 +141,18 @@ paths:
             minimum: 1
             maximum: 100
       responses:
-        '200':
+        "200":
           description: Lista paginada de jugadores
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedPlayersResponse'
-        '401':
+                $ref: "#/components/schemas/PaginatedPlayersResponse"
+        "401":
           description: No autorizado - Token JWT ausente, inválido o expirado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /players/{id}:
     get:
@@ -173,18 +173,18 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Detalle del jugador
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlayerDetailResponse'
-        '401':
+                $ref: "#/components/schemas/PlayerDetailResponse"
+        "401":
           description: No autorizado - Token JWT ausente o inválido
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /players/ranking:
     get:
@@ -203,7 +203,7 @@ paths:
           required: false
           description: Filtro por liga oficial
           schema:
-            $ref: '#/components/schemas/LeagueEnum'
+            $ref: "#/components/schemas/LeagueEnum"
         - name: team
           in: query
           required: false
@@ -216,7 +216,7 @@ paths:
           required: false
           description: Filtro por posición
           schema:
-            $ref: '#/components/schemas/PositionEnum'
+            $ref: "#/components/schemas/PositionEnum"
         - name: page
           in: query
           required: false
@@ -233,36 +233,36 @@ paths:
             minimum: 1
             maximum: 100
       responses:
-        '200':
+        "200":
           description: Ranking paginado de jugadores
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlayerRankingResponse'
-        '400':
+                $ref: "#/components/schemas/PlayerRankingResponse"
+        "400":
           description: Parámetro inválido o desconocido
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: No autorizado - Token JWT ausente, inválido o expirado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
           description: No existe una estrategia de valuación activa
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
           description: Error inesperado del servidor
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /players/{id}/quotes:
     get:
@@ -291,30 +291,30 @@ paths:
             type: string
             pattern: '^\\d{4}-\\d{2}-\\d{2}$'
       responses:
-        '200':
+        "200":
           description: Historial completo o una única cotización cuando se informa date
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlayerQuotesResponse'
-        '400':
+                $ref: "#/components/schemas/PlayerQuotesResponse"
+        "400":
           description: Identificador o fecha inválidos
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: No autorizado - Token JWT ausente, inválido o expirado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
           description: Jugador inexistente o cotización no disponible para la fecha
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /competition-context/updates:
     post:
@@ -328,30 +328,30 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CollectiveSyncRequest'
+              $ref: "#/components/schemas/CollectiveSyncRequest"
       responses:
-        '200':
+        "200":
           description: Sincronización válida publicada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectiveSyncResponse'
-        '400':
+                $ref: "#/components/schemas/CollectiveSyncResponse"
+        "400":
           description: Temporada inválida
-        '401':
+        "401":
           description: Token ausente o inválido
-        '403':
+        "403":
           description: El usuario no es superusuario
-        '429':
+        "429":
           description: Límite del proveedor
-        '502':
+        "502":
           description: Proveedor no disponible o respuesta inválida
-        '404':
+        "404":
           description: Jugador no encontrado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /valuation/active:
     post:
@@ -364,17 +364,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ActivateStrategyRequest'
+              $ref: "#/components/schemas/ActivateStrategyRequest"
       responses:
-        '200':
+        "200":
           description: Estrategia activada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ActiveStrategyResponse'
-        '400': { description: Request inválido }
-        '401': { description: Token ausente o inválido }
-        '403': { description: Se requiere SUPERUSER }
+                $ref: "#/components/schemas/ActiveStrategyResponse"
+        "400": { description: Request inválido }
+        "401": { description: Token ausente o inválido }
+        "403": { description: Se requiere SUPERUSER }
 
   /quotes/recalculate:
     post:
@@ -390,16 +390,16 @@ paths:
               type: object
               additionalProperties: false
       responses:
-        '200':
+        "200":
           description: Cotizaciones calculadas o publicación parcial
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RecalculationResponse'
-        '400': { description: "El body debe ser {}" }
-        '401': { description: Token ausente o inválido }
-        '403': { description: Se requiere SUPERUSER }
-        '409': { description: No existe estrategia activa }
+                $ref: "#/components/schemas/RecalculationResponse"
+        "400": { description: "El body debe ser {}" }
+        "401": { description: Token ausente o inválido }
+        "403": { description: Se requiere SUPERUSER }
+        "409": { description: No existe estrategia activa }
 
   /orders/buy:
     post:
@@ -413,19 +413,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MarketOrderRequest'
+              $ref: "#/components/schemas/MarketOrderRequest"
       responses:
-        '201':
+        "201":
           description: Compra ejecutada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MarketOperationResult'
-        '400': { description: Request inválido }
-        '401': { description: Token ausente o inválido }
-        '404': { description: Jugador, pool o cotización inexistente }
-        '409': { description: Saldo o tokens insuficientes }
-        '500': { description: Error inesperado sin cambios parciales }
+                $ref: "#/components/schemas/MarketOperationResult"
+        "400": { description: Request inválido }
+        "401": { description: Token ausente o inválido }
+        "404": { description: Jugador, pool o cotización inexistente }
+        "409": { description: Saldo o tokens insuficientes }
+        "500": { description: Error inesperado sin cambios parciales }
 
   /orders/sell:
     post:
@@ -439,19 +439,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MarketOrderRequest'
+              $ref: "#/components/schemas/MarketOrderRequest"
       responses:
-        '201':
+        "201":
           description: Venta ejecutada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MarketOperationResult'
-        '400': { description: Request inválido }
-        '401': { description: Token ausente o inválido }
-        '404': { description: Jugador, pool o cotización inexistente }
-        '409': { description: Tenencia o saldo del pool insuficiente }
-        '500': { description: Error inesperado sin cambios parciales }
+                $ref: "#/components/schemas/MarketOperationResult"
+        "400": { description: Request inválido }
+        "401": { description: Token ausente o inválido }
+        "404": { description: Jugador, pool o cotización inexistente }
+        "409": { description: Tenencia o saldo del pool insuficiente }
+        "500": { description: Error inesperado sin cambios parciales }
 
   /portfolio:
     get:
@@ -461,13 +461,13 @@ paths:
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Portfolio del inversor autenticado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PortfolioResponse'
-        '401': { description: Token ausente o inválido }
+                $ref: "#/components/schemas/PortfolioResponse"
+        "401": { description: Token ausente o inválido }
 
   /users/{id}/transactions:
     get:
@@ -502,16 +502,16 @@ paths:
             minimum: 0
             default: 0
       responses:
-        '200':
+        "200":
           description: Historial de operaciones
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionHistoryResponse'
-        '400': { description: UUID o paginación inválidos }
-        '401': { description: Token ausente o inválido }
-        '403': { description: El id no coincide con el sujeto autenticado }
-        '500': { description: Error inesperado }
+                $ref: "#/components/schemas/TransactionHistoryResponse"
+        "400": { description: UUID o paginación inválidos }
+        "401": { description: Token ausente o inválido }
+        "403": { description: El id no coincide con el sujeto autenticado }
+        "500": { description: Error inesperado }
 
 components:
   securitySchemes:
@@ -592,7 +592,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/TransactionHistoryItem'
+            $ref: "#/components/schemas/TransactionHistoryItem"
         limit:
           type: integer
         offset:
@@ -602,7 +602,8 @@ components:
 
     TransactionHistoryItem:
       type: object
-      required: [id, type, playerId, quantity, quoteId, quoteValue, total, unit, createdAt, correlationId]
+      required:
+        [id, type, playerId, quantity, quoteId, quoteValue, total, unit, createdAt, correlationId]
       properties:
         id: { type: string, format: uuid }
         type: { type: string, enum: [BUY, SELL] }
@@ -666,7 +667,7 @@ components:
           type: string
           example: Juan Perez
         role:
-          $ref: '#/components/schemas/UserRoleEnum'
+          $ref: "#/components/schemas/UserRoleEnum"
         creditBalance:
           type: number
           format: float
@@ -686,7 +687,7 @@ components:
           type: string
           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
         user:
-          $ref: '#/components/schemas/UserResponse'
+          $ref: "#/components/schemas/UserResponse"
 
     LoginResponse:
       type: object
@@ -698,7 +699,7 @@ components:
           type: string
           example: 24h
         user:
-          $ref: '#/components/schemas/UserResponse'
+          $ref: "#/components/schemas/UserResponse"
 
     PlayerSummary:
       type: object
@@ -714,9 +715,9 @@ components:
           type: string
           example: Real Madrid
         league:
-          $ref: '#/components/schemas/LeagueEnum'
+          $ref: "#/components/schemas/LeagueEnum"
         position:
-          $ref: '#/components/schemas/PositionEnum'
+          $ref: "#/components/schemas/PositionEnum"
         statistics:
           type: object
           additionalProperties: true
@@ -748,9 +749,9 @@ components:
           type: string
           example: Real Madrid
         league:
-          $ref: '#/components/schemas/LeagueEnum'
+          $ref: "#/components/schemas/LeagueEnum"
         position:
-          $ref: '#/components/schemas/PositionEnum'
+          $ref: "#/components/schemas/PositionEnum"
         statistics:
           type: object
           additionalProperties: true
@@ -793,9 +794,9 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/PlayerSummary'
+            $ref: "#/components/schemas/PlayerSummary"
         pagination:
-          $ref: '#/components/schemas/PaginationMeta'
+          $ref: "#/components/schemas/PaginationMeta"
 
     PlayerRankingResponse:
       type: object
@@ -809,9 +810,9 @@ components:
         players:
           type: array
           items:
-            $ref: '#/components/schemas/PlayerRankingItem'
+            $ref: "#/components/schemas/PlayerRankingItem"
         pagination:
-          $ref: '#/components/schemas/PaginationMeta'
+          $ref: "#/components/schemas/PaginationMeta"
 
     PlayerRankingItem:
       type: object
@@ -832,9 +833,9 @@ components:
             team:
               type: string
             league:
-              $ref: '#/components/schemas/LeagueEnum'
+              $ref: "#/components/schemas/LeagueEnum"
             position:
-              $ref: '#/components/schemas/PositionEnum'
+              $ref: "#/components/schemas/PositionEnum"
         finalScore:
           type: number
           minimum: 0
@@ -857,7 +858,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/PlayerQuoteResponse'
+            $ref: "#/components/schemas/PlayerQuoteResponse"
 
     PlayerQuoteResponse:
       type: object
@@ -882,7 +883,7 @@ components:
         strategyVersion:
           type: string
         score:
-          $ref: '#/components/schemas/PlayerQuoteScore'
+          $ref: "#/components/schemas/PlayerQuoteScore"
 
     PlayerQuoteScore:
       type: object
@@ -955,7 +956,15 @@ components:
           type: array
           items:
             type: object
-            required: [playerId, quantity, averagePurchasePrice, currentQuoteValue, currentValue, unrealizedPnl]
+            required:
+              [
+                playerId,
+                quantity,
+                averagePurchasePrice,
+                currentQuoteValue,
+                currentValue,
+                unrealizedPnl,
+              ]
             properties:
               playerId: { type: string, format: uuid }
               quantity: { type: integer, minimum: 1 }
@@ -1029,7 +1038,7 @@ components:
         quotes:
           type: array
           items:
-            $ref: '#/components/schemas/QuoteResult'
+            $ref: "#/components/schemas/QuoteResult"
         errors:
           type: array
           items:

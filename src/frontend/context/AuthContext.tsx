@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState } from 'react';
-import type { AuthenticatedUser } from '@/backend/services/auth.service';
+import { createContext, useContext, useEffect, useState } from "react";
+import type { AuthenticatedUser } from "@/backend/services/auth.service";
 import {
   clearStoredAuth,
   getStoredAuth,
   saveStoredAuth,
-} from '@/frontend/services/client/auth-storage';
+} from "@/frontend/services/client/auth-storage";
 
 interface AuthContextType {
   user: AuthenticatedUser | null;
@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

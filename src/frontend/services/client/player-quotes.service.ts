@@ -1,4 +1,5 @@
-export type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
+export type JsonValue =
+  string | number | boolean | null | JsonValue[] | { [key: string]: JsonValue };
 
 export interface PlayerQuoteDto {
   playerId: string;
@@ -15,7 +16,9 @@ export interface PlayerQuoteDto {
   } | null;
 }
 
-export interface PlayerQuotesResponse { items: PlayerQuoteDto[] }
+export interface PlayerQuotesResponse {
+  items: PlayerQuoteDto[];
+}
 
 export async function getPlayerQuotes(
   token: string,
@@ -25,12 +28,19 @@ export async function getPlayerQuotes(
 ): Promise<PlayerQuotesResponse> {
   const query = date === undefined ? "" : `?${new URLSearchParams({ date })}`;
   const response = await fetch(`/api/players/${encodeURIComponent(playerId)}/quotes${query}`, {
-    method: "GET", headers: { Authorization: `Bearer ${token}` }, signal,
+    method: "GET",
+    headers: { Authorization: `Bearer ${token}` },
+    signal,
   });
   let body;
-  try { body = await response.json(); } catch { body = undefined; }
+  try {
+    body = await response.json();
+  } catch {
+    body = undefined;
+  }
   if (!response.ok) {
-    const message = typeof body?.error === "string" ? body.error : "No se pudieron cargar las cotizaciones";
+    const message =
+      typeof body?.error === "string" ? body.error : "No se pudieron cargar las cotizaciones";
     throw Object.assign(new Error(message), { status: response.status });
   }
   return body as PlayerQuotesResponse;

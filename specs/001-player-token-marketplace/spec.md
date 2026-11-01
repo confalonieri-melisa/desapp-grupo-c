@@ -10,7 +10,7 @@
 
 **Input**: User description: "Entrega 1 del TP: Core (GitHub Actions, Build SUCCESS, SonarCloud <10 issues, JWT, Swagger v3), Modelo (Modelo mínimo y estructura de datos, Testing unitario automático), Funcionalidad (Creación de usuario y ApiKEY/JWT para acceder al resto de endpoints, Endpoint de catálogo de jugadores protegido)."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Pipeline de Integración Continua, Calidad y Documentación API (Priority: P1)
 
@@ -87,7 +87,7 @@ Como usuario inversor autenticado, quiero consultar el catálogo de futbolistas 
 
 ---
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -107,7 +107,7 @@ Como usuario inversor autenticado, quiero consultar el catálogo de futbolistas 
 
 ---
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **User (Usuario):** Entidad representativa del inversor o superusuario. Atributos: `id`, `name`, `email`, `password`, `role` (`INVESTOR`, `SUPERUSER`), `creditBalance` (inicia en 1.000) y `createdAt`. Expone operaciones para consultar, debitar y acreditar saldo.
 - **Player (Jugador):** Entidad deportiva perteneciente a una de las 5 ligas oficiales. Atributos: `id`, `name`, `team`, `league` (`PREMIER_LEAGUE`, `BUNDESLIGA`, `LA_LIGA`, `SERIE_A`, `LIGUE_1`), `position` (`UNKNOWN`, `GOALKEEPER`, `DEFENDER`, `MIDFIELDER`, `FORWARD`) y `statistics`, un mapa de métricas numéricas no negativas.
@@ -117,7 +117,7 @@ Como usuario inversor autenticado, quiero consultar el catálogo de futbolistas 
 
 ---
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

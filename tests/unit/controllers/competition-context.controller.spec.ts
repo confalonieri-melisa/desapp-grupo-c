@@ -13,10 +13,9 @@ describe("CompetitionContextController", () => {
       }),
     } as unknown as CompetitionContextService;
 
-    await expect(new CompetitionContextController(service).update(
-      { season: "2026" },
-      "superuser-1",
-    )).resolves.toMatchObject({
+    await expect(
+      new CompetitionContextController(service).update({ season: "2026" }, "superuser-1"),
+    ).resolves.toMatchObject({
       updateId: "update-1",
       season: 2026,
       status: "VALID",
@@ -30,10 +29,9 @@ describe("CompetitionContextController", () => {
       update: vi.fn(),
     } as unknown as CompetitionContextService;
 
-    await expect(new CompetitionContextController(service).update(
-      { season: 1999 },
-      "superuser-1",
-    )).rejects.toThrow();
+    await expect(
+      new CompetitionContextController(service).update({ season: 1999 }, "superuser-1"),
+    ).rejects.toThrow();
     expect(service.update).not.toHaveBeenCalled();
   });
 });

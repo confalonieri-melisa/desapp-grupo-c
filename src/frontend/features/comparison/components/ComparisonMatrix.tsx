@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { BarChart3, CircleDollarSign, Shield, Star, UserRound, UsersRound, X } from 'lucide-react';
+import Image from "next/image";
+import { BarChart3, CircleDollarSign, Shield, Star, UserRound, UsersRound, X } from "lucide-react";
 import {
   buildComparisonRows,
   formatComparisonValue,
   type ComparisonPlayer,
   type ComparisonRowKey,
-} from '@/frontend/features/comparison/comparison';
-import { getPlayerImage } from '@/frontend/utils/image-mapper';
-import { formatEnumLabel, leagueLabels } from '@/frontend/utils/player-labels';
-import styles from '@/app/comparison/ComparisonPage.module.scss';
+} from "@/frontend/features/comparison/comparison";
+import { getPlayerImage } from "@/frontend/utils/image-mapper";
+import { formatEnumLabel, leagueLabels } from "@/frontend/utils/player-labels";
+import styles from "@/app/comparison/ComparisonPage.module.scss";
 
 const metricIcons = {
   currentQuote: CircleDollarSign,
@@ -31,12 +31,12 @@ export default function ComparisonMatrix({ players, onRemove }: Props) {
   return (
     <div className={styles.matrixWrapper}>
       <table className={styles.matrix}>
-        <caption className={styles.srOnly}>
-          Comparación de jugadores seleccionados
-        </caption>
+        <caption className={styles.srOnly}>Comparación de jugadores seleccionados</caption>
         <thead>
           <tr>
-            <th scope="col" className={styles.metricHeading}>Métrica</th>
+            <th scope="col" className={styles.metricHeading}>
+              Métrica
+            </th>
             {players.map((player) => (
               <th scope="col" key={player.id}>
                 <div className={styles.playerHeader}>
@@ -52,7 +52,8 @@ export default function ComparisonMatrix({ players, onRemove }: Props) {
                     <strong>{player.name}</strong>
                     <small>
                       <Shield aria-hidden="true" size={13} />
-                      {player.team} · {leagueLabels[player.league] ?? formatEnumLabel(player.league)}
+                      {player.team} ·{" "}
+                      {leagueLabels[player.league] ?? formatEnumLabel(player.league)}
                     </small>
                   </div>
                   <button
@@ -83,16 +84,18 @@ export default function ComparisonMatrix({ players, onRemove }: Props) {
                     <td key={`${row.key}-${players[index]?.id}`}>
                       {value === null ? (
                         <span className={styles.unavailable}>No disponible</span>
-                      ) : row.key === 'finalScore' ? (
-                        <strong className={styles.finalScore}>{formatComparisonValue(value, row.key)}</strong>
-                      ) : row.key === 'variation' ? (
+                      ) : row.key === "finalScore" ? (
+                        <strong className={styles.finalScore}>
+                          {formatComparisonValue(value, row.key)}
+                        </strong>
+                      ) : row.key === "variation" ? (
                         <strong className={Number(value) >= 0 ? styles.positive : styles.negative}>
                           {formatComparisonValue(value, row.key)}
                         </strong>
                       ) : (
                         <span>
                           {formatComparisonValue(value, row.key)}
-                          {row.key === 'currentQuote' && <small> créditos</small>}
+                          {row.key === "currentQuote" && <small> créditos</small>}
                         </span>
                       )}
                     </td>

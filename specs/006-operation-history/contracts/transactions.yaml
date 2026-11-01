@@ -31,16 +31,16 @@ paths:
             minimum: 0
             default: 0
       responses:
-        '200':
+        "200":
           description: Operation history
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionHistoryResponse'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '403': { $ref: '#/components/responses/Forbidden' }
-        '500': { $ref: '#/components/responses/InternalServerError' }
+                $ref: "#/components/schemas/TransactionHistoryResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
 components:
   securitySchemes:
     BearerAuth:
@@ -55,7 +55,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/TransactionHistoryItem'
+            $ref: "#/components/schemas/TransactionHistoryItem"
         limit:
           type: integer
         offset:
@@ -87,19 +87,19 @@ components:
       description: Invalid path or pagination parameters
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
     Unauthorized:
       description: Missing or invalid JWT
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
     Forbidden:
       description: The path user does not match the authenticated subject
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }
     InternalServerError:
       description: Unexpected error without exposing persistence details
       content:
         application/json:
-          schema: { $ref: '#/components/schemas/Error' }
+          schema: { $ref: "#/components/schemas/Error" }

@@ -1,8 +1,8 @@
-import type { League } from '@/backend/models/enums';
+import type { League } from "@/backend/models/enums";
 
 export interface TransactionHistoryItem {
   id: string;
-  type: 'BUY' | 'SELL';
+  type: "BUY" | "SELL";
   playerId: string;
   quantity: number;
   quoteId: string;
@@ -21,14 +21,21 @@ export interface TransactionHistoryResponse {
 }
 
 export type PlayerReference =
-  | { status: 'pending' | 'unavailable' }
-  | { status: 'resolved'; name: string; team?: string; league?: League; imageUrl?: string };
+  | { status: "pending" | "unavailable" }
+  | { status: "resolved"; name: string; team?: string; league?: League; imageUrl?: string };
 
 export interface HistoryViewState {
   sessionKey: string | null;
   items: TransactionHistoryItem[];
   players: Record<string, PlayerReference>;
-  phase: 'initial-loading' | 'content' | 'empty' | 'initial-error' | 'loading-more' | 'page-error' | 'access-denied';
+  phase:
+    | "initial-loading"
+    | "content"
+    | "empty"
+    | "initial-error"
+    | "loading-more"
+    | "page-error"
+    | "access-denied";
   nextOffset: number;
   hasMore: boolean;
   error: string | null;
@@ -36,23 +43,37 @@ export interface HistoryViewState {
 
 export const HISTORY_PAGE_SIZE = 20;
 
-const numberFormatter = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 20 });
-const dateFormatter = new Intl.DateTimeFormat('es-AR', {
-  timeZone: 'America/Argentina/Buenos_Aires',
-  day: '2-digit', month: '2-digit', year: 'numeric',
-  hour: '2-digit', minute: '2-digit', hour12: false,
+const numberFormatter = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 20 });
+const dateFormatter = new Intl.DateTimeFormat("es-AR", {
+  timeZone: "America/Argentina/Buenos_Aires",
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
 });
-const dateOnlyFormatter = new Intl.DateTimeFormat('es-AR', {
-  timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit', year: 'numeric',
+const dateOnlyFormatter = new Intl.DateTimeFormat("es-AR", {
+  timeZone: "America/Argentina/Buenos_Aires",
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
 });
-const timeOnlyFormatter = new Intl.DateTimeFormat('es-AR', {
-  timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false,
+const timeOnlyFormatter = new Intl.DateTimeFormat("es-AR", {
+  timeZone: "America/Argentina/Buenos_Aires",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
 });
-const monthFormatter = new Intl.DateTimeFormat('es-AR', {
-  timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: '2-digit',
+const monthFormatter = new Intl.DateTimeFormat("es-AR", {
+  timeZone: "America/Argentina/Buenos_Aires",
+  year: "numeric",
+  month: "2-digit",
 });
-const monthLabelFormatter = new Intl.DateTimeFormat('es-AR', {
-  timeZone: 'America/Argentina/Buenos_Aires', year: 'numeric', month: 'long',
+const monthLabelFormatter = new Intl.DateTimeFormat("es-AR", {
+  timeZone: "America/Argentina/Buenos_Aires",
+  year: "numeric",
+  month: "long",
 });
 
 export function formatHistoryNumber(value: number): string {
@@ -73,9 +94,9 @@ export function formatHistoryTimeOnly(value: string): string {
 
 export function historyMonthKey(value: string): string {
   const parts = monthFormatter.formatToParts(new Date(value));
-  const year = parts.find((part) => part.type === 'year')?.value;
-  const month = parts.find((part) => part.type === 'month')?.value;
-  return `${year}-${month?.padStart(2, '0')}`;
+  const year = parts.find((part) => part.type === "year")?.value;
+  const month = parts.find((part) => part.type === "month")?.value;
+  return `${year}-${month?.padStart(2, "0")}`;
 }
 
 export function historyMonthLabel(value: string): string {
@@ -84,7 +105,7 @@ export function historyMonthLabel(value: string): string {
 
 export interface HistoryFilters {
   search: string;
-  type: 'ALL' | 'BUY' | 'SELL';
+  type: "ALL" | "BUY" | "SELL";
   period: string;
 }
 
@@ -93,18 +114,20 @@ export function filterHistoryItems(
   players: Record<string, PlayerReference>,
   filters: HistoryFilters,
 ): TransactionHistoryItem[] {
-  const search = filters.search.trim().toLocaleLowerCase('es-AR');
+  const search = filters.search.trim().toLocaleLowerCase("es-AR");
   return items.filter((item) => {
     const player = players[item.playerId];
-    const playerName = player?.status === 'resolved' ? player.name : '';
-    return (filters.type === 'ALL' || item.type === filters.type) &&
-      (filters.period === 'ALL' || historyMonthKey(item.createdAt) === filters.period) &&
-      (!search || `${playerName} ${item.playerId}`.toLocaleLowerCase('es-AR').includes(search));
+    const playerName = player?.status === "resolved" ? player.name : "";
+    return (
+      (filters.type === "ALL" || item.type === filters.type) &&
+      (filters.period === "ALL" || historyMonthKey(item.createdAt) === filters.period) &&
+      (!search || `${playerName} ${item.playerId}`.toLocaleLowerCase("es-AR").includes(search))
+    );
   });
 }
 
 export function formatQuoteUnit(unit: string): string {
-  return unit === 'CREDIT_PER_TOKEN' ? 'créditos por token' : unit;
+  return unit === "CREDIT_PER_TOKEN" ? "créditos por token" : unit;
 }
 
 export function mergeHistoryPage(

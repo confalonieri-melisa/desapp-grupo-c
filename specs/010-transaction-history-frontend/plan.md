@@ -6,7 +6,6 @@
 
 ## Summary
 
-
 Agregar «Mi historial» a la navegación autenticada y una vista de solo lectura en `/transactions`. Consulta el endpoint existente de la feature 006 con el ID del `AuthContext`, presenta importes históricos, resuelve nombres de jugadores y permite anexar páginas anteriores. El estado se aísla por sesión; ante `401` se retira el historial y se dirige a `/login`.
 
 ## Technical Context
@@ -23,15 +22,15 @@ Agregar «Mi historial» a la navegación autenticada y una vista de solo lectur
 
 ## Constitution Check
 
-*GATE: evaluado antes de Fase 0 y nuevamente después del diseño de Fase 1.*
+_GATE: evaluado antes de Fase 0 y nuevamente después del diseño de Fase 1._
 
-| Principio | Antes | Después | Evidencia |
-|---|---|---|---|
-| I-II. Alcance y especificación | PASS | PASS | [spec.md](./spec.md) delimita consulta sobre feature 006, sin nuevas reglas financieras. |
-| III-IV. Capas y validación | PASS | PASS | UI → cliente HTTP → API existente; la autorización permanece en backend. |
-| V-IX. Verificación | PASS | PASS | [quickstart.md](./quickstart.md) cubre positivos, errores y límites; pruebas de comportamiento, sin tests triviales. La aprobación formal corresponde a la entrega. |
-| VI. Privacidad y auditoría | PASS | PASS | ID desde contexto autenticado; respuestas viejas se ignoran; no se modifican registros. |
-| VII-VIII-X. Incrementalidad | PASS | PASS | Solo feature 010 en rama propia apilada sobre 009; se reutilizan API, autenticación, navegación y perfil. |
+| Principio                      | Antes | Después | Evidencia                                                                                                                                                           |
+| ------------------------------ | ----- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I-II. Alcance y especificación | PASS  | PASS    | [spec.md](./spec.md) delimita consulta sobre feature 006, sin nuevas reglas financieras.                                                                            |
+| III-IV. Capas y validación     | PASS  | PASS    | UI → cliente HTTP → API existente; la autorización permanece en backend.                                                                                            |
+| V-IX. Verificación             | PASS  | PASS    | [quickstart.md](./quickstart.md) cubre positivos, errores y límites; pruebas de comportamiento, sin tests triviales. La aprobación formal corresponde a la entrega. |
+| VI. Privacidad y auditoría     | PASS  | PASS    | ID desde contexto autenticado; respuestas viejas se ignoran; no se modifican registros.                                                                             |
+| VII-VIII-X. Incrementalidad    | PASS  | PASS    | Solo feature 010 en rama propia apilada sobre 009; se reutilizan API, autenticación, navegación y perfil.                                                           |
 
 No hay violaciones constitucionales ni aclaraciones pendientes. La especificación sigue en estado `Draft`; su aprobación se verifica antes de implementar o entregar conforme a la constitución.
 

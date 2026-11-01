@@ -23,7 +23,7 @@ export const CompetitionContextStatus = {
 } as const;
 
 export type CompetitionContextStatus =
-  typeof CompetitionContextStatus[keyof typeof CompetitionContextStatus];
+  (typeof CompetitionContextStatus)[keyof typeof CompetitionContextStatus];
 
 const officialLeagues = new Set<string>(Object.values(League));
 

@@ -1,5 +1,4 @@
 ---
-
 description: "Tareas de implementación del trading de tokens en el perfil"
 ---
 
@@ -17,8 +16,8 @@ description: "Tareas de implementación del trading de tokens en el perfil"
 
 **Purpose**: Preparar la implementación frontend sobre la base existente, sin dependencias, migraciones ni backend nuevos.
 
-- [X] T001 Comprobar y registrar la aprobación de `specs/009-player-token-trading-frontend/spec.md` requerida por `.specify/memory/constitution.md` antes de cambiar código; documentar el resultado en `specs/009-player-token-trading-frontend/quickstart.md`.
-- [X] T002 Preparar en `specs/009-player-token-trading-frontend/quickstart.md` datos locales y comprobaciones reproducibles para INVESTOR, SUPERUSER, jugador con y sin cotización, portfolio vacío/con posición y respuestas controladas de GET/POST; usar las rutas y comandos existentes sin alterar `.env` ni datos productivos.
+- [x] T001 Comprobar y registrar la aprobación de `specs/009-player-token-trading-frontend/spec.md` requerida por `.specify/memory/constitution.md` antes de cambiar código; documentar el resultado en `specs/009-player-token-trading-frontend/quickstart.md`.
+- [x] T002 Preparar en `specs/009-player-token-trading-frontend/quickstart.md` datos locales y comprobaciones reproducibles para INVESTOR, SUPERUSER, jugador con y sin cotización, portfolio vacío/con posición y respuestas controladas de GET/POST; usar las rutas y comandos existentes sin alterar `.env` ni datos productivos.
 
 ---
 
@@ -26,11 +25,11 @@ description: "Tareas de implementación del trading de tokens en el perfil"
 
 **Purpose**: Contrato HTTP de portfolio y una sola lectura compartida de cotizaciones, necesarios para las tres historias.
 
-- [X] T003 [P] Cubrir en `tests/unit/services/client.player-trading.service.spec.ts` GET `/api/portfolio` con Bearer, `AbortSignal`, preservación de `creditBalance` e `items`, 401, error `{error}` con status, JSON ilegible y fallo de red; comprobar que no se envía `userId`.
-- [X] T004 [P] Crear `tests/unit/features/profile/player-trading-page.spec.ts` con hooks y componentes hijos simulados para comprobar que la página llama una sola vez a `usePlayerQuotes` para el jugador confirmado y pasa el mismo resultado a cotizaciones y trading, sin montar secciones para jugador o sesión no confirmados.
-- [X] T005 Implementar `getPortfolio(token, signal?)` y DTO `PortfolioSnapshot = { creditBalance: number; items: PortfolioItem[] }` en `src/frontend/services/client/player-trading.service.ts`; `PortfolioItem` incluye `playerId: string`, `quantity: number`, `averagePurchasePrice: number` y `currentQuoteValue`, `currentValue`, `unrealizedPnl` como `number | null`; conservar status y texto `{error}` en errores. Depende de T003.
-- [X] T006 Elevar `usePlayerQuotes` a `src/app/players/[id]/page.tsx`, invocándolo siempre con token/jugador vacíos hasta confirmar el perfil, y pasar el mismo resultado a cotizaciones y trading; no usar `PlayerApiDetail.currentQuote` ni duplicar GET. Depende de T004.
-- [X] T007 Adaptar `src/frontend/features/profile/components/PlayerQuotesSection/PlayerQuotesSection.tsx` para recibir el resultado de `usePlayerQuotes` desde la página y conservar historial, fecha, errores y reintentos sin montar otro hook. Depende de T006.
+- [x] T003 [P] Cubrir en `tests/unit/services/client.player-trading.service.spec.ts` GET `/api/portfolio` con Bearer, `AbortSignal`, preservación de `creditBalance` e `items`, 401, error `{error}` con status, JSON ilegible y fallo de red; comprobar que no se envía `userId`.
+- [x] T004 [P] Crear `tests/unit/features/profile/player-trading-page.spec.ts` con hooks y componentes hijos simulados para comprobar que la página llama una sola vez a `usePlayerQuotes` para el jugador confirmado y pasa el mismo resultado a cotizaciones y trading, sin montar secciones para jugador o sesión no confirmados.
+- [x] T005 Implementar `getPortfolio(token, signal?)` y DTO `PortfolioSnapshot = { creditBalance: number; items: PortfolioItem[] }` en `src/frontend/services/client/player-trading.service.ts`; `PortfolioItem` incluye `playerId: string`, `quantity: number`, `averagePurchasePrice: number` y `currentQuoteValue`, `currentValue`, `unrealizedPnl` como `number | null`; conservar status y texto `{error}` en errores. Depende de T003.
+- [x] T006 Elevar `usePlayerQuotes` a `src/app/players/[id]/page.tsx`, invocándolo siempre con token/jugador vacíos hasta confirmar el perfil, y pasar el mismo resultado a cotizaciones y trading; no usar `PlayerApiDetail.currentQuote` ni duplicar GET. Depende de T004.
+- [x] T007 Adaptar `src/frontend/features/profile/components/PlayerQuotesSection/PlayerQuotesSection.tsx` para recibir el resultado de `usePlayerQuotes` desde la página y conservar historial, fecha, errores y reintentos sin montar otro hook. Depende de T006.
 
 **Checkpoint**: Portfolio tipado y cotización vigente compartida; ninguna operación disponible todavía.
 
@@ -44,16 +43,16 @@ description: "Tareas de implementación del trading de tokens en el perfil"
 
 ### Tests
 
-- [X] T008 [P] [US1] Crear pruebas de selección y presentación en `tests/unit/features/profile/player-trading.spec.ts`: `items.find(item => item.playerId === player.id)`, portfolio vacío frente a posición ausente, tenencia cero sin métricas ficticias, `null` como «No disponible» y conservación de cero, negativos y `averagePurchasePrice` recibido.
-- [X] T009 [P] [US1] Crear pruebas de hook en `tests/unit/features/profile/use-player-trading.spec.ts` con el harness existente: una lectura por contexto, loading/success/empty/error/refreshing, reintento, 401, cambio de jugador/token, abortos y éxito/error/finally obsoletos sin filtrar datos financieros.
+- [x] T008 [P] [US1] Crear pruebas de selección y presentación en `tests/unit/features/profile/player-trading.spec.ts`: `items.find(item => item.playerId === player.id)`, portfolio vacío frente a posición ausente, tenencia cero sin métricas ficticias, `null` como «No disponible» y conservación de cero, negativos y `averagePurchasePrice` recibido.
+- [x] T009 [P] [US1] Crear pruebas de hook en `tests/unit/features/profile/use-player-trading.spec.ts` con el harness existente: una lectura por contexto, loading/success/empty/error/refreshing, reintento, 401, cambio de jugador/token, abortos y éxito/error/finally obsoletos sin filtrar datos financieros.
 
 ### Implementation
 
-- [X] T010 [US1] Crear en `src/frontend/features/profile/utils/player-trading.ts` la selección de la posición del jugador y el formato de saldo/métricas: `items.length === 0` es portfolio vacío; otras posiciones no se muestran; `null` es «No disponible», mientras `0` y negativos son números; sin recalcular valor actual ni PnL. Depende de T008.
-- [X] T011 [US1] Crear `src/frontend/features/profile/hooks/usePlayerTrading.ts` para GET de portfolio con `idle/loading/success/empty/error/refreshing`, reintento y aislamiento por token, jugador, generación y `AbortController`; 401 aplica el logout existente y borra datos protegidos. Depende de T005 y T009.
-- [X] T012 [US1] Crear `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.tsx` con saldo del GET y solo posición del perfil: cantidad, promedio, cotización actual, valor actual y PnL; anunciar carga y portfolio vacío, distinguir ausencia de posición, mostrar error de portfolio con reintento y conservar cotización válida. Depende de T010–T011.
-- [X] T013 [US1] Crear `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.module.scss` siguiendo el perfil existente; hacer legibles cifras, unidades, estados y reintento a 360 y 1280 px con foco visible. Depende de T012.
-- [X] T014 [US1] Montar trading para el jugador confirmado en `src/app/players/[id]/page.tsx`, pasando token, rol, nombre, cotización compartida y callback de 401; ocultar información financiera al perder sesión y mantener cotización y portfolio como cargas independientes. Depende de T011–T013.
+- [x] T010 [US1] Crear en `src/frontend/features/profile/utils/player-trading.ts` la selección de la posición del jugador y el formato de saldo/métricas: `items.length === 0` es portfolio vacío; otras posiciones no se muestran; `null` es «No disponible», mientras `0` y negativos son números; sin recalcular valor actual ni PnL. Depende de T008.
+- [x] T011 [US1] Crear `src/frontend/features/profile/hooks/usePlayerTrading.ts` para GET de portfolio con `idle/loading/success/empty/error/refreshing`, reintento y aislamiento por token, jugador, generación y `AbortController`; 401 aplica el logout existente y borra datos protegidos. Depende de T005 y T009.
+- [x] T012 [US1] Crear `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.tsx` con saldo del GET y solo posición del perfil: cantidad, promedio, cotización actual, valor actual y PnL; anunciar carga y portfolio vacío, distinguir ausencia de posición, mostrar error de portfolio con reintento y conservar cotización válida. Depende de T010–T011.
+- [x] T013 [US1] Crear `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.module.scss` siguiendo el perfil existente; hacer legibles cifras, unidades, estados y reintento a 360 y 1280 px con foco visible. Depende de T012.
+- [x] T014 [US1] Montar trading para el jugador confirmado en `src/app/players/[id]/page.tsx`, pasando token, rol, nombre, cotización compartida y callback de 401; ocultar información financiera al perder sesión y mantener cotización y portfolio como cargas independientes. Depende de T011–T013.
 
 **Checkpoint**: US1 funciona sin enviar órdenes y se comprueba con cualquier rol autorizado a consultar.
 
@@ -67,18 +66,18 @@ description: "Tareas de implementación del trading de tokens en el perfil"
 
 ### Tests
 
-- [X] T015 [P] [US2] Extender `tests/unit/services/client.player-trading.service.spec.ts` para POST `/api/orders/buy` con Bearer y JSON exactamente `{playerId, quantity}`, resultado `operation/account/holding`, status y `{error}` de 400/401/404/409, 5xx, JSON no confirmable y red; no enviar `userId` ni reintentar POST.
-- [X] T016 [P] [US2] Extender `tests/unit/features/profile/player-trading.spec.ts` con entrada como texto: «texto de dígitos enteros», `Number.isSafeInteger`, mayor que cero y no superior a 2.147.483.647; rechazar vacío, signos, decimales, exponentes y texto mixto; validar costo orientativo redondeado a centavos frente al saldo vigente sin sustituir el total de `operation`.
-- [X] T017 [P] [US2] Extender `tests/unit/features/profile/use-player-trading.spec.ts` con cancelación sin POST, snapshot de confirmación, candado sincrónico contra doble activación, progreso, 201 y GET posterior, rechazo que conserva cantidad, red/5xx inciertos, 201 seguido de GET fallido, 401, y POST tardío al cambiar jugador o sesión.
+- [x] T015 [P] [US2] Extender `tests/unit/services/client.player-trading.service.spec.ts` para POST `/api/orders/buy` con Bearer y JSON exactamente `{playerId, quantity}`, resultado `operation/account/holding`, status y `{error}` de 400/401/404/409, 5xx, JSON no confirmable y red; no enviar `userId` ni reintentar POST.
+- [x] T016 [P] [US2] Extender `tests/unit/features/profile/player-trading.spec.ts` con entrada como texto: «texto de dígitos enteros», `Number.isSafeInteger`, mayor que cero y no superior a 2.147.483.647; rechazar vacío, signos, decimales, exponentes y texto mixto; validar costo orientativo redondeado a centavos frente al saldo vigente sin sustituir el total de `operation`.
+- [x] T017 [P] [US2] Extender `tests/unit/features/profile/use-player-trading.spec.ts` con cancelación sin POST, snapshot de confirmación, candado sincrónico contra doble activación, progreso, 201 y GET posterior, rechazo que conserva cantidad, red/5xx inciertos, 201 seguido de GET fallido, 401, y POST tardío al cambiar jugador o sesión.
 
 ### Implementation
 
-- [X] T018 [US2] Añadir `buyPlayerTokens(token, {playerId, quantity})` y el DTO de resultado en `src/frontend/services/client/player-trading.service.ts`; enviar solo ambos campos a `/api/orders/buy`, conservar `operation.type`, `quantity`, `quoteValue`, `total` del 201 y status/texto real de errores. Depende de T015.
-- [X] T019 [US2] Añadir a `src/frontend/features/profile/utils/player-trading.ts` validación de compra, total orientativo y clasificación solo de status/texto conocidos: 409 `Insufficient credit balance`, `Insufficient tokens in central pool`, `The central pool cannot operate as an investor`, y 404 `Current quote not available`; los demás rechazos mantienen causa genérica, red/5xx quedan indeterminados. Depende de T016.
-- [X] T020 [US2] Extender `src/frontend/features/profile/hooks/usePlayerTrading.ts` con borrador BUY, confirmación inmutable del jugador/cantidad/cotización/total, cancelación sin POST, revalidación y bloqueo sincrónico; tras 201 conservar comprobante y consultar GET, marcar cifras viejas como no actuales mientras refresca, preservar comprobante si GET falla; mantener respuesta tardía del POST etiquetada con jugador original solo en la misma sesión y sin modificar otro perfil. Depende de T017–T019.
-- [X] T021 [US2] Extender `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.tsx` con controles de compra solo para INVESTOR, campo etiquetado con `aria-invalid`/`aria-describedby`, error inline, falta de cotización, saldo insuficiente, progreso, comprobante efectivo, rechazo e incertidumbre con acción de consultar portfolio; conservar cantidad corregible. Depende de T019–T020.
-- [X] T022 [US2] Añadir a `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.tsx` diálogo de confirmación accesible que muestra jugador, compra, cantidad, cotización en créditos/token y total orientativo; foco inicial y contenido, Escape/cancelación sin POST y retorno de foco; ajustar `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.module.scss` para teclado y ambos anchos. Depende de T021.
-- [X] T023 [US2] Mantener en `src/app/players/[id]/page.tsx` el estado del resultado de una compra ya enviada a nivel de perfil para etiquetar al jugador original durante cambios de ruta, sin filtrar comprobantes entre sesiones; pasar rol desde `AuthContext` y no ofrecer compra a SUPERUSER. Depende de T020–T022.
+- [x] T018 [US2] Añadir `buyPlayerTokens(token, {playerId, quantity})` y el DTO de resultado en `src/frontend/services/client/player-trading.service.ts`; enviar solo ambos campos a `/api/orders/buy`, conservar `operation.type`, `quantity`, `quoteValue`, `total` del 201 y status/texto real de errores. Depende de T015.
+- [x] T019 [US2] Añadir a `src/frontend/features/profile/utils/player-trading.ts` validación de compra, total orientativo y clasificación solo de status/texto conocidos: 409 `Insufficient credit balance`, `Insufficient tokens in central pool`, `The central pool cannot operate as an investor`, y 404 `Current quote not available`; los demás rechazos mantienen causa genérica, red/5xx quedan indeterminados. Depende de T016.
+- [x] T020 [US2] Extender `src/frontend/features/profile/hooks/usePlayerTrading.ts` con borrador BUY, confirmación inmutable del jugador/cantidad/cotización/total, cancelación sin POST, revalidación y bloqueo sincrónico; tras 201 conservar comprobante y consultar GET, marcar cifras viejas como no actuales mientras refresca, preservar comprobante si GET falla; mantener respuesta tardía del POST etiquetada con jugador original solo en la misma sesión y sin modificar otro perfil. Depende de T017–T019.
+- [x] T021 [US2] Extender `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.tsx` con controles de compra solo para INVESTOR, campo etiquetado con `aria-invalid`/`aria-describedby`, error inline, falta de cotización, saldo insuficiente, progreso, comprobante efectivo, rechazo e incertidumbre con acción de consultar portfolio; conservar cantidad corregible. Depende de T019–T020.
+- [x] T022 [US2] Añadir a `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.tsx` diálogo de confirmación accesible que muestra jugador, compra, cantidad, cotización en créditos/token y total orientativo; foco inicial y contenido, Escape/cancelación sin POST y retorno de foco; ajustar `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.module.scss` para teclado y ambos anchos. Depende de T021.
+- [x] T023 [US2] Mantener en `src/app/players/[id]/page.tsx` el estado del resultado de una compra ya enviada a nivel de perfil para etiquetar al jugador original durante cambios de ruta, sin filtrar comprobantes entre sesiones; pasar rol desde `AuthContext` y no ofrecer compra a SUPERUSER. Depende de T020–T022.
 
 **Checkpoint**: La compra se prueba de forma independiente sin venta; el saldo y la posición solo vuelven a figurar como actuales tras GET exitoso.
 
@@ -92,16 +91,16 @@ description: "Tareas de implementación del trading de tokens en el perfil"
 
 ### Tests
 
-- [X] T024 [P] [US3] Extender `tests/unit/services/client.player-trading.service.spec.ts` para POST `/api/orders/sell` con Bearer, solo `{playerId, quantity}`, resultado efectivo, status/error y ausencia de POST automático en red/5xx.
-- [X] T025 [P] [US3] Extender `tests/unit/features/profile/player-trading.spec.ts` para venta con tenencia cero, cantidad mayor a `position.quantity`, venta válida y venta total que deja tenencia cero sin promedio, valor ni PnL ficticios tras el nuevo GET.
-- [X] T026 [P] [US3] Extender `tests/unit/features/profile/use-player-trading.spec.ts` con confirmación/cancelación SELL, una sola solicitud ante doble activación, 201 y refresco, 409 `Insufficient token holding`, 409 `Insufficient central pool balance`, conflicto desconocido, red/5xx inciertos y respuestas tardías aisladas.
+- [x] T024 [P] [US3] Extender `tests/unit/services/client.player-trading.service.spec.ts` para POST `/api/orders/sell` con Bearer, solo `{playerId, quantity}`, resultado efectivo, status/error y ausencia de POST automático en red/5xx.
+- [x] T025 [P] [US3] Extender `tests/unit/features/profile/player-trading.spec.ts` para venta con tenencia cero, cantidad mayor a `position.quantity`, venta válida y venta total que deja tenencia cero sin promedio, valor ni PnL ficticios tras el nuevo GET.
+- [x] T026 [P] [US3] Extender `tests/unit/features/profile/use-player-trading.spec.ts` con confirmación/cancelación SELL, una sola solicitud ante doble activación, 201 y refresco, 409 `Insufficient token holding`, 409 `Insufficient central pool balance`, conflicto desconocido, red/5xx inciertos y respuestas tardías aisladas.
 
 ### Implementation
 
-- [X] T027 [US3] Añadir `sellPlayerTokens(token, {playerId, quantity})` en `src/frontend/services/client/player-trading.service.ts` usando `/api/orders/sell`, exactamente los dos campos y el mismo tratamiento de respuesta y error que compra. Depende de T024.
-- [X] T028 [US3] Añadir a `src/frontend/features/profile/utils/player-trading.ts` validación de venta frente a la tenencia vigente y clasificación de 409 `Insufficient token holding`/`Insufficient central pool balance` frente a conflictos desconocidos, sin atribuirles una causa falsa. Depende de T025.
-- [X] T029 [US3] Extender `src/frontend/features/profile/hooks/usePlayerTrading.ts` con selección y snapshot SELL, bloqueo de envío, comprobante de `operation`, GET posterior y estados de rechazo/incertidumbre; una venta total toma la ausencia de posición del nuevo portfolio como cero sin inventar métricas. Depende de T026–T028.
-- [X] T030 [US3] Extender `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.tsx` y `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.module.scss` con venta para INVESTOR, confirmación accesible, cantidad conservada tras rechazo y mensajes de tenencia/pool; usar el mismo progreso, comprobante y recuperación que compra. Depende de T029.
+- [x] T027 [US3] Añadir `sellPlayerTokens(token, {playerId, quantity})` en `src/frontend/services/client/player-trading.service.ts` usando `/api/orders/sell`, exactamente los dos campos y el mismo tratamiento de respuesta y error que compra. Depende de T024.
+- [x] T028 [US3] Añadir a `src/frontend/features/profile/utils/player-trading.ts` validación de venta frente a la tenencia vigente y clasificación de 409 `Insufficient token holding`/`Insufficient central pool balance` frente a conflictos desconocidos, sin atribuirles una causa falsa. Depende de T025.
+- [x] T029 [US3] Extender `src/frontend/features/profile/hooks/usePlayerTrading.ts` con selección y snapshot SELL, bloqueo de envío, comprobante de `operation`, GET posterior y estados de rechazo/incertidumbre; una venta total toma la ausencia de posición del nuevo portfolio como cero sin inventar métricas. Depende de T026–T028.
+- [x] T030 [US3] Extender `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.tsx` y `src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.module.scss` con venta para INVESTOR, confirmación accesible, cantidad conservada tras rechazo y mensajes de tenencia/pool; usar el mismo progreso, comprobante y recuperación que compra. Depende de T029.
 
 **Checkpoint**: Compra y venta funcionan por separado y ambas actualizan el perfil mediante GET posterior.
 
@@ -109,9 +108,9 @@ description: "Tareas de implementación del trading de tokens en el perfil"
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [X] T031 Ejecutar las pruebas focalizadas de `tests/unit/services/client.player-trading.service.spec.ts`, `tests/unit/features/profile/use-player-trading.spec.ts` y `tests/unit/features/profile/player-trading.spec.ts`, más las regresiones de `tests/unit/features/profile/use-player-quotes.spec.ts`; ejecutar `npm run lint`, `npm test` y `npm run build` desde `package.json`, y registrar resultados e incidencias en `specs/009-player-token-trading-frontend/quickstart.md`.
+- [x] T031 Ejecutar las pruebas focalizadas de `tests/unit/services/client.player-trading.service.spec.ts`, `tests/unit/features/profile/use-player-trading.spec.ts` y `tests/unit/features/profile/player-trading.spec.ts`, más las regresiones de `tests/unit/features/profile/use-player-quotes.spec.ts`; ejecutar `npm run lint`, `npm test` y `npm run build` desde `package.json`, y registrar resultados e incidencias en `specs/009-player-token-trading-frontend/quickstart.md`.
 - [ ] T032 Completar aceptación manual de `specs/009-player-token-trading-frontend/quickstart.md` en navegador con INVESTOR/SUPERUSER, sesión vencida, quote ausente, portfolio vacío, errores y respuestas tardías; verificar teclado, foco del diálogo, anuncios y anchos 360/1280 px, además de una lectura de quotes y una de portfolio por carga, un POST por confirmación y GET posterior solo tras éxito o reintento explícito; registrar evidencia y limitaciones reales.
-- [X] T033 Registrar en `specs/009-player-token-trading-frontend/quickstart.md` la trazabilidad final de FR-001–022 y SC-001–007, el estado de aprobación formal de Project Owner y las incidencias restantes, sin asumir aprobación ni crear issues, PR o publicación.
+- [x] T033 Registrar en `specs/009-player-token-trading-frontend/quickstart.md` la trazabilidad final de FR-001–022 y SC-001–007, el estado de aprobación formal de Project Owner y las incidencias restantes, sin asumir aprobación ni crear issues, PR o publicación.
 
 ---
 
@@ -145,11 +144,11 @@ US2 + US3 → Polish T031–T033
 
 ## Traceability & Validation
 
-| Requisitos | Tareas principales |
-|---|---|
-| FR-001–005, FR-008, FR-013, SC-001 | T003–T014, T032 |
-| FR-006–007, FR-009–011, FR-014–016, SC-002–004 | T015–T030, T032 |
-| FR-012, FR-017–018, SC-003, SC-005 | T009, T011, T017, T020, T023, T026, T029, T032 |
-| FR-019–022, SC-006–007 | T013–T014, T021–T023, T030, T032–T033 |
+| Requisitos                                     | Tareas principales                             |
+| ---------------------------------------------- | ---------------------------------------------- |
+| FR-001–005, FR-008, FR-013, SC-001             | T003–T014, T032                                |
+| FR-006–007, FR-009–011, FR-014–016, SC-002–004 | T015–T030, T032                                |
+| FR-012, FR-017–018, SC-003, SC-005             | T009, T011, T017, T020, T023, T026, T029, T032 |
+| FR-019–022, SC-006–007                         | T013–T014, T021–T023, T030, T032–T033          |
 
 33 tareas: Setup 2, Foundation 5, US1 7, US2 9, US3 7, Polish 3. Diez tareas marcadas `[P]`. Todas las tareas usan checkbox, ID secuencial, etiqueta de historia donde corresponde y rutas concretas. Ninguna tarea de implementación queda marcada como completada por generar esta lista.

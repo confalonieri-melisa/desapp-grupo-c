@@ -4,21 +4,21 @@ No hay persistencia nueva. Los siguientes objetos son lecturas o proyecciones de
 
 ## PortfolioSnapshot (existente)
 
-| Campo | Tipo | Regla |
-|---|---|---|
-| `creditBalance` | número | Saldo disponible en créditos; cero es válido. |
-| `items` | lista de `PortfolioItem` | Solo posiciones actuales de la sesión autenticada; puede estar vacía. |
+| Campo           | Tipo                     | Regla                                                                 |
+| --------------- | ------------------------ | --------------------------------------------------------------------- |
+| `creditBalance` | número                   | Saldo disponible en créditos; cero es válido.                         |
+| `items`         | lista de `PortfolioItem` | Solo posiciones actuales de la sesión autenticada; puede estar vacía. |
 
 ## PortfolioItem (existente)
 
-| Campo | Tipo | Regla |
-|---|---|---|
-| `playerId` | identificador | Identifica de forma única al jugador de la posición. |
-| `quantity` | número | Tokens poseídos. |
-| `averagePurchasePrice` | número | Créditos por token. |
-| `currentQuoteValue` | número o `null` | `null` indica que falta cotización; cero es un valor distinto. |
-| `currentValue` | número o `null` | Valor actual en créditos; `null` se excluye del valor agregado. |
-| `unrealizedPnl` | número o `null` | Resultado no realizado en créditos; puede ser negativo, cero o positivo; `null` se excluye de su agregado. |
+| Campo                  | Tipo            | Regla                                                                                                      |
+| ---------------------- | --------------- | ---------------------------------------------------------------------------------------------------------- |
+| `playerId`             | identificador   | Identifica de forma única al jugador de la posición.                                                       |
+| `quantity`             | número          | Tokens poseídos.                                                                                           |
+| `averagePurchasePrice` | número          | Créditos por token.                                                                                        |
+| `currentQuoteValue`    | número o `null` | `null` indica que falta cotización; cero es un valor distinto.                                             |
+| `currentValue`         | número o `null` | Valor actual en créditos; `null` se excluye del valor agregado.                                            |
+| `unrealizedPnl`        | número o `null` | Resultado no realizado en créditos; puede ser negativo, cero o positivo; `null` se excluye de su agregado. |
 
 ## PlayerReference (derivado)
 

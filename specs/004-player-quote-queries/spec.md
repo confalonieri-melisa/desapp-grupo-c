@@ -46,7 +46,7 @@ actual.
 1. **Given** un jugador existente con cotizaciones, **When** un usuario
    autenticado solicita `GET /players/{playerId}/quotes`, **Then** responde
    `200` con todas las cotizaciones ordenadas por `calculatedAt DESC` y `id
-   DESC` como desempate.
+DESC` como desempate.
 2. **Given** un jugador existente sin cotizaciones, **When** se solicita su
    historial, **Then** responde `200` con `items: []`.
 3. **Given** un identificador de jugador inexistente, **When** se solicita su

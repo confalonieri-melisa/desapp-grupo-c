@@ -1,7 +1,7 @@
-import type { AuthenticatedUser } from '@/backend/services/auth.service';
+import type { AuthenticatedUser } from "@/backend/services/auth.service";
 
-const TOKEN_KEY = 'auth_token';
-const USER_KEY = 'auth_user';
+const TOKEN_KEY = "auth_token";
+const USER_KEY = "auth_user";
 
 export interface StoredAuth {
   token: string;

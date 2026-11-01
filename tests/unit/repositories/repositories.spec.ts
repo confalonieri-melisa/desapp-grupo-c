@@ -72,17 +72,16 @@ function playerSearchDatabase(
   const countQuery = {
     from: vi.fn(() => countQuery),
     where: vi.fn(() => countQuery),
-    then: (resolve: (value: unknown[]) => unknown) =>
-      Promise.resolve(resolve([{ count: total }])),
+    then: (resolve: (value: unknown[]) => unknown) => Promise.resolve(resolve([{ count: total }])),
   };
   let selectCall = 0;
 
   return {
     database: {
-    select: vi.fn(() => {
-      selectCall += 1;
-      return selectCall === 1 ? dataQuery : countQuery;
-    }),
+      select: vi.fn(() => {
+        selectCall += 1;
+        return selectCall === 1 ? dataQuery : countQuery;
+      }),
     } as unknown as Database,
     orderBy: dataQuery.orderBy,
     where: dataQuery.where,
@@ -150,9 +149,7 @@ describe("UserRepository", () => {
       password: userRow.password,
     });
 
-    await expect(repository.save(user)).rejects.toThrow(
-      "User could not be persisted",
-    );
+    await expect(repository.save(user)).rejects.toThrow("User could not be persisted");
   });
 });
 
@@ -237,10 +234,7 @@ describe("PlayerRepository", () => {
       data: [{ id: player.id, name: player.name }],
       total: 25,
     });
-    expect(orderBy).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.anything(),
-    );
+    expect(orderBy).toHaveBeenCalledWith(expect.anything(), expect.anything());
   });
 
   it("applies a case-insensitive name condition before paginating", async () => {
@@ -248,14 +242,12 @@ describe("PlayerRepository", () => {
     await new PlayerRepository(database).findMany({ name: "Mbappé" }, { page: 2, limit: 12 });
     const condition = where.mock.calls[0]?.[0] as SQL;
     const query = new PgDialect().sqlToQuery(condition);
-    expect(query.sql.toLowerCase()).toContain('ilike');
-    expect(query.params).toContain('%Mbappé%');
+    expect(query.sql.toLowerCase()).toContain("ilike");
+    expect(query.params).toContain("%Mbappé%");
     expect(where).toHaveBeenCalledTimes(1);
   });
 
   it("returns null when a player id does not exist", async () => {
-    await expect(
-      new PlayerRepository(selectDatabase([])).findById(player.id),
-    ).resolves.toBeNull();
+    await expect(new PlayerRepository(selectDatabase([])).findById(player.id)).resolves.toBeNull();
   });
 });

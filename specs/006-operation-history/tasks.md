@@ -67,52 +67,52 @@ solo las propias, ordenadas por fecha/id, con `items`, `limit`, `offset` y
 ### Tests y validación de entrada
 
 - [ ] T004 [P] [US1] Agregar al schema existente en
-  `src/backend/schemas/market-operation.schema.ts` la validación de `id`,
-  `limit` y `offset`, con defaults `50` y `0`, máximo `100` y rechazo de
-  valores inválidos.
+      `src/backend/schemas/market-operation.schema.ts` la validación de `id`,
+      `limit` y `offset`, con defaults `50` y `0`, máximo `100` y rechazo de
+      valores inválidos.
 - [ ] T005 [P] [US1] Extender
-  `tests/unit/schemas/market-operation.schema.spec.ts` con UUID válido,
-  defaults, límites, decimales, negativos, cero para `limit` y parámetros no
-  numéricos.
+      `tests/unit/schemas/market-operation.schema.spec.ts` con UUID válido,
+      defaults, límites, decimales, negativos, cero para `limit` y parámetros no
+      numéricos.
 
 ### Lectura persistida
 
 - [ ] T006 [US1] Extender `src/backend/repositories/market.repository.ts` con
-  un método de lectura por `investorId` que seleccione únicamente las columnas
-  de `market_operations`, ordene por `created_at DESC, id DESC` y solicite
-  `limit + 1` filas.
+      un método de lectura por `investorId` que seleccione únicamente las columnas
+      de `market_operations`, ordene por `created_at DESC, id DESC` y solicite
+      `limit + 1` filas.
 - [ ] T007 [US1] Agregar
-  `tests/integration/transaction-history.repository.spec.ts` para verificar
-  lectura de operaciones de dos inversores, orden, empate por `id`, `offset`,
-  límite y cálculo de la fila adicional.
+      `tests/integration/transaction-history.repository.spec.ts` para verificar
+      lectura de operaciones de dos inversores, orden, empate por `id`, `offset`,
+      límite y cálculo de la fila adicional.
 
 ### Servicio y respuesta de aplicación
 
 - [ ] T008 [US1] Extender `src/backend/services/market-operation.service.ts`
-  con `getHistory`, un tipo/interface local de respuesta y el mapeo de filas
-  persistidas a `items`, `limit`, `offset` y `hasMore`; no instanciar
-  `MarketOperation` para evitar recalcular `total`.
+      con `getHistory`, un tipo/interface local de respuesta y el mapeo de filas
+      persistidas a `items`, `limit`, `offset` y `hasMore`; no instanciar
+      `MarketOperation` para evitar recalcular `total`.
 - [ ] T009 [US1] Extender
-  `tests/unit/services/market-operation.service.spec.ts` para verificar
-  proyección exacta, conservación de `quoteValue`/`total`, `correlationId`
-  nulo e historial vacío sin acceder a portfolio ni cotizaciones.
+      `tests/unit/services/market-operation.service.spec.ts` para verificar
+      proyección exacta, conservación de `quoteValue`/`total`, `correlationId`
+      nulo e historial vacío sin acceder a portfolio ni cotizaciones.
 - [ ] T010 [US1] Extender
-  `src/backend/controllers/market-operation.controller.ts` con `getHistory`
-  como delegación del caso de uso, sin agregar reglas de persistencia ni
-  autorización HTTP duplicada.
+      `src/backend/controllers/market-operation.controller.ts` con `getHistory`
+      como delegación del caso de uso, sin agregar reglas de persistencia ni
+      autorización HTTP duplicada.
 - [ ] T011 [US1] Extender
-  `tests/unit/controllers/market-operation.controller.spec.ts` para comprobar
-  que `getHistory` delega los parámetros y devuelve la respuesta del servicio.
+      `tests/unit/controllers/market-operation.controller.spec.ts` para comprobar
+      que `getHistory` delega los parámetros y devuelve la respuesta del servicio.
 
 ### Endpoint
 
 - [ ] T012 [US1] Crear
-  `src/app/api/users/[id]/transactions/route.ts` usando `requireAuth`, params
-  dinámicos de App Router, el schema existente, `MarketOperationController` y
-  `toHttpResponse`.
+      `src/app/api/users/[id]/transactions/route.ts` usando `requireAuth`, params
+      dinámicos de App Router, el schema existente, `MarketOperationController` y
+      `toHttpResponse`.
 - [ ] T013 [US1] Agregar
-  `tests/integration/transaction-history.routes.spec.ts` para `200` con
-  operaciones, `200` con `items: []`, paginación y serialización del contrato.
+      `tests/integration/transaction-history.routes.spec.ts` para `200` con
+      operaciones, `200` con `items: []`, paginación y serialización del contrato.
 
 **Checkpoint US1**: El endpoint devuelve el historial propio desde
 `market_operations`, sin reconstrucción ni escrituras.
@@ -125,18 +125,18 @@ solo las propias, ordenadas por fecha/id, con `items`, `limit`, `offset` y
 y recibe `403` con `:id=user-B`, sin ejecutar la consulta al repositorio.
 
 - [ ] T014 [US2] Implementar en
-  `src/backend/services/market-operation.service.ts` la comparación entre
-  `:id` y `auth.sub` antes de llamar a `MarketRepository`; usar
-  `ForbiddenError` para la discrepancia.
+      `src/backend/services/market-operation.service.ts` la comparación entre
+      `:id` y `auth.sub` antes de llamar a `MarketRepository`; usar
+      `ForbiddenError` para la discrepancia.
 - [ ] T015 [US2] Agregar tests unitarios en
-  `tests/unit/services/market-operation.service.spec.ts` para `:id` distinto,
-  asegurando que el repository no sea invocado.
+      `tests/unit/services/market-operation.service.spec.ts` para `:id` distinto,
+      asegurando que el repository no sea invocado.
 - [ ] T016 [US2] Completar
-  `tests/integration/transaction-history.routes.spec.ts` con `401` para JWT
-  ausente/inválido, `400` para UUID inválido y `403` para otro usuario.
+      `tests/integration/transaction-history.routes.spec.ts` con `401` para JWT
+      ausente/inválido, `400` para UUID inválido y `403` para otro usuario.
 - [ ] T017 [US2] Confirmar que el endpoint opera en el contexto de usuarios
-  inversores sin agregar una rama especial para `SUPERUSER` ni permisos de
-  consulta administrativa.
+      inversores sin agregar una rama especial para `SUPERUSER` ni permisos de
+      consulta administrativa.
 
 **Checkpoint US2**: La identidad del path no puede ampliar los permisos del
 JWT y no se filtran operaciones ajenas.
@@ -151,15 +151,15 @@ la operación histórica conserva `type`, `quantity`, `quoteValue`, `total` y
 `createdAt`.
 
 - [ ] T018 [US3] Completar
-  `tests/integration/transaction-history.repository.spec.ts` con cambios
-  posteriores en `token_holdings` y `player_quotes`, verificando que la
-  respuesta sigue proviniendo de `market_operations`.
+      `tests/integration/transaction-history.repository.spec.ts` con cambios
+      posteriores en `token_holdings` y `player_quotes`, verificando que la
+      respuesta sigue proviniendo de `market_operations`.
 - [ ] T019 [US3] Verificar en la misma suite de integración que una consulta
-  exitosa no inserta, actualiza ni elimina filas de operaciones, auditoría,
-  holdings, usuarios o cotizaciones.
+      exitosa no inserta, actualiza ni elimina filas de operaciones, auditoría,
+      holdings, usuarios o cotizaciones.
 - [ ] T020 [US3] Revisar que no se agreguen dependencias hacia
-  `PortfolioRepository`, `PortfolioService`, `ValuationRepository` o
-  `financial_audit_records` en la implementación del historial.
+      `PortfolioRepository`, `PortfolioService`, `ValuationRepository` o
+      `financial_audit_records` en la implementación del historial.
 
 **Checkpoint US3**: El historial es una lectura estable del registro financiero
 append-only y no altera ninguna fuente de verdad.
@@ -167,25 +167,25 @@ append-only y no altera ninguna fuente de verdad.
 ## Phase 4: Contrato API y cierre
 
 - [ ] T021 [P] Actualizar
-  `specs/001-player-token-marketplace/contracts/openapi.yaml` con
-  `/users/{id}/transactions`, BearerAuth, parámetros, schemas y respuestas
-  `200`, `400`, `401`, `403` y `500`.
+      `specs/001-player-token-marketplace/contracts/openapi.yaml` con
+      `/users/{id}/transactions`, BearerAuth, parámetros, schemas y respuestas
+      `200`, `400`, `401`, `403` y `500`.
 - [ ] T022 [P] Mantener sincronizado
-  `specs/006-operation-history/contracts/transactions.yaml` con la route y el
-  DTO real, incluyendo `correlationId` nullable y `hasMore`.
+      `specs/006-operation-history/contracts/transactions.yaml` con la route y el
+      DTO real, incluyendo `correlationId` nullable y `hasMore`.
 - [ ] T023 [P] Actualizar
-  `specs/006-operation-history/quickstart.md` con ejemplos de consulta propia,
-  paginación y rechazo de un `id` ajeno.
+      `specs/006-operation-history/quickstart.md` con ejemplos de consulta propia,
+      paginación y rechazo de un `id` ajeno.
 - [ ] T024 Ejecutar `npm test -- --run` y confirmar que las suites existentes de
-  mercado, portfolio y autenticación siguen verdes.
+      mercado, portfolio y autenticación siguen verdes.
 - [ ] T025 Ejecutar tests de integración con
-  `RUN_DB_INTEGRATION_TESTS=true` cuando PostgreSQL esté disponible y registrar
-  cualquier limitación ambiental sin ocultar fallos funcionales.
+      `RUN_DB_INTEGRATION_TESTS=true` cuando PostgreSQL esté disponible y registrar
+      cualquier limitación ambiental sin ocultar fallos funcionales.
 - [ ] T026 Ejecutar `npm run lint`, `npx tsc --noEmit`, `npm run build` y
-  `git diff --check`.
+      `git diff --check`.
 - [ ] T027 Revisar el diff final contra `spec.md` y confirmar que no aparecen
-  tablas, migraciones, entidades, controllers o services nuevos fuera de la
-  route y la documentación/tests de esta feature.
+      tablas, migraciones, entidades, controllers o services nuevos fuera de la
+      route y la documentación/tests de esta feature.
 
 **Checkpoint final**: endpoint implementado, tests completos, OpenAPI
 sincronizado, quickstart verificable y alcance sin sobreingeniería.

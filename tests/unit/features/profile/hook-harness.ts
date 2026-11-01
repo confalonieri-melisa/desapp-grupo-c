@@ -5,7 +5,8 @@ export function createHookHarness() {
   const effects = new Map<number, { deps?: unknown[]; cleanup?: () => void }>();
   let cursor = 0;
   let pending: (() => void)[] = [];
-  const equal = (a?: unknown[], b?: unknown[]) => !!a && !!b && a.length === b.length && a.every((x, i) => Object.is(x, b[i]));
+  const equal = (a?: unknown[], b?: unknown[]) =>
+    !!a && !!b && a.length === b.length && a.every((x, i) => Object.is(x, b[i]));
   return {
     useCallback<T extends (...args: never[]) => unknown>(callback: T, deps: unknown[]): T {
       const i = cursor++;
@@ -16,10 +17,14 @@ export function createHookHarness() {
     },
     useState<T>(initial: T | (() => T)) {
       const i = cursor++;
-      if (!(i in slots)) slots[i] = typeof initial === "function" ? (initial as () => T)() : initial;
-      return [slots[i] as T, (next: T | ((old: T) => T)) => {
-        slots[i] = typeof next === "function" ? (next as (old: T) => T)(slots[i] as T) : next;
-      }] as const;
+      if (!(i in slots))
+        slots[i] = typeof initial === "function" ? (initial as () => T)() : initial;
+      return [
+        slots[i] as T,
+        (next: T | ((old: T) => T)) => {
+          slots[i] = typeof next === "function" ? (next as (old: T) => T)(slots[i] as T) : next;
+        },
+      ] as const;
     },
     useRef<T>(initial: T) {
       const i = cursor++;
@@ -34,17 +39,35 @@ export function createHookHarness() {
         effects.set(i, { deps, cleanup: effect() || undefined });
       });
     },
-    render<T>(hook: () => T) { cursor = 0; pending = []; return hook(); },
-    commit() { const work = pending; pending = []; work.forEach((effect) => effect()); },
-    cleanup() { effects.forEach((e) => e.cleanup?.()); effects.clear(); },
+    render<T>(hook: () => T) {
+      cursor = 0;
+      pending = [];
+      return hook();
+    },
+    commit() {
+      const work = pending;
+      pending = [];
+      work.forEach((effect) => effect());
+    },
+    cleanup() {
+      effects.forEach((e) => e.cleanup?.());
+      effects.clear();
+    },
   };
 }
 
 export function deferred<T>() {
   let resolve!: (value: T) => void;
   let reject!: (reason: unknown) => void;
-  const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; });
+  const promise = new Promise<T>((yes, no) => {
+    resolve = yes;
+    reject = no;
+  });
   return { promise, resolve, reject };
 }
 
-export async function flushPromises() { await Promise.resolve(); await Promise.resolve(); await Promise.resolve(); }
+export async function flushPromises() {
+  await Promise.resolve();
+  await Promise.resolve();
+  await Promise.resolve();
+}

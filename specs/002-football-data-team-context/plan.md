@@ -316,14 +316,14 @@ Todos los tests de proveedor usarán un cliente HTTP inyectable o un mock de
 
 ## Risks and Mitigations
 
-| Riesgo | Impacto | Mitigación |
-|---|---|---|
+| Riesgo                           | Impacto                      | Mitigación                                                        |
+| -------------------------------- | ---------------------------- | ----------------------------------------------------------------- |
 | Cambio de contrato del proveedor | No se publica contexto nuevo | Schema estricto, snapshots de diagnóstico y última versión válida |
-| Límite `429` | Sin actualización nueva | Retry finito y conservación de la publicación anterior |
-| Respuesta parcial entre ligas | Contexto mezclado | Publicación atómica de cinco competiciones |
-| Nombres de equipos distintos | Asociación incorrecta | IDs, aliases validados y rechazo de ambigüedades |
-| Exposición de API key | Compromiso de proveedor | Env backend-only, redacción de errores y OpenAPI sin credencial |
-| Confusión con métricas WhoScored | Score futuro incorrecto | Tablas separadas de `players` |
+| Límite `429`                     | Sin actualización nueva      | Retry finito y conservación de la publicación anterior            |
+| Respuesta parcial entre ligas    | Contexto mezclado            | Publicación atómica de cinco competiciones                        |
+| Nombres de equipos distintos     | Asociación incorrecta        | IDs, aliases validados y rechazo de ambigüedades                  |
+| Exposición de API key            | Compromiso de proveedor      | Env backend-only, redacción de errores y OpenAPI sin credencial   |
+| Confusión con métricas WhoScored | Score futuro incorrecto      | Tablas separadas de `players`                                     |
 
 ## Implementation Order
 

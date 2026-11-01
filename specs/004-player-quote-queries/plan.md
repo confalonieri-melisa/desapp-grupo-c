@@ -224,15 +224,15 @@ adapters porque no se permite red en esta feature.
 
 ## Risks and Mitigations
 
-| Riesgo | Impacto | Mitigación |
-|---|---|---|
-| Interpretación de fecha dependiente de zona horaria | Selección histórica incorrecta | Validar fecha calendario y usar inicio del día siguiente UTC como límite exclusivo |
-| Leer estrategia activa en vez de la histórica | Se pierde trazabilidad | Join por `strategy_version_id` de la quote |
-| Confundir jugador inexistente con historial vacío | Contrato HTTP incorrecto | Comprobar `players` antes de consultar `player_quotes` |
-| Recalcular accidentalmente durante una lectura | Modificación de datos y latencia | Dependencia exclusiva del repositorio; tests con mocks que aseguren ausencia del engine |
-| Numeric de PostgreSQL serializado como string | Contrato inconsistente | Mapper único en controller y tests del DTO |
-| Mensaje o status HTTP inconsistente | Regresión en contratos | Reutilizar errores HTTP existentes y ejecutar suite completa |
-| Crecimiento futuro del historial | Lecturas grandes | Mantener índice existente; dejar paginación como feature posterior |
+| Riesgo                                              | Impacto                          | Mitigación                                                                              |
+| --------------------------------------------------- | -------------------------------- | --------------------------------------------------------------------------------------- |
+| Interpretación de fecha dependiente de zona horaria | Selección histórica incorrecta   | Validar fecha calendario y usar inicio del día siguiente UTC como límite exclusivo      |
+| Leer estrategia activa en vez de la histórica       | Se pierde trazabilidad           | Join por `strategy_version_id` de la quote                                              |
+| Confundir jugador inexistente con historial vacío   | Contrato HTTP incorrecto         | Comprobar `players` antes de consultar `player_quotes`                                  |
+| Recalcular accidentalmente durante una lectura      | Modificación de datos y latencia | Dependencia exclusiva del repositorio; tests con mocks que aseguren ausencia del engine |
+| Numeric de PostgreSQL serializado como string       | Contrato inconsistente           | Mapper único en controller y tests del DTO                                              |
+| Mensaje o status HTTP inconsistente                 | Regresión en contratos           | Reutilizar errores HTTP existentes y ejecutar suite completa                            |
+| Crecimiento futuro del historial                    | Lecturas grandes                 | Mantener índice existente; dejar paginación como feature posterior                      |
 
 ## Implementation Order
 

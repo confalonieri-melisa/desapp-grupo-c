@@ -9,7 +9,11 @@ import {
   type MarketOperationRow,
 } from "@/backend/db/schema";
 import { NotFoundError } from "@/backend/errors/http.error";
-import type { MarketTradeOutcome, MarketTradeRequest, MarketTradeState } from "@/backend/models/MarketTrade";
+import type {
+  MarketTradeOutcome,
+  MarketTradeRequest,
+  MarketTradeState,
+} from "@/backend/models/MarketTrade";
 import { TokenHolding } from "@/backend/models/TokenHolding";
 import { User } from "@/backend/models/User";
 import { UserRole } from "@/backend/models/enums";
@@ -35,8 +39,14 @@ export class MarketRepository {
     private readonly valuationRepository = new ValuationRepository(database),
   ) {}
 
-  async findOperationsByInvestorId(investorId: string, limit: number, offset: number): Promise<MarketOperationHistoryPage> {
-    const rows = await this.database.select().from(marketOperations)
+  async findOperationsByInvestorId(
+    investorId: string,
+    limit: number,
+    offset: number,
+  ): Promise<MarketOperationHistoryPage> {
+    const rows = await this.database
+      .select()
+      .from(marketOperations)
       .where(eq(marketOperations.investorId, investorId))
       .orderBy(desc(marketOperations.createdAt), desc(marketOperations.id))
       .limit(limit + 1)
@@ -52,8 +62,11 @@ export class MarketRepository {
     if (playerIds.length === 0) return;
 
     await this.database.transaction(async (tx) => {
-      const poolRows = await tx.select().from(users)
-        .where(eq(users.role, UserRole.SUPERUSER)).limit(1);
+      const poolRows = await tx
+        .select()
+        .from(users)
+        .where(eq(users.role, UserRole.SUPERUSER))
+        .limit(1);
       const pool = poolRows[0]!;
 
       const initialHoldings = playerIds.map((playerId) => {
@@ -67,7 +80,8 @@ export class MarketRepository {
         };
       });
 
-      await tx.insert(tokenHoldings)
+      await tx
+        .insert(tokenHoldings)
         .values(initialHoldings)
         .onConflictDoNothing({
           target: [tokenHoldings.userId, tokenHoldings.playerId],
@@ -95,7 +109,12 @@ export class MarketRepository {
     const quote = await this.valuationRepository.findLatestForPlayer(request.playerId, tx);
     if (!quote) throw new NotFoundError("Current quote not available");
 
-    const positions = await this.lockTokenPositions(tx, request.playerId, request.investorId, poolRow.id);
+    const positions = await this.lockTokenPositions(
+      tx,
+      request.playerId,
+      request.investorId,
+      poolRow.id,
+    );
     const investorPosition = this.findPositionForUser(positions, request.investorId);
     const poolPosition = this.findPositionForUser(positions, poolRow.id)!;
 
@@ -111,7 +130,11 @@ export class MarketRepository {
     };
   }
 
-  async saveTrade(tx: MarketExecutor, state: MarketTradeState, outcome: MarketTradeOutcome): Promise<void> {
+  async saveTrade(
+    tx: MarketExecutor,
+    state: MarketTradeState,
+    outcome: MarketTradeOutcome,
+  ): Promise<void> {
     await saveAccountBalance(tx, state.investor);
     await saveAccountBalance(tx, state.pool);
     await saveTokenPosition(tx, outcome.investorHolding, state.investorHoldingExists);
@@ -126,16 +149,24 @@ export class MarketRepository {
   }
 
   private async lockInvestorAccount(tx: MarketExecutor, investorId: string) {
-    const rows = await tx.select().from(users)
-      .where(eq(users.id, investorId)).orderBy(asc(users.id)).for("update");
+    const rows = await tx
+      .select()
+      .from(users)
+      .where(eq(users.id, investorId))
+      .orderBy(asc(users.id))
+      .for("update");
     const investor = rows[0];
     if (!investor) throw new NotFoundError("Investor not found");
     return investor;
   }
 
   private async lockPoolAccount(tx: MarketExecutor) {
-    const rows = await tx.select().from(users)
-      .where(eq(users.role, UserRole.SUPERUSER)).orderBy(asc(users.id)).for("update");
+    const rows = await tx
+      .select()
+      .from(users)
+      .where(eq(users.role, UserRole.SUPERUSER))
+      .orderBy(asc(users.id))
+      .for("update");
     return rows[0]!;
   }
 
@@ -145,12 +176,17 @@ export class MarketRepository {
     investorId: string,
     poolId: string,
   ) {
-    return tx.select().from(tokenHoldings)
-      .where(and(
-        eq(tokenHoldings.playerId, playerId),
-        inArray(tokenHoldings.userId, [investorId, poolId]),
-      ))
-      .orderBy(asc(tokenHoldings.userId)).for("update");
+    return tx
+      .select()
+      .from(tokenHoldings)
+      .where(
+        and(
+          eq(tokenHoldings.playerId, playerId),
+          inArray(tokenHoldings.userId, [investorId, poolId]),
+        ),
+      )
+      .orderBy(asc(tokenHoldings.userId))
+      .for("update");
   }
 
   private findPositionForUser(positions: TokenHoldingRow[], userId: string) {
@@ -159,13 +195,20 @@ export class MarketRepository {
 }
 
 async function saveAccountBalance(tx: MarketExecutor, user: User): Promise<void> {
-  await tx.update(users).set({
-    creditBalance: user.creditBalance.toFixed(2),
-    updatedAt: new Date(),
-  }).where(eq(users.id, user.id));
+  await tx
+    .update(users)
+    .set({
+      creditBalance: user.creditBalance.toFixed(2),
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
 }
 
-async function saveTokenPosition(tx: MarketExecutor, holding: TokenHolding, exists: boolean): Promise<void> {
+async function saveTokenPosition(
+  tx: MarketExecutor,
+  holding: TokenHolding,
+  exists: boolean,
+): Promise<void> {
   const values = {
     quantity: holding.quantity,
     averagePurchasePrice: holding.averagePurchasePrice.toFixed(2),
@@ -183,7 +226,10 @@ async function saveTokenPosition(tx: MarketExecutor, holding: TokenHolding, exis
   });
 }
 
-async function saveMarketOperation(tx: MarketExecutor, operation: MarketTradeOutcome["operation"]): Promise<void> {
+async function saveMarketOperation(
+  tx: MarketExecutor,
+  operation: MarketTradeOutcome["operation"],
+): Promise<void> {
   await tx.insert(marketOperations).values({
     id: operation.id,
     type: operation.type,
@@ -199,7 +245,10 @@ async function saveMarketOperation(tx: MarketExecutor, operation: MarketTradeOut
   });
 }
 
-async function saveFinancialAudit(tx: MarketExecutor, audit: MarketTradeOutcome["audit"]): Promise<void> {
+async function saveFinancialAudit(
+  tx: MarketExecutor,
+  audit: MarketTradeOutcome["audit"],
+): Promise<void> {
   await tx.insert(financialAuditRecords).values({
     id: audit.id,
     operationId: audit.operationId,

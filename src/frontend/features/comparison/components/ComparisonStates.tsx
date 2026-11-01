@@ -1,4 +1,4 @@
-import styles from '@/app/comparison/ComparisonPage.module.scss';
+import styles from "@/app/comparison/ComparisonPage.module.scss";
 
 export function EmptyComparisonState() {
   return (

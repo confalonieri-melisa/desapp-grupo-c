@@ -1,11 +1,7 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { closeDatabase, db } from "@/backend/db";
-import {
-  playerQuotes,
-  players,
-  valuationStrategyVersions,
-} from "@/backend/db/schema";
+import { playerQuotes, players, valuationStrategyVersions } from "@/backend/db/schema";
 import { League, Position } from "@/backend/models/enums";
 import { ValuationRepository } from "@/backend/repositories/valuation.repository";
 
@@ -133,11 +129,17 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
         },
       ]);
 
-      const quote = await repository.findLatestQuoteBefore(playerId, new Date("2026-10-21T00:00:00.000Z"));
+      const quote = await repository.findLatestQuoteBefore(
+        playerId,
+        new Date("2026-10-21T00:00:00.000Z"),
+      );
 
       expect(quote?.id).toBe(firstQuoteId);
 
-      const unavailable = await repository.findLatestQuoteBefore(playerId, new Date("2020-01-01T00:00:00.000Z"));
+      const unavailable = await repository.findLatestQuoteBefore(
+        playerId,
+        new Date("2020-01-01T00:00:00.000Z"),
+      );
       expect(unavailable).toBeNull();
     });
   },

@@ -13,7 +13,10 @@ import styles from "./PortfolioPage.module.scss";
 export default function PortfolioPage() {
   const router = useRouter();
   const { token, user, isHydrated, logout } = useAuth();
-  const unauthorized = useCallback(() => { logout(); router.replace("/login"); }, [logout, router]);
+  const unauthorized = useCallback(() => {
+    logout();
+    router.replace("/login");
+  }, [logout, router]);
   const authorizedToken = isHydrated && user?.role === "INVESTOR" ? token : null;
   const dashboard = usePortfolioDashboard(authorizedToken, unauthorized);
 
@@ -24,20 +27,48 @@ export default function PortfolioPage() {
 
   if (!authorizedToken) return null;
   const { snapshot, names, players, phase, error, retry } = dashboard;
-  return <PageContainer className={styles.page}>
-    <div className={styles.content}>
-      <header className={styles.header}><h1>Mi portfolio</h1><p>Tu cartera actual de jugadores y su rendimiento.</p></header>
-      {phase === "initial-loading" && <p role="status">Cargando portfolio…</p>}
-      {phase === "initial-error" && <div className={styles.notice} role="alert"><p>{error}</p><button type="button" onClick={retry}>Reintentar</button></div>}
-      {snapshot && <>
-        {phase === "refreshing" && <div className={styles.notice} role="status">Actualizando portfolio. Las cifras anteriores pueden estar desactualizadas.</div>}
-        {phase === "stale-error" && <div className={styles.notice} role="alert"><p>No se pudo actualizar el portfolio. Las cifras anteriores están desactualizadas. {error}</p><button type="button" onClick={retry}>Reintentar</button></div>}
-        <PortfolioSummary snapshot={snapshot} />
-        <PortfolioPositions snapshot={snapshot} names={names} players={players} />
-        <div className={styles.charts}>
-          <PortfolioPnlChart snapshot={snapshot} names={names} players={players} />
-        </div>
-      </>}
-    </div>
-  </PageContainer>;
+  return (
+    <PageContainer className={styles.page}>
+      <div className={styles.content}>
+        <header className={styles.header}>
+          <h1>Mi portfolio</h1>
+          <p>Tu cartera actual de jugadores y su rendimiento.</p>
+        </header>
+        {phase === "initial-loading" && <p role="status">Cargando portfolio…</p>}
+        {phase === "initial-error" && (
+          <div className={styles.notice} role="alert">
+            <p>{error}</p>
+            <button type="button" onClick={retry}>
+              Reintentar
+            </button>
+          </div>
+        )}
+        {snapshot && (
+          <>
+            {phase === "refreshing" && (
+              <div className={styles.notice} role="status">
+                Actualizando portfolio. Las cifras anteriores pueden estar desactualizadas.
+              </div>
+            )}
+            {phase === "stale-error" && (
+              <div className={styles.notice} role="alert">
+                <p>
+                  No se pudo actualizar el portfolio. Las cifras anteriores están desactualizadas.{" "}
+                  {error}
+                </p>
+                <button type="button" onClick={retry}>
+                  Reintentar
+                </button>
+              </div>
+            )}
+            <PortfolioSummary snapshot={snapshot} />
+            <PortfolioPositions snapshot={snapshot} names={names} players={players} />
+            <div className={styles.charts}>
+              <PortfolioPnlChart snapshot={snapshot} names={names} players={players} />
+            </div>
+          </>
+        )}
+      </div>
+    </PageContainer>
+  );
 }

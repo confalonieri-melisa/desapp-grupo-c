@@ -6,12 +6,43 @@ import type { PortfolioSnapshot } from "@/frontend/services/client/player-tradin
 
 describe("unrealized result chart", () => {
   it("separates positive, negative, zero and missing results in text and position", () => {
-    const snapshot: PortfolioSnapshot = { creditBalance: 0, items: [
-      { playerId: "gain", quantity: 1, averagePurchasePrice: 0, currentQuoteValue: 5, currentValue: 5, unrealizedPnl: 5 },
-      { playerId: "loss", quantity: 1, averagePurchasePrice: 5, currentQuoteValue: 2, currentValue: 2, unrealizedPnl: -3 },
-      { playerId: "flat", quantity: 1, averagePurchasePrice: 0, currentQuoteValue: 0, currentValue: 0, unrealizedPnl: 0 },
-      { playerId: "unknown", quantity: 1, averagePurchasePrice: 0, currentQuoteValue: null, currentValue: null, unrealizedPnl: null },
-    ] };
+    const snapshot: PortfolioSnapshot = {
+      creditBalance: 0,
+      items: [
+        {
+          playerId: "gain",
+          quantity: 1,
+          averagePurchasePrice: 0,
+          currentQuoteValue: 5,
+          currentValue: 5,
+          unrealizedPnl: 5,
+        },
+        {
+          playerId: "loss",
+          quantity: 1,
+          averagePurchasePrice: 5,
+          currentQuoteValue: 2,
+          currentValue: 2,
+          unrealizedPnl: -3,
+        },
+        {
+          playerId: "flat",
+          quantity: 1,
+          averagePurchasePrice: 0,
+          currentQuoteValue: 0,
+          currentValue: 0,
+          unrealizedPnl: 0,
+        },
+        {
+          playerId: "unknown",
+          quantity: 1,
+          averagePurchasePrice: 0,
+          currentQuoteValue: null,
+          currentValue: null,
+          unrealizedPnl: null,
+        },
+      ],
+    };
     const html = renderToStaticMarkup(createElement(PortfolioPnlChart, { snapshot, names: {} }));
     expect(html).toContain("+5 créditos");
     expect(html).toContain("-3 créditos");
@@ -28,9 +59,19 @@ describe("unrealized result chart", () => {
   });
 
   it("keeps the comparison axis and profile links when all results are zero", () => {
-    const snapshot: PortfolioSnapshot = { creditBalance: 0, items: [
-      { playerId: "flat", quantity: 1, averagePurchasePrice: 1, currentQuoteValue: 1, currentValue: 1, unrealizedPnl: 0 },
-    ] };
+    const snapshot: PortfolioSnapshot = {
+      creditBalance: 0,
+      items: [
+        {
+          playerId: "flat",
+          quantity: 1,
+          averagePurchasePrice: 1,
+          currentQuoteValue: 1,
+          currentValue: 1,
+          unrealizedPnl: 0,
+        },
+      ],
+    };
     const html = renderToStaticMarkup(createElement(PortfolioPnlChart, { snapshot, names: {} }));
     expect(html).toContain("La ganancia o pérdida de todos los jugadores disponibles es cero");
     expect(html).toContain('href="/players/flat"');
@@ -39,9 +80,19 @@ describe("unrealized result chart", () => {
   });
 
   it("does not show a numeric scale when all results are unavailable", () => {
-    const snapshot: PortfolioSnapshot = { creditBalance: 0, items: [
-      { playerId: "missing", quantity: 1, averagePurchasePrice: 1, currentQuoteValue: null, currentValue: null, unrealizedPnl: null },
-    ] };
+    const snapshot: PortfolioSnapshot = {
+      creditBalance: 0,
+      items: [
+        {
+          playerId: "missing",
+          quantity: 1,
+          averagePurchasePrice: 1,
+          currentQuoteValue: null,
+          currentValue: null,
+          unrealizedPnl: null,
+        },
+      ],
+    };
     const html = renderToStaticMarkup(createElement(PortfolioPnlChart, { snapshot, names: {} }));
     expect(html).toContain("No hay datos de ganancia o pérdida para comparar.");
     expect(html).toContain('href="/players/missing"');

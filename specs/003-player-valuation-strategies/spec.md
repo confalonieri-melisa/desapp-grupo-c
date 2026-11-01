@@ -270,15 +270,15 @@ estado y el motivo registrado.
 La primera versión utiliza una configuración fija, explícita y versionada. No
 calcula referencias dinámicas ni requiere una población auxiliar.
 
-| Área | Propuesta a evaluar | Motivo |
-|---|---|---|
-| Métricas individuales | `appearances`, `minutesPlayed`, `rating`, `goals`, `assists`, `shotsPerGame`, `tacklesPerGame`, `interceptionsPerGame`, `foulsPerGame`, `yellowCards`, `redCards` | Coincide con el contrato actual de WhoScored y evita inventar métricas no persistidas. |
-| Positivas | Apariciones, minutos, rating, goles, asistencias, tiros, tackles e intercepciones | Representan participación o acciones deportivas favorables según el contexto de posición. |
-| Negativas | Faltas, amarillas y rojas | Penalizan indisciplina; la penalización exacta requiere calibración. |
-| Contexto | Posición, puntos, partidos jugados y diferencia de gol | Coincide con el contexto persistido aprobado para la primera versión y evita estadísticas individuales duplicadas. |
-| Normalización | Rangos mínimos y máximos fijos por métrica, congelados en cada versión | Es determinista, explicable y suficiente para el MVP. |
-| Mezcla híbrida | `individualShare = 0.75` y `teamShare = 0.25` | Garantiza que el equipo sea un ajuste y no reemplace al jugador; fue aprobado para la primera versión. |
-| Cotización | `1 + 99 * score`, rango de 1 a 100 créditos y 2 decimales | Es explicable y conserva el valor base de 1 crédito en `t0`; fue aprobado para la primera versión. |
+| Área                  | Propuesta a evaluar                                                                                                                                               | Motivo                                                                                                             |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Métricas individuales | `appearances`, `minutesPlayed`, `rating`, `goals`, `assists`, `shotsPerGame`, `tacklesPerGame`, `interceptionsPerGame`, `foulsPerGame`, `yellowCards`, `redCards` | Coincide con el contrato actual de WhoScored y evita inventar métricas no persistidas.                             |
+| Positivas             | Apariciones, minutos, rating, goles, asistencias, tiros, tackles e intercepciones                                                                                 | Representan participación o acciones deportivas favorables según el contexto de posición.                          |
+| Negativas             | Faltas, amarillas y rojas                                                                                                                                         | Penalizan indisciplina; la penalización exacta requiere calibración.                                               |
+| Contexto              | Posición, puntos, partidos jugados y diferencia de gol                                                                                                            | Coincide con el contexto persistido aprobado para la primera versión y evita estadísticas individuales duplicadas. |
+| Normalización         | Rangos mínimos y máximos fijos por métrica, congelados en cada versión                                                                                            | Es determinista, explicable y suficiente para el MVP.                                                              |
+| Mezcla híbrida        | `individualShare = 0.75` y `teamShare = 0.25`                                                                                                                     | Garantiza que el equipo sea un ajuste y no reemplace al jugador; fue aprobado para la primera versión.             |
+| Cotización            | `1 + 99 * score`, rango de 1 a 100 créditos y 2 decimales                                                                                                         | Es explicable y conserva el valor base de 1 crédito en `t0`; fue aprobado para la primera versión.                 |
 
 ## Decisions Resolved
 

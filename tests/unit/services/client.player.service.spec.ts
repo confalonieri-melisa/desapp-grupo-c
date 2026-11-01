@@ -4,7 +4,9 @@ import { League, Position } from "@/backend/models/enums";
 
 describe("client player service", () => {
   it.each([400, 401, 404, 500])("preserves HTTP status %i in compatible errors", async (status) => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(Response.json({ error: "API failure" }, { status }));
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      Response.json({ error: "API failure" }, { status }),
+    );
     const result = getPlayer("token", "player-1");
     await expect(result).rejects.toBeInstanceOf(Error);
     await expect(result).rejects.toMatchObject({ status, message: "API failure" });
@@ -26,9 +28,9 @@ describe("client player service", () => {
       createdAt: "2026-01-01T00:00:00.000Z",
       updatedAt: "2026-01-02T00:00:00.000Z",
     };
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify(response), { status: 200 }),
-    );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(JSON.stringify(response), { status: 200 }));
 
     await expect(getPlayer("token", "player-1")).resolves.toEqual(response);
 
@@ -45,15 +47,21 @@ describe("client player service", () => {
       data: [],
       pagination: { total: 0, page: 1, limit: 12, totalPages: 0 },
     };
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify(response), { status: 200 }),
-    );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(JSON.stringify(response), { status: 200 }));
 
-    await expect(getPlayers("token", {
-      league: League.BUNDESLIGA,
-      team: "Schalke",
-      position: Position.DEFENDER,
-    }, 1)).resolves.toEqual(response);
+    await expect(
+      getPlayers(
+        "token",
+        {
+          league: League.BUNDESLIGA,
+          team: "Schalke",
+          position: Position.DEFENDER,
+        },
+        1,
+      ),
+    ).resolves.toEqual(response);
 
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/players?page=1&limit=12&league=BUNDESLIGA&team=Schalke&position=DEFENDER",
@@ -65,9 +73,13 @@ describe("client player service", () => {
   });
 
   it("passes a name query to the paginated catalog API", async () => {
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify({ data: [], pagination: { total: 0, page: 1, limit: 12, totalPages: 0 } })),
-    );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(
+        new Response(
+          JSON.stringify({ data: [], pagination: { total: 0, page: 1, limit: 12, totalPages: 0 } }),
+        ),
+      );
     await getPlayers("token", { name: "  Mbappé  ", league: "", team: "", position: "" }, 1);
     expect(fetchMock).toHaveBeenCalledWith(
       "/api/players?page=1&limit=12&name=Mbapp%C3%A9",
@@ -77,9 +89,9 @@ describe("client player service", () => {
 
   it("requests a player detail with an encoded id", async () => {
     const response = { id: "player/1" };
-    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response(JSON.stringify(response), { status: 200 }),
-    );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue(new Response(JSON.stringify(response), { status: 200 }));
 
     await expect(getPlayer("token", "player/1")).resolves.toEqual(response);
 
@@ -91,7 +103,9 @@ describe("client player service", () => {
 
   it("uses detail API errors and fallback messages", async () => {
     vi.spyOn(globalThis, "fetch")
-      .mockResolvedValueOnce(new Response(JSON.stringify({ error: "Player unavailable" }), { status: 500 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: "Player unavailable" }), { status: 500 }),
+      )
       .mockResolvedValueOnce(new Response("server error", { status: 500 }));
 
     await expect(getPlayer("token", "player-1")).rejects.toThrow("Player unavailable");
@@ -103,11 +117,17 @@ describe("client player service", () => {
       new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 }),
     );
 
-    await expect(getPlayers("expired-token", {
-      league: "",
-      team: "",
-      position: "",
-    }, 1)).rejects.toThrow("Unauthorized");
+    await expect(
+      getPlayers(
+        "expired-token",
+        {
+          league: "",
+          team: "",
+          position: "",
+        },
+        1,
+      ),
+    ).rejects.toThrow("Unauthorized");
   });
 
   it("prefers the message field from an API error", async () => {
@@ -115,23 +135,33 @@ describe("client player service", () => {
       new Response(JSON.stringify({ message: "Players unavailable" }), { status: 500 }),
     );
 
-    await expect(getPlayers("token", {
-      league: "",
-      team: "",
-      position: "",
-    }, 1)).rejects.toThrow("Players unavailable");
+    await expect(
+      getPlayers(
+        "token",
+        {
+          league: "",
+          team: "",
+          position: "",
+        },
+        1,
+      ),
+    ).rejects.toThrow("Players unavailable");
   });
 
   it("uses the fallback message for non-JSON API errors", async () => {
-    vi.spyOn(globalThis, "fetch").mockResolvedValue(
-      new Response("server error", { status: 500 }),
-    );
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("server error", { status: 500 }));
 
-    await expect(getPlayers("token", {
-      league: "",
-      team: "",
-      position: "",
-    }, 1)).rejects.toThrow("No se pudieron cargar los jugadores");
+    await expect(
+      getPlayers(
+        "token",
+        {
+          league: "",
+          team: "",
+          position: "",
+        },
+        1,
+      ),
+    ).rejects.toThrow("No se pudieron cargar los jugadores");
   });
 
   it("ignores unknown non-object API error payloads", async () => {
@@ -139,10 +169,16 @@ describe("client player service", () => {
       new Response(JSON.stringify("server error"), { status: 500 }),
     );
 
-    await expect(getPlayers("token", {
-      league: "",
-      team: "",
-      position: "",
-    }, 1)).rejects.toThrow("No se pudieron cargar los jugadores");
+    await expect(
+      getPlayers(
+        "token",
+        {
+          league: "",
+          team: "",
+          position: "",
+        },
+        1,
+      ),
+    ).rejects.toThrow("No se pudieron cargar los jugadores");
   });
 });

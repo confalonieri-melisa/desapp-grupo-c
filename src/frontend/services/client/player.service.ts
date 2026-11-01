@@ -29,16 +29,16 @@ interface PlayerApiResponse {
 }
 
 export class PlayerHttpError extends Error {
-  constructor(message: string, public readonly status: number) {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
     super(message);
-    this.name = 'PlayerHttpError';
+    this.name = "PlayerHttpError";
   }
 }
 
-async function parseApiResponse<T>(
-  response: Response,
-  fallbackMessage: string,
-): Promise<T> {
+async function parseApiResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
   let data: unknown;
   try {
     data = await response.json();
@@ -47,14 +47,16 @@ async function parseApiResponse<T>(
   }
 
   if (!response.ok) {
-    const apiError = typeof data === "object" && data !== null
-      ? data as { message?: unknown; error?: unknown }
-      : {};
-    const message = typeof apiError.message === "string"
-      ? apiError.message
-      : typeof apiError.error === "string"
-        ? apiError.error
-        : fallbackMessage;
+    const apiError =
+      typeof data === "object" && data !== null
+        ? (data as { message?: unknown; error?: unknown })
+        : {};
+    const message =
+      typeof apiError.message === "string"
+        ? apiError.message
+        : typeof apiError.error === "string"
+          ? apiError.error
+          : fallbackMessage;
 
     throw new PlayerHttpError(message, response.status);
   }
@@ -107,10 +109,7 @@ export async function getPlayers(
     signal,
   });
 
-  return parseApiResponse<PlayerApiResponse>(
-    response,
-    "No se pudieron cargar los jugadores",
-  );
+  return parseApiResponse<PlayerApiResponse>(response, "No se pudieron cargar los jugadores");
 }
 export async function getPlayer(
   token: string,
@@ -124,8 +123,5 @@ export async function getPlayer(
     signal,
   });
 
-  return parseApiResponse<PlayerApiDetail>(
-    response,
-    "No se pudo cargar el jugador",
-  );
+  return parseApiResponse<PlayerApiDetail>(response, "No se pudo cargar el jugador");
 }

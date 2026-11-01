@@ -25,7 +25,10 @@ type CountDatabaseRow = { total: string | number };
 export class PlayerRankingRepository {
   constructor(private readonly database: Database = defaultDatabase) {}
 
-  async findRankedPlayers(strategyVersionId: string, criteria: PlayerRankingCriteria): Promise<PlayerRankingResult> {
+  async findRankedPlayers(
+    strategyVersionId: string,
+    criteria: PlayerRankingCriteria,
+  ): Promise<PlayerRankingResult> {
     const rows = await this.findRankedPlayerRows(strategyVersionId, criteria);
     const total = await this.countRankedPlayers(strategyVersionId, criteria);
 
@@ -37,12 +40,15 @@ export class PlayerRankingRepository {
     };
   }
 
-  private async findRankedPlayerRows(strategyVersionId: string, criteria: PlayerRankingCriteria): Promise<RankingDatabaseRow[]> {
+  private async findRankedPlayerRows(
+    strategyVersionId: string,
+    criteria: PlayerRankingCriteria,
+  ): Promise<RankingDatabaseRow[]> {
     const offset = (criteria.page - 1) * criteria.limit;
     const filters = this.playerFiltersWhere(criteria);
     const latestQuotePerPlayer = this.latestQuotePerPlayer(strategyVersionId);
 
-    return await this.database.execute(sql`
+    return (await this.database.execute(sql`
       ${latestQuotePerPlayer}
       SELECT
         p.id AS player_id,
@@ -60,19 +66,22 @@ export class PlayerRankingRepository {
       ORDER BY q.final_score DESC, q.quote_value DESC, p.name ASC, p.id ASC
       LIMIT ${criteria.limit}
       OFFSET ${offset}
-    `) as unknown as RankingDatabaseRow[];
+    `)) as unknown as RankingDatabaseRow[];
   }
 
-  private async countRankedPlayers(strategyVersionId: string, criteria: PlayerRankingCriteria): Promise<number> {
+  private async countRankedPlayers(
+    strategyVersionId: string,
+    criteria: PlayerRankingCriteria,
+  ): Promise<number> {
     const filters = this.playerFiltersWhere(criteria);
     const latestQuotePerPlayer = this.latestQuotePerPlayer(strategyVersionId);
-    const rows = await this.database.execute(sql`
+    const rows = (await this.database.execute(sql`
       ${latestQuotePerPlayer}
       SELECT COUNT(*)::int AS total
       FROM players p
       INNER JOIN latest_quotes q ON q.player_id = p.id
       ${filters}
-    `) as unknown as CountDatabaseRow[];
+    `)) as unknown as CountDatabaseRow[];
 
     return Number(rows[0]?.total ?? 0);
   }
@@ -106,9 +115,7 @@ export class PlayerRankingRepository {
       conditions.push(sql`p.position = ${criteria.position}`);
     }
 
-    return conditions.length
-      ? sql`WHERE ${sql.join(conditions, sql` AND `)}`
-      : sql``;
+    return conditions.length ? sql`WHERE ${sql.join(conditions, sql` AND `)}` : sql``;
   }
 }
 

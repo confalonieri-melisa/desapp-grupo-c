@@ -2,7 +2,7 @@
 
 **Feature**: [spec.md](./spec.md)  
 **Date**: 2026-09-12  
-**Status**: Completed  
+**Status**: Completed
 
 ---
 
@@ -10,17 +10,17 @@
 
 Siguiendo las pautas del trabajo práctico (`docs/project-context.md`), la especificación (`spec.md`) y el enfoque arquitectónico acordado:
 
-| Dimensión | Tecnología / Librería | Justificación |
-| :--- | :--- | :--- |
-| **Framework & Runtime** | Next.js 16 (App Router) + Node.js 20+ | Runtime estándar para backend y frontend unificados; Route Handlers para endpoints REST. |
-| **Lenguaje** | TypeScript 5 (Strict Mode) | Tipado estático de punta a punta (modelos, servicios, controladores). |
+| Dimensión                 | Tecnología / Librería                                                    | Justificación                                                                                                                                                                                                          |
+| :------------------------ | :----------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Framework & Runtime**   | Next.js 16 (App Router) + Node.js 20+                                    | Runtime estándar para backend y frontend unificados; Route Handlers para endpoints REST.                                                                                                                               |
+| **Lenguaje**              | TypeScript 5 (Strict Mode)                                               | Tipado estático de punta a punta (modelos, servicios, controladores).                                                                                                                                                  |
 | **Patrón Arquitectónico** | **Controller $\to$ Service $\to$ Repository con Modelo de Dominio Rico** | Separación limpia de responsabilidades: el **Modelo** contiene la lógica y las invariantes de negocio; el **Service** orquesta los flujos; el **Repository** maneja el acceso a datos; el **Controller** atiende HTTP. |
-| **ORM & Base de Datos** | Drizzle ORM (`drizzle-orm` + `drizzle-kit` + `postgres`) | Definición de esquemas en TypeScript, tipado estricto y migraciones automatizadas. |
-| **Testing** | Vitest (`vitest` + `@vitest/coverage-v8`) | Runner de tests ultra rápido en TypeScript/ESM con cobertura de código nativa. |
-| **Seguridad** | `jsonwebtoken` | Generación de tokens JWT estándar (vigencia 24h); la contraseña se compara directamente por tratarse de un alcance académico. |
-| **Validación** | `zod` | Validación y sanitización de schemas de entrada en controladores HTTP. |
-| **Documentación API** | OpenAPI 3.0 / Swagger (`swagger-ui-dist`) | Documentación interactiva en `/api/docs` con esquema `BearerAuth`. |
-| **CI/CD & Calidad** | GitHub Actions (`.github/workflows/ci.yml`) + SonarCloud | Pipeline automático en cada Push/PR (lint, build, tests con cobertura y SonarCloud <10 issues). |
+| **ORM & Base de Datos**   | Drizzle ORM (`drizzle-orm` + `drizzle-kit` + `postgres`)                 | Definición de esquemas en TypeScript, tipado estricto y migraciones automatizadas.                                                                                                                                     |
+| **Testing**               | Vitest (`vitest` + `@vitest/coverage-v8`)                                | Runner de tests ultra rápido en TypeScript/ESM con cobertura de código nativa.                                                                                                                                         |
+| **Seguridad**             | `jsonwebtoken`                                                           | Generación de tokens JWT estándar (vigencia 24h); la contraseña se compara directamente por tratarse de un alcance académico.                                                                                          |
+| **Validación**            | `zod`                                                                    | Validación y sanitización de schemas de entrada en controladores HTTP.                                                                                                                                                 |
+| **Documentación API**     | OpenAPI 3.0 / Swagger (`swagger-ui-dist`)                                | Documentación interactiva en `/api/docs` con esquema `BearerAuth`.                                                                                                                                                     |
+| **CI/CD & Calidad**       | GitHub Actions (`.github/workflows/ci.yml`) + SonarCloud                 | Pipeline automático en cada Push/PR (lint, build, tests con cobertura y SonarCloud <10 issues).                                                                                                                        |
 
 ---
 
@@ -36,20 +36,24 @@ graph TD
 ```
 
 ### 1. Modelo de Dominio Rico (`src/models/`):
+
 - **Contiene la lógica de negocio pura y las invariantes del sistema:**
   - `Player`: Valida estrictamente que la liga pertenezca a las 5 ligas europeas oficiales (`PREMIER_LEAGUE`, `BUNDESLIGA`, `LA_LIGA`, `SERIE_A`, `LIGUE_1`). Si no es válida, lanza una excepción de dominio.
   - `User`: Valida el rol y el saldo, asigna automáticamente los **1.000 créditos de bienvenida** al rol `INVESTOR`, y permite debitar o acreditar saldo.
   - `TokenHolding`: Modela la tenencia por usuario y jugador; su fábrica `initialSeed` crea la tenencia inicial de **100 tokens** a cotización base de **1 crédito** en $t_0$.
 
 ### 2. Servicios Orquestadores (`src/services/`):
+
 - **No contienen las reglas del dominio; orquestan y coordinan las operaciones:**
   - `AuthService`: Orquesta la verificación de unicidad de email con el repositorio, la instanciación de la entidad `User`, el almacenamiento directo de la contraseña para este alcance, la persistencia en base de datos y la emisión del token JWT de 24 horas.
   - `PlayerService`: Orquesta la consulta al repositorio aplicando filtros y paginación, y mapea las entidades resultantes a DTOs para el controlador.
 
 ### 3. Repositorios (`src/repositories/`):
+
 - Encapsulan las operaciones CRUD y consultas sobre PostgreSQL usando Drizzle ORM (`UserRepository`, `PlayerRepository`).
 
 ### 4. Controladores (`src/controllers/`):
+
 - Reciben requests HTTP de Next.js Route Handlers, validan el payload con Zod, delegan la acción al Service orquestador y formatean la respuesta HTTP (códigos 200, 201, 400, 401, 404, 409).
 
 ---

@@ -12,13 +12,11 @@ export class PortfolioRepository {
   }
 
   private findActiveHoldings(userId: string) {
-    return this.database.select().from(tokenHoldings)
-      .where(and(
-        eq(tokenHoldings.userId, userId),
-        gt(tokenHoldings.quantity, 0),
-      ));
+    return this.database
+      .select()
+      .from(tokenHoldings)
+      .where(and(eq(tokenHoldings.userId, userId), gt(tokenHoldings.quantity, 0)));
   }
-
 }
 
 function toHolding(row: typeof tokenHoldings.$inferSelect): TokenHolding {

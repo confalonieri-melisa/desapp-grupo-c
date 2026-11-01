@@ -8,15 +8,16 @@ import { MarketOperationController } from "@/backend/controllers/market-operatio
 import { MarketOperationService } from "@/backend/services/market-operation.service";
 import { validate } from "@/backend/utils/validate";
 
-const controller = new MarketOperationController(
-  new MarketOperationService(),
-);
+const controller = new MarketOperationController(new MarketOperationService());
 
 interface TransactionHistoryRouteProps {
   params: Promise<{ id: string }>;
 }
 
-export async function GET(request: Request, { params }: TransactionHistoryRouteProps): Promise<Response> {
+export async function GET(
+  request: Request,
+  { params }: TransactionHistoryRouteProps,
+): Promise<Response> {
   try {
     const auth = requireAuth(request);
     const { id } = validate(marketOperationHistoryParamsSchema, await params);

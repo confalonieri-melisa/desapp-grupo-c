@@ -9,40 +9,44 @@ import {
 
 describe("player catalog URL filters", () => {
   it("parses valid filters and ignores invalid enum values", () => {
-    expect(parsePlayerCatalogFilters(new URLSearchParams(
-      "league=BUNDESLIGA&team=Schalke&position=DEFENDER",
-    ))).toEqual({
+    expect(
+      parsePlayerCatalogFilters(
+        new URLSearchParams("league=BUNDESLIGA&team=Schalke&position=DEFENDER"),
+      ),
+    ).toEqual({
       name: "",
       league: League.BUNDESLIGA,
       team: "Schalke",
       position: Position.DEFENDER,
     });
 
-    expect(parsePlayerCatalogFilters(new URLSearchParams(
-      "league=INVALID&position=INVALID",
-    ))).toEqual(emptyPlayerCatalogFilters);
+    expect(
+      parsePlayerCatalogFilters(new URLSearchParams("league=INVALID&position=INVALID")),
+    ).toEqual(emptyPlayerCatalogFilters);
   });
 
   it("uses empty values when filters are absent", () => {
-    expect(parsePlayerCatalogFilters(new URLSearchParams())).toEqual(
-      emptyPlayerCatalogFilters,
-    );
+    expect(parsePlayerCatalogFilters(new URLSearchParams())).toEqual(emptyPlayerCatalogFilters);
   });
 
   it("serializes only active filters", () => {
-    expect(serializePlayerCatalogFilters({
-      league: League.BUNDESLIGA,
-      team: "",
-      position: Position.DEFENDER,
-    })).toBe("league=BUNDESLIGA&position=DEFENDER");
+    expect(
+      serializePlayerCatalogFilters({
+        league: League.BUNDESLIGA,
+        team: "",
+        position: Position.DEFENDER,
+      }),
+    ).toBe("league=BUNDESLIGA&position=DEFENDER");
   });
 
   it("preserves an active team filter", () => {
-    expect(serializePlayerCatalogFilters({
-      league: "",
-      team: "Paris FC",
-      position: "",
-    })).toBe("team=Paris+FC");
+    expect(
+      serializePlayerCatalogFilters({
+        league: "",
+        team: "Paris FC",
+        position: "",
+      }),
+    ).toBe("team=Paris+FC");
   });
 
   it("serializes an empty query when no filters are active", () => {
@@ -62,9 +66,13 @@ describe("player catalog URL filters", () => {
   });
 
   it("keeps a name search in the URL and combines it with pagination", () => {
-    const filters = parsePlayerCatalogFilters(new URLSearchParams("name=%C3%81lvaro+Valles&league=LA_LIGA"));
+    const filters = parsePlayerCatalogFilters(
+      new URLSearchParams("name=%C3%81lvaro+Valles&league=LA_LIGA"),
+    );
     expect(filters.name).toBe("Álvaro Valles");
-    expect(serializePlayerCatalogFilters(filters, 2)).toBe("name=%C3%81lvaro+Valles&league=LA_LIGA&page=2");
+    expect(serializePlayerCatalogFilters(filters, 2)).toBe(
+      "name=%C3%81lvaro+Valles&league=LA_LIGA&page=2",
+    );
     expect(serializePlayerCatalogFilters({ ...emptyPlayerCatalogFilters, name: "   " })).toBe("");
   });
 });

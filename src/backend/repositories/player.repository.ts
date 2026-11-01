@@ -45,33 +45,36 @@ export class PlayerRepository {
     });
   }
 
-  private async upsertPlayer(database: PlayerDatabaseExecutor, playerData: PlayerPersistenceData): Promise<Player> {
+  private async upsertPlayer(
+    database: PlayerDatabaseExecutor,
+    playerData: PlayerPersistenceData,
+  ): Promise<Player> {
     const rows = await database
-        .insert(players)
-        .values({
-          id: playerData.player.id,
-          source: playerData.source,
-          externalId: playerData.externalId,
+      .insert(players)
+      .values({
+        id: playerData.player.id,
+        source: playerData.source,
+        externalId: playerData.externalId,
+        name: playerData.player.name,
+        team: playerData.player.team,
+        league: playerData.player.league,
+        position: playerData.player.position,
+        statistics: playerData.player.statistics,
+        createdAt: playerData.player.createdAt,
+        updatedAt: playerData.player.updatedAt,
+      })
+      .onConflictDoUpdate({
+        target: [players.source, players.externalId],
+        set: {
           name: playerData.player.name,
           team: playerData.player.team,
           league: playerData.player.league,
           position: playerData.player.position,
           statistics: playerData.player.statistics,
-          createdAt: playerData.player.createdAt,
           updatedAt: playerData.player.updatedAt,
-        })
-        .onConflictDoUpdate({
-          target: [players.source, players.externalId],
-          set: {
-            name: playerData.player.name,
-            team: playerData.player.team,
-            league: playerData.player.league,
-            position: playerData.player.position,
-            statistics: playerData.player.statistics,
-            updatedAt: playerData.player.updatedAt,
-          },
-        })
-        .returning();
+        },
+      })
+      .returning();
 
     if (!rows[0]) {
       throw new Error("Player could not be persisted");
@@ -81,11 +84,7 @@ export class PlayerRepository {
   }
 
   async findById(id: string): Promise<Player | null> {
-    const rows = await this.database
-        .select()
-        .from(players)
-        .where(eq(players.id, id))
-        .limit(1);
+    const rows = await this.database.select().from(players).where(eq(players.id, id)).limit(1);
 
     return rows[0] ? toPlayer(rows[0]) : null;
   }
@@ -98,7 +97,10 @@ export class PlayerRepository {
     return rows.map(toPlayer);
   }
 
-  async findMany(filters: PlayerSearchFilters = {}, pagination: PlayerPagination = DEFAULT_PLAYER_PAGINATION): Promise<PlayerSearchResult> {
+  async findMany(
+    filters: PlayerSearchFilters = {},
+    pagination: PlayerPagination = DEFAULT_PLAYER_PAGINATION,
+  ): Promise<PlayerSearchResult> {
     const where = this.buildSearchConditions(filters);
 
     return {
@@ -121,10 +123,7 @@ export class PlayerRepository {
   }
 
   private async count(where: SQL | undefined): Promise<number> {
-    const rows = await this.database
-      .select({ count: count() })
-      .from(players)
-      .where(where);
+    const rows = await this.database.select({ count: count() }).from(players).where(where);
 
     return Number(rows[0]?.count ?? 0);
   }

@@ -1,17 +1,27 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { BarChart3, Coins, ExternalLink, Globe2, Plus, Shield, Star, UserRound, X } from 'lucide-react';
+import Image from "next/image";
+import Link from "next/link";
+import {
+  BarChart3,
+  Coins,
+  ExternalLink,
+  Globe2,
+  Plus,
+  Shield,
+  Star,
+  UserRound,
+  X,
+} from "lucide-react";
 import {
   calculateQuoteVariation,
   formatComparisonValue,
   getCurrentQuote,
   type ComparisonPlayer,
-} from '@/frontend/features/comparison/comparison';
-import { getPlayerImage } from '@/frontend/utils/image-mapper';
-import { leagueLabels } from '@/frontend/utils/player-labels';
-import styles from '@/app/comparison/ComparisonPage.module.scss';
+} from "@/frontend/features/comparison/comparison";
+import { getPlayerImage } from "@/frontend/utils/image-mapper";
+import { leagueLabels } from "@/frontend/utils/player-labels";
+import styles from "@/app/comparison/ComparisonPage.module.scss";
 
 interface Props {
   player: ComparisonPlayer;
@@ -47,8 +57,14 @@ export default function ComparisonSelection({ player, onRemove, onFocusSearch }:
           </span>
           <div className={styles.selectionInfo}>
             <h2>{player.name}</h2>
-            <span className={styles.selectionDetail}><Shield aria-hidden="true" size={12} />{player.team}</span>
-            <span className={styles.selectionDetail}><Globe2 aria-hidden="true" size={12} />{leagueLabels[player.league]}</span>
+            <span className={styles.selectionDetail}>
+              <Shield aria-hidden="true" size={12} />
+              {player.team}
+            </span>
+            <span className={styles.selectionDetail}>
+              <Globe2 aria-hidden="true" size={12} />
+              {leagueLabels[player.league]}
+            </span>
             <span className={styles.selectionPosition}>{player.position}</span>
           </div>
           {rating !== undefined && (
@@ -62,19 +78,27 @@ export default function ComparisonSelection({ player, onRemove, onFocusSearch }:
         <div className={styles.selectionMetrics}>
           <div className={styles.selectionMetric}>
             <Coins aria-hidden="true" size={18} />
-            <strong>{quote ? formatComparisonValue(quote.quoteValue, 'currentQuote') : '—'}</strong>
+            <strong>{quote ? formatComparisonValue(quote.quoteValue, "currentQuote") : "—"}</strong>
             <small>créditos</small>
           </div>
           <div className={styles.selectionMetric}>
             <BarChart3 aria-hidden="true" size={18} />
-            <strong className={variation === null ? undefined : variation >= 0 ? styles.positive : styles.negative}>
-              {variation === null ? '—' : formatComparisonValue(variation, 'variation')}
+            <strong
+              className={
+                variation === null ? undefined : variation >= 0 ? styles.positive : styles.negative
+              }
+            >
+              {variation === null ? "—" : formatComparisonValue(variation, "variation")}
             </strong>
             <small>variación</small>
           </div>
           <div className={styles.selectionMetric}>
             <Star aria-hidden="true" size={18} />
-            <strong>{quote?.score?.finalScore == null ? '—' : formatComparisonValue(quote.score.finalScore, 'finalScore')}</strong>
+            <strong>
+              {quote?.score?.finalScore == null
+                ? "—"
+                : formatComparisonValue(quote.score.finalScore, "finalScore")}
+            </strong>
             <small>score final</small>
           </div>
         </div>
@@ -96,7 +120,9 @@ export default function ComparisonSelection({ player, onRemove, onFocusSearch }:
         >
           <span className={styles.selectionSlotIcon} aria-hidden="true">
             <UserRound size={32} />
-            <span><Plus size={13} /></span>
+            <span>
+              <Plus size={13} />
+            </span>
           </span>
           <strong>Agregá un jugador</strong>
           <span>Buscá en el catálogo para comparar hasta 3 jugadores.</span>

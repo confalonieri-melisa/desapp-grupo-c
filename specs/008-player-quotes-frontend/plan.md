@@ -30,18 +30,18 @@ Agregar al perfil existente cotización actual, historial completo, consulta por
 
 ## Constitution Check
 
-*Gate previo a Phase 0 y reevaluación posterior a Phase 1: PASS para planificación.*
+_Gate previo a Phase 0 y reevaluación posterior a Phase 1: PASS para planificación._
 
-| Principios | Comprobación previa y resultado de diseño |
-|---|---|
-| I, II: alcance y especificación | Spec 008 existente, contrato normativo 004; diseño limitado a FR-001–020, sin alterar historia ni implementar código |
-| III: capas | Cliente HTTP, hook y presentación separados; sin acceso frontend a repositorios ni motor de valoración |
-| IV: validación | Fecha calendario en entrada; existencia y selección temporal siguen en backend; sin reglas de precio duplicadas |
-| V: verificación | Tests conductuales de cliente/hook/utilidades y guía manual; conservar pruebas anteriores, sin tests triviales |
-| VI: operación y seguridad | Bearer y logout/login existentes; 401 vigente retira datos; no modifica controles operacionales ni auditoría del backend |
-| VII, VIII: incremento y simplicidad | Perfil existente, sin librerías, tablas ni estado global nuevo; decisiones justificadas en research.md |
-| IX: terminado | Quickstart exige evidencia de implementación y aprobación formal de Project Owner; contratos API sin cambios reutilizan OpenAPI/Postman existentes |
-| X: GitFlow/YAGNI | Rama real `feature/008-player-quotes-frontend`, integración main; una feature, sin commits sobre main ni acciones externas |
+| Principios                          | Comprobación previa y resultado de diseño                                                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I, II: alcance y especificación     | Spec 008 existente, contrato normativo 004; diseño limitado a FR-001–020, sin alterar historia ni implementar código                               |
+| III: capas                          | Cliente HTTP, hook y presentación separados; sin acceso frontend a repositorios ni motor de valoración                                             |
+| IV: validación                      | Fecha calendario en entrada; existencia y selección temporal siguen en backend; sin reglas de precio duplicadas                                    |
+| V: verificación                     | Tests conductuales de cliente/hook/utilidades y guía manual; conservar pruebas anteriores, sin tests triviales                                     |
+| VI: operación y seguridad           | Bearer y logout/login existentes; 401 vigente retira datos; no modifica controles operacionales ni auditoría del backend                           |
+| VII, VIII: incremento y simplicidad | Perfil existente, sin librerías, tablas ni estado global nuevo; decisiones justificadas en research.md                                             |
+| IX: terminado                       | Quickstart exige evidencia de implementación y aprobación formal de Project Owner; contratos API sin cambios reutilizan OpenAPI/Postman existentes |
+| X: GitFlow/YAGNI                    | Rama real `feature/008-player-quotes-frontend`, integración main; una feature, sin commits sobre main ni acciones externas                         |
 
 La spec tiene estado `Ready for Review`. Planificar no acredita aprobación formal; antes de implementar corresponde cumplir el gate de especificación aprobada. No se proponen excepciones constitucionales.
 

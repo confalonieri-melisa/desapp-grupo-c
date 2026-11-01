@@ -42,9 +42,12 @@ export class WhoScoredScraper {
     const outputPath = join(outputDirectory, "players.json");
     const args = [
       this.scriptPath,
-      "--url", this.options.url ?? process.env.WHOSCORED_URL ?? "https://www.whoscored.com/Statistics",
-      "--output", outputPath,
-      "--format", "json",
+      "--url",
+      this.options.url ?? process.env.WHOSCORED_URL ?? "https://www.whoscored.com/Statistics",
+      "--output",
+      outputPath,
+      "--format",
+      "json",
     ];
     if (this.options.maxPages) args.push("--max-pages", String(this.options.maxPages));
     if (this.options.limit) args.push("--limit", String(this.options.limit));
@@ -56,11 +59,15 @@ export class WhoScoredScraper {
       try {
         payload = JSON.parse(stdout);
       } catch {
-        throw new Error(`WhoScored scraper returned invalid JSON${stderr ? `: ${stderr.trim()}` : ""}`);
+        throw new Error(
+          `WhoScored scraper returned invalid JSON${stderr ? `: ${stderr.trim()}` : ""}`,
+        );
       }
       const parsedPayload = whoScoredPayloadSchema.safeParse(payload);
       if (!parsedPayload.success) {
-        throw new Error(`Invalid WhoScored JSON contract: ${parsedPayload.error.issues[0]?.message ?? "unknown error"}`);
+        throw new Error(
+          `Invalid WhoScored JSON contract: ${parsedPayload.error.issues[0]?.message ?? "unknown error"}`,
+        );
       }
       return parsedPayload.data;
     } finally {
@@ -73,7 +80,10 @@ async function runPythonCommand(
   pythonPath: string,
   args: string[],
 ): Promise<{ stdout: string; stderr: string }> {
-  const result = await execFileAsync(pythonPath, args, { maxBuffer: 25 * 1024 * 1024, windowsHide: true });
+  const result = await execFileAsync(pythonPath, args, {
+    maxBuffer: 25 * 1024 * 1024,
+    windowsHide: true,
+  });
   const outputIndex = args.indexOf("--output");
   const outputPath = outputIndex >= 0 ? args[outputIndex + 1] : undefined;
   if (!outputPath) throw new Error("WhoScored scraper output path was not configured");

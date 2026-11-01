@@ -1,6 +1,6 @@
-import type {LoginInput, RegisterInput} from "@/backend/schemas/auth.schema";
-import type {AuthenticatedSession} from "@/backend/services/auth.service";
-import {AuthService} from "@/backend/services/auth.service";
+import type { LoginInput, RegisterInput } from "@/backend/schemas/auth.schema";
+import type { AuthenticatedSession } from "@/backend/services/auth.service";
+import { AuthService } from "@/backend/services/auth.service";
 
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

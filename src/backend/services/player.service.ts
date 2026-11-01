@@ -1,13 +1,7 @@
 import { Player } from "@/backend/models/Player";
-import {
-  PlayerRepository,
-  type PlayerPagination,
-} from "@/backend/repositories/player.repository";
+import { PlayerRepository, type PlayerPagination } from "@/backend/repositories/player.repository";
 import { NotFoundError } from "@/backend/errors/http.error";
-import type {
-  PlayerCatalogCriteria,
-  PlayerCatalogResult,
-} from "@/backend/services/player.types";
+import type { PlayerCatalogCriteria, PlayerCatalogResult } from "@/backend/services/player.types";
 
 /** Application service for player use cases, including source synchronization. */
 export class PlayerService {

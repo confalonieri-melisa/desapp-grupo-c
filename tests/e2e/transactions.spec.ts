@@ -29,7 +29,9 @@ investorTest("history loads all operations and filters the loaded entries", asyn
   await expect(operations.first()).toContainText(E2E_PLAYERS[1].name);
 
   await filters.getByRole("searchbox", { name: "Buscar jugador" }).fill("Nobody Matches E2E");
-  await expect(page.getByText("No hay operaciones cargadas que coincidan con los filtros.")).toBeVisible();
+  await expect(
+    page.getByText("No hay operaciones cargadas que coincidan con los filtros."),
+  ).toBeVisible();
   await filters.getByRole("button", { name: "Limpiar filtros" }).click();
   await expect(operations).toHaveCount(22);
 });

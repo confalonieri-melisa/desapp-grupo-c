@@ -22,7 +22,7 @@ persistida para el portfolio.
 - **Specification First**: PASS. El comportamiento, contrato y errores están
   definidos en `spec.md`.
 - **Layered Architecture**: PASS. `route -> controller -> service ->
-  repositories`; el dominio no depende de Drizzle ni de Next.js.
+repositories`; el dominio no depende de Drizzle ni de Next.js.
 - **Validation by Responsibility**: PASS. Zod valida request; el servicio
   resuelve actor, pool, jugador y cotización; `User` y `TokenHolding`
   preservan invariantes.
@@ -278,15 +278,15 @@ No se agrega endpoint de historial de operaciones en esta feature.
 
 ## Risks and Mitigations
 
-| Riesgo | Mitigación |
-|---|---|
-| Operaciones concurrentes pierden tokens o saldo | Locks de filas y validación posterior dentro de una única transacción |
-| Se usa un `userId` del cliente | El actor se toma exclusivamente de `auth.sub` y el schema rechaza el campo |
-| Se duplica la lógica de cotización | Reutilizar el repositorio/servicio de `player-quote-queries` |
-| Portfolio inconsistente | Derivar valores de holdings y cotización actual, sin snapshots persistidos |
-| Auditoría duplicada | Operación guarda hechos; auditoría guarda transición y snapshots |
-| Pool duplicado o inexistente | Seed/configuración idempotente y validación de único `SUPERUSER` |
-| Promedios monetarios inconsistentes | Numeric/decimal y redondeo explícito a dos decimales |
+| Riesgo                                          | Mitigación                                                                 |
+| ----------------------------------------------- | -------------------------------------------------------------------------- |
+| Operaciones concurrentes pierden tokens o saldo | Locks de filas y validación posterior dentro de una única transacción      |
+| Se usa un `userId` del cliente                  | El actor se toma exclusivamente de `auth.sub` y el schema rechaza el campo |
+| Se duplica la lógica de cotización              | Reutilizar el repositorio/servicio de `player-quote-queries`               |
+| Portfolio inconsistente                         | Derivar valores de holdings y cotización actual, sin snapshots persistidos |
+| Auditoría duplicada                             | Operación guarda hechos; auditoría guarda transición y snapshots           |
+| Pool duplicado o inexistente                    | Seed/configuración idempotente y validación de único `SUPERUSER`           |
+| Promedios monetarios inconsistentes             | Numeric/decimal y redondeo explícito a dos decimales                       |
 
 ## Definition of Done
 

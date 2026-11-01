@@ -17,9 +17,7 @@ function getEnumParam<T extends string>(
   return isValid(value) ? value : "";
 }
 
-export function parsePlayerCatalogFilters(
-  searchParams: URLSearchParams,
-): PlayerCatalogFilters {
+export function parsePlayerCatalogFilters(searchParams: URLSearchParams): PlayerCatalogFilters {
   return {
     name: searchParams.get("name") ?? "",
     league: getEnumParam(searchParams, "league", isOfficialLeague),
@@ -33,10 +31,7 @@ export function parsePlayerCatalogPage(searchParams: URLSearchParams): number {
   return Number.isInteger(page) && page >= 1 ? page : 1;
 }
 
-export function serializePlayerCatalogFilters(
-  filters: PlayerCatalogFilters,
-  page = 1,
-): string {
+export function serializePlayerCatalogFilters(filters: PlayerCatalogFilters, page = 1): string {
   const searchParams = new URLSearchParams();
 
   if (filters.name?.trim()) searchParams.set("name", filters.name.trim());

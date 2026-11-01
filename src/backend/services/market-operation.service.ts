@@ -39,7 +39,7 @@ export interface MarketTradeResult {
 export class MarketOperationService {
   constructor(
     private readonly marketRepository = new MarketRepository(),
-    private readonly marketTrade = new MarketTrade()
+    private readonly marketTrade = new MarketTrade(),
   ) {}
 
   buy(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
@@ -50,7 +50,11 @@ export class MarketOperationService {
     return this.trade("SELL", auth, input, correlationId);
   }
 
-  async getHistory(auth: AuthTokenPayload, userId: string, query: MarketOperationHistoryQuery): Promise<MarketOperationHistoryResult> {
+  async getHistory(
+    auth: AuthTokenPayload,
+    userId: string,
+    query: MarketOperationHistoryQuery,
+  ): Promise<MarketOperationHistoryResult> {
     if (auth.sub !== userId) throw new ForbiddenError();
 
     const page = await this.marketRepository.findOperationsByInvestorId(
@@ -81,11 +85,11 @@ export class MarketOperationService {
       correlationId,
     };
 
-    const result = await this.marketRepository.executeTrade(request, (state) => (
+    const result = await this.marketRepository.executeTrade(request, (state) =>
       request.type === "BUY"
         ? this.marketTrade.buy(request, state)
-        : this.marketTrade.sell(request, state)
-    ));
+        : this.marketTrade.sell(request, state),
+    );
 
     return {
       operation: result.outcome.operation,

@@ -59,7 +59,7 @@ total y devuelve el resultado de la operación.
    compra se ejecuta, **Then** la cantidad aumenta y el precio promedio se
    actualiza mediante promedio ponderado:
    `(oldQuantity * oldAverage + quantity * quoteValue) /
-   (oldQuantity + quantity)`.
+(oldQuantity + quantity)`.
 3. **Given** una solicitud sin JWT válido o con un `userId` distinto en el
    body, **When** llega al endpoint, **Then** responde `401` si falta la
    autenticación o ignora/rechaza el identificador no confiable, sin operar en

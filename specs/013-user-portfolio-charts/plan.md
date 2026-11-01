@@ -30,16 +30,16 @@ Agregar la página protegida «Mi portfolio» con saldo, posiciones, resumen y c
 
 ## Constitution Check
 
-*GATE: Revisado antes de investigación y después del diseño.*
+_GATE: Revisado antes de investigación y después del diseño._
 
-| Principio | Evaluación |
-|---|---|
-| I y II: alcance y especificación | Pasa: se implementa la spec 013; no se agrega evolución histórica ni reglas financieras nuevas. |
-| III y IV: capas y validación | Pasa: la API y el dominio no cambian; las sumas son derivaciones de presentación de datos ya calculados. |
-| V y IX: verificación y terminado | Pasa: la validación prevista cubre signos, cero, ausencias, privacidad, refresco, accesibilidad y compilación; la aprobación formal sigue siendo condición de entrega. |
-| VI: seguridad y resiliencia | Pasa: sesión existente, consulta autenticada y estados de fallo recuperables; no se añaden operaciones financieras. |
-| VII y VIII: incrementalidad y simplicidad | Pasa: reutiliza servicios y estilos actuales, sin biblioteca de gráficos ni nuevo almacenamiento. |
-| X: GitFlow | Pasa para el diseño. La implementación deberá hacerse en `feature/013-user-portfolio-charts` creada desde `main`; el plan no crea ni conmuta ramas. |
+| Principio                                 | Evaluación                                                                                                                                                             |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I y II: alcance y especificación          | Pasa: se implementa la spec 013; no se agrega evolución histórica ni reglas financieras nuevas.                                                                        |
+| III y IV: capas y validación              | Pasa: la API y el dominio no cambian; las sumas son derivaciones de presentación de datos ya calculados.                                                               |
+| V y IX: verificación y terminado          | Pasa: la validación prevista cubre signos, cero, ausencias, privacidad, refresco, accesibilidad y compilación; la aprobación formal sigue siendo condición de entrega. |
+| VI: seguridad y resiliencia               | Pasa: sesión existente, consulta autenticada y estados de fallo recuperables; no se añaden operaciones financieras.                                                    |
+| VII y VIII: incrementalidad y simplicidad | Pasa: reutiliza servicios y estilos actuales, sin biblioteca de gráficos ni nuevo almacenamiento.                                                                      |
+| X: GitFlow                                | Pasa para el diseño. La implementación deberá hacerse en `feature/013-user-portfolio-charts` creada desde `main`; el plan no crea ni conmuta ramas.                    |
 
 **Gate result**: Sin violaciones ni aclaraciones pendientes. Revisión posterior al diseño: sin cambios.
 

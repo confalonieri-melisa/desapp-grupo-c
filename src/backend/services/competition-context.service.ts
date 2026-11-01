@@ -3,10 +3,7 @@ import {
   type CompetitionStandingResult,
 } from "@/backend/adapters/football-data.adapter";
 import { BadGatewayError, TooManyRequestsError } from "@/backend/errors/http.error";
-import {
-  CompetitionContextStatus,
-  SUPPORTED_LEAGUES,
-} from "@/backend/models/enums";
+import { CompetitionContextStatus, SUPPORTED_LEAGUES } from "@/backend/models/enums";
 import { resolveTeamLink } from "@/backend/models/team-identity";
 import { CompetitionContextRepository } from "@/backend/repositories/competition-context.repository";
 
@@ -74,9 +71,7 @@ export class CompetitionContextService {
     return { results, errors };
   }
 
-  private statusFor(
-    fetched: FetchedStandings,
-  ): CompetitionContextStatus {
+  private statusFor(fetched: FetchedStandings): CompetitionContextStatus {
     if (!fetched.errors.length) return CompetitionContextStatus.VALID;
     return fetched.results.length
       ? CompetitionContextStatus.PARTIAL
@@ -96,9 +91,7 @@ export class CompetitionContextService {
     season: number,
     results: CompetitionStandingResult[],
   ): Promise<void> {
-    const standingsByLeague = new Map(
-      results.map((result) => [result.league, result.standings]),
-    );
+    const standingsByLeague = new Map(results.map((result) => [result.league, result.standings]));
     const teams = await this.repository.listWhoScoredTeams();
     const links = teams.flatMap((team) => {
       const standings = standingsByLeague.get(team.league);
@@ -124,12 +117,8 @@ export class CompetitionContextService {
       throw new TooManyRequestsError();
     }
 
-    const details = errors
-      .map((error) => `${error.league}: ${error.message}`)
-      .join("; ");
-    throw new BadGatewayError(
-      `Competition context synchronization failed: ${details}`,
-    );
+    const details = errors.map((error) => `${error.league}: ${error.message}`).join("; ");
+    throw new BadGatewayError(`Competition context synchronization failed: ${details}`);
   }
 
   private getErrorStatus(error: unknown): number | undefined {

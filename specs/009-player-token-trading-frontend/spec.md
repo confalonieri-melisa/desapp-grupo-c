@@ -20,7 +20,7 @@ Quedan fuera de alcance cambios de backend, endpoints, persistencia o reglas de 
 
 - Q: En el perfil de cada jugador, ¿se debe mostrar solo la posición de ese jugador y el saldo, o el portfolio completo? → A: Solo el saldo y la posición del jugador abierto.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Consultar cotización y posición (Priority: P1)
 
@@ -87,7 +87,7 @@ Como persona con rol INVESTOR, quiero vender una cantidad de tokens que poseo y 
 - **Cambio de jugador o usuario con solicitudes pendientes**: respuestas tardías no modifican el perfil ni revelan la posición del contexto anterior; un resultado de operación ya confirmada debe seguir siendo comprensible para el jugador al que pertenece.
 - **Doble interacción**: confirmar repetidamente, hacer doble clic o activar la acción por teclado durante el envío no produce dos solicitudes desde la misma interacción.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -114,7 +114,7 @@ Como persona con rol INVESTOR, quiero vender una cantidad de tokens que poseo y 
 - **FR-021**: El alcance DEBE limitarse a presentación, interacción, validación de interfaz y consumo de contratos existentes; no DEBE cambiar reglas de negocio, endpoints, modelos persistidos ni incorporar las operaciones excluidas en esta especificación.
 - **FR-022**: Solo el rol INVESTOR DEBE disponer de controles para comprar y vender. SUPERUSER NO DEBE poder iniciar una orden desde la interfaz, conforme a la restricción existente del backend.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Jugador**: Perfil abierto e identificador usado para consultar cotización y enviar una orden.
 - **Cotización vigente**: Valor persistido recibido de la consulta de cotizaciones existente, expresado en créditos por token; sirve de referencia visible, no de garantía de precio de ejecución.
@@ -122,7 +122,7 @@ Como persona con rol INVESTOR, quiero vender una cantidad de tokens que poseo y 
 - **Posición**: Tenencia de un jugador con cantidad y precio promedio; valor actual y PnL pueden no estar disponibles.
 - **Resultado de operación**: Respuesta de compra o venta con tipo, cantidad, precio ejecutado, total y saldo/tenencia resultantes; representa el comprobante visible de una operación confirmada.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

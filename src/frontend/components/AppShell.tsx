@@ -1,20 +1,16 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import { useAuth } from '@/frontend/context/AuthContext';
-import GlobalNav from '@/frontend/components/GlobalNav/GlobalNav';
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/frontend/context/AuthContext";
+import GlobalNav from "@/frontend/components/GlobalNav/GlobalNav";
 
-const AUTH_ROUTES = new Set(['/login', '/register']);
+const AUTH_ROUTES = new Set(["/login", "/register"]);
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isAuthenticated, isHydrated } = useAuth();
 
-  const shouldShowNavigation = (
-    isHydrated
-    && isAuthenticated
-    && !AUTH_ROUTES.has(pathname)
-  );
+  const shouldShowNavigation = isHydrated && isAuthenticated && !AUTH_ROUTES.has(pathname);
 
   return (
     <>

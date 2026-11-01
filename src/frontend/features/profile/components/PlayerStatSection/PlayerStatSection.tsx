@@ -19,7 +19,9 @@ export default function PlayerStatSection({
   return (
     <section className={styles.section} aria-labelledby={`${title}-title`}>
       <h2 id={`${title}-title`}>
-        <span className={styles.titleIcon} aria-hidden="true">{icon}</span>
+        <span className={styles.titleIcon} aria-hidden="true">
+          {icon}
+        </span>
         {title}
       </h2>
       <dl className={styles.grid}>

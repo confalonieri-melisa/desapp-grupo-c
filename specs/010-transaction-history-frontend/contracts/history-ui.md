@@ -20,14 +20,14 @@ La primera consulta usa `nextOffset=0`. El ID procede solo de la sesión. La UI 
 
 ## Campos visibles por operación
 
-| Campo de API | Presentación |
-|---|---|
-| `type` | `BUY` → «Compra»; `SELL` → «Venta», siempre como texto. |
-| `playerId` | Nombre enlazado a `/players/:id` tras resolución; ID sin enlace en otro caso. |
-| `createdAt` | Fecha y hora en `America/Argentina/Buenos_Aires`; leyenda «Hora de Buenos Aires (ART)». |
-| `quantity` | Número de tokens. |
+| Campo de API         | Presentación                                                                                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `type`               | `BUY` → «Compra»; `SELL` → «Venta», siempre como texto.                                                                                                |
+| `playerId`           | Nombre enlazado a `/players/:id` tras resolución; ID sin enlace en otro caso.                                                                          |
+| `createdAt`          | Fecha y hora en `America/Argentina/Buenos_Aires`; leyenda «Hora de Buenos Aires (ART)».                                                                |
+| `quantity`           | Número de tokens.                                                                                                                                      |
 | `quoteValue`, `unit` | Valor histórico y «créditos por token» para `CREDIT_PER_TOKEN`; cualquier unidad futura se presenta literalmente hasta que exista traducción aprobada. |
-| `total` | Importe histórico en créditos. |
+| `total`              | Importe histórico en créditos.                                                                                                                         |
 
 Los números siguen formato `es-AR`. El orden de filas es el de la API. `id`, `quoteId` y `correlationId` permanecen disponibles en la proyección, sin obligación de mostrarse.
 
@@ -46,18 +46,18 @@ Una respuesta `200` aporta `name` y habilita el enlace. `404` o fallo no autoriz
 
 ## Estados observables
 
-| Condición | Resultado |
-|---|---|
-| Primera petición pendiente | «Cargando operaciones…», anunciado; sin mensaje vacío. |
-| Primera respuesta `200` con `items=[]` | Mensaje claro de historial vacío. |
-| Primera respuesta `200` con operaciones | Lista de operaciones con todas las etiquetas de campo. |
-| `hasMore=true` | Botón «Ver más operaciones». |
-| Página adicional pendiente | Lista previa estable; botón deshabilitado y progreso anunciado. |
-| Última página (`hasMore=false`) | Botón ausente; indicación de fin del historial. |
-| Error inicial no autorizativo | Error y botón «Reintentar» para `offset=0`. |
-| Error de página adicional no autorizativo | Lista previa estable y «Reintentar» el mismo offset. |
-| `401` en historial o jugador | Datos retirados, cierre de sesión y navegación a `/login`. |
-| `403` | Datos retirados y error de acceso; nunca se presenta como vacío. |
-| Cambio de sesión A→B | Ningún dato o resultado tardío de A aparece en B. |
+| Condición                                 | Resultado                                                        |
+| ----------------------------------------- | ---------------------------------------------------------------- |
+| Primera petición pendiente                | «Cargando operaciones…», anunciado; sin mensaje vacío.           |
+| Primera respuesta `200` con `items=[]`    | Mensaje claro de historial vacío.                                |
+| Primera respuesta `200` con operaciones   | Lista de operaciones con todas las etiquetas de campo.           |
+| `hasMore=true`                            | Botón «Ver más operaciones».                                     |
+| Página adicional pendiente                | Lista previa estable; botón deshabilitado y progreso anunciado.  |
+| Última página (`hasMore=false`)           | Botón ausente; indicación de fin del historial.                  |
+| Error inicial no autorizativo             | Error y botón «Reintentar» para `offset=0`.                      |
+| Error de página adicional no autorizativo | Lista previa estable y «Reintentar» el mismo offset.             |
+| `401` en historial o jugador              | Datos retirados, cierre de sesión y navegación a `/login`.       |
+| `403`                                     | Datos retirados y error de acceso; nunca se presenta como vacío. |
+| Cambio de sesión A→B                      | Ningún dato o resultado tardío de A aparece en B.                |
 
 Los mensajes de error usan `role="alert"`; cargas usan `role="status"` o `aria-live`. Acciones con foco visible y orden de lectura lógico. La lista mantiene etiquetas en pantallas pequeñas.

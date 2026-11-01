@@ -38,15 +38,17 @@ describe("WhoScoredScraper", () => {
 
     await expect(scraper.fetchPlayers()).resolves.toEqual([player]);
     const [, args] = commandRunner.mock.calls[0] ?? [];
-    expect(args).toEqual(expect.arrayContaining([
-      "test-scraper.py",
-      "--url",
-      "https://www.whoscored.com/Statistics",
-      "--format",
-      "json",
-      "--max-pages",
-      "2",
-    ]));
+    expect(args).toEqual(
+      expect.arrayContaining([
+        "test-scraper.py",
+        "--url",
+        "https://www.whoscored.com/Statistics",
+        "--format",
+        "json",
+        "--max-pages",
+        "2",
+      ]),
+    );
     expect(args).toContain("--output");
   });
 
@@ -63,7 +65,9 @@ describe("WhoScoredScraper", () => {
 
   it("rejects an unsupported JSON shape", async () => {
     const scraper = new WhoScoredScraper({
-      commandRunner: vi.fn().mockResolvedValue({ stdout: JSON.stringify({ players: [player] }), stderr: "" }),
+      commandRunner: vi
+        .fn()
+        .mockResolvedValue({ stdout: JSON.stringify({ players: [player] }), stderr: "" }),
     });
 
     await expect(scraper.fetchPlayers()).rejects.toThrow("Invalid WhoScored JSON contract");
@@ -71,7 +75,9 @@ describe("WhoScoredScraper", () => {
 
   it("rejects an unsupported JSON shape", async () => {
     const scraper = new WhoScoredScraper({
-      commandRunner: vi.fn().mockResolvedValue({ stdout: JSON.stringify({ players: [player] }), stderr: "" }),
+      commandRunner: vi
+        .fn()
+        .mockResolvedValue({ stdout: JSON.stringify({ players: [player] }), stderr: "" }),
     });
 
     await expect(scraper.fetchPlayers()).rejects.toThrow("Invalid WhoScored JSON contract");

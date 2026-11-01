@@ -1,9 +1,6 @@
 import { isOfficialLeague, isPosition, League, Position } from "./enums";
 import { DomainValidationError, InvalidLeagueError } from "./errors";
-import {
-  PLAYER_STATISTIC_KEY_SET,
-  type PlayerStatistics,
-} from "./player-statistics";
+import { PLAYER_STATISTIC_KEY_SET, type PlayerStatistics } from "./player-statistics";
 
 export type { PlayerStatistics } from "./player-statistics";
 
@@ -61,9 +58,7 @@ export class Player {
         throw new DomainValidationError(`Unsupported player statistic: ${metric}`);
       }
       if (!Number.isFinite(value) || value < 0) {
-        throw new DomainValidationError(
-          `Statistic must be a non-negative number: ${metric}`,
-        );
+        throw new DomainValidationError(`Statistic must be a non-negative number: ${metric}`);
       }
     }
   }

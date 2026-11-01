@@ -1,62 +1,66 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import AuthCard from '@/frontend/features/auth/components/AuthCard/AuthCard';
-import { CardTitleSpan } from '@/frontend/components/ui/Card/Card';
-import AuthFields from '@/frontend/features/auth/components/AuthFields/AuthFields';
-import ActionButton from '@/frontend/components/ui/ActionButton/ActionButton';
-import { useAuth } from '@/frontend/context/AuthContext';
-import { registerSchema, type RegisterInput } from '@/backend/schemas/auth.schema';
-import { registerApi } from '@/frontend/services/client/auth.service';
-import { useAuthForm } from '@/frontend/hooks/useAuthForm';
-import styles from '@/frontend/features/auth/components/AuthFields/AuthFields.module.scss';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import AuthCard from "@/frontend/features/auth/components/AuthCard/AuthCard";
+import { CardTitleSpan } from "@/frontend/components/ui/Card/Card";
+import AuthFields from "@/frontend/features/auth/components/AuthFields/AuthFields";
+import ActionButton from "@/frontend/components/ui/ActionButton/ActionButton";
+import { useAuth } from "@/frontend/context/AuthContext";
+import { registerSchema, type RegisterInput } from "@/backend/schemas/auth.schema";
+import { registerApi } from "@/frontend/services/client/auth.service";
+import { useAuthForm } from "@/frontend/hooks/useAuthForm";
+import styles from "@/frontend/features/auth/components/AuthFields/AuthFields.module.scss";
 
 export default function RegisterPage() {
   const router = useRouter();
   const { login } = useAuth();
   const authForm = useAuthForm<RegisterInput>({
-    initialData: { name: '', email: '', password: '' },
+    initialData: { name: "", email: "", password: "" },
     schema: registerSchema,
     submit: async (data) => {
       const response = await registerApi(data);
       login(response.token, response.user);
-      router.push('/');
+      router.push("/");
     },
     getSubmissionError: (error) => {
-      const message = error instanceof Error ? error.message : '';
-      return message.includes('already registered')
-        ? 'El correo electrónico ya se encuentra registrado.'
-        : message || 'Ocurrió un error inesperado al registrarse.';
+      const message = error instanceof Error ? error.message : "";
+      return message.includes("already registered")
+        ? "El correo electrónico ya se encuentra registrado."
+        : message || "Ocurrió un error inesperado al registrarse.";
     },
   });
 
   return (
     <AuthCard
-      title={<>¡Crea tu <CardTitleSpan>cuenta!</CardTitleSpan></>}
+      title={
+        <>
+          ¡Crea tu <CardTitleSpan>cuenta!</CardTitleSpan>
+        </>
+      }
       description="Regístrate para comenzar a explorar el mercado de valoración de jugadores."
       error={authForm.error}
-      form={(
+      form={
         <form className={styles.form} onSubmit={authForm.handleSubmit} noValidate>
           <AuthFields<RegisterInput>
             fields={[
               {
-                id: 'name',
-                label: 'Nombre completo',
+                id: "name",
+                label: "Nombre completo",
                 value: authForm.formData.name,
                 error: authForm.fieldErrors.name,
               },
               {
-                id: 'email',
-                type: 'email',
-                label: 'Correo electrónico',
+                id: "email",
+                type: "email",
+                label: "Correo electrónico",
                 value: authForm.formData.email,
                 error: authForm.fieldErrors.email,
               },
               {
-                id: 'password',
-                type: 'password',
-                label: 'Contraseña',
+                id: "password",
+                type: "password",
+                label: "Contraseña",
                 value: authForm.formData.password,
                 error: authForm.fieldErrors.password,
               },
@@ -66,8 +70,12 @@ export default function RegisterPage() {
           />
           <ActionButton text="Registrarse" isLoading={authForm.isLoading} />
         </form>
-      )}
-      footer={<>¿Ya tienes cuenta? <Link href="/login">Inicia sesión</Link></>}
+      }
+      footer={
+        <>
+          ¿Ya tienes cuenta? <Link href="/login">Inicia sesión</Link>
+        </>
+      }
     />
   );
 }

@@ -23,7 +23,8 @@ function adapterMock() {
         season: 2026,
         sourceData: { standings: [] },
         standings: [standing(league)],
-      })),
+      }),
+    ),
   } as unknown as FootballDataAdapter;
 }
 
@@ -41,8 +42,10 @@ describe("CompetitionContextService", () => {
       }),
     } as unknown as CompetitionContextRepository;
 
-    const result = await new CompetitionContextService(adapter, repository)
-      .update(2026, "superuser-1");
+    const result = await new CompetitionContextService(adapter, repository).update(
+      2026,
+      "superuser-1",
+    );
 
     expect(adapter.getStandings).toHaveBeenCalledTimes(5);
     expect(repository.createUpdate).toHaveBeenCalledWith(2026, "superuser-1");
@@ -74,7 +77,8 @@ describe("CompetitionContextService", () => {
           season: 2026,
           sourceData: {},
           standings: [standing(league)],
-        }));
+        }),
+      );
     const repository = {
       createUpdate: vi.fn().mockResolvedValue({ id: "update-2" }),
       saveResults: vi.fn().mockResolvedValue(undefined),
@@ -83,14 +87,13 @@ describe("CompetitionContextService", () => {
       finishUpdate: vi.fn().mockResolvedValue({ id: "update-2" }),
     } as unknown as CompetitionContextRepository;
 
-    await expect(new CompetitionContextService(adapter, repository).update(2026))
-      .rejects.toMatchObject({ status: 429 });
+    await expect(
+      new CompetitionContextService(adapter, repository).update(2026),
+    ).rejects.toMatchObject({ status: 429 });
 
-    expect(repository.finishUpdate).toHaveBeenCalledWith(
-      "update-2",
-      "PARTIAL",
-      [expect.objectContaining({ status: 429 })],
-    );
+    expect(repository.finishUpdate).toHaveBeenCalledWith("update-2", "PARTIAL", [
+      expect.objectContaining({ status: 429 }),
+    ]);
   });
 
   it("saves only uniquely resolved team associations after a valid synchronization", async () => {
@@ -106,8 +109,7 @@ describe("CompetitionContextService", () => {
       finishUpdate: vi.fn().mockResolvedValue({ id: "update-3" }),
     } as unknown as CompetitionContextRepository;
 
-    const result = await new CompetitionContextService(adapter, repository)
-      .update(2026);
+    const result = await new CompetitionContextService(adapter, repository).update(2026);
 
     expect(repository.saveTeamLinks).toHaveBeenCalledWith([
       expect.objectContaining({
@@ -131,11 +133,12 @@ describe("CompetitionContextService", () => {
       finishUpdate: vi.fn().mockResolvedValue({ id: "update-4" }),
     } as unknown as CompetitionContextRepository;
 
-    await expect(new CompetitionContextService(adapter, repository).update(2026))
-      .rejects.toMatchObject({
-        status: 502,
-        message: expect.stringContaining("Competition context synchronization failed"),
-      });
+    await expect(
+      new CompetitionContextService(adapter, repository).update(2026),
+    ).rejects.toMatchObject({
+      status: 502,
+      message: expect.stringContaining("Competition context synchronization failed"),
+    });
 
     expect(repository.saveResults).not.toHaveBeenCalled();
     expect(repository.finishUpdate).toHaveBeenCalledWith(

@@ -42,16 +42,27 @@ function useTestHook(token: string | null = "token", playerId = "player-1") {
   useEffectMock.mockImplementation(harness.useEffect);
   const unauthorized = vi.fn();
   const render = (nextToken = token, nextId = playerId, callback = unauthorized) => {
-    function TestHook() { return usePlayerProfile(nextToken, nextId, callback); }
+    function TestHook() {
+      return usePlayerProfile(nextToken, nextId, callback);
+    }
     return harness.render(TestHook);
   };
   const result = render();
   const state = {
-    get 0() { return render().player; },
-    get 1() { return render().isLoading; },
-    get 2() { return render().error; },
+    get 0() {
+      return render().player;
+    },
+    get 1() {
+      return render().isLoading;
+    },
+    get 2() {
+      return render().error;
+    },
   };
-  const effect = () => { harness.commit(); return () => harness.cleanup(); };
+  const effect = () => {
+    harness.commit();
+    return () => harness.cleanup();
+  };
   return { effect, result, state, unauthorized, render, harness };
 }
 
@@ -134,35 +145,43 @@ describe("usePlayerProfile", () => {
     expect(state[2]).toBeNull();
   });
 
-  it.each(["success", "error", "401"])("hides prior identity immediately and ignores stale %s/finally", async (outcome) => {
-    const old = deferred<PlayerApiDetail>();
-    const current = deferred<PlayerApiDetail>();
-    getPlayerMock.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise);
-    const h = useTestHook();
-    h.effect();
-    expect(h.render("new-token", "player-2").player).toBeNull();
-    h.harness.commit();
-    if (outcome === "success") old.resolve(player);
-    else old.reject(Object.assign(new Error("Unauthorized"), { status: outcome === "401" ? 401 : 500 }));
-    await flushPromises();
-    const result = h.render("new-token", "player-2");
-    expect(result.player).toBeNull();
-    expect(result.error).toBeNull();
-    expect(result.isLoading).toBe(true);
-    expect(h.unauthorized).not.toHaveBeenCalled();
-    current.resolve({ ...player, id: "player-2" });
-    await flushPromises();
-    expect(h.render("new-token", "player-2").player?.id).toBe("player-2");
-    expect(h.render("other-token", "player-2").player).toBeNull();
-    h.harness.cleanup();
-  });
+  it.each(["success", "error", "401"])(
+    "hides prior identity immediately and ignores stale %s/finally",
+    async (outcome) => {
+      const old = deferred<PlayerApiDetail>();
+      const current = deferred<PlayerApiDetail>();
+      getPlayerMock.mockReturnValueOnce(old.promise).mockReturnValueOnce(current.promise);
+      const h = useTestHook();
+      h.effect();
+      expect(h.render("new-token", "player-2").player).toBeNull();
+      h.harness.commit();
+      if (outcome === "success") old.resolve(player);
+      else
+        old.reject(
+          Object.assign(new Error("Unauthorized"), { status: outcome === "401" ? 401 : 500 }),
+        );
+      await flushPromises();
+      const result = h.render("new-token", "player-2");
+      expect(result.player).toBeNull();
+      expect(result.error).toBeNull();
+      expect(result.isLoading).toBe(true);
+      expect(h.unauthorized).not.toHaveBeenCalled();
+      current.resolve({ ...player, id: "player-2" });
+      await flushPromises();
+      expect(h.render("new-token", "player-2").player?.id).toBe("player-2");
+      expect(h.render("other-token", "player-2").player).toBeNull();
+      h.harness.cleanup();
+    },
+  );
 
   it("uses latest unauthorized callback without reloading on callback identity", async () => {
     const pending = deferred<PlayerApiDetail>();
     getPlayerMock.mockReturnValue(pending.promise);
-    const h = useTestHook(); h.effect();
+    const h = useTestHook();
+    h.effect();
     const callback = vi.fn();
-    h.render("token", "player-1", callback); h.harness.commit();
+    h.render("token", "player-1", callback);
+    h.harness.commit();
     expect(getPlayerMock).toHaveBeenCalledOnce();
     pending.reject(Object.assign(new Error("Expired"), { status: 401 }));
     await flushPromises();

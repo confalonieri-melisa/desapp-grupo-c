@@ -45,12 +45,14 @@ describe("QuoteRecalculationService", () => {
     const deps = dependencies();
     deps.valuationRepository.findActiveStrategyVersion.mockResolvedValue(null);
 
-    await expect(new QuoteRecalculationService(
-      deps.valuationRepository as never,
-      deps.playerRepository as never,
-      deps.contextRepository as never,
-      deps.engine as never,
-    ).recalculate()).rejects.toBeInstanceOf(ConflictError);
+    await expect(
+      new QuoteRecalculationService(
+        deps.valuationRepository as never,
+        deps.playerRepository as never,
+        deps.contextRepository as never,
+        deps.engine as never,
+      ).recalculate(),
+    ).rejects.toBeInstanceOf(ConflictError);
   });
 
   it("calculates and persists one quote per successful player", async () => {
@@ -70,20 +72,22 @@ describe("QuoteRecalculationService", () => {
       undefined,
       "1.0.0",
     );
-    expect(deps.valuationRepository.saveQuote).toHaveBeenCalledWith(expect.objectContaining({
-      playerId: player.id,
-      strategyVersionId: activeVersion.id,
-      quoteValue: 70.3,
-    }));
+    expect(deps.valuationRepository.saveQuote).toHaveBeenCalledWith(
+      expect.objectContaining({
+        playerId: player.id,
+        strategyVersionId: activeVersion.id,
+        quoteValue: 70.3,
+      }),
+    );
   });
 
   it("publishes valid quotes and reports player-level failures", async () => {
     const deps = dependencies();
     const secondPlayer = new Player({ ...player, id: "player-2", name: "Player Two" });
     deps.playerRepository.findAll.mockResolvedValue([player, secondPlayer]);
-    deps.engine.calculate
-      .mockReturnValueOnce(result)
-      .mockImplementationOnce(() => { throw new Error("insufficient data"); });
+    deps.engine.calculate.mockReturnValueOnce(result).mockImplementationOnce(() => {
+      throw new Error("insufficient data");
+    });
 
     const response = await new QuoteRecalculationService(
       deps.valuationRepository as never,

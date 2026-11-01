@@ -52,8 +52,6 @@ describe("domain input schemas", () => {
     };
 
     expect(tokenHoldingSchema.parse(valid).quantity).toBe(10);
-    expect(() =>
-      tokenHoldingSchema.parse({ ...valid, quantity: 1.5 }),
-    ).toThrow();
+    expect(() => tokenHoldingSchema.parse({ ...valid, quantity: 1.5 })).toThrow();
   });
 });

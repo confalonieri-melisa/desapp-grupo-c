@@ -18,29 +18,34 @@ const databaseRow = {
 
 describe("PlayerRankingRepository", () => {
   it("returns mapped players, total and pagination data from the database", async () => {
-    const execute = vi.fn()
+    const execute = vi
+      .fn()
       .mockResolvedValueOnce([databaseRow])
       .mockResolvedValueOnce([{ total: "3" }]);
     const repository = new PlayerRankingRepository({ execute } as unknown as Database);
 
-    await expect(repository.findRankedPlayers("version-1", {
-      league: League.PREMIER_LEAGUE,
-      team: "Example",
-      position: Position.FORWARD,
-      page: 2,
-      limit: 10,
-    })).resolves.toEqual({
-      rows: [{
-        playerId: "player-1",
-        name: "Player One",
-        team: "Example FC",
+    await expect(
+      repository.findRankedPlayers("version-1", {
         league: League.PREMIER_LEAGUE,
+        team: "Example",
         position: Position.FORWARD,
-        finalScore: 0.9,
-        quoteValue: 90.1,
-        unit: "CREDIT_PER_TOKEN",
-        calculatedAt: databaseRow.calculated_at,
-      }],
+        page: 2,
+        limit: 10,
+      }),
+    ).resolves.toEqual({
+      rows: [
+        {
+          playerId: "player-1",
+          name: "Player One",
+          team: "Example FC",
+          league: League.PREMIER_LEAGUE,
+          position: Position.FORWARD,
+          finalScore: 0.9,
+          quoteValue: 90.1,
+          unit: "CREDIT_PER_TOKEN",
+          calculatedAt: databaseRow.calculated_at,
+        },
+      ],
       total: 3,
       page: 2,
       limit: 10,
@@ -49,7 +54,8 @@ describe("PlayerRankingRepository", () => {
   });
 
   it("builds the ranking query with the active version, filters and page offset", async () => {
-    const execute = vi.fn()
+    const execute = vi
+      .fn()
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ total: 0 }]);
     const repository = new PlayerRankingRepository({ execute } as unknown as Database);
@@ -68,18 +74,29 @@ describe("PlayerRankingRepository", () => {
 
     expect(pageQuery.sql).toContain("WHERE p.league = $2 AND p.team ILIKE $3 AND p.position = $4");
     expect(pageQuery.sql).toMatch(/LIMIT \$5\s+OFFSET \$6/);
-    expect(pageQuery.params).toEqual(["version-1", League.PREMIER_LEAGUE, "%Example%", Position.FORWARD, 10, 20]);
+    expect(pageQuery.params).toEqual([
+      "version-1",
+      League.PREMIER_LEAGUE,
+      "%Example%",
+      Position.FORWARD,
+      10,
+      20,
+    ]);
     expect(countQuery.sql).toContain("SELECT COUNT(*)::int AS total");
-    expect(countQuery.params).toEqual(["version-1", League.PREMIER_LEAGUE, "%Example%", Position.FORWARD]);
+    expect(countQuery.params).toEqual([
+      "version-1",
+      League.PREMIER_LEAGUE,
+      "%Example%",
+      Position.FORWARD,
+    ]);
   });
 
   it("returns an empty result when the count query has no row", async () => {
-    const execute = vi.fn()
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([]);
+    const execute = vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([]);
     const repository = new PlayerRankingRepository({ execute } as unknown as Database);
 
-    await expect(repository.findRankedPlayers("version-1", { page: 1, limit: 20 }))
-      .resolves.toMatchObject({ rows: [], total: 0 });
+    await expect(
+      repository.findRankedPlayers("version-1", { page: 1, limit: 20 }),
+    ).resolves.toMatchObject({ rows: [], total: 0 });
   });
 });

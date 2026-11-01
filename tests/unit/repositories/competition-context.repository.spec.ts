@@ -7,35 +7,39 @@ const result = {
   league: League.PREMIER_LEAGUE,
   season: 2026,
   sourceData: { standings: [] },
-  standings: [{
-    league: League.PREMIER_LEAGUE,
-    season: 2026,
-    teamExternalId: "1",
-    teamName: "Example",
-    position: 1,
-    playedGames: 1,
-    points: 3,
-    goalDifference: 2,
-  }],
+  standings: [
+    {
+      league: League.PREMIER_LEAGUE,
+      season: 2026,
+      teamExternalId: "1",
+      teamName: "Example",
+      position: 1,
+      playedGames: 1,
+      points: 3,
+      goalDifference: 2,
+    },
+  ],
 };
 
 describe("CompetitionContextRepository", () => {
   it("creates an update and fails explicitly when no row is returned", async () => {
-    const returning = vi.fn().mockResolvedValue([
-      { id: "update-1", season: 2026, status: "RUNNING" },
-    ]);
+    const returning = vi
+      .fn()
+      .mockResolvedValue([{ id: "update-1", season: 2026, status: "RUNNING" }]);
     const database = {
       insert: vi.fn(() => ({
         values: vi.fn(() => ({ returning })),
       })),
     } as unknown as Database;
 
-    await expect(new CompetitionContextRepository(database).createUpdate(2026, "user-1"))
-      .resolves.toMatchObject({ id: "update-1" });
+    await expect(
+      new CompetitionContextRepository(database).createUpdate(2026, "user-1"),
+    ).resolves.toMatchObject({ id: "update-1" });
 
     returning.mockResolvedValueOnce([]);
-    await expect(new CompetitionContextRepository(database).createUpdate(2026))
-      .rejects.toThrow("Context update could not be created");
+    await expect(new CompetitionContextRepository(database).createUpdate(2026)).rejects.toThrow(
+      "Context update could not be created",
+    );
   });
 
   it("persists the original source data and normalized standings atomically", async () => {
@@ -53,11 +57,13 @@ describe("CompetitionContextRepository", () => {
     };
     const database = {
       transaction: vi.fn(async (callback: (tx: Database) => Promise<void>) =>
-        callback(transaction as unknown as Database)),
+        callback(transaction as unknown as Database),
+      ),
     } as unknown as Database;
 
-    await expect(new CompetitionContextRepository(database).saveResults("update-1", [result]))
-      .resolves.toBeUndefined();
+    await expect(
+      new CompetitionContextRepository(database).saveResults("update-1", [result]),
+    ).resolves.toBeUndefined();
 
     expect(transaction.insert).toHaveBeenCalledTimes(2);
     expect(insertedValues[0]).toMatchObject({
@@ -76,9 +82,9 @@ describe("CompetitionContextRepository", () => {
   });
 
   it("publishes valid updates and records their completion", async () => {
-    const returning = vi.fn().mockResolvedValue([
-      { id: "update-1", status: "VALID", publishedAt: new Date() },
-    ]);
+    const returning = vi
+      .fn()
+      .mockResolvedValue([{ id: "update-1", status: "VALID", publishedAt: new Date() }]);
     const database = {
       update: vi.fn(() => ({
         set: vi.fn(() => ({
@@ -87,8 +93,9 @@ describe("CompetitionContextRepository", () => {
       })),
     } as unknown as Database;
 
-    await expect(new CompetitionContextRepository(database).finishUpdate("update-1", "VALID"))
-      .resolves.toMatchObject({ status: "VALID" });
+    await expect(
+      new CompetitionContextRepository(database).finishUpdate("update-1", "VALID"),
+    ).resolves.toMatchObject({ status: "VALID" });
     expect(database.update).toHaveBeenCalledTimes(1);
   });
 
@@ -100,21 +107,26 @@ describe("CompetitionContextRepository", () => {
       transaction: vi.fn(async (callback: (tx: Database) => Promise<void>) =>
         callback({
           insert: vi.fn(() => ({ values })),
-        } as unknown as Database)),
+        } as unknown as Database),
+      ),
     } as unknown as Database;
 
-    await new CompetitionContextRepository(database).saveTeamLinks([{
-      league: League.PREMIER_LEAGUE,
-      season: 2026,
-      whoscoredTeamName: "Example",
-      footballDataTeamExternalId: "fd-1",
-      footballDataTeamName: "Example FC",
-    }]);
+    await new CompetitionContextRepository(database).saveTeamLinks([
+      {
+        league: League.PREMIER_LEAGUE,
+        season: 2026,
+        whoscoredTeamName: "Example",
+        footballDataTeamExternalId: "fd-1",
+        footballDataTeamName: "Example FC",
+      },
+    ]);
 
-    expect(values).toHaveBeenCalledWith(expect.objectContaining({
-      league: League.PREMIER_LEAGUE,
-      season: 2026,
-      whoscoredTeamName: "Example",
-    }));
+    expect(values).toHaveBeenCalledWith(
+      expect.objectContaining({
+        league: League.PREMIER_LEAGUE,
+        season: 2026,
+        whoscoredTeamName: "Example",
+      }),
+    );
   });
 });

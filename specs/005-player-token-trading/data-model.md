@@ -2,12 +2,12 @@
 
 ## Fuentes de verdad existentes
 
-| Dato | Fuente | Regla |
-|---|---|---|
-| Saldo de créditos | `users.credit_balance` | No se copia en otra tabla de estado |
-| Tenencia y precio promedio | `token_holdings` | Incluye la posición del pool |
-| Jugador | `players` | FK desde tenencias y operaciones |
-| Cotización | `player_quotes` | Se consulta la más reciente y se conserva su referencia |
+| Dato                       | Fuente                 | Regla                                                   |
+| -------------------------- | ---------------------- | ------------------------------------------------------- |
+| Saldo de créditos          | `users.credit_balance` | No se copia en otra tabla de estado                     |
+| Tenencia y precio promedio | `token_holdings`       | Incluye la posición del pool                            |
+| Jugador                    | `players`              | FK desde tenencias y operaciones                        |
+| Cotización                 | `player_quotes`        | Se consulta la más reciente y se conserva su referencia |
 
 El portfolio, el valor actual, el PnL, la disponibilidad y el total emitido
 son datos derivados o invariantes. No se agregan columnas para ellos.
@@ -18,19 +18,19 @@ son datos derivados o invariantes. No se agregan columnas para ellos.
 
 Registro append-only de una operación completada.
 
-| Columna | Tipo | Restricción | Descripción |
-|---|---|---|---|
-| `id` | `uuid` | PK | Identificador de operación |
-| `type` | `varchar(10)` | `BUY` o `SELL` | Tipo de operación |
-| `investor_id` | `uuid` | FK `users`, not null | Inversor autenticado |
-| `player_id` | `uuid` | FK `players`, not null | Jugador operado |
-| `quote_id` | `uuid` | FK `player_quotes`, not null | Cotización usada |
-| `quantity` | `integer` | `> 0` | Tokens transferidos |
-| `quote_value` | `numeric(10,2)` | `>= 0` | Snapshot del precio ejecutado |
-| `total` | `numeric(12,2)` | `> 0` | `quantity * quote_value` |
-| `unit` | `varchar(30)` | not null | `CREDIT_PER_TOKEN` |
-| `correlation_id` | `varchar(100)` | nullable | Trazabilidad de request |
-| `created_at` | `timestamp with time zone` | not null | Momento de ejecución |
+| Columna          | Tipo                       | Restricción                  | Descripción                   |
+| ---------------- | -------------------------- | ---------------------------- | ----------------------------- |
+| `id`             | `uuid`                     | PK                           | Identificador de operación    |
+| `type`           | `varchar(10)`              | `BUY` o `SELL`               | Tipo de operación             |
+| `investor_id`    | `uuid`                     | FK `users`, not null         | Inversor autenticado          |
+| `player_id`      | `uuid`                     | FK `players`, not null       | Jugador operado               |
+| `quote_id`       | `uuid`                     | FK `player_quotes`, not null | Cotización usada              |
+| `quantity`       | `integer`                  | `> 0`                        | Tokens transferidos           |
+| `quote_value`    | `numeric(10,2)`            | `>= 0`                       | Snapshot del precio ejecutado |
+| `total`          | `numeric(12,2)`            | `> 0`                        | `quantity * quote_value`      |
+| `unit`           | `varchar(30)`              | not null                     | `CREDIT_PER_TOKEN`            |
+| `correlation_id` | `varchar(100)`             | nullable                     | Trazabilidad de request       |
+| `created_at`     | `timestamp with time zone` | not null                     | Momento de ejecución          |
 
 `quote_value` es una duplicación deliberada del valor de `player_quotes`: la
 operación debe conservar el precio exacto aplicado como hecho financiero,
@@ -49,16 +49,16 @@ rechazados no son operaciones financieras persistidas.
 
 Registro append-only de la transición producida por una operación.
 
-| Columna | Tipo | Restricción | Descripción |
-|---|---|---|---|
-| `id` | `uuid` | PK | Identificador del evento |
-| `operation_id` | `uuid` | FK `market_operations`, unique | Operación auditada |
-| `actor_user_id` | `uuid` | FK `users`, not null | Actor autenticado |
-| `action` | `varchar(50)` | not null | `TOKEN_BUY` o `TOKEN_SELL` |
-| `previous_state` | `jsonb` | not null | Saldos y posiciones anteriores |
-| `new_state` | `jsonb` | not null | Saldos y posiciones posteriores |
-| `correlation_id` | `varchar(100)` | nullable | Trazabilidad de request |
-| `created_at` | `timestamp with time zone` | not null | Momento del evento |
+| Columna          | Tipo                       | Restricción                    | Descripción                     |
+| ---------------- | -------------------------- | ------------------------------ | ------------------------------- |
+| `id`             | `uuid`                     | PK                             | Identificador del evento        |
+| `operation_id`   | `uuid`                     | FK `market_operations`, unique | Operación auditada              |
+| `actor_user_id`  | `uuid`                     | FK `users`, not null           | Actor autenticado               |
+| `action`         | `varchar(50)`              | not null                       | `TOKEN_BUY` o `TOKEN_SELL`      |
+| `previous_state` | `jsonb`                    | not null                       | Saldos y posiciones anteriores  |
+| `new_state`      | `jsonb`                    | not null                       | Saldos y posiciones posteriores |
+| `correlation_id` | `varchar(100)`             | nullable                       | Trazabilidad de request         |
+| `created_at`     | `timestamp with time zone` | not null                       | Momento del evento              |
 
 Los snapshots contienen únicamente:
 

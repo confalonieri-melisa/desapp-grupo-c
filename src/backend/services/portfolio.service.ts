@@ -22,7 +22,7 @@ export class PortfolioService {
   constructor(
     private readonly userRepository = new UserRepository(),
     private readonly portfolioRepository = new PortfolioRepository(),
-    private readonly valuationRepository = new ValuationRepository()
+    private readonly valuationRepository = new ValuationRepository(),
   ) {}
 
   async getPortfolio(auth: AuthTokenPayload): Promise<PortfolioSnapshot> {
@@ -34,7 +34,9 @@ export class PortfolioService {
     return { creditBalance: user.creditBalance, items };
   }
 
-  private async toPortfolioItem(position: Awaited<ReturnType<PortfolioRepository["findPositionsByUserId"]>>[number]): Promise<PortfolioItem> {
+  private async toPortfolioItem(
+    position: Awaited<ReturnType<PortfolioRepository["findPositionsByUserId"]>>[number],
+  ): Promise<PortfolioItem> {
     const quote = await this.valuationRepository.findLatestForPlayer(position.playerId);
     const currentQuoteValue = quote?.quoteValue ?? null;
 
@@ -44,7 +46,8 @@ export class PortfolioService {
       averagePurchasePrice: position.averagePurchasePrice,
       currentQuoteValue,
       currentValue: currentQuoteValue === null ? null : position.currentValueAt(currentQuoteValue),
-      unrealizedPnl: currentQuoteValue === null ? null : position.unrealizedPnlAt(currentQuoteValue),
+      unrealizedPnl:
+        currentQuoteValue === null ? null : position.unrealizedPnlAt(currentQuoteValue),
     };
   }
 }

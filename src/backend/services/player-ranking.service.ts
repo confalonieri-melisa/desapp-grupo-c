@@ -46,5 +46,4 @@ export class PlayerRankingService {
       calculatedAt: row.calculatedAt,
     };
   }
-
 }

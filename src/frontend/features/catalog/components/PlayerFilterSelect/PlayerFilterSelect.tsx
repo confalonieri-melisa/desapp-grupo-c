@@ -27,12 +27,10 @@ export default function PlayerFilterSelect({
 }: PlayerFilterSelectProps) {
   return (
     <label className={styles.field} htmlFor={id}>
-      <span>{icon} {label}</span>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
+      <span>
+        {icon} {label}
+      </span>
+      <select id={id} value={value} onChange={(event) => onChange(event.target.value)}>
         <option value="">{placeholder}</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>

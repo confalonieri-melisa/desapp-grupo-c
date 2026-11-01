@@ -1,5 +1,4 @@
 ---
-
 description: "Task list for the investor transaction history frontend"
 ---
 
@@ -17,9 +16,9 @@ description: "Task list for the investor transaction history frontend"
 
 **Purpose**: Confirm the existing frontend structure and test locations needed by the feature.
 
-- [X] T001 Confirm the App Router, authenticated navigation, AuthContext, player client, and Vitest conventions in `src/app`, `src/frontend`, and `tests`
-- [X] T002 [P] Create the feature directories `src/frontend/features/history/components`, `src/frontend/features/history/hooks`, `tests/unit/features/history`, and `tests/unit/services/client`
-- [X] T003 [P] Add the `/transactions` route and feature stylesheet placeholders at `src/app/transactions/page.tsx` and `src/app/transactions/TransactionsPage.module.scss`
+- [x] T001 Confirm the App Router, authenticated navigation, AuthContext, player client, and Vitest conventions in `src/app`, `src/frontend`, and `tests`
+- [x] T002 [P] Create the feature directories `src/frontend/features/history/components`, `src/frontend/features/history/hooks`, `tests/unit/features/history`, and `tests/unit/services/client`
+- [x] T003 [P] Add the `/transactions` route and feature stylesheet placeholders at `src/app/transactions/page.tsx` and `src/app/transactions/TransactionsPage.module.scss`
 
 ---
 
@@ -29,12 +28,12 @@ description: "Task list for the investor transaction history frontend"
 
 **âš ï¸ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [X] T004 Define `TransactionHistoryItem`, `TransactionHistoryResponse`, `PlayerReference`, and view-state types in `src/frontend/features/history/history.ts`, preserving the UUID, `BUY | SELL`, positive quantity, historical monetary values, `CREDIT_PER_TOKEN`, ISO timestamp, offset, and `hasMore` constraints from `data-model.md`
-- [X] T005 Implement the transaction history client in `src/frontend/services/client/transaction-history.service.ts` for `GET /api/users/{sessionUserId}/transactions?limit=20&offset=...`, sending the Bearer token and exposing HTTP status for `401`, `403`, and recoverable failures without accepting an unrelated user ID
-- [X] T006 Extend or adapt the player client in `src/frontend/services/client/player.service.ts` so player lookup preserves HTTP status, supports `GET /api/players/{playerId}`, and distinguishes `401` from `404` and other non-authoritative failures
-- [X] T007 [P] Implement historical number and Buenos Aires date/time formatting helpers in `src/frontend/features/history/history.ts` using `es-AR`, `America/Argentina/Buenos_Aires`, and the literal unit fallback rules from `contracts/history-ui.md`
-- [X] T008 [P] Add focused unit coverage for page merging, ID deduplication, offset advancement, stable ordering, number formatting, and Buenos Aires date boundaries in `tests/unit/features/history/history.spec.ts`
-- [X] T009 Implement the session-scoped history hook skeleton in `src/frontend/features/history/hooks/useTransactionHistory.ts`, including `(user.id, token)` generation invalidation, abort cleanup, initial/loading-more/page-error states, and no empty state before a successful empty response
+- [x] T004 Define `TransactionHistoryItem`, `TransactionHistoryResponse`, `PlayerReference`, and view-state types in `src/frontend/features/history/history.ts`, preserving the UUID, `BUY | SELL`, positive quantity, historical monetary values, `CREDIT_PER_TOKEN`, ISO timestamp, offset, and `hasMore` constraints from `data-model.md`
+- [x] T005 Implement the transaction history client in `src/frontend/services/client/transaction-history.service.ts` for `GET /api/users/{sessionUserId}/transactions?limit=20&offset=...`, sending the Bearer token and exposing HTTP status for `401`, `403`, and recoverable failures without accepting an unrelated user ID
+- [x] T006 Extend or adapt the player client in `src/frontend/services/client/player.service.ts` so player lookup preserves HTTP status, supports `GET /api/players/{playerId}`, and distinguishes `401` from `404` and other non-authoritative failures
+- [x] T007 [P] Implement historical number and Buenos Aires date/time formatting helpers in `src/frontend/features/history/history.ts` using `es-AR`, `America/Argentina/Buenos_Aires`, and the literal unit fallback rules from `contracts/history-ui.md`
+- [x] T008 [P] Add focused unit coverage for page merging, ID deduplication, offset advancement, stable ordering, number formatting, and Buenos Aires date boundaries in `tests/unit/features/history/history.spec.ts`
+- [x] T009 Implement the session-scoped history hook skeleton in `src/frontend/features/history/hooks/useTransactionHistory.ts`, including `(user.id, token)` generation invalidation, abort cleanup, initial/loading-more/page-error states, and no empty state before a successful empty response
 
 **Checkpoint**: Shared data, HTTP, formatting, and session-state primitives are ready; user stories can proceed independently.
 
@@ -48,18 +47,18 @@ description: "Task list for the investor transaction history frontend"
 
 ### Tests for User Story 1
 
-- [X] T010 [P] [US1] Add service contract tests for authenticated history requests, `limit=20`, session-derived user ID, and preservation of historical `quoteValue`, `total`, and `unit` in `tests/unit/services/client/transaction-history.service.spec.ts`
-- [X] T011 [P] [US1] Add component tests for purchase/sale text labels, all seven visible operation fields, Buenos Aires legend, historical formatting, empty-state timing, and player fallback/link behavior in `tests/unit/features/history/TransactionHistoryList.spec.tsx`
+- [x] T010 [P] [US1] Add service contract tests for authenticated history requests, `limit=20`, session-derived user ID, and preservation of historical `quoteValue`, `total`, and `unit` in `tests/unit/services/client/transaction-history.service.spec.ts`
+- [x] T011 [P] [US1] Add component tests for purchase/sale text labels, all seven visible operation fields, Buenos Aires legend, historical formatting, empty-state timing, and player fallback/link behavior in `tests/unit/features/history/TransactionHistoryList.spec.tsx`
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Add the authenticated â€œMi historialâ€ link beside â€œJugadoresâ€ and active `aria-current="page"` handling for `/transactions` in `src/frontend/components/GlobalNav/GlobalNav.tsx`
-- [X] T013 [P] [US1] Add navigation styles, visible focus treatment, and responsive layout for the new link in `src/frontend/components/GlobalNav/GlobalNav.module.scss`
-- [X] T014 [US1] Implement the initial session-aware fetch, player-reference enrichment, and `401` logout/redirect behavior in `src/frontend/features/history/hooks/useTransactionHistory.ts`
-- [X] T015 [US1] Implement accessible operation rows showing textual â€œCompraâ€/â€œVentaâ€, player name or ID, profile link only after successful resolution, Buenos Aires date/time, quantity, historical quote with unit, and historical total in `src/frontend/features/history/components/TransactionHistoryList.tsx`
-- [X] T016 [P] [US1] Implement the operation-row responsive and accessible presentation styles in `src/frontend/features/history/components/TransactionHistoryList.module.scss`
-- [X] T017 [US1] Implement the `/transactions` page with authenticated loading, content, and successful-empty states, semantic status announcements, and no user-ID route controls in `src/app/transactions/page.tsx`
-- [X] T018 [P] [US1] Implement page-level responsive layout, field labels, and readable mobile presentation in `src/app/transactions/TransactionsPage.module.scss`
+- [x] T012 [P] [US1] Add the authenticated â€œMi historialâ€ link beside â€œJugadoresâ€ and active `aria-current="page"` handling for `/transactions` in `src/frontend/components/GlobalNav/GlobalNav.tsx`
+- [x] T013 [P] [US1] Add navigation styles, visible focus treatment, and responsive layout for the new link in `src/frontend/components/GlobalNav/GlobalNav.module.scss`
+- [x] T014 [US1] Implement the initial session-aware fetch, player-reference enrichment, and `401` logout/redirect behavior in `src/frontend/features/history/hooks/useTransactionHistory.ts`
+- [x] T015 [US1] Implement accessible operation rows showing textual â€œCompraâ€/â€œVentaâ€, player name or ID, profile link only after successful resolution, Buenos Aires date/time, quantity, historical quote with unit, and historical total in `src/frontend/features/history/components/TransactionHistoryList.tsx`
+- [x] T016 [P] [US1] Implement the operation-row responsive and accessible presentation styles in `src/frontend/features/history/components/TransactionHistoryList.module.scss`
+- [x] T017 [US1] Implement the `/transactions` page with authenticated loading, content, and successful-empty states, semantic status announcements, and no user-ID route controls in `src/app/transactions/page.tsx`
+- [x] T018 [P] [US1] Implement page-level responsive layout, field labels, and readable mobile presentation in `src/app/transactions/TransactionsPage.module.scss`
 
 **Checkpoint**: An authenticated investor can navigate to the history, read a complete first page, follow resolvable players, understand an empty history, and see no protected data while the initial request is pending.
 
@@ -73,15 +72,15 @@ description: "Task list for the investor transaction history frontend"
 
 ### Tests for User Story 2
 
-- [X] T019 [P] [US2] Add hook tests for `offset=0`, next offset based on response item count, deduplication without offset drift, stable existing rows, `hasMore` termination, and same-offset retry after a page failure in `tests/unit/features/history/useTransactionHistory.spec.ts`
-- [X] T020 [P] [US2] Add component tests for â€œVer mÃ¡s operacionesâ€, disabled/progress state, appended ordering, and end-of-history indication in `tests/unit/features/history/TransactionHistoryPage.spec.tsx`
+- [x] T019 [P] [US2] Add hook tests for `offset=0`, next offset based on response item count, deduplication without offset drift, stable existing rows, `hasMore` termination, and same-offset retry after a page failure in `tests/unit/features/history/useTransactionHistory.spec.ts`
+- [x] T020 [P] [US2] Add component tests for â€œVer mÃ¡s operacionesâ€, disabled/progress state, appended ordering, and end-of-history indication in `tests/unit/features/history/TransactionHistoryPage.spec.tsx`
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Complete pagination and merge logic in `src/frontend/features/history/hooks/useTransactionHistory.ts`, advancing by `response.offset + response.items.length`, deduplicating by `id`, retaining the failed offset, and avoiding duplicate requests while loading
-- [X] T022 [US2] Add the semantic â€œVer mÃ¡s operacionesâ€ action, progress announcement, retry surface for the same page, and end-of-history state to `src/frontend/features/history/components/TransactionHistoryList.tsx`
-- [X] T023 [US2] Integrate paginated hook state with the page without replacing already visible operations during additional loads in `src/app/transactions/page.tsx`
-- [X] T024 [P] [US2] Style the pagination action, disabled progress state, retry state, and end-of-history indication in `src/app/transactions/TransactionsPage.module.scss`
+- [x] T021 [US2] Complete pagination and merge logic in `src/frontend/features/history/hooks/useTransactionHistory.ts`, advancing by `response.offset + response.items.length`, deduplicating by `id`, retaining the failed offset, and avoiding duplicate requests while loading
+- [x] T022 [US2] Add the semantic â€œVer mÃ¡s operacionesâ€ action, progress announcement, retry surface for the same page, and end-of-history state to `src/frontend/features/history/components/TransactionHistoryList.tsx`
+- [x] T023 [US2] Integrate paginated hook state with the page without replacing already visible operations during additional loads in `src/app/transactions/page.tsx`
+- [x] T024 [P] [US2] Style the pagination action, disabled progress state, retry state, and end-of-history indication in `src/app/transactions/TransactionsPage.module.scss`
 
 **Checkpoint**: The investor can traverse all available pages while preserving the visible list and receiving clear progress and completion feedback.
 
@@ -95,16 +94,16 @@ description: "Task list for the investor transaction history frontend"
 
 ### Tests for User Story 3
 
-- [X] T025 [P] [US3] Add service tests for status classification of `401`, `403`, `404`, and recoverable network/HTTP failures in `tests/unit/services/client/transaction-history.service.spec.ts`
-- [X] T026 [P] [US3] Add hook tests for initial retry, page retry without clearing prior rows, `403` access error, logout on history/player `401`, session-key changes, abort cleanup, and stale A-response rejection in `tests/unit/features/history/useTransactionHistory.spec.ts`
-- [X] T027 [P] [US3] Add accessibility/error-state tests for `role="alert"`, `role="status"`/`aria-live`, keyboard-reachable retry controls, and absence of an empty-state message on errors in `tests/unit/features/history/TransactionHistoryPage.spec.tsx`
+- [x] T025 [P] [US3] Add service tests for status classification of `401`, `403`, `404`, and recoverable network/HTTP failures in `tests/unit/services/client/transaction-history.service.spec.ts`
+- [x] T026 [P] [US3] Add hook tests for initial retry, page retry without clearing prior rows, `403` access error, logout on history/player `401`, session-key changes, abort cleanup, and stale A-response rejection in `tests/unit/features/history/useTransactionHistory.spec.ts`
+- [x] T027 [P] [US3] Add accessibility/error-state tests for `role="alert"`, `role="status"`/`aria-live`, keyboard-reachable retry controls, and absence of an empty-state message on errors in `tests/unit/features/history/TransactionHistoryPage.spec.tsx`
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] Complete explicit error classification, initial retry, page retry, protected-data clearing, and generation checks for delayed responses in `src/frontend/features/history/hooks/useTransactionHistory.ts`
-- [X] T029 [US3] Render recoverable initial/page errors, access-denied state, retry actions, and accessible loading/error announcements in `src/app/transactions/page.tsx`
-- [X] T030 [US3] Ensure player enrichment treats `404` and non-authoritative failures as ID-only references while treating player `401` as session expiry in `src/frontend/features/history/hooks/useTransactionHistory.ts`
-- [X] T031 [US3] Verify authenticated navigation and route behavior do not expose history controls or data without a hydrated session in `src/frontend/components/GlobalNav/GlobalNav.tsx` and `src/app/transactions/page.tsx`
+- [x] T028 [US3] Complete explicit error classification, initial retry, page retry, protected-data clearing, and generation checks for delayed responses in `src/frontend/features/history/hooks/useTransactionHistory.ts`
+- [x] T029 [US3] Render recoverable initial/page errors, access-denied state, retry actions, and accessible loading/error announcements in `src/app/transactions/page.tsx`
+- [x] T030 [US3] Ensure player enrichment treats `404` and non-authoritative failures as ID-only references while treating player `401` as session expiry in `src/frontend/features/history/hooks/useTransactionHistory.ts`
+- [x] T031 [US3] Verify authenticated navigation and route behavior do not expose history controls or data without a hydrated session in `src/frontend/components/GlobalNav/GlobalNav.tsx` and `src/app/transactions/page.tsx`
 
 **Checkpoint**: Failures are understandable and recoverable, while session expiry or Aâ†’B changes remove protected data and reject stale responses.
 
@@ -114,9 +113,9 @@ description: "Task list for the investor transaction history frontend"
 
 **Purpose**: Validate the complete feature against the repository standards and quickstart scenarios.
 
-- [X] T032 [P] Run the focused history and client tests from `quickstart.md` and resolve regressions in `tests/unit/features/history` and `tests/unit/services/client`
-- [X] T033 [P] Verify keyboard navigation, visible focus, screen-reader announcements, responsive mobile labels, and color-independent operation types in `src/app/transactions/TransactionsPage.module.scss` and `src/frontend/features/history/components/TransactionHistoryList.module.scss`
-- [X] T034 Run `npm run lint`, `npx tsc --noEmit`, `npm run build`, and `git diff --check` for the completed feature
+- [x] T032 [P] Run the focused history and client tests from `quickstart.md` and resolve regressions in `tests/unit/features/history` and `tests/unit/services/client`
+- [x] T033 [P] Verify keyboard navigation, visible focus, screen-reader announcements, responsive mobile labels, and color-independent operation types in `src/app/transactions/TransactionsPage.module.scss` and `src/frontend/features/history/components/TransactionHistoryList.module.scss`
+- [x] T034 Run `npm run lint`, `npx tsc --noEmit`, `npm run build`, and `git diff --check` for the completed feature
 - [ ] T035 Run the manual scenarios in `specs/010-transaction-history-frontend/quickstart.md`, including historical values, pagination mutation, empty/error states, session expiry, delayed Aâ†’B response, and accessibility
 
 ---
@@ -198,6 +197,6 @@ Task T018: Page styles in src/app/transactions/TransactionsPage.module.scss
 
 ## Visual refinement requested after implementation
 
-- [X] T036 Add the loaded-operation summary and basic search, type, and Buenos Aires month filters in `src/app/transactions/page.tsx` and `src/frontend/features/history/history.ts`.
-- [X] T037 Present operation rows with resolved player metadata and images from the existing mapper in `src/frontend/features/history/components/TransactionHistoryList.tsx`.
-- [X] T038 Validate filtering, mapped images, historical fields, responsive styles, and the production build in `tests/unit/features/history` and `src/app/transactions`.
+- [x] T036 Add the loaded-operation summary and basic search, type, and Buenos Aires month filters in `src/app/transactions/page.tsx` and `src/frontend/features/history/history.ts`.
+- [x] T037 Present operation rows with resolved player metadata and images from the existing mapper in `src/frontend/features/history/components/TransactionHistoryList.tsx`.
+- [x] T038 Validate filtering, mapped images, historical fields, responsive styles, and the production build in `tests/unit/features/history` and `src/app/transactions`.

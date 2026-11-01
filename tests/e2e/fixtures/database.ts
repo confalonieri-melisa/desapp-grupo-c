@@ -97,7 +97,7 @@ export async function seedE2EData(): Promise<void> {
       `;
 
       for (const [index, player] of E2E_PLAYERS.entries()) {
-        const score = (0.90 - index * 0.02).toFixed(6);
+        const score = (0.9 - index * 0.02).toFixed(6);
         const price = (30 - index * 0.5).toFixed(2);
         const explanation = {
           strategyCode: "INDIVIDUAL_PERFORMANCE",

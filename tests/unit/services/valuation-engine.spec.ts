@@ -66,16 +66,12 @@ describe("ValuationEngine", () => {
     const config = {
       ...buildValuationConfig("INDIVIDUAL_PERFORMANCE"),
       individualMetrics: [
-      { metric: "appearances", polarity: "POSITIVE", weight: 1, minimum: 0, maximum: 20 },
-      { metric: "goals", polarity: "POSITIVE", weight: 1, minimum: 0, maximum: 10 },
-      { metric: "assists", polarity: "POSITIVE", weight: 2, minimum: 0, maximum: 10 },
+        { metric: "appearances", polarity: "POSITIVE", weight: 1, minimum: 0, maximum: 20 },
+        { metric: "goals", polarity: "POSITIVE", weight: 1, minimum: 0, maximum: 10 },
+        { metric: "assists", polarity: "POSITIVE", weight: 2, minimum: 0, maximum: 10 },
       ] satisfies IndividualMetricConfig[],
     };
-    const result = new ValuationEngine().calculate(
-      player,
-      "INDIVIDUAL_PERFORMANCE",
-      config,
-    );
+    const result = new ValuationEngine().calculate(player, "INDIVIDUAL_PERFORMANCE", config);
 
     expect(result.individualScore).toBe(0.5);
     expect(result.explanation.missingMetrics).toEqual(["assists"]);
@@ -97,13 +93,15 @@ describe("ValuationEngine", () => {
   });
 
   it("returns a neutral value when a metric range has no width", () => {
-    expect(normalizeMetricValue(42, {
-      metric: "goals",
-      polarity: "POSITIVE",
-      weight: 1,
-      minimum: 42,
-      maximum: 42,
-    })).toBe(0.5);
+    expect(
+      normalizeMetricValue(42, {
+        metric: "goals",
+        polarity: "POSITIVE",
+        weight: 1,
+        minimum: 42,
+        maximum: 42,
+      }),
+    ).toBe(0.5);
   });
 
   it("shows how team context changes only the hybrid valuation", () => {

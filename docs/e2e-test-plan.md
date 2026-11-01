@@ -16,17 +16,17 @@ Routes: `/` (redirect), `/login`, `/register`, `/players`, `/players/[id]`, `/ra
 
 ## Page coverage
 
-| Route | Minimum browser checks |
-| --- | --- |
-| `/` | Redirects to `/players`; signed-out visitor is then sent to `/login`. |
-| `/login` | Required/invalid input feedback; wrong credentials; successful login leads to catalog; logout clears session and protected-route access. |
-| `/register` | Field validation and duplicate email; unique registration signs in and reaches catalog. |
-| `/players` | Catalog loads fixture players; search and league/team/position filters update results and URL; reset restores results; next/previous page; card opens the matching profile; empty result state. |
+| Route           | Minimum browser checks                                                                                                                                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `/`             | Redirects to `/players`; signed-out visitor is then sent to `/login`.                                                                                                                                                                            |
+| `/login`        | Required/invalid input feedback; wrong credentials; successful login leads to catalog; logout clears session and protected-route access.                                                                                                         |
+| `/register`     | Field validation and duplicate email; unique registration signs in and reaches catalog.                                                                                                                                                          |
+| `/players`      | Catalog loads fixture players; search and league/team/position filters update results and URL; reset restores results; next/previous page; card opens the matching profile; empty result state.                                                  |
 | `/players/[id]` | Header, statistics, current quote, history/trend, and explanation display for a fixture player; invalid ID shows recovery link; investor can preview a trade, cancel it, and complete one buy and one sell with visible balance/holding updates. |
-| `/ranking` | Active-strategy list and rank order; league/team/position filters and clear; pagination; player link; empty/error state through a scoped response override if the real fixture cannot produce it safely. |
-| `/comparison` | Empty state; search and select two players; matrix/chart render their values; add third, enforce maximum of three, remove and clear; verify selection survives navigation/reload for the same user. |
-| `/transactions` | Seeded buy/sell entries and summary; search, type, and period filters; clear; load-more when the fixture exceeds one page; new trade appears after returning from profile. |
-| `/portfolio` | Investor balance, positions, valuation/P&L, search, and link to profile; new trade updates the position; superuser and signed-out redirects. |
+| `/ranking`      | Active-strategy list and rank order; league/team/position filters and clear; pagination; player link; empty/error state through a scoped response override if the real fixture cannot produce it safely.                                         |
+| `/comparison`   | Empty state; search and select two players; matrix/chart render their values; add third, enforce maximum of three, remove and clear; verify selection survives navigation/reload for the same user.                                              |
+| `/transactions` | Seeded buy/sell entries and summary; search, type, and period filters; clear; load-more when the fixture exceeds one page; new trade appears after returning from profile.                                                                       |
+| `/portfolio`    | Investor balance, positions, valuation/P&L, search, and link to profile; new trade updates the position; superuser and signed-out redirects.                                                                                                     |
 
 ## Cross-page journeys and access
 

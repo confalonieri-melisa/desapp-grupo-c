@@ -3,20 +3,36 @@ import { createHookHarness, deferred, flushPromises } from "./hook-harness";
 import type { PortfolioSnapshot } from "@/frontend/services/client/player-trading.service";
 import { publishPortfolioUpdate } from "@/frontend/services/client/portfolio-events";
 
-const mocks = vi.hoisted(() => ({ getPortfolio: vi.fn(), logout: vi.fn(), replace: vi.fn(), token: "token" as string | null }));
+const mocks = vi.hoisted(() => ({
+  getPortfolio: vi.fn(),
+  logout: vi.fn(),
+  replace: vi.fn(),
+  token: "token" as string | null,
+}));
 let harness = createHookHarness();
 
 vi.mock("react", async (importOriginal) => ({
-  ...await importOriginal<typeof import("react")>(),
+  ...(await importOriginal<typeof import("react")>()),
   useState: <T>(initial: T | (() => T)) => harness.useState(initial),
-  useEffect: (effect: () => void | (() => void), deps?: unknown[]) => harness.useEffect(effect, deps),
+  useEffect: (effect: () => void | (() => void), deps?: unknown[]) =>
+    harness.useEffect(effect, deps),
   useCallback: (callback: unknown) => callback,
 }));
-vi.mock("next/navigation", () => ({ usePathname: () => "/players", useRouter: () => ({ replace: mocks.replace }) }));
-vi.mock("@/frontend/context/AuthContext", () => ({ useAuth: () => ({
-  token: mocks.token, logout: mocks.logout, isAuthenticated: !!mocks.token, isHydrated: true,
-}) }));
-vi.mock("@/frontend/services/client/player-trading.service", () => ({ getPortfolio: mocks.getPortfolio }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/players",
+  useRouter: () => ({ replace: mocks.replace }),
+}));
+vi.mock("@/frontend/context/AuthContext", () => ({
+  useAuth: () => ({
+    token: mocks.token,
+    logout: mocks.logout,
+    isAuthenticated: !!mocks.token,
+    isHydrated: true,
+  }),
+}));
+vi.mock("@/frontend/services/client/player-trading.service", () => ({
+  getPortfolio: mocks.getPortfolio,
+}));
 
 import GlobalNav from "@/frontend/components/GlobalNav/GlobalNav";
 
@@ -45,7 +61,9 @@ describe("global navigation balance", () => {
 
   it("does not restore an old balance when a post trade refresh fails", async () => {
     mocks.getPortfolio.mockResolvedValueOnce({ creditBalance: 100, items: [] });
-    balanceText(); harness.commit(); await flushPromises();
+    balanceText();
+    harness.commit();
+    await flushPromises();
     expect(balanceText()).toBe("100 créditos");
 
     publishPortfolioUpdate({ token: "token", status: "loading", snapshot: null });
@@ -59,26 +77,38 @@ describe("global navigation balance", () => {
   it("uses the trading refresh result and ignores an older navbar response", async () => {
     const initial = deferred<PortfolioSnapshot>();
     mocks.getPortfolio.mockReturnValueOnce(initial.promise);
-    balanceText(); harness.commit();
+    balanceText();
+    harness.commit();
     publishPortfolioUpdate({ token: "token", status: "loading", snapshot: null });
 
-    initial.resolve({ creditBalance: 100, items: [] }); await flushPromises();
+    initial.resolve({ creditBalance: 100, items: [] });
+    await flushPromises();
     expect(balanceText()).toBe("Cargando…");
-    publishPortfolioUpdate({ token: "token", status: "success", snapshot: { creditBalance: 80, items: [] } });
+    publishPortfolioUpdate({
+      token: "token",
+      status: "success",
+      snapshot: { creditBalance: 80, items: [] },
+    });
     expect(balanceText()).toBe("80 créditos");
     expect(mocks.getPortfolio).toHaveBeenCalledOnce();
   });
 
   it("does not show another session's balance or accept its update", async () => {
     mocks.getPortfolio.mockResolvedValueOnce({ creditBalance: 100, items: [] });
-    balanceText(); harness.commit(); await flushPromises();
+    balanceText();
+    harness.commit();
+    await flushPromises();
     expect(balanceText()).toBe("100 créditos");
 
     mocks.token = "other-token";
     expect(balanceText()).toBe("Cargando…");
     mocks.getPortfolio.mockReturnValueOnce(deferred<PortfolioSnapshot>().promise);
     harness.commit();
-    publishPortfolioUpdate({ token: "token", status: "success", snapshot: { creditBalance: 100, items: [] } });
+    publishPortfolioUpdate({
+      token: "token",
+      status: "success",
+      snapshot: { creditBalance: 100, items: [] },
+    });
     expect(balanceText()).toBe("Cargando…");
   });
 });

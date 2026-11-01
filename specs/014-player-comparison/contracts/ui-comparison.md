@@ -16,18 +16,18 @@
 
 ## Estados visibles
 
-| Estado | Resultado visible |
-|---|---|
-| 0 seleccionados | Buscador, contador `0 de 3` e instrucción para agregar dos jugadores. |
-| 1 seleccionado | Una columna de identidad y mensaje de que falta un jugador; no se muestran filas comparativas completas ni gráfico. |
-| 2 o 3 seleccionados | Matriz completa y gráfico histórico compacto. |
-| Búsqueda cargando | Estado de carga; no se presenta vacío definitivo. |
-| Búsqueda sin resultados | Mensaje para modificar o limpiar el término. |
-| Cotizaciones cargando | Estado por jugador; la matriz espera o muestra datos disponibles según la consulta. |
-| Sin historial | “No hay cotizaciones históricas” para ese jugador. |
-| Menos de 2 puntos | No se dibuja tendencia para ese jugador. |
-| Error recuperable | Mensaje y reintento para el jugador o consulta vigente. |
-| 401 | Retirar datos y ejecutar logout/router existente. |
+| Estado                  | Resultado visible                                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 0 seleccionados         | Buscador, contador `0 de 3` e instrucción para agregar dos jugadores.                                               |
+| 1 seleccionado          | Una columna de identidad y mensaje de que falta un jugador; no se muestran filas comparativas completas ni gráfico. |
+| 2 o 3 seleccionados     | Matriz completa y gráfico histórico compacto.                                                                       |
+| Búsqueda cargando       | Estado de carga; no se presenta vacío definitivo.                                                                   |
+| Búsqueda sin resultados | Mensaje para modificar o limpiar el término.                                                                        |
+| Cotizaciones cargando   | Estado por jugador; la matriz espera o muestra datos disponibles según la consulta.                                 |
+| Sin historial           | “No hay cotizaciones históricas” para ese jugador.                                                                  |
+| Menos de 2 puntos       | No se dibuja tendencia para ese jugador.                                                                            |
+| Error recuperable       | Mensaje y reintento para el jugador o consulta vigente.                                                             |
+| 401                     | Retirar datos y ejecutar logout/router existente.                                                                   |
 
 ## Matriz
 
@@ -68,4 +68,3 @@ La cotización actual es `items[0]` del historial. La variación usa los dos pri
 - Cotizaciones: [player-quotes.service.ts](../../../src/frontend/services/client/player-quotes.service.ts).
 - Estados y cancelación de historial: patrón de [usePlayerQuotes.ts](../../../src/frontend/features/profile/hooks/usePlayerQuotes.ts).
 - Gráfico: patrón de [QuoteTrend.tsx](../../../src/frontend/features/profile/components/QuoteTrend/QuoteTrend.tsx).
-

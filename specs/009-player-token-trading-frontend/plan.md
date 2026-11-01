@@ -30,18 +30,18 @@ Integrar al perfil una sección que muestre el saldo y solo la posición del jug
 
 ## Constitution Check
 
-*Gate antes de Phase 0 y reevaluación posterior a Phase 1: PASS para planificación; aprobación de la spec pendiente para implementación.*
+_Gate antes de Phase 0 y reevaluación posterior a Phase 1: PASS para planificación; aprobación de la spec pendiente para implementación._
 
-| Principio | Verificación previa y posterior al diseño |
-|---|---|
-| I, II: alcance y especificación | Spec 009 existe con escenarios y límites; el diseño solo usa lecturas y órdenes existentes. Figura `Draft`: la aprobación formal es requisito antes de implementar, no impide producir el plan. |
-| III: capas | Cliente HTTP, hook de interacción y componentes del perfil separados; el frontend no accede a repositorios ni modifica reglas del dominio. |
-| IV: validación | La UI valida formato y disponibilidad visible para orientar; el backend conserva la decisión sobre saldo, tenencia, cotización y ejecución. |
-| V: verificación | Pruebas conductuales de cliente, validación y hook con éxito, rechazo, incertidumbre y respuestas obsoletas; guía manual de teclado y ancho. No hay tests declarativos. |
-| VI: seguridad y auditoría | Se reutiliza Bearer/JWT y el flujo de logout; las rutas existentes conservan autenticación, transacción y auditoría. No se envía `userId`. |
-| VII, VIII: incremento y simplicidad | Se amplía `profile` sin estado global, infraestructura ni librerías nuevas. La cotización compartida evita lecturas duplicadas. |
-| IX: terminado | `quickstart.md` define verificación, compilación y revisión; la entrega requiere aprobación formal de Project Owner. Sin cambio público de API que exija actualizar OpenAPI/Postman. |
-| X: GitFlow/YAGNI | Rama real `feature/009-player-token-trading-frontend`, base `main`; una sola feature, sin implementación anticipada ni commits en `main`. |
+| Principio                           | Verificación previa y posterior al diseño                                                                                                                                                       |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I, II: alcance y especificación     | Spec 009 existe con escenarios y límites; el diseño solo usa lecturas y órdenes existentes. Figura `Draft`: la aprobación formal es requisito antes de implementar, no impide producir el plan. |
+| III: capas                          | Cliente HTTP, hook de interacción y componentes del perfil separados; el frontend no accede a repositorios ni modifica reglas del dominio.                                                      |
+| IV: validación                      | La UI valida formato y disponibilidad visible para orientar; el backend conserva la decisión sobre saldo, tenencia, cotización y ejecución.                                                     |
+| V: verificación                     | Pruebas conductuales de cliente, validación y hook con éxito, rechazo, incertidumbre y respuestas obsoletas; guía manual de teclado y ancho. No hay tests declarativos.                         |
+| VI: seguridad y auditoría           | Se reutiliza Bearer/JWT y el flujo de logout; las rutas existentes conservan autenticación, transacción y auditoría. No se envía `userId`.                                                      |
+| VII, VIII: incremento y simplicidad | Se amplía `profile` sin estado global, infraestructura ni librerías nuevas. La cotización compartida evita lecturas duplicadas.                                                                 |
+| IX: terminado                       | `quickstart.md` define verificación, compilación y revisión; la entrega requiere aprobación formal de Project Owner. Sin cambio público de API que exija actualizar OpenAPI/Postman.            |
+| X: GitFlow/YAGNI                    | Rama real `feature/009-player-token-trading-frontend`, base `main`; una sola feature, sin implementación anticipada ni commits en `main`.                                                       |
 
 No se identifican excepciones constitucionales. La diferencia entre el error documentado en 005 y el error HTTP real se registra en investigación y contrato UI, sin ampliar el alcance a backend.
 

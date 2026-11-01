@@ -12,7 +12,9 @@ import type {
 import { VALUATION_STRATEGY_CODES } from "@/backend/models/valuation";
 
 type PlayerToQuote = Awaited<ReturnType<PlayerRepository["findAll"]>>[number];
-type ActiveVersion = NonNullable<Awaited<ReturnType<ValuationRepository["findActiveStrategyVersion"]>>>;
+type ActiveVersion = NonNullable<
+  Awaited<ReturnType<ValuationRepository["findActiveStrategyVersion"]>>
+>;
 type TeamContextsByPlayer = ReadonlyMap<string, TeamContext | null>;
 type RecalculationQuote = { playerId: string; quoteValue: number; teamScore: number | null };
 type RecalculationError = { playerId: string; error: string };
@@ -39,13 +41,7 @@ export class QuoteRecalculationService {
     const strategyCode = active.strategyCode as ValuationStrategyCode;
     const config = active.configuration as ValuationConfig;
     const contexts = await this.resolveTeamContexts(players, strategyCode);
-    const outcome = await this.recalculatePlayers(
-      active,
-      players,
-      contexts,
-      strategyCode,
-      config,
-    );
+    const outcome = await this.recalculatePlayers(active, players, contexts, strategyCode, config);
     return buildRecalculationResponse(active, outcome);
   }
 
@@ -55,33 +51,38 @@ export class QuoteRecalculationService {
     return active;
   }
 
-  private async resolveTeamContexts(players: PlayerToQuote[], strategyCode: ValuationStrategyCode): Promise<TeamContextsByPlayer> {
+  private async resolveTeamContexts(
+    players: PlayerToQuote[],
+    strategyCode: ValuationStrategyCode,
+  ): Promise<TeamContextsByPlayer> {
     const contextsByPlayer = new Map<string, TeamContext | null>();
 
     for (const player of players) {
-      contextsByPlayer.set(
-        player.id,
-        await this.resolveTeamContextForPlayer(player, strategyCode),
-      );
+      contextsByPlayer.set(player.id, await this.resolveTeamContextForPlayer(player, strategyCode));
     }
 
     return contextsByPlayer;
   }
 
-  private async resolveTeamContextForPlayer(player: PlayerToQuote, strategyCode: ValuationStrategyCode): Promise<TeamContext | null> {
+  private async resolveTeamContextForPlayer(
+    player: PlayerToQuote,
+    strategyCode: ValuationStrategyCode,
+  ): Promise<TeamContext | null> {
     if (strategyCode !== VALUATION_STRATEGY_CODES.INDIVIDUAL_PLUS_TEAM_CONTEXT) return null;
     const context = await this.contextRepository.findTeamContext(
       player.league,
       env.CURRENT_MARKET_SEASON,
       player.team,
     );
-    return context ? {
-      contextUpdateId: context.updateId,
-      position: context.position,
-      points: context.points,
-      playedGames: context.playedGames,
-      goalDifference: context.goalDifference,
-    } : null;
+    return context
+      ? {
+          contextUpdateId: context.updateId,
+          position: context.position,
+          points: context.points,
+          playedGames: context.playedGames,
+          goalDifference: context.goalDifference,
+        }
+      : null;
   }
 
   private async recalculatePlayers(

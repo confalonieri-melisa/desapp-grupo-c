@@ -14,7 +14,8 @@ export interface TeamSourceLink {
 }
 
 export function comparableTeamName(name: string): string {
-  return name.normalize("NFD")
+  return name
+    .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");

@@ -11,6 +11,7 @@
 
 > [!IMPORTANT]
 > **Regla de Operación Paso a Paso**:
+>
 > 1. El agente debe ejecutar **únicamente una tarea individual a la vez**.
 > 2. Al completar cada tarea individual y antes de proceder con el commit o la siguiente tarea, **el agente debe pausar la ejecución y pedir confirmación explícita al usuario**.
 > 3. No se continuará con la siguiente tarea ni se realizarán commits adicionales sin la aprobación explícita del usuario en el chat.
@@ -29,13 +30,17 @@
 ---
 
 ## ═══════════════════════════════════════
+
 ## FEATURE A: CI/CD Pipeline y Health Check
+
 ### Rama: `feature/001-ci-pipeline-health` → PR a `main`
+
 ## ═══════════════════════════════════════
 
 **Objetivo**: Pipeline automatizado operativo y endpoint de salud público.
 
 **Test independiente**:
+
 - Trigger GitHub Actions CI workflow y verificar estado `SUCCESS`.
 - `GET /api/health` responde `200 OK` con estado del sistema.
 
@@ -52,10 +57,12 @@
 **Goal**: CI/CD en verde y endpoint de salud funcional.
 
 **Independent Test**:
+
 - `GET /api/health` → `200 OK`
 - GitHub Actions workflow dispara y pasa en verde.
 
 #### Implementation para Feature A
+
 - [x] T006 [US1] Configure GitHub Actions CI workflow pipeline (lint, TypeScript build, Vitest coverage, SonarCloud scan) in [.github/workflows/ci.yml](file:///C:/Users/meluk/UNQ/desapp-grupo-c/.github/workflows/ci.yml)
 - [x] T007 [P] [US1] Create health controller returning system status in [src/controllers/health.controller.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/controllers/health.controller.ts)
 - [x] T007a [P] [US1] Add unit test for the health controller in [tests/unit/controllers/health.controller.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/controllers/health.controller.spec.ts)
@@ -66,8 +73,11 @@
 ---
 
 ## ═══════════════════════════════════════
+
 ## FEATURE B: Modelo de Dominio Rico y Tests Unitarios
+
 ### Rama: `feature/002-domain-model` → PR a `main`
+
 ## ═══════════════════════════════════════
 
 **Objetivo**: Entidades de dominio puras con invariantes, desacopladas de infraestructura.
@@ -75,15 +85,18 @@
 **Dependencia**: Feature A mergeada en `main`.
 
 **Test independiente**:
+
 - `npx vitest run tests/unit/models/` → todos los tests pasan.
 - Cobertura ≥ 80% en lógica de negocio pura.
 
 #### Tests para Feature B
+
 - [x] T009 [P] [US2] Unit tests for `User` domain model invariants (role assignment, 1,000 initial credits, and balance rules) in [tests/unit/models/User.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/User.spec.ts)
 - [x] T010 [P] [US2] Unit tests for `Player` domain model invariants (official 5 leagues enforcement, metrics validation) in [tests/unit/models/Player.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/Player.spec.ts)
 - [x] T011 [P] [US2] Unit tests for `TokenHolding` domain model invariants (non-negative quantity/price and 100-token initial seed at base price 1.00) in [tests/unit/models/TokenHolding.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/models/TokenHolding.spec.ts)
 
 #### Implementation para Feature B
+
 - [x] T012 [P] [US2] Define domain enums (`League`, `Position`, `UserRole`) in [src/models/enums.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/enums.ts)
 - [x] T013 [P] [US2] Implement standard domain error classes (`InvalidLeagueError`, `DomainValidationError`) in [src/models/errors.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/errors.ts)
 - [x] T014 [P] [US2] Implement rich `User` domain entity with business methods and balance rules in [src/models/User.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/models/User.ts)
@@ -95,8 +108,11 @@
 ---
 
 ## ═══════════════════════════════════════
+
 ## FEATURE C: Persistencia e Ingesta de Jugadores
+
 ### Rama: `feature/003-persistence-drizzle` → PR a `main`
+
 ## ═══════════════════════════════════════
 
 **Objetivo**: Persistencia mínima e ingesta reproducible de jugadores desde una fuente externa.
@@ -104,11 +120,13 @@
 **Dependencia**: Feature B mergeada en `main` (los modelos de dominio deben existir).
 
 **Test independiente**:
+
 - Ejecutar el flujo de sincronización contra un fixture o la fuente configurada y verificar que crea jugadores normalizados en BD.
 - `UserRepository.findByEmail()` y `PlayerRepository.findMany()` devuelven resultados correctos.
 - No se requiere scheduler, snapshot histórico, cache, fallback ni datos de cotizaciones en esta feature.
 
 #### Implementation para Feature C
+
 - [x] T017 [US2] Implement PostgreSQL database client connection pooling in [src/db/index.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/index.ts)
 - [x] T018 [US2] Define the minimal Drizzle ORM schema for tables `users`, `players`, and `token_holdings` in [src/db/schema.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/db/schema.ts), including the source and external identifier needed to identify imported players
 - [x] T019 [P] [US2] Implement `UserRepository` with Drizzle ORM (`findByEmail`, `findById`, `save`) in [src/repositories/user.repository.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/repositories/user.repository.ts)
@@ -121,8 +139,11 @@
 ---
 
 ## ═══════════════════════════════════════
+
 ## FEATURE D: Autenticación y Control de Acceso (JWT)
+
 ### Rama: `feature/004-auth-jwt` → PR a `main`
+
 ## ═══════════════════════════════════════
 
 **Objetivo**: Registro de usuarios, login con JWT 24h, y middleware de protección 401.
@@ -130,16 +151,19 @@
 **Dependencia**: Feature C mergeada en `main` (`UserRepository` debe existir).
 
 **Test independiente**:
+
 - `POST /api/auth/register` crea usuario con contraseña directa y 1.000 créditos.
 - `POST /api/auth/login` devuelve JWT válido por 24h.
 - Petición a endpoint protegido sin token → 401.
 
 #### Tests para Feature D
+
 - [x] T022 [P] [US3] Unit tests for `AuthService` orchestrator with repository mocks in [tests/unit/services/auth.service.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/services/auth.service.spec.ts)
 - [x] T023 [P] [US3] Unit and integration tests for Bearer JWT middleware authentication and 401 rejection in [tests/unit/middlewares/auth.middleware.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/middlewares/auth.middleware.spec.ts)
 - [x] T024 [P] [US3] Integration tests for registration and login application flows in [tests/integration/auth.routes.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/integration/auth.routes.spec.ts)
 
 #### Implementation para Feature D
+
 - [x] T025 [P] [US3] Implement password storage and verification utility (direct password comparison for the academic scope) in [src/utils/password.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/utils/password.ts)
 - [x] T026 [P] [US3] Implement JWT issuance and verification utility with 24-hour expiration in [src/utils/jwt.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/utils/jwt.ts)
 - [ ] T027 [P] [US3] Implement structured JSON logging utility with correlation ID support in [src/middlewares/logger.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/middlewares/logger.ts)
@@ -154,8 +178,11 @@
 ---
 
 ## ═══════════════════════════════════════
+
 ## FEATURE E: Catálogo de Jugadores (Endpoint Protegido)
+
 ### Rama: `feature/005-player-catalog` → PR a `main`
+
 ## ═══════════════════════════════════════
 
 **Objetivo**: Endpoints protegidos de catálogo con filtros y paginación.
@@ -163,15 +190,18 @@
 **Dependencia**: Feature D mergeada en `main` (`auth.middleware` y `PlayerRepository` deben existir).
 
 **Test independiente**:
+
 - `GET /api/players` con JWT válido y filtros → lista paginada correcta (200 OK).
 - `GET /api/players/:id` con JWT válido → detalle completo del jugador.
 - Ambos endpoints sin token → 401 Unauthorized.
 
 #### Tests para Feature E
+
 - [x] T033 [P] [US4] Unit tests for `PlayerService` orchestrator (filtering, pagination defaults, not found handling) in [tests/unit/services/player.service.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/unit/services/player.service.spec.ts)
 - [x] T034 [P] [US4] Integration tests for `GET /api/players` and `GET /api/players/:id` endpoints in [tests/integration/players.routes.spec.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/tests/integration/players.routes.spec.ts)
 
 #### Implementation para Feature E
+
 - [x] T035 [US4] Implement `PlayerService` orchestrator coordinating repository search and domain mappings in [src/services/player.service.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/services/player.service.ts)
 - [x] T036 [US4] Implement `PlayerController` handling query validation, pagination parameters, and response formatting in [src/controllers/player.controller.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/controllers/player.controller.ts)
 - [x] T037 [P] [US4] Create protected Next.js route handler for `GET /api/players` in [src/app/api/players/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/players/route.ts)
@@ -182,8 +212,11 @@
 ---
 
 ## ═══════════════════════════════════════
+
 ## FEATURE F: Documentación OpenAPI / Swagger
+
 ### Rama: `feature/006-swagger-docs` → PR a `main`
+
 ## ═══════════════════════════════════════
 
 **Objetivo**: Swagger UI interactivo con todos los endpoints documentados.
@@ -191,9 +224,11 @@
 **Dependencia**: Feature E mergeada en `main` (todos los endpoints estables).
 
 **Test independiente**:
+
 - `GET /api/docs` expone Swagger UI con esquema `BearerAuth` y todos los endpoints documentados.
 
 #### Implementation para Feature F
+
 - [x] T039 [US1] Implement Swagger OpenAPI UI route handler exposing `contracts/openapi.yaml` in [src/app/api/docs/route.ts](file:///C:/Users/meluk/UNQ/desapp-grupo-c/src/app/api/docs/route.ts)
 - [x] T040 Update project [README.md](file:///C:/Users/meluk/UNQ/desapp-grupo-c/README.md) with complete execution and verification documentation
 
@@ -221,14 +256,14 @@ Feature A (CI/CD + Health)
 
 ### Rationale del orden
 
-| Feature | Requisito previo | Motivo |
-| :--- | :--- | :--- |
-| A - CI/CD | Ninguno | Base de infraestructura y calidad |
-| B - Domain | A mergeada | El modelo puro no depende de nada; los tests pasan en CI |
-| C - Persistence | B mergeada | Los repositorios mapean entidades del modelo |
-| D - Auth/JWT | C mergeada | `AuthService` usa `UserRepository` y la entidad `User` |
-| E - Catalog | D mergeada | Los endpoints usan `auth.middleware` y `PlayerRepository` |
-| F - Swagger | E mergeada | Documenta todos los endpoints ya estables |
+| Feature         | Requisito previo | Motivo                                                    |
+| :-------------- | :--------------- | :-------------------------------------------------------- |
+| A - CI/CD       | Ninguno          | Base de infraestructura y calidad                         |
+| B - Domain      | A mergeada       | El modelo puro no depende de nada; los tests pasan en CI  |
+| C - Persistence | B mergeada       | Los repositorios mapean entidades del modelo              |
+| D - Auth/JWT    | C mergeada       | `AuthService` usa `UserRepository` y la entidad `User`    |
+| E - Catalog     | D mergeada       | Los endpoints usan `auth.middleware` y `PlayerRepository` |
+| F - Swagger     | E mergeada       | Documenta todos los endpoints ya estables                 |
 
 ### Parallel Execution Opportunities
 

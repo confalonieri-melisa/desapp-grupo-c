@@ -123,7 +123,7 @@ POST /api/quotes/recalculate
 
 El `ValuationEngine` debe ser independiente de Next.js, Drizzle y HTTP. Recibe
 un jugador, una estrategia conocida, un DTO de configuración inmutable,
-  configuración de rangos fijos y, para la estrategia híbrida, un
+configuración de rangos fijos y, para la estrategia híbrida, un
 contexto colectivo ya resuelto. Devuelve scores, contribuciones, datos
 faltantes y valor o un error de dominio.
 
@@ -135,7 +135,7 @@ El servicio de recálculo:
 4. calcula cada jugador usando los rangos de la configuración activa;
 5. inserta las cotizaciones válidas y acumula errores por jugador en la
    respuesta;
-7. marca `COMPLETED`, `PARTIAL` o `FAILED`.
+6. marca `COMPLETED`, `PARTIAL` o `FAILED`.
 
 No se crea una jerarquía de clases por métrica. Las métricas se representan
 como datos en un DTO validado y el motor aplica funciones pequeñas de
@@ -404,17 +404,17 @@ inyectables; no se permite red durante el cálculo.
 
 ## Risks and Mitigations
 
-| Riesgo | Impacto | Mitigación |
-|---|---|---|
-| Pesos académicos no definidos | Resultados no reproducibles o arbitrarios | No hardcodear pesos silenciosamente; exigir configuración validada y aprobada |
+| Riesgo                               | Impacto                                      | Mitigación                                                                                                                                 |
+| ------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| Pesos académicos no definidos        | Resultados no reproducibles o arbitrarios    | No hardcodear pesos silenciosamente; exigir configuración validada y aprobada                                                              |
 | Dataset WhoScored temporal implícito | `players` no distingue temporadas históricas | Configurar una única temporada vigente del market y usarla para contexto y referencias, sin exponer temporadas arbitrarias en el recálculo |
-| Lectura de contexto aún no expuesta | El motor no puede resolver el standing local | Agregar método de lectura en `CompetitionContextRepository`, sin reutilizar el adapter HTTP |
-| Cambios en snapshots | Históricos imposibles de reproducir | Referenciar `context_update_id` y congelar configuración |
-| Doble conteo entre fuentes | Score metodológicamente inválido | Whitelist de métricas y tests de separación de fuentes |
-| Datos insuficientes | Cotizaciones engañosas | Renormalización explícita, `INDIVIDUAL_ONLY` y errores por jugador |
-| Mutación de versiones | Historial no auditable | Estado publicado inmutable y nuevas versiones |
-| Publicación parcial | Fechas de actualización diferentes | Estado `PARTIAL`, contadores y detalle por jugador |
-| Redondeo intermedio | Resultados no reproducibles | Redondear solo el valor final a dos decimales |
+| Lectura de contexto aún no expuesta  | El motor no puede resolver el standing local | Agregar método de lectura en `CompetitionContextRepository`, sin reutilizar el adapter HTTP                                                |
+| Cambios en snapshots                 | Históricos imposibles de reproducir          | Referenciar `context_update_id` y congelar configuración                                                                                   |
+| Doble conteo entre fuentes           | Score metodológicamente inválido             | Whitelist de métricas y tests de separación de fuentes                                                                                     |
+| Datos insuficientes                  | Cotizaciones engañosas                       | Renormalización explícita, `INDIVIDUAL_ONLY` y errores por jugador                                                                         |
+| Mutación de versiones                | Historial no auditable                       | Estado publicado inmutable y nuevas versiones                                                                                              |
+| Publicación parcial                  | Fechas de actualización diferentes           | Estado `PARTIAL`, contadores y detalle por jugador                                                                                         |
+| Redondeo intermedio                  | Resultados no reproducibles                  | Redondear solo el valor final a dos decimales                                                                                              |
 
 ## Implementation Order
 

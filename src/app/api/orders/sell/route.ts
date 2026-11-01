@@ -4,9 +4,7 @@ import { requireAuth } from "@/backend/middlewares/auth.middleware";
 import { marketOperationRequestSchema } from "@/backend/schemas/market-operation.schema";
 import { MarketOperationService } from "@/backend/services/market-operation.service";
 
-const controller = new MarketOperationController(
-  new MarketOperationService(),
-);
+const controller = new MarketOperationController(new MarketOperationService());
 
 export async function POST(request: Request): Promise<Response> {
   try {

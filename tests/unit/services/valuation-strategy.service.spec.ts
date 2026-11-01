@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import { ConflictError } from "@/backend/errors/http.error";
-import { ValuationStrategyService, buildValuationConfig } from "@/backend/services/valuation-strategy.service";
+import {
+  ValuationStrategyService,
+  buildValuationConfig,
+} from "@/backend/services/valuation-strategy.service";
 
 describe("ValuationStrategyService", () => {
   it("builds the individual strategy without a team share", () => {
@@ -16,12 +19,11 @@ describe("ValuationStrategyService", () => {
     const activateStrategyVersion = vi.fn().mockResolvedValue({ id: "version-1" });
     const service = new ValuationStrategyService({ activateStrategyVersion } as never);
 
-    await expect(service.activate("INDIVIDUAL_PLUS_TEAM_CONTEXT", "admin-1"))
-      .resolves.toEqual({
-        strategyCode: "INDIVIDUAL_PLUS_TEAM_CONTEXT",
-        version: "1.0.0",
-        isActive: true,
-      });
+    await expect(service.activate("INDIVIDUAL_PLUS_TEAM_CONTEXT", "admin-1")).resolves.toEqual({
+      strategyCode: "INDIVIDUAL_PLUS_TEAM_CONTEXT",
+      version: "1.0.0",
+      isActive: true,
+    });
 
     expect(activateStrategyVersion).toHaveBeenCalledWith(
       "INDIVIDUAL_PLUS_TEAM_CONTEXT",
@@ -36,7 +38,8 @@ describe("ValuationStrategyService", () => {
       activateStrategyVersion: vi.fn().mockResolvedValue(null),
     } as never);
 
-    await expect(service.activate("INDIVIDUAL_PERFORMANCE", "admin-1"))
-      .rejects.toBeInstanceOf(ConflictError);
+    await expect(service.activate("INDIVIDUAL_PERFORMANCE", "admin-1")).rejects.toBeInstanceOf(
+      ConflictError,
+    );
   });
 });

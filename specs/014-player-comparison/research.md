@@ -47,4 +47,3 @@
 **Rationale**: La matriz conserva las cinco filas en cualquier viewport. En mobile se apila el gráfico y se permite scroll horizontal de la matriz, con columna de métricas identificable. La tabla y el resumen textual del gráfico mantienen una alternativa no visual.
 
 **Alternativas consideradas**: convertir cada jugador en una tarjeta vertical; rechazada porque rompe la comparación lado a lado y contradice la identidad única de la feature.
-

@@ -1,0 +1,14 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+.tmp/
+.venv/
+venv/
+.idea/
+.vscode/
+package-lock.json
+next-env.d.ts
+src/backend/db/migrations/meta/

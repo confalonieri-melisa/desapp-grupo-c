@@ -3,9 +3,7 @@ import { toHttpResponse } from "@/backend/errors/to-http-response";
 import { requireAuth } from "@/backend/middlewares/auth.middleware";
 import { PortfolioService } from "@/backend/services/portfolio.service";
 
-const controller = new PortfolioController(
-  new PortfolioService(),
-);
+const controller = new PortfolioController(new PortfolioService());
 
 export async function GET(request: Request): Promise<Response> {
   try {

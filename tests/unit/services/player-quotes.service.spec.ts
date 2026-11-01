@@ -42,7 +42,10 @@ function dependencies() {
 describe("PlayerQuotesService", () => {
   it("returns the complete history for an existing player", async () => {
     const deps = dependencies();
-    const result = await new PlayerQuotesService(deps.playerRepository as never, deps.valuationRepository as never).getQuotes(player.id);
+    const result = await new PlayerQuotesService(
+      deps.playerRepository as never,
+      deps.valuationRepository as never,
+    ).getQuotes(player.id);
 
     expect(result).toEqual([row]);
     expect(deps.valuationRepository.findHistoryByPlayerId).toHaveBeenCalledWith(player.id);
@@ -53,14 +56,24 @@ describe("PlayerQuotesService", () => {
     const deps = dependencies();
     deps.valuationRepository.findHistoryByPlayerId.mockResolvedValue([]);
 
-    await expect(new PlayerQuotesService(deps.playerRepository as never, deps.valuationRepository as never).getQuotes(player.id)).resolves.toEqual([]);
+    await expect(
+      new PlayerQuotesService(
+        deps.playerRepository as never,
+        deps.valuationRepository as never,
+      ).getQuotes(player.id),
+    ).resolves.toEqual([]);
   });
 
   it("rejects an unknown player before querying quotes", async () => {
     const deps = dependencies();
     deps.playerRepository.findById.mockResolvedValue(null);
 
-    await expect(new PlayerQuotesService(deps.playerRepository as never, deps.valuationRepository as never).getQuotes(player.id)).rejects.toMatchObject({
+    await expect(
+      new PlayerQuotesService(
+        deps.playerRepository as never,
+        deps.valuationRepository as never,
+      ).getQuotes(player.id),
+    ).rejects.toMatchObject({
       message: "Player not found",
       status: 404,
     });
@@ -69,18 +82,28 @@ describe("PlayerQuotesService", () => {
 
   it("selects the persisted quote on or before the requested date", async () => {
     const deps = dependencies();
-    const service = new PlayerQuotesService(deps.playerRepository as never, deps.valuationRepository as never);
+    const service = new PlayerQuotesService(
+      deps.playerRepository as never,
+      deps.valuationRepository as never,
+    );
 
     await expect(service.getQuotes(player.id, "2026-10-20")).resolves.toEqual([row]);
 
-    expect(deps.valuationRepository.findLatestQuoteBefore)
-      .toHaveBeenCalledWith(player.id, new Date("2026-10-21T00:00:00.000Z"));
+    expect(deps.valuationRepository.findLatestQuoteBefore).toHaveBeenCalledWith(
+      player.id,
+      new Date("2026-10-21T00:00:00.000Z"),
+    );
   });
 
   it("rejects a date with no available quote", async () => {
     const deps = dependencies();
     deps.valuationRepository.findLatestQuoteBefore.mockResolvedValue(null);
 
-    await expect(new PlayerQuotesService(deps.playerRepository as never, deps.valuationRepository as never).getQuotes(player.id, "2026-10-20")).rejects.toBeInstanceOf(NotFoundError);
+    await expect(
+      new PlayerQuotesService(
+        deps.playerRepository as never,
+        deps.valuationRepository as never,
+      ).getQuotes(player.id, "2026-10-20"),
+    ).rejects.toBeInstanceOf(NotFoundError);
   });
 });

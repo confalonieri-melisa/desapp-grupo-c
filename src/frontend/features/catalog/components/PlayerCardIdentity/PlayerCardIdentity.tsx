@@ -22,17 +22,19 @@ export default function PlayerCardIdentity({ player }: PlayerCardIdentityProps) 
     <div className={styles.identity}>
       <h2>{player.name}</h2>
       <div className={styles.detail}>
-        <span className={styles.detailIcon} aria-hidden="true"><Shield size={13} /></span>
+        <span className={styles.detailIcon} aria-hidden="true">
+          <Shield size={13} />
+        </span>
         <span>{player.team}</span>
       </div>
       <div className={styles.detail}>
-        <span className={styles.detailIcon} aria-hidden="true"><IoFootballSharp size={13} /></span>
+        <span className={styles.detailIcon} aria-hidden="true">
+          <IoFootballSharp size={13} />
+        </span>
         <span>{leagueLabels[player.league] ?? formatEnumLabel(player.league)}</span>
       </div>
       <div className={styles.tags}>
-        <span className={positionStyles[player.position]}>
-          {player.position}
-        </span>
+        <span className={positionStyles[player.position]}>{player.position}</span>
       </div>
     </div>
   );

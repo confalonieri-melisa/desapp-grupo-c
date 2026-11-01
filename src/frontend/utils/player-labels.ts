@@ -1,9 +1,10 @@
 import { League } from "@/backend/models/enums";
 
-export const formatEnumLabel = (value: string) => value
-  .toLowerCase()
-  .replaceAll("_", " ")
-  .replace(/\b\w/g, (letter) => letter.toUpperCase());
+export const formatEnumLabel = (value: string) =>
+  value
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 
 export const leagueLabels: Record<League, string> = {
   [League.PREMIER_LEAGUE]: "Premier League",

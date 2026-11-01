@@ -1,9 +1,12 @@
-import type { TransactionHistoryResponse } from '@/frontend/features/history/history';
+import type { TransactionHistoryResponse } from "@/frontend/features/history/history";
 
 export class HistoryHttpError extends Error {
-  constructor(message: string, public readonly status: number) {
+  constructor(
+    message: string,
+    public readonly status: number,
+  ) {
     super(message);
-    this.name = 'HistoryHttpError';
+    this.name = "HistoryHttpError";
   }
 }
 
@@ -12,17 +15,22 @@ export async function getTransactionHistory(
   offset: number,
   signal?: AbortSignal,
 ): Promise<TransactionHistoryResponse> {
-  const query = new URLSearchParams({ limit: '20', offset: String(offset) });
+  const query = new URLSearchParams({ limit: "20", offset: String(offset) });
   const response = await fetch(
     `/api/users/${encodeURIComponent(session.userId)}/transactions?${query}`,
     { headers: { Authorization: `Bearer ${session.token}` }, signal },
   );
 
   if (!response.ok) {
-    let message = 'No se pudieron cargar las operaciones';
+    let message = "No se pudieron cargar las operaciones";
     try {
       const body: unknown = await response.json();
-      if (body && typeof body === 'object' && 'message' in body && typeof body.message === 'string') {
+      if (
+        body &&
+        typeof body === "object" &&
+        "message" in body &&
+        typeof body.message === "string"
+      ) {
         message = body.message;
       }
     } catch {

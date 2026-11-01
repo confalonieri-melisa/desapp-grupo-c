@@ -27,8 +27,8 @@ async function main(): Promise<void> {
   const result = await service.update(season);
 
   console.log(
-    `Synchronized football-data.org competition context for ${result.season}: `
-      + `${result.competitions.length} competitions (${result.status})`,
+    `Synchronized football-data.org competition context for ${result.season}: ` +
+      `${result.competitions.length} competitions (${result.status})`,
   );
 }
 

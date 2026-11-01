@@ -14,25 +14,25 @@ export default function Card({ children, className = "", ...props }: CardProps) 
 }
 
 export function CardHeader({ children }: { children: ReactNode }) {
-  return <div className={styles['card-header']}>{children}</div>;
+  return <div className={styles["card-header"]}>{children}</div>;
 }
 
 export function CardTitle({ children }: { children: ReactNode }) {
-  return <h1 className={styles['card-title']}>{children}</h1>;
+  return <h1 className={styles["card-title"]}>{children}</h1>;
 }
 
 export function CardTitleSpan({ children }: { children: ReactNode }) {
-  return <span className={styles['card-title-span']}>{children}</span>;
+  return <span className={styles["card-title-span"]}>{children}</span>;
 }
 
 export function CardText({ children }: { children: ReactNode }) {
-  return <p className={styles['card-text']}>{children}</p>;
+  return <p className={styles["card-text"]}>{children}</p>;
 }
 
 export function CardContent({ children }: { children: ReactNode }) {
-  return <div className={styles['card-content']}>{children}</div>;
+  return <div className={styles["card-content"]}>{children}</div>;
 }
 
 export function CardFooter({ children }: { children: ReactNode }) {
-  return <p className={styles['card-footer']}>{children}</p>;
+  return <p className={styles["card-footer"]}>{children}</p>;
 }

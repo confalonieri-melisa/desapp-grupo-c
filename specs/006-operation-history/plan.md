@@ -38,7 +38,7 @@ dependencias, joins para enriquecer jugadores ni funcionalidad frontend.
 - **Specification First**: PASS. El endpoint, la autorización, la
   paginación, los errores y la fuente de verdad están definidos en `spec.md`.
 - **Layered Architecture**: PASS. Se mantiene `route → controller → service →
-  repository`; Drizzle queda encapsulado en el repositorio.
+repository`; Drizzle queda encapsulado en el repositorio.
 - **Validation by Responsibility**: PASS. Zod valida formato y rangos; el
   service valida la coincidencia entre `:id` y `auth.sub`; el repositorio solo
   ejecuta la lectura persistente.
@@ -281,14 +281,14 @@ Con `RUN_DB_INTEGRATION_TESTS=true`:
 
 ## Risks and Mitigations
 
-| Riesgo | Mitigación |
-|---|---|
-| Exponer operaciones ajenas | Comparar `:id` con `auth.sub` antes de consultar y filtrar también en SQL |
-| Reconstruir datos desde el estado actual | Leer exclusivamente `market_operations`, sin joins ni cálculos |
-| Respuestas sin límite | `limit` por defecto 50, máximo 100 y consulta `limit + 1` |
-| Orden no determinista | `created_at DESC, id DESC` |
-| Cambiar el flujo financiero existente | Agregar solo una lectura al repositorio y tests de regresión |
-| Inconsistencia de decimales | Mapear `numeric` una vez a número; no recalcular importes |
+| Riesgo                                   | Mitigación                                                                |
+| ---------------------------------------- | ------------------------------------------------------------------------- |
+| Exponer operaciones ajenas               | Comparar `:id` con `auth.sub` antes de consultar y filtrar también en SQL |
+| Reconstruir datos desde el estado actual | Leer exclusivamente `market_operations`, sin joins ni cálculos            |
+| Respuestas sin límite                    | `limit` por defecto 50, máximo 100 y consulta `limit + 1`                 |
+| Orden no determinista                    | `created_at DESC, id DESC`                                                |
+| Cambiar el flujo financiero existente    | Agregar solo una lectura al repositorio y tests de regresión              |
+| Inconsistencia de decimales              | Mapear `numeric` una vez a número; no recalcular importes                 |
 
 ## Definition of Done
 

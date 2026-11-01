@@ -19,7 +19,11 @@ export class MarketOperationController {
     return toResponse(await this.service.sell(auth, input, correlationId));
   }
 
-  getHistory(auth: AuthTokenPayload, userId: string, query: MarketOperationHistoryQuery): Promise<MarketOperationHistoryResult> {
+  getHistory(
+    auth: AuthTokenPayload,
+    userId: string,
+    query: MarketOperationHistoryQuery,
+  ): Promise<MarketOperationHistoryResult> {
     return this.service.getHistory(auth, userId, query);
   }
 }

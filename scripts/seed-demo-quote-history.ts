@@ -14,7 +14,10 @@ async function main() {
   const connection = process.env.DATABASE_URL;
   if (!connection) throw new Error("DATABASE_URL is required");
   const target = new URL(connection);
-  if (process.env.NODE_ENV === "production" || !["localhost", "127.0.0.1", "[::1]"].includes(target.hostname)) {
+  if (
+    process.env.NODE_ENV === "production" ||
+    !["localhost", "127.0.0.1", "[::1]"].includes(target.hostname)
+  ) {
     throw new Error("Demo quotes can only be loaded into a local, non-production database");
   }
 
@@ -27,10 +30,16 @@ async function main() {
       FROM player_quotes
     `;
     console.log(`Cotizaciones en la base: ${counts.total}; marcadas como demo: ${counts.marked}.`);
-    const sources = await sql<{
-      id: string; player_id: string; strategy_version_id: string; strategy_code: string;
-      calculated_at: Date; final_score: string;
-    }[]>`
+    const sources = await sql<
+      {
+        id: string;
+        player_id: string;
+        strategy_version_id: string;
+        strategy_code: string;
+        calculated_at: Date;
+        final_score: string;
+      }[]
+    >`
       SELECT DISTINCT ON (q.player_id)
         q.id, q.player_id, q.strategy_version_id, v.strategy_code,
         q.calculated_at, q.final_score
@@ -46,46 +55,67 @@ async function main() {
       WHERE explanation->>'demoFixture' = ${fixture}
     `;
     const existingKeys = new Set(existing.map((row) => `${row.player_id}:${row.slot}`));
-    const pending = eligible.flatMap((source) => slots
-      .filter((slot) => !existingKeys.has(`${source.player_id}:${slot.name}`))
-      .map((slot) => ({ source, slot })));
+    const pending = eligible.flatMap((source) =>
+      slots
+        .filter((slot) => !existingKeys.has(`${source.player_id}:${slot.name}`))
+        .map((slot) => ({ source, slot })),
+    );
 
     console.log(`Base local: ${target.hostname}${target.pathname}`);
-    console.log(`Jugadores con cotización individual real: ${eligible.length}. Registros de demostración existentes: ${existing.length}. Pendientes: ${pending.length}.`);
+    console.log(
+      `Jugadores con cotización individual real: ${eligible.length}. Registros de demostración existentes: ${existing.length}. Pendientes: ${pending.length}.`,
+    );
     if (eligible[0]) {
       const date = new Date(eligible[0].calculated_at);
       date.setUTCDate(date.getUTCDate() - 45);
-      const upperBound = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1));
-      const [sample] = await sql<{ slot: string | null; calculated_at: Date; quote_value: string }[]>`
+      const upperBound = new Date(
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1),
+      );
+      const [sample] = await sql<
+        { slot: string | null; calculated_at: Date; quote_value: string }[]
+      >`
         SELECT explanation->>'slot' AS slot, calculated_at, quote_value
         FROM player_quotes
         WHERE player_id = ${eligible[0].player_id} AND calculated_at < ${upperBound}
         ORDER BY calculated_at DESC, id DESC LIMIT 1
       `;
-      console.log(`Fecha para probar la consulta puntual: ${date.toISOString().slice(0, 10)} (dos registros ese día).`);
-      if (sample) console.log(`Resultado de ejemplo: ${sample.quote_value} créditos, ${new Date(sample.calculated_at).toISOString()}, ${sample.slot ?? "registro real"}.`);
+      console.log(
+        `Fecha para probar la consulta puntual: ${date.toISOString().slice(0, 10)} (dos registros ese día).`,
+      );
+      if (sample)
+        console.log(
+          `Resultado de ejemplo: ${sample.quote_value} créditos, ${new Date(sample.calculated_at).toISOString()}, ${sample.slot ?? "registro real"}.`,
+        );
     }
     if (sources.length !== eligible.length) {
-      console.log(`Se omitieron ${sources.length - eligible.length} jugadores con otra estrategia para no mezclar cálculos.`);
+      console.log(
+        `Se omitieron ${sources.length - eligible.length} jugadores con otra estrategia para no mezclar cálculos.`,
+      );
     }
     if (!apply || pending.length === 0) {
-      if (pending.length > 0) console.log("Vista previa solamente. Ejecutá con --apply para insertar.");
+      if (pending.length > 0)
+        console.log("Vista previa solamente. Ejecutá con --apply para insertar.");
       return;
     }
 
     await sql.begin(async (tx) => {
       for (const { source, slot } of pending) {
         const baseDate = new Date(source.calculated_at);
-        const calculatedAt = new Date(Date.UTC(
-          baseDate.getUTCFullYear(), baseDate.getUTCMonth(), baseDate.getUTCDate() - slot.daysBefore,
-          slot.hour,
-        ));
+        const calculatedAt = new Date(
+          Date.UTC(
+            baseDate.getUTCFullYear(),
+            baseDate.getUTCMonth(),
+            baseDate.getUTCDate() - slot.daysBefore,
+            slot.hour,
+          ),
+        );
         const score = Math.max(0, Math.min(1, Number(source.final_score) + slot.scoreChange));
         const quoteValue = Math.round((1 + 99 * score) * 100) / 100;
         const explanation = {
           demoFixture: fixture,
           slot: slot.name,
-          aviso: "Valor simulado para probar la interfaz; no corresponde a datos históricos reales.",
+          aviso:
+            "Valor simulado para probar la interfaz; no corresponde a datos históricos reales.",
           cotizacionBase: source.id,
           ajusteDelScore: slot.scoreChange,
           formula: "1 + 99 × score",

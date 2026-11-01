@@ -40,9 +40,7 @@ describe("player routes", () => {
   });
 
   it("rejects catalog requests without authentication", async () => {
-    const response = await getPlayersRoute(
-      new Request("http://localhost/api/players"),
-    );
+    const response = await getPlayersRoute(new Request("http://localhost/api/players"));
 
     expect(response.status).toBe(401);
     expect(getPlayers).not.toHaveBeenCalled();
@@ -78,9 +76,7 @@ describe("player routes", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(getById).toHaveBeenCalledWith(
-      "00000000-0000-4000-8000-000000000001",
-    );
+    expect(getById).toHaveBeenCalledWith("00000000-0000-4000-8000-000000000001");
   });
 
   it("rejects player detail requests without authentication", async () => {

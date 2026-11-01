@@ -1,21 +1,21 @@
-import type {PlayerStatistics} from '@/backend/models/Player';
-import type {League, Position} from '@/backend/models/enums';
+import type { PlayerStatistics } from "@/backend/models/Player";
+import type { League, Position } from "@/backend/models/enums";
 
 export interface CatalogPlayer {
-    id: string;
-    name: string;
-    team: string;
-    league: League;
-    position: Position;
-    statistics: PlayerStatistics;
-    currentQuote?: number;
-    totalTokens?: number;
-    imageUrl?: string;
+  id: string;
+  name: string;
+  team: string;
+  league: League;
+  position: Position;
+  statistics: PlayerStatistics;
+  currentQuote?: number;
+  totalTokens?: number;
+  imageUrl?: string;
 }
 
 export interface PlayerCatalogFilters {
-    name?: string;
-    league: League | '';
-    team: string;
-    position: Position | '';
+  name?: string;
+  league: League | "";
+  team: string;
+  position: Position | "";
 }

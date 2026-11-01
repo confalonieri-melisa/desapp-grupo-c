@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import type { CatalogPlayer, PlayerCatalogFilters } from "@/frontend/features/catalog/player-catalog";
+import type {
+  CatalogPlayer,
+  PlayerCatalogFilters,
+} from "@/frontend/features/catalog/player-catalog";
 import { getPlayers, type PlayerPagination } from "@/frontend/services/client/player.service";
 
 interface UsePlayerCatalogResult {

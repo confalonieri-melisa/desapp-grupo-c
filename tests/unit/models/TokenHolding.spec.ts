@@ -43,19 +43,16 @@ describe("TokenHolding", () => {
     { quantity: 1.5, averagePurchasePrice: 1 },
     { quantity: 1, averagePurchasePrice: -0.5 },
     { quantity: 1, averagePurchasePrice: Number.NaN },
-  ])(
-    "rejects invalid holding values: $quantity / $averagePurchasePrice",
-    (props) => {
-      expect(
-        () =>
-          new TokenHolding({
-            userId: "investor-id",
-            playerId: "player-id",
-            ...props,
-          }),
-      ).toThrow(DomainValidationError);
-    },
-  );
+  ])("rejects invalid holding values: $quantity / $averagePurchasePrice", (props) => {
+    expect(
+      () =>
+        new TokenHolding({
+          userId: "investor-id",
+          playerId: "player-id",
+          ...props,
+        }),
+    ).toThrow(DomainValidationError);
+  });
 
   it("updates the weighted average when buying", () => {
     const holding = new TokenHolding({

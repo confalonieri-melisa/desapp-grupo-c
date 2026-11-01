@@ -47,10 +47,12 @@ export default function PlayerFilters({
             value: league,
             label: formatEnumLabel(league),
           }))}
-          onChange={(value) => onChange({
-            ...filters,
-            league: value as League | "",
-          })}
+          onChange={(value) =>
+            onChange({
+              ...filters,
+              league: value as League | "",
+            })
+          }
         />
         <PlayerFilterSelect
           id="team-filter"
@@ -58,8 +60,8 @@ export default function PlayerFilters({
           icon={<Shield aria-hidden="true" size={18} />}
           value={filters.team}
           placeholder="Todos los equipos"
-          options={teams.map((team) => ({value: team, label: team}))}
-          onChange={(value) => onChange({...filters, team: value})}
+          options={teams.map((team) => ({ value: team, label: team }))}
+          onChange={(value) => onChange({ ...filters, team: value })}
         />
         <PlayerFilterSelect
           id="position-filter"
@@ -71,10 +73,12 @@ export default function PlayerFilters({
             value: position,
             label: formatEnumLabel(position),
           }))}
-          onChange={(value) => onChange({
-            ...filters,
-            position: value as Position | "",
-          })}
+          onChange={(value) =>
+            onChange({
+              ...filters,
+              position: value as Position | "",
+            })
+          }
         />
       </div>
     </section>

@@ -28,20 +28,22 @@ describe("PlayerQuotesController", () => {
     const controller = new PlayerQuotesController({ getQuotes } as never);
 
     await expect(controller.getQuotes("player-1")).resolves.toEqual({
-      items: [{
-        playerId: "player-1",
-        quoteValue: 80.2,
-        unit: "CREDIT_PER_TOKEN",
-        calculatedAt: snapshot.calculatedAt,
-        strategyCode: "INDIVIDUAL_PERFORMANCE",
-        strategyVersion: "1.0.0",
-        score: {
-          individualScore: 0.81,
-          teamScore: 0.74,
-          finalScore: 0.81,
-          components: snapshot.explanation,
+      items: [
+        {
+          playerId: "player-1",
+          quoteValue: 80.2,
+          unit: "CREDIT_PER_TOKEN",
+          calculatedAt: snapshot.calculatedAt,
+          strategyCode: "INDIVIDUAL_PERFORMANCE",
+          strategyVersion: "1.0.0",
+          score: {
+            individualScore: 0.81,
+            teamScore: 0.74,
+            finalScore: 0.81,
+            components: snapshot.explanation,
+          },
         },
-      }],
+      ],
     });
     expect(getQuotes).toHaveBeenCalledWith("player-1", undefined);
   });

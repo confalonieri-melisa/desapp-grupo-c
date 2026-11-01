@@ -19,7 +19,7 @@
 - Q: Si se registra una operación nueva mientras el inversor pulsa «Ver más operaciones», ¿cuándo debe aparecer esa operación nueva? → A: Conservar la lista visible; mostrar operaciones nuevas al volver a abrirla.
 - Q: ¿En qué zona horaria debe mostrarse la fecha y hora de cada operación? → A: Siempre hora de Buenos Aires, indicada en la vista.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Consultar las operaciones propias (Priority: P1)
 
@@ -84,7 +84,7 @@ Como inversor, quiero entender cuándo el historial no pudo cargarse y poder rei
 - Si la sesión vence durante la carga inicial o adicional, se retiran los datos del historial y se aplica el flujo de autenticación existente.
 - La ausencia de operaciones se comunica solo cuando una primera consulta exitosa devuelve cero elementos; un error o una carga pendiente tienen estados propios.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -103,14 +103,14 @@ Como inversor, quiero entender cuándo el historial no pudo cargarse y poder rei
 - **FR-013**: El historial DEBE limitarse a presentación y consulta de operaciones existentes. Quedan excluidos filtros avanzados, exportación, edición, cálculos de PnL y cambios al backend.
 - **FR-014**: La vista DEBE presentar un resumen de cantidad de operaciones, compras y ventas ya cargadas; búsqueda por jugador y filtros básicos por tipo y mes operan solo sobre esa lista. La interfaz DEBE indicar ese alcance y conservar la acción de cargar más aunque el filtro actual no encuentre resultados. Las imágenes de jugadores resueltos DEBEN usar el mapper existente.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Inversor autenticado**: Persona cuya identidad de sesión determina el único historial accesible.
 - **Operación histórica**: Compra o venta completada, identificada de forma única y asociada a un jugador; conserva tipo, cantidad, cotización aplicada, total, unidad y momento de ejecución.
 - **Página de historial**: Conjunto ordenado de operaciones con información de posición y continuidad para mostrar más resultados.
 - **Jugador referenciado**: Jugador asociado a una operación; su perfil puede estar disponible o no al momento de consultar el historial.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

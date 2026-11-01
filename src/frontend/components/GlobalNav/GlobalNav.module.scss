@@ -55,8 +55,12 @@
   white-space: nowrap;
 }
 
-.balanceLabel { color: var(--dusty-violet); }
-.balance strong { font-size: 0.9rem; }
+.balanceLabel {
+  color: var(--dusty-violet);
+}
+.balance strong {
+  font-size: 0.9rem;
+}
 
 .navLink[aria-current="page"] {
   color: var(--watermelon);
@@ -83,7 +87,9 @@
     gap: 1rem;
   }
 
-  .balance { margin-left: 0; }
+  .balance {
+    margin-left: 0;
+  }
 
   .actions {
     width: 100%;

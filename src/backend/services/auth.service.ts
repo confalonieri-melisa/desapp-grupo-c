@@ -1,10 +1,7 @@
 import { User } from "@/backend/models/User";
 import { UserRole } from "@/backend/models/enums";
 import type { UserRepository } from "@/backend/repositories/user.repository";
-import {
-  ConflictError,
-  UnauthorizedError,
-} from "@/backend/errors/http.error";
+import { ConflictError, UnauthorizedError } from "@/backend/errors/http.error";
 import type { LoginInput, RegisterInput } from "@/backend/schemas/auth.schema";
 import { verifyPassword } from "@/backend/utils/password";
 import { issueToken } from "@/backend/utils/jwt";

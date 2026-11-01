@@ -32,16 +32,16 @@ La cotización actual se tomará del primer registro histórico de cada jugador.
 
 ## Constitution Check
 
-*GATE: Revisado antes de investigación y después del diseño.*
+_GATE: Revisado antes de investigación y después del diseño._
 
-| Principio | Evaluación |
-|---|---|
-| I y II: alcance y especificación | Pasa: el plan implementa solo la comparación definida en `spec.md`, sin ampliar el dominio financiero. |
-| III y IV: capas y validación | Pasa: no se modifica backend; las únicas derivaciones son de presentación y se validan en el módulo frontend. |
-| V y IX: verificación y terminado | Pasa: se prevén pruebas unitarias, compilación, lint, escenarios de error, accesibilidad y validación visual. La aprobación formal de la Project Owner sigue siendo requisito de entrega. |
-| VI: seguridad y resiliencia | Pasa: se reutiliza autenticación, se manejan 401, errores parciales, abortado y respuestas tardías. No hay operaciones financieras. |
-| VII y VIII: incrementalidad y simplicidad | Pasa: se reutilizan servicios, hooks, estilos y gráfico existentes; no se añade almacenamiento ni una API nueva. |
-| X: GitFlow | Pasa para el diseño. La implementación deberá realizarse en `feature/014-player-comparison`, creada desde `main`; este plan no crea ni cambia ramas. |
+| Principio                                 | Evaluación                                                                                                                                                                                |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I y II: alcance y especificación          | Pasa: el plan implementa solo la comparación definida en `spec.md`, sin ampliar el dominio financiero.                                                                                    |
+| III y IV: capas y validación              | Pasa: no se modifica backend; las únicas derivaciones son de presentación y se validan en el módulo frontend.                                                                             |
+| V y IX: verificación y terminado          | Pasa: se prevén pruebas unitarias, compilación, lint, escenarios de error, accesibilidad y validación visual. La aprobación formal de la Project Owner sigue siendo requisito de entrega. |
+| VI: seguridad y resiliencia               | Pasa: se reutiliza autenticación, se manejan 401, errores parciales, abortado y respuestas tardías. No hay operaciones financieras.                                                       |
+| VII y VIII: incrementalidad y simplicidad | Pasa: se reutilizan servicios, hooks, estilos y gráfico existentes; no se añade almacenamiento ni una API nueva.                                                                          |
+| X: GitFlow                                | Pasa para el diseño. La implementación deberá realizarse en `feature/014-player-comparison`, creada desde `main`; este plan no crea ni cambia ramas.                                      |
 
 **Gate result**: Pasa sin violaciones ni aclaraciones pendientes.
 
@@ -126,12 +126,11 @@ Consultar [research.md](research.md). Las decisiones de arquitectura, búsqueda,
 
 ## Risks and Mitigations
 
-| Riesgo | Impacto | Mitigación |
-|---|---|---|
-| `currentQuote` del catálogo no representa la cotización vigente | Alto | Usar `getPlayerQuotes` e `items[0]` como fuente de la matriz. |
-| Tres historiales implican cargas independientes | Medio | Estado por jugador, abortado por generación y no bloquear la matriz por fallos parciales. |
-| Contextos de estrategia/versiones distintos | Alto | Mostrar contexto y advertencia; no declarar ganador ni mezclar scores silenciosamente. |
-| Tres columnas en mobile reducen legibilidad | Medio | Desplazamiento horizontal de la matriz, columna de métricas visible y prueba a 320 px. |
-| Gráfico inaccesible para lector de pantalla | Medio | Resumen textual equivalente, leyenda textual y no depender solo del color. |
-| Búsqueda amplia devuelve más de 12 jugadores | Bajo | Mantener el límite del catálogo en v1 y exigir refinar el nombre; no agregar paginación a esta feature. |
-
+| Riesgo                                                          | Impacto | Mitigación                                                                                              |
+| --------------------------------------------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
+| `currentQuote` del catálogo no representa la cotización vigente | Alto    | Usar `getPlayerQuotes` e `items[0]` como fuente de la matriz.                                           |
+| Tres historiales implican cargas independientes                 | Medio   | Estado por jugador, abortado por generación y no bloquear la matriz por fallos parciales.               |
+| Contextos de estrategia/versiones distintos                     | Alto    | Mostrar contexto y advertencia; no declarar ganador ni mezclar scores silenciosamente.                  |
+| Tres columnas en mobile reducen legibilidad                     | Medio   | Desplazamiento horizontal de la matriz, columna de métricas visible y prueba a 320 px.                  |
+| Gráfico inaccesible para lector de pantalla                     | Medio   | Resumen textual equivalente, leyenda textual y no depender solo del color.                              |
+| Búsqueda amplia devuelve más de 12 jugadores                    | Bajo    | Mantener el límite del catálogo en v1 y exigir refinar el nombre; no agregar paginación a esta feature. |

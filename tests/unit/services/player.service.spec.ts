@@ -1,9 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { PlayerService } from "@/backend/services/player.service";
 import { League, Position } from "@/backend/models/enums";
-import type {
-  PlayerRepository,
-} from "@/backend/repositories/player.repository";
+import type { PlayerRepository } from "@/backend/repositories/player.repository";
 import { NotFoundError } from "@/backend/errors/http.error";
 
 describe("PlayerService", () => {
@@ -49,12 +47,12 @@ describe("PlayerService", () => {
   });
 
   it("catalogs players with explicit pagination", async () => {
-    const repository = { findMany: vi.fn().mockResolvedValue({ data: [], total: 25 }) } as unknown as PlayerRepository;
+    const repository = {
+      findMany: vi.fn().mockResolvedValue({ data: [], total: 25 }),
+    } as unknown as PlayerRepository;
     const service = new PlayerService(repository);
 
-    await expect(
-      service.catalog({ page: 2, limit: 10 }),
-    ).resolves.toEqual({
+    await expect(service.catalog({ page: 2, limit: 10 })).resolves.toEqual({
       players: [],
       total: 25,
       page: 2,
@@ -63,16 +61,20 @@ describe("PlayerService", () => {
   });
 
   it("normalizes a name search before querying the paginated repository", async () => {
-    const repository = { findMany: vi.fn().mockResolvedValue({ data: [player], total: 1 }) } as unknown as PlayerRepository;
+    const repository = {
+      findMany: vi.fn().mockResolvedValue({ data: [player], total: 1 }),
+    } as unknown as PlayerRepository;
     await new PlayerService(repository).catalog({ name: "  Mbappé  ", page: 2, limit: 12 });
-    expect(repository.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "Mbappé" }),
-      { page: 2, limit: 12 },
-    );
+    expect(repository.findMany).toHaveBeenCalledWith(expect.objectContaining({ name: "Mbappé" }), {
+      page: 2,
+      limit: 12,
+    });
   });
 
   it("returns a player by id", async () => {
-    const repository = { findById: vi.fn().mockResolvedValue(player) } as unknown as PlayerRepository;
+    const repository = {
+      findById: vi.fn().mockResolvedValue(player),
+    } as unknown as PlayerRepository;
     const service = new PlayerService(repository);
 
     await expect(service.getById(player.id)).resolves.toBe(player);

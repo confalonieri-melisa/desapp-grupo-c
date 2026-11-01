@@ -1,14 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import QuoteTrend, { buildQuoteTrend } from "@/frontend/features/profile/components/QuoteTrend/QuoteTrend";
+import QuoteTrend, {
+  buildQuoteTrend,
+} from "@/frontend/features/profile/components/QuoteTrend/QuoteTrend";
 import type { PlayerQuoteDto } from "@/frontend/services/client/player-quotes.service";
 
 const quote = (value: number, date: string): PlayerQuoteDto => ({
-  playerId: "player-a", quoteValue: value, unit: "CREDIT_PER_TOKEN",
-  calculatedAt: date, strategyCode: "TEST", strategyVersion: "1",
+  playerId: "player-a",
+  quoteValue: value,
+  unit: "CREDIT_PER_TOKEN",
+  calculatedAt: date,
+  strategyCode: "TEST",
+  strategyVersion: "1",
 });
-const render = (items: PlayerQuoteDto[]) => renderToStaticMarkup(createElement(QuoteTrend, { items, playerName: "Jugador A" }));
+const render = (items: PlayerQuoteDto[]) =>
+  renderToStaticMarkup(createElement(QuoteTrend, { items, playerName: "Jugador A" }));
 
 describe("player quote trend", () => {
   it("orders real quotes chronologically and shows an increase", () => {
@@ -25,9 +32,13 @@ describe("player quote trend", () => {
   });
 
   it("shows a decline and a flat trend without inventing points", () => {
-    expect(render([quote(20, "2026-10-01T12:00:00.000Z"), quote(15, "2026-10-02T12:00:00.000Z")]))
-      .not.toContain("Bajó 5,0000 créditos por token");
-    const flat = render([quote(10, "2026-10-01T12:00:00.000Z"), quote(10, "2026-10-02T12:00:00.000Z")]);
+    expect(
+      render([quote(20, "2026-10-01T12:00:00.000Z"), quote(15, "2026-10-02T12:00:00.000Z")]),
+    ).not.toContain("Bajó 5,0000 créditos por token");
+    const flat = render([
+      quote(10, "2026-10-01T12:00:00.000Z"),
+      quote(10, "2026-10-02T12:00:00.000Z"),
+    ]);
     expect(flat).toContain("Sin cambios");
   });
 
@@ -43,7 +54,9 @@ describe("player quote trend", () => {
   });
 
   it("shows only the 15 most recent quotes and tells the user when older ones are hidden", () => {
-    const quotes = Array.from({ length: 17 }, (_, index) => quote(index, `2026-10-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`)).reverse();
+    const quotes = Array.from({ length: 17 }, (_, index) =>
+      quote(index, `2026-10-${String(index + 1).padStart(2, "0")}T12:00:00.000Z`),
+    ).reverse();
     const data = buildQuoteTrend(quotes);
     expect(data).toHaveLength(15);
     expect(data[0].value).toBe(2);
@@ -55,7 +68,10 @@ describe("player quote trend", () => {
   });
 
   it("rounds displayed amounts to four decimal places", () => {
-    const html = render([quote(26.567891, "2026-10-01T12:00:00.000Z"), quote(27.691347, "2026-10-02T12:00:00.000Z")]);
+    const html = render([
+      quote(26.567891, "2026-10-01T12:00:00.000Z"),
+      quote(27.691347, "2026-10-02T12:00:00.000Z"),
+    ]);
     expect(html).toContain("26,5679 créditos por token");
     expect(html).toContain("27,6913 créditos por token");
     expect(html).not.toContain("Subió 1,1235 créditos por token");

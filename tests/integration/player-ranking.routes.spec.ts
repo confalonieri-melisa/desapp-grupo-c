@@ -6,7 +6,9 @@ const getRanking = vi.hoisted(() => vi.fn());
 
 vi.mock("@/backend/middlewares/auth.middleware", () => ({ requireAuth }));
 vi.mock("@/backend/controllers/player-ranking.controller", () => ({
-  PlayerRankingController: class { getRanking = getRanking; },
+  PlayerRankingController: class {
+    getRanking = getRanking;
+  },
 }));
 vi.mock("@/backend/services/player-ranking.service", () => ({
   PlayerRankingService: class {},
@@ -27,7 +29,9 @@ describe("player ranking route", () => {
   });
 
   it("requires authentication", async () => {
-    requireAuth.mockImplementation(() => { throw new UnauthorizedError(); });
+    requireAuth.mockImplementation(() => {
+      throw new UnauthorizedError();
+    });
 
     const response = await GET(new Request("http://localhost/api/players/ranking"));
 
@@ -36,10 +40,11 @@ describe("player ranking route", () => {
   });
 
   it("authenticates and delegates query parameters", async () => {
-    const response = await GET(new Request(
-      "http://localhost/api/players/ranking?league=PREMIER_LEAGUE&page=2&limit=10",
-      { headers: { authorization: "Bearer token" } },
-    ));
+    const response = await GET(
+      new Request("http://localhost/api/players/ranking?league=PREMIER_LEAGUE&page=2&limit=10", {
+        headers: { authorization: "Bearer token" },
+      }),
+    );
 
     expect(response.status).toBe(200);
     expect(getRanking).toHaveBeenCalledWith({
@@ -52,10 +57,11 @@ describe("player ranking route", () => {
   it("propagates the missing active strategy conflict", async () => {
     getRanking.mockRejectedValueOnce(new ConflictError("No active valuation strategy"));
 
-    const response = await GET(new Request(
-      "http://localhost/api/players/ranking",
-      { headers: { authorization: "Bearer token" } },
-    ));
+    const response = await GET(
+      new Request("http://localhost/api/players/ranking", {
+        headers: { authorization: "Bearer token" },
+      }),
+    );
 
     expect(response.status).toBe(409);
   });

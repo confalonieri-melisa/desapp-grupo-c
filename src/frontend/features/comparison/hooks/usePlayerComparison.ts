@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import type { CatalogPlayer } from '@/frontend/features/catalog/player-catalog';
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { CatalogPlayer } from "@/frontend/features/catalog/player-catalog";
+import { getPlayers, type PlayerHttpError } from "@/frontend/services/client/player.service";
+import { getPlayerQuotes } from "@/frontend/services/client/player-quotes.service";
 import {
-  getPlayers,
-  type PlayerHttpError,
-} from '@/frontend/services/client/player.service';
-import { getPlayerQuotes } from '@/frontend/services/client/player-quotes.service';
-import { readLastComparison, saveLastComparison } from '@/frontend/features/comparison/comparison-storage';
+  readLastComparison,
+  saveLastComparison,
+} from "@/frontend/features/comparison/comparison-storage";
 import {
   addSelectedPlayer,
   emptyQuoteChannel,
@@ -14,12 +14,12 @@ import {
   type ComparisonPlayer,
   type QuoteChannel,
   type SearchState,
-} from '@/frontend/features/comparison/comparison';
+} from "@/frontend/features/comparison/comparison";
 
 const SEARCH_LIMIT = 12;
 const initialSearch: SearchState = {
-  phase: 'idle',
-  query: '',
+  phase: "idle",
+  query: "",
   results: [],
   error: null,
 };
@@ -54,12 +54,12 @@ export function usePlayerComparison(
       }
 
       const controller = new AbortController();
-      setSearch({ phase: 'loading', query, results: [], error: null });
+      setSearch({ phase: "loading", query, results: [], error: null });
 
       try {
         const response = await getPlayers(
           token,
-          { name: query, league: '', team: '', position: '' },
+          { name: query, league: "", team: "", position: "" },
           1,
           controller.signal,
         );
@@ -67,7 +67,7 @@ export function usePlayerComparison(
         if (generation !== searchGeneration.current) return;
 
         setSearch({
-          phase: response.data.length ? 'content' : 'empty',
+          phase: response.data.length ? "content" : "empty",
           query,
           results: response.data.slice(0, SEARCH_LIMIT),
           error: null,
@@ -84,13 +84,10 @@ export function usePlayerComparison(
         }
 
         setSearch({
-          phase: 'error',
+          phase: "error",
           query,
           results: [],
-          error:
-            error instanceof Error
-              ? error.message
-              : 'No se pudieron buscar jugadores',
+          error: error instanceof Error ? error.message : "No se pudieron buscar jugadores",
         });
       }
     },
@@ -109,24 +106,19 @@ export function usePlayerComparison(
         ...current,
         [player.id]: {
           ...emptyQuoteChannel(generation),
-          phase: 'loading',
+          phase: "loading",
         },
       }));
 
       try {
-        const response = await getPlayerQuotes(
-          token,
-          player.id,
-          undefined,
-          controller.signal,
-        );
+        const response = await getPlayerQuotes(token, player.id, undefined, controller.signal);
 
         if (historyGenerations.current[player.id] !== generation) return;
 
         setHistories((current) => ({
           ...current,
           [player.id]: {
-            phase: response.items.length ? 'success' : 'empty',
+            phase: response.items.length ? "success" : "empty",
             items: response.items,
             error: null,
             generation,
@@ -145,11 +137,9 @@ export function usePlayerComparison(
           ...current,
           [player.id]: {
             ...emptyQuoteChannel(generation),
-            phase: 'error',
+            phase: "error",
             error:
-              error instanceof Error
-                ? error.message
-                : 'No se pudieron cargar las cotizaciones',
+              error instanceof Error ? error.message : "No se pudieron cargar las cotizaciones",
           },
         }));
       }
@@ -206,8 +196,7 @@ export function usePlayerComparison(
   );
 
   const removePlayer = useCallback((playerId: string) => {
-    historyGenerations.current[playerId] =
-      (historyGenerations.current[playerId] ?? 0) + 1;
+    historyGenerations.current[playerId] = (historyGenerations.current[playerId] ?? 0) + 1;
     setSelected((current) => removeSelectedPlayer(current, playerId));
     setHistories((current) => {
       const next = { ...current };

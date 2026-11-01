@@ -1,5 +1,8 @@
 import { ConflictError } from "@/backend/errors/http.error";
-import { FinancialAuditRecord, type FinancialStateSnapshot } from "@/backend/models/FinancialAuditRecord";
+import {
+  FinancialAuditRecord,
+  type FinancialStateSnapshot,
+} from "@/backend/models/FinancialAuditRecord";
 import { MarketOperation, type MarketOperationType } from "@/backend/models/MarketOperation";
 import { TokenHolding } from "@/backend/models/TokenHolding";
 import { User } from "@/backend/models/User";
@@ -57,7 +60,12 @@ export class MarketTrade {
   sell(request: MarketTradeRequest, state: MarketTradeState): MarketTradeOutcome {
     this.ensureInvestorCanTrade(state);
     const operation = this.createOperation(request, state);
-    const previousState = financialStateOf(state.investor, state.investorHolding, state.pool, state.poolHolding);
+    const previousState = financialStateOf(
+      state.investor,
+      state.investorHolding,
+      state.pool,
+      state.poolHolding,
+    );
     const updatedPositions = this.investorSellsToPool(request, state, operation.total);
     return this.completeTrade(request, state, operation, previousState, updatedPositions);
   }
@@ -69,7 +77,12 @@ export class MarketTrade {
     previousState: FinancialStateSnapshot,
     updatedPositions: UpdatedPositions,
   ): MarketTradeOutcome {
-    const newState = financialStateOf(state.investor, updatedPositions.investorHolding, state.pool, updatedPositions.poolHolding);
+    const newState = financialStateOf(
+      state.investor,
+      updatedPositions.investorHolding,
+      state.pool,
+      updatedPositions.poolHolding,
+    );
     const audit = this.createAudit(request, operation, previousState, newState);
 
     return {
@@ -114,7 +127,11 @@ export class MarketTrade {
     }
   }
 
-  private investorBuysFromPool(request: MarketTradeRequest, state: MarketTradeState, total: number): UpdatedPositions {
+  private investorBuysFromPool(
+    request: MarketTradeRequest,
+    state: MarketTradeState,
+    total: number,
+  ): UpdatedPositions {
     this.ensureBuyCanProceed(request, state, total);
 
     state.investor.debit(total);
@@ -125,7 +142,11 @@ export class MarketTrade {
     };
   }
 
-  private ensureBuyCanProceed(request: MarketTradeRequest, state: MarketTradeState, total: number): void {
+  private ensureBuyCanProceed(
+    request: MarketTradeRequest,
+    state: MarketTradeState,
+    total: number,
+  ): void {
     if (state.poolHolding.quantity < request.quantity) {
       throw new ConflictError("Insufficient tokens in central pool");
     }
@@ -134,7 +155,11 @@ export class MarketTrade {
     }
   }
 
-  private investorSellsToPool(request: MarketTradeRequest, state: MarketTradeState, total: number): UpdatedPositions {
+  private investorSellsToPool(
+    request: MarketTradeRequest,
+    state: MarketTradeState,
+    total: number,
+  ): UpdatedPositions {
     this.ensureSellCanProceed(request, state, total);
 
     state.investor.credit(total);
@@ -145,7 +170,11 @@ export class MarketTrade {
     };
   }
 
-  private ensureSellCanProceed(request: MarketTradeRequest, state: MarketTradeState, total: number): void {
+  private ensureSellCanProceed(
+    request: MarketTradeRequest,
+    state: MarketTradeState,
+    total: number,
+  ): void {
     if (!state.investorHoldingExists || state.investorHolding.quantity < request.quantity) {
       throw new ConflictError("Insufficient token holding");
     }

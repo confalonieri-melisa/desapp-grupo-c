@@ -1,21 +1,21 @@
-import type { CatalogPlayer } from '@/frontend/features/catalog/player-catalog';
-import type { PlayerQuoteDto } from '@/frontend/services/client/player-quotes.service';
+import type { CatalogPlayer } from "@/frontend/features/catalog/player-catalog";
+import type { PlayerQuoteDto } from "@/frontend/services/client/player-quotes.service";
 
 export const MAX_COMPARISON_PLAYERS = 3;
 export const MAX_COMPARISON_QUOTES = 15;
 
 export const COMPARISON_ROWS = [
-  'currentQuote',
-  'variation',
-  'individualScore',
-  'teamScore',
-  'finalScore',
+  "currentQuote",
+  "variation",
+  "individualScore",
+  "teamScore",
+  "finalScore",
 ] as const;
 
 export type ComparisonRowKey = (typeof COMPARISON_ROWS)[number];
 
 export interface QuoteChannel {
-  phase: 'idle' | 'loading' | 'success' | 'empty' | 'error';
+  phase: "idle" | "loading" | "success" | "empty" | "error";
   items: PlayerQuoteDto[];
   error: string | null;
   generation: number;
@@ -26,7 +26,7 @@ export interface ComparisonPlayer extends CatalogPlayer {
 }
 
 export interface SearchState {
-  phase: 'idle' | 'loading' | 'content' | 'empty' | 'error';
+  phase: "idle" | "loading" | "content" | "empty" | "error";
   query: string;
   results: CatalogPlayer[];
   error: string | null;
@@ -48,11 +48,11 @@ export interface QuoteSeries {
   playerId: string;
   playerName: string;
   points: QuotePoint[];
-  phase: 'insufficient' | 'ready';
+  phase: "insufficient" | "ready";
 }
 
 export const emptyQuoteChannel = (generation = 0): QuoteChannel => ({
-  phase: 'idle',
+  phase: "idle",
   items: [],
   error: null,
   generation,
@@ -78,15 +78,11 @@ export function removeSelectedPlayer(
   return selected.filter((player) => player.id !== playerId);
 }
 
-export function getCurrentQuote(
-  items: readonly PlayerQuoteDto[],
-): PlayerQuoteDto | null {
+export function getCurrentQuote(items: readonly PlayerQuoteDto[]): PlayerQuoteDto | null {
   return items[0] ?? null;
 }
 
-export function calculateQuoteVariation(
-  items: readonly PlayerQuoteDto[],
-): number | null {
+export function calculateQuoteVariation(items: readonly PlayerQuoteDto[]): number | null {
   const current = items[0]?.quoteValue;
   const previous = items[1]?.quoteValue;
 
@@ -97,42 +93,35 @@ export function calculateQuoteVariation(
   return ((current - previous) / previous) * 100;
 }
 
-export function buildComparisonRows(
-  players: readonly ComparisonPlayer[],
-): ComparisonRow[] {
+export function buildComparisonRows(players: readonly ComparisonPlayer[]): ComparisonRow[] {
   return [
     {
-      key: 'currentQuote',
-      label: 'Cotización actual',
+      key: "currentQuote",
+      label: "Cotización actual",
+      values: players.map((player) => getCurrentQuote(player.history.items)?.quoteValue ?? null),
+    },
+    {
+      key: "variation",
+      label: "Variación desde la última cotización",
+      values: players.map((player) => calculateQuoteVariation(player.history.items)),
+    },
+    {
+      key: "individualScore",
+      label: "Score individual",
       values: players.map(
-        (player) => getCurrentQuote(player.history.items)?.quoteValue ?? null,
+        (player) => getCurrentQuote(player.history.items)?.score?.individualScore ?? null,
       ),
     },
     {
-      key: 'variation',
-      label: 'Variación desde la última cotización',
-      values: players.map((player) =>
-        calculateQuoteVariation(player.history.items),
-      ),
-    },
-    {
-      key: 'individualScore',
-      label: 'Score individual',
-      values: players.map(
-        (player) =>
-          getCurrentQuote(player.history.items)?.score?.individualScore ?? null,
-      ),
-    },
-    {
-      key: 'teamScore',
-      label: 'Score colectivo',
+      key: "teamScore",
+      label: "Score colectivo",
       values: players.map(
         (player) => getCurrentQuote(player.history.items)?.score?.teamScore ?? null,
       ),
     },
     {
-      key: 'finalScore',
-      label: 'Score final',
+      key: "finalScore",
+      label: "Score final",
       values: players.map(
         (player) => getCurrentQuote(player.history.items)?.score?.finalScore ?? null,
       ),
@@ -154,7 +143,7 @@ export function buildQuoteSeries(player: ComparisonPlayer): QuoteSeries {
     playerId: player.id,
     playerName: player.name,
     points,
-    phase: points.length >= 2 ? 'ready' : 'insufficient',
+    phase: points.length >= 2 ? "ready" : "insufficient",
   };
 }
 
@@ -163,29 +152,29 @@ export function formatComparisonValue(
   key: ComparisonRowKey,
 ): string {
   if (value === null || value === undefined) {
-    return 'No disponible';
+    return "No disponible";
   }
 
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     return value;
   }
 
-  if (key === 'variation') {
-    const sign = value > 0 ? '+' : '';
-    const formatted = new Intl.NumberFormat('es-AR', {
+  if (key === "variation") {
+    const sign = value > 0 ? "+" : "";
+    const formatted = new Intl.NumberFormat("es-AR", {
       maximumFractionDigits: 2,
     }).format(value);
 
     return `${sign}${formatted}%`;
   }
 
-  if (key === 'individualScore' || key === 'teamScore' || key === 'finalScore') {
-    return new Intl.NumberFormat('es-AR', {
+  if (key === "individualScore" || key === "teamScore" || key === "finalScore") {
+    return new Intl.NumberFormat("es-AR", {
       maximumFractionDigits: 1,
     }).format(value * 100);
   }
 
-  return new Intl.NumberFormat('es-AR', {
+  return new Intl.NumberFormat("es-AR", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 4,
   }).format(value);

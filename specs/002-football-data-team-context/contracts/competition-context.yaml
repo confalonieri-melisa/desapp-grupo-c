@@ -16,23 +16,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CollectiveSyncRequest'
+              $ref: "#/components/schemas/CollectiveSyncRequest"
       responses:
-        '200':
+        "200":
           description: Sincronización válida publicada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CollectiveSyncResponse'
-        '400':
+                $ref: "#/components/schemas/CollectiveSyncResponse"
+        "400":
           description: Temporada inválida
-        '401':
+        "401":
           description: Token ausente o inválido
-        '403':
+        "403":
           description: El usuario no es superusuario
-        '429':
+        "429":
           description: Límite del proveedor
-        '502':
+        "502":
           description: Proveedor no disponible o respuesta inválida
 components:
   securitySchemes:

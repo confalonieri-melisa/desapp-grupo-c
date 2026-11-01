@@ -20,10 +20,14 @@ const standingRowSchema = z.object({
 export const footballDataPayloadSchema = z.object({
   competition: z.object({ name: z.string().optional() }).optional(),
   season: z.object({ startDate: z.string().optional() }).optional(),
-  standings: z.array(z.object({
-    type: z.string().optional(),
-    table: z.array(standingRowSchema).min(1),
-  })).min(1),
+  standings: z
+    .array(
+      z.object({
+        type: z.string().optional(),
+        table: z.array(standingRowSchema).min(1),
+      }),
+    )
+    .min(1),
 });
 
 export function normalizeStandings(

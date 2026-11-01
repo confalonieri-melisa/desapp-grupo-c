@@ -4,11 +4,11 @@ Modelos de transporte y de estado de interfaz. No se crean tablas ni se alteran 
 
 ## Identidad del contexto
 
-| Dato | Origen | Uso |
-|---|---|---|
-| `player.id`, nombre visible | Perfil confirmado de `GET /api/players/{id}` | Filtrar posición y etiquetar confirmación/comprobante. |
-| `token` | `AuthContext` | Bearer en todas las llamadas; identidad de sesión para invalidar respuestas tardías. |
-| `user.role` | `AuthContext` | Mostrar controles solo a INVESTOR; el backend decide autorización final. |
+| Dato                        | Origen                                       | Uso                                                                                  |
+| --------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `player.id`, nombre visible | Perfil confirmado de `GET /api/players/{id}` | Filtrar posición y etiquetar confirmación/comprobante.                               |
+| `token`                     | `AuthContext`                                | Bearer en todas las llamadas; identidad de sesión para invalidar respuestas tardías. |
+| `user.role`                 | `AuthContext`                                | Mostrar controles solo a INVESTOR; el backend decide autorización final.             |
 
 No hay entrada ni selección de `userId`. Los `userId` recibidos en la respuesta de orden no se usan para determinar la identidad de pantalla.
 
@@ -36,19 +36,19 @@ El comprobante usa `operation.type`, `quantity`, `quoteValue` y `total` del 201.
 
 ## Estado de interfaz
 
-| Estado | Campos / significado | Transiciones |
-|---|---|---|
-| `portfolio.idle/loading` | Sin cifras actuales; indica carga | `success`, `empty` o `error` tras GET. |
-| `portfolio.success` | Snapshot vigente; puede tener posición del jugador o solo otras posiciones | `refreshing` por reintento o tras 201. |
-| `portfolio.empty` | `items=[]` con saldo vigente | `refreshing` por reintento o tras 201. |
-| `portfolio.error` | Error y acción de reintento; cotización independiente permanece visible | `loading/refreshing` por reintento. |
-| `portfolio.refreshing` | GET posterior a orden o reintento; cifras previas no se presentan como actuales | `success`, `empty` o `error`. |
-| `draft` | Tipo BUY/SELL y cantidad como texto; validación inline | `confirming` si es válida y hay cotización, saldo/tenencia conocidos. |
-| `confirming` | Snapshot de jugador, tipo, cantidad, cotización y total orientativo | Cancelar vuelve a `draft` sin POST; confirmar pasa a `submitting`. |
-| `submitting` | Candado sincrónico y progreso; una sola solicitud POST | 201 a `succeeded` y `refreshing`; rechazo explícito a `rejected`; fallo no confirmado a `uncertain`. |
-| `succeeded` | Comprobante 201 inmutable y etiquetado con el jugador | Se conserva durante el refresco, incluso si éste falla. |
-| `rejected` | Motivo conocido o rechazo genérico; cantidad preservada | Corrección de entrada y/o refresco antes de otro intento. |
-| `uncertain` | Ejecución desconocida; ofrece consultar portfolio | Refresco aporta datos vigentes, sin inferir ejecución de la orden. |
+| Estado                   | Campos / significado                                                            | Transiciones                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `portfolio.idle/loading` | Sin cifras actuales; indica carga                                               | `success`, `empty` o `error` tras GET.                                                               |
+| `portfolio.success`      | Snapshot vigente; puede tener posición del jugador o solo otras posiciones      | `refreshing` por reintento o tras 201.                                                               |
+| `portfolio.empty`        | `items=[]` con saldo vigente                                                    | `refreshing` por reintento o tras 201.                                                               |
+| `portfolio.error`        | Error y acción de reintento; cotización independiente permanece visible         | `loading/refreshing` por reintento.                                                                  |
+| `portfolio.refreshing`   | GET posterior a orden o reintento; cifras previas no se presentan como actuales | `success`, `empty` o `error`.                                                                        |
+| `draft`                  | Tipo BUY/SELL y cantidad como texto; validación inline                          | `confirming` si es válida y hay cotización, saldo/tenencia conocidos.                                |
+| `confirming`             | Snapshot de jugador, tipo, cantidad, cotización y total orientativo             | Cancelar vuelve a `draft` sin POST; confirmar pasa a `submitting`.                                   |
+| `submitting`             | Candado sincrónico y progreso; una sola solicitud POST                          | 201 a `succeeded` y `refreshing`; rechazo explícito a `rejected`; fallo no confirmado a `uncertain`. |
+| `succeeded`              | Comprobante 201 inmutable y etiquetado con el jugador                           | Se conserva durante el refresco, incluso si éste falla.                                              |
+| `rejected`               | Motivo conocido o rechazo genérico; cantidad preservada                         | Corrección de entrada y/o refresco antes de otro intento.                                            |
+| `uncertain`              | Ejecución desconocida; ofrece consultar portfolio                               | Refresco aporta datos vigentes, sin inferir ejecución de la orden.                                   |
 
 ## Reglas de validación y vigencia
 

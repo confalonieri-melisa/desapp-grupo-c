@@ -2,11 +2,13 @@ import { z } from "zod";
 import { League, Position } from "@/backend/models/enums";
 import { PLAYER_STATISTIC_KEYS } from "@/backend/models/player-statistics";
 
-const playerStatisticsSchema = z.object(
-  Object.fromEntries(
-    PLAYER_STATISTIC_KEYS.map((metric) => [metric, z.number().nonnegative().optional()]),
-  ) as Record<(typeof PLAYER_STATISTIC_KEYS)[number], z.ZodOptional<z.ZodNumber>>,
-).partial();
+const playerStatisticsSchema = z
+  .object(
+    Object.fromEntries(
+      PLAYER_STATISTIC_KEYS.map((metric) => [metric, z.number().nonnegative().optional()]),
+    ) as Record<(typeof PLAYER_STATISTIC_KEYS)[number], z.ZodOptional<z.ZodNumber>>,
+  )
+  .partial();
 
 /** HTTP input for creating or importing a player. */
 export const playerSchema = z.object({
@@ -21,11 +23,7 @@ export type PlayerDto = z.infer<typeof playerSchema>;
 
 export const playerFiltersSchema = z.object({
   league: z.enum(League).optional(),
-  team: z
-    .string()
-    .trim()
-    .min(1)
-    .optional(),
+  team: z.string().trim().min(1).optional(),
   position: z.enum(Position).optional(),
 });
 

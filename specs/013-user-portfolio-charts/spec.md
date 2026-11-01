@@ -21,7 +21,7 @@
 - Q: ¿En qué sector del perfil debe estar la curva? → A: En la tarjeta donde estaba «Información del jugador», junto a «Rendimiento», con ancho compacto; retirarla del bloque ancho de Cotizaciones.
 - Q: ¿Cómo debe presentarse la curva? → A: Línea rosa con puntos en cada cotización y sombreado bajo la curva; variación redondeada a cuatro decimales. Quitar las leyendas visibles de fecha y valor; conservar fechas y valores iniciales y finales en la descripción accesible del gráfico.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Consultar mi cartera actual (Priority: P1)
 
@@ -104,7 +104,7 @@ Como inversor, quiero que mi página se actualice después de operar y que mis d
 - Un fallo en la primera carga no muestra cifras; un fallo al actualizar conserva solo las cifras anteriores de la misma sesión, señaladas como desactualizadas.
 - En móvil, nombres e importes siguen legibles sin exigir interacción precisa con las barras.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -123,14 +123,14 @@ Como inversor, quiero que mi página se actualice después de operar y que mis d
 - **FR-012**: Al cerrar, vencer o cambiar la sesión, la página DEBE retirar datos protegidos e ignorar respuestas pendientes de otra sesión.
 - **FR-013**: La página DEBE ser de solo lectura. Quedan fuera las operaciones desde esta vista, la evolución histórica del patrimonio, las ganancias realizadas, las recomendaciones y la exportación.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Portfolio del inversor**: estado actual de la cartera de la persona autenticada, con saldo y posiciones.
 - **Posición**: tokens poseídos de un jugador, precio promedio de compra, cotización actual y, si están disponibles, valor y resultado no realizado.
 - **Jugador**: identidad asociada a una posición, expresada por nombre o identificador.
 - **Resumen de cartera**: agregados actuales con estado completo, parcial o no disponible.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

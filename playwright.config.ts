@@ -13,7 +13,10 @@ if (!/e2e/i.test(databaseName)) {
 
 const baseURL = "http://localhost:3100";
 const browserChannel = process.env.E2E_BROWSER_CHANNEL;
-const browserUse = { ...devices["Desktop Chrome"], ...(browserChannel ? { channel: browserChannel } : {}) };
+const browserUse = {
+  ...devices["Desktop Chrome"],
+  ...(browserChannel ? { channel: browserChannel } : {}),
+};
 
 export default defineConfig({
   testDir: "./tests/e2e",

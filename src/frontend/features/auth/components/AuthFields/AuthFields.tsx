@@ -1,9 +1,9 @@
-import FormInput from '@/frontend/features/auth/components/FormInput/FormInput';
-import styles from './AuthFields.module.scss';
+import FormInput from "@/frontend/features/auth/components/FormInput/FormInput";
+import styles from "./AuthFields.module.scss";
 
 interface AuthField<T extends object> {
   id: Extract<keyof T, string>;
-  type?: 'text' | 'email' | 'password';
+  type?: "text" | "email" | "password";
   label: string;
   value: string;
   error?: string;

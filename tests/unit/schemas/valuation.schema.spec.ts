@@ -11,18 +11,20 @@ describe("valuation schemas", () => {
     expect(valuationConfigSchema.parse(buildValuationConfig("INDIVIDUAL_PERFORMANCE"))).toEqual(
       expect.objectContaining({ individualShare: 1, teamShare: 0 }),
     );
-    expect(valuationConfigSchema.parse(buildValuationConfig("INDIVIDUAL_PLUS_TEAM_CONTEXT"))).toEqual(
-      expect.objectContaining({ individualShare: 0.75, teamShare: 0.25 }),
-    );
+    expect(
+      valuationConfigSchema.parse(buildValuationConfig("INDIVIDUAL_PLUS_TEAM_CONTEXT")),
+    ).toEqual(expect.objectContaining({ individualShare: 0.75, teamShare: 0.25 }));
   });
 
   it("rejects invalid strategy configurations", () => {
     const config = buildValuationConfig("INDIVIDUAL_PERFORMANCE");
     expect(() => valuationConfigSchema.parse({ ...config, teamShare: 0.2 })).toThrow();
-    expect(() => valuationConfigSchema.parse({
-      ...config,
-      individualMetrics: [{ ...config.individualMetrics[0], maximum: -1 }],
-    })).toThrow();
+    expect(() =>
+      valuationConfigSchema.parse({
+        ...config,
+        individualMetrics: [{ ...config.individualMetrics[0], maximum: -1 }],
+      }),
+    ).toThrow();
     expect(() => valuationStrategyCodeSchema.parse("UNKNOWN_STRATEGY")).toThrow();
   });
 

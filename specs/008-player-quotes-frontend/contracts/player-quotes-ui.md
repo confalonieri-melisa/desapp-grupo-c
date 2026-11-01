@@ -6,17 +6,17 @@ Normativo: [004](../../004-player-quote-queries/spec.md). Tipos: [data-model.md]
 
 `getPlayerQuotes(token, playerId, date?, signal?)` devuelve Promise de PlayerQuotesResponse. GET `/api/players/${encodeURIComponent(playerId)}/quotes`, Authorization Bearer y AbortSignal. Sin date omitir query; con fecha usar URLSearchParams y conservar string calendario exacto. Sin escrituras ni requests de detalle.
 
-| Respuesta existente | Tratamiento |
-|---|---|
-| Sin date, 200 items | Historial completo en secuencia recibida; actual = primer elemento |
-| Sin date, 200 items vacío | «No hay cotización disponible» y «No existen cotizaciones históricas» |
-| Con date, 200 con un item | Resultado puntual independiente |
+| Respuesta existente                                     | Tratamiento                                                                         |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Sin date, 200 items                                     | Historial completo en secuencia recibida; actual = primer elemento                  |
+| Sin date, 200 items vacío                               | «No hay cotización disponible» y «No existen cotizaciones históricas»               |
+| Con date, 200 con un item                               | Resultado puntual independiente                                                     |
 | 404, error `Quote not available for the requested date` | Solo en puntual con perfil confirmado: «No hay cotización disponible hasta [fecha]» |
-| 404, error `Player not found` | Retirar cotizaciones; jugador no encontrado y enlace al catálogo |
-| 400, error `Invalid player id` | Jugador solicitado inválido; sin residuos y enlace al catálogo |
-| 400, error `Invalid date` | Error asociado al input; sin éxito aparente |
-| 401 | Si vigente: retirar datos, logout y router.replace('/login') |
-| Red, 5xx, error no reconocido | Error recuperable y reintento; nunca ausencia |
+| 404, error `Player not found`                           | Retirar cotizaciones; jugador no encontrado y enlace al catálogo                    |
+| 400, error `Invalid player id`                          | Jugador solicitado inválido; sin residuos y enlace al catálogo                      |
+| 400, error `Invalid date`                               | Error asociado al input; sin éxito aparente                                         |
+| 401                                                     | Si vigente: retirar datos, logout y router.replace('/login')                        |
+| Red, 5xx, error no reconocido                           | Error recuperable y reintento; nunca ausencia                                       |
 
 El cuerpo de error actual es `{ error: string }`. Conservar status y mensaje; usar contexto de perfil confirmado y mensaje para distinguir 404. No clasificar todo 404 como ausencia. El cliente de perfil también conserva status; Error sigue siendo compatible con consumidores actuales. Sin nuevos códigos backend ni exposición de tokens.
 
@@ -40,12 +40,12 @@ Timestamp UTC conserva segundos y fracción recibida; input calendario no se con
 
 ## Trazabilidad
 
-| Requisitos | Evidencia prevista |
-|---|---|
-| FR-001, 002, 017 | Navegación/roles/sesión y regresión del perfil |
-| FR-003–006 | Hook con orden/empates/vacío, comparación de todas las filas |
-| FR-007–011 | Calendario, cliente, hook; fecha exacta/anterior/futura/limpieza |
-| FR-012, 013 | Cero/null, JSON anidado y detalles en tres superficies |
-| FR-014–016 | Promesas diferidas, éxitos/errores/401/finally tardíos, reintentos |
-| FR-018, 019 | Navegador: teclado, anuncios, foco, 360/1280 px |
-| FR-020 | Red solo GET y regresión existente de 004 |
+| Requisitos       | Evidencia prevista                                                 |
+| ---------------- | ------------------------------------------------------------------ |
+| FR-001, 002, 017 | Navegación/roles/sesión y regresión del perfil                     |
+| FR-003–006       | Hook con orden/empates/vacío, comparación de todas las filas       |
+| FR-007–011       | Calendario, cliente, hook; fecha exacta/anterior/futura/limpieza   |
+| FR-012, 013      | Cero/null, JSON anidado y detalles en tres superficies             |
+| FR-014–016       | Promesas diferidas, éxitos/errores/401/finally tardíos, reintentos |
+| FR-018, 019      | Navegador: teclado, anuncios, foco, 360/1280 px                    |
+| FR-020           | Red solo GET y regresión existente de 004                          |

@@ -10,10 +10,7 @@ const controller = new AuthController(new AuthService(new UserRepository()));
 export async function POST(request: Request): Promise<Response> {
   try {
     const input = validate(registerSchema, await request.json());
-    return Response.json(
-      await controller.register(input),
-      { status: 201 },
-    );
+    return Response.json(await controller.register(input), { status: 201 });
   } catch (error) {
     return toHttpResponse(error);
   }

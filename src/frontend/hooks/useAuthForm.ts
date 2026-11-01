@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import type { ComponentProps } from 'react';
-import type { ZodType } from 'zod';
-import { getFieldErrors } from '@/frontend/utils/form-errors';
+import { useState } from "react";
+import type { ComponentProps } from "react";
+import type { ZodType } from "zod";
+import { getFieldErrors } from "@/frontend/utils/form-errors";
 
-type SubmitEvent = Parameters<NonNullable<ComponentProps<'form'>['onSubmit']>>[0];
+type SubmitEvent = Parameters<NonNullable<ComponentProps<"form">["onSubmit"]>>[0];
 
 interface UseAuthFormOptions<T extends object> {
   initialData: T;
@@ -16,9 +16,8 @@ export function useAuthForm<T extends object>({
   initialData,
   schema,
   submit,
-  getSubmissionError = (error) => (
-    error instanceof Error ? error.message : 'Ocurrió un error inesperado.'
-  ),
+  getSubmissionError = (error) =>
+    error instanceof Error ? error.message : "Ocurrió un error inesperado.",
 }: UseAuthFormOptions<T>) {
   const [formData, setFormData] = useState(initialData);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +51,7 @@ export function useAuthForm<T extends object>({
     }
   };
 
-  const handleSubmit: NonNullable<ComponentProps<'form'>['onSubmit']> = (event) => {
+  const handleSubmit: NonNullable<ComponentProps<"form">["onSubmit"]> = (event) => {
     void submitForm(event);
   };
 

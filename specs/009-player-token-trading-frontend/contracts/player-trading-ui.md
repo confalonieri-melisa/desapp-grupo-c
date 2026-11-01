@@ -6,12 +6,12 @@
 
 Todas las solicitudes incluyen `Authorization: Bearer <token>` de la sesión. El frontend no recibe ni envía un `userId` seleccionable.
 
-| Acción | Solicitud | Éxito | Uso |
-|---|---|---|---|
-| Cotización vigente | `GET /api/players/{playerId}/quotes` | `200 {items: PlayerQuoteDto[]}` | Usar `items[0]` del hook existente; no ordenar ni sustituir con `currentQuote` del perfil. |
-| Portfolio | `GET /api/portfolio` | `200 {creditBalance, items}` | Seleccionar solo la posición con `item.playerId === playerId` del perfil. |
-| Compra | `POST /api/orders/buy`, JSON `{playerId, quantity}` | `201 {operation, account, holding}` | `operation` es el comprobante efectivo. |
-| Venta | `POST /api/orders/sell`, mismo JSON | `201 {operation, account, holding}` | Igual; consultar portfolio después del 201. |
+| Acción             | Solicitud                                           | Éxito                               | Uso                                                                                        |
+| ------------------ | --------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------ |
+| Cotización vigente | `GET /api/players/{playerId}/quotes`                | `200 {items: PlayerQuoteDto[]}`     | Usar `items[0]` del hook existente; no ordenar ni sustituir con `currentQuote` del perfil. |
+| Portfolio          | `GET /api/portfolio`                                | `200 {creditBalance, items}`        | Seleccionar solo la posición con `item.playerId === playerId` del perfil.                  |
+| Compra             | `POST /api/orders/buy`, JSON `{playerId, quantity}` | `201 {operation, account, holding}` | `operation` es el comprobante efectivo.                                                    |
+| Venta              | `POST /api/orders/sell`, mismo JSON                 | `201 {operation, account, holding}` | Igual; consultar portfolio después del 201.                                                |
 
 `quantity` es un número JSON entero positivo. El cliente limita la entrada a 1..2.147.483.647 antes de construir el JSON. Las rutas rechazan propiedades extra. Las respuestas no se usan para cambiar la identidad de la sesión.
 
@@ -30,18 +30,18 @@ Todas las solicitudes incluyen `Authorization: Bearer <token>` de la sesión. El
 
 Las respuestas conocidas usan `{error: string}`. El cliente conserva `status`; si no puede leer JSON, usa texto genérico. Los mensajes específicos se aplican solo al status y texto conocidos.
 
-| Respuesta | Presentación y recuperación |
-|---|---|
-| `401` | Ejecutar logout/redirección existente, ocultar datos financieros y bloquear órdenes. |
-| `400` | Petición inválida; permitir corregir cantidad. No asumir un motivo más preciso si no consta. |
-| `404 Current quote not available` | Informar falta de cotización, desactivar órdenes y permitir actualizar cotización. Otro 404: rechazo/recurso no disponible sin inventar causa. |
-| `409 Insufficient credit balance` | Saldo insuficiente; corregir cantidad o consultar portfolio. |
-| `409 Insufficient token holding` | Tenencia insuficiente; corregir cantidad o consultar portfolio. |
-| `409 Insufficient tokens in central pool` | Disponibilidad insuficiente para compra; consultar datos antes de reintentar. |
-| `409 Insufficient central pool balance` | Venta rechazada por disponibilidad del pool; consultar datos antes de reintentar. |
-| `409 The central pool cannot operate as an investor` | Rol sin permiso para operar; retirar controles de sesión no INVESTOR. |
-| Otro `409` | Rechazo genérico, actualizar portfolio; no atribuirlo a saldo ni tenencia. |
-| Fallo de red, `5xx` o respuesta no confirmada | Resultado indeterminado; no afirmar éxito ni fracaso, ofrecer GET portfolio sin POST automático. |
+| Respuesta                                            | Presentación y recuperación                                                                                                                    |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `401`                                                | Ejecutar logout/redirección existente, ocultar datos financieros y bloquear órdenes.                                                           |
+| `400`                                                | Petición inválida; permitir corregir cantidad. No asumir un motivo más preciso si no consta.                                                   |
+| `404 Current quote not available`                    | Informar falta de cotización, desactivar órdenes y permitir actualizar cotización. Otro 404: rechazo/recurso no disponible sin inventar causa. |
+| `409 Insufficient credit balance`                    | Saldo insuficiente; corregir cantidad o consultar portfolio.                                                                                   |
+| `409 Insufficient token holding`                     | Tenencia insuficiente; corregir cantidad o consultar portfolio.                                                                                |
+| `409 Insufficient tokens in central pool`            | Disponibilidad insuficiente para compra; consultar datos antes de reintentar.                                                                  |
+| `409 Insufficient central pool balance`              | Venta rechazada por disponibilidad del pool; consultar datos antes de reintentar.                                                              |
+| `409 The central pool cannot operate as an investor` | Rol sin permiso para operar; retirar controles de sesión no INVESTOR.                                                                          |
+| Otro `409`                                           | Rechazo genérico, actualizar portfolio; no atribuirlo a saldo ni tenencia.                                                                     |
+| Fallo de red, `5xx` o respuesta no confirmada        | Resultado indeterminado; no afirmar éxito ni fracaso, ofrecer GET portfolio sin POST automático.                                               |
 
 ## Accesibilidad y diseño
 

@@ -4,15 +4,15 @@ Sin entidades persistidas nuevas, tablas ni migraciones. Player y PlayerQuote si
 
 ## PlayerQuoteDto
 
-| Campo | Tipo serializado | Regla |
-|---|---|---|
-| playerId | string UUID | Jugador vigente |
-| quoteValue | number | Valor recibido, cero válido |
-| unit | CREDIT_PER_TOKEN | Mostrar «créditos por token» |
-| calculatedAt | string ISO UTC | Mantener segundos/fracciones y zona explícita |
-| strategyCode | string | Código recibido, sin catálogo cerrado nuevo |
-| strategyVersion | string | Versión recibida |
-| score | objeto | API actual lo garantiza; presentación tolera ausencia |
+| Campo           | Tipo serializado | Regla                                                 |
+| --------------- | ---------------- | ----------------------------------------------------- |
+| playerId        | string UUID      | Jugador vigente                                       |
+| quoteValue      | number           | Valor recibido, cero válido                           |
+| unit            | CREDIT_PER_TOKEN | Mostrar «créditos por token»                          |
+| calculatedAt    | string ISO UTC   | Mantener segundos/fracciones y zona explícita         |
+| strategyCode    | string           | Código recibido, sin catálogo cerrado nuevo           |
+| strategyVersion | string           | Versión recibida                                      |
+| score           | objeto           | API actual lo garantiza; presentación tolera ausencia |
 
 score contiene individualScore, teamScore, finalScore (números, tolerando null/ausencia en presentación) y components (valor JSON). JSON comprende objetos, arrays, strings, números, booleanos y null. Conservar nombres, estructura y todos los valores. Colecciones vacías indican ausencia de componentes; null interno conserva su propiedad y muestra indisponibilidad. No usar valores por defecto ni fórmulas.
 
@@ -27,13 +27,13 @@ score contiene individualScore, teamScore, finalScore (números, tolerando null/
 
 ## Estados
 
-| Estado | Datos | Presentación |
-|---|---|---|
-| idle | Sin consulta vigente | Fecha sin consultar o sección no habilitada |
-| loading | Identidad y generación | Carga perceptible, distinta de ausencia |
-| success | Items o registro puntual | Datos vigentes |
-| empty | Historial 200 [] o ausencia puntual reconocida | Mensaje específico |
-| error | Status y mensaje | Error recuperable y reintento |
+| Estado  | Datos                                          | Presentación                                |
+| ------- | ---------------------------------------------- | ------------------------------------------- |
+| idle    | Sin consulta vigente                           | Fecha sin consultar o sección no habilitada |
+| loading | Identidad y generación                         | Carga perceptible, distinta de ausencia     |
+| success | Items o registro puntual                       | Datos vigentes                              |
+| empty   | Historial 200 [] o ausencia puntual reconocida | Mensaje específico                          |
+| error   | Status y mensaje                               | Error recuperable y reintento               |
 
 selectedDate es string calendario; requestedDate identifica la fecha realmente consultada. Error de validación se asocia al input. Estado del perfil invalid-player/player-not-found retira cotizaciones. Un 401 vigente limpia datos y aplica logout/login.
 

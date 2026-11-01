@@ -8,25 +8,25 @@
 
 ## Datos existentes consumidos
 
-| Consulta | Uso | Fallo |
-|---|---|---|
-| `GET /api/portfolio` con sesión vigente | Saldo, posiciones, valores y resultados. | 401: retirar datos y cerrar sesión; otros: error inicial o aviso de cifras desactualizadas con reintento. |
-| `GET /api/players/{id}` por jugador distinto | Nombre legible. | Mostrar `playerId`; la cartera permanece visible. |
-| `GET /api/players/{id}/quotes` en el perfil existente | Evolución real de la cotización del token, sin nueva consulta de la página portfolio. | Mantener el error y reintento de cotizaciones ya existentes; 401 cierra sesión. |
+| Consulta                                              | Uso                                                                                   | Fallo                                                                                                     |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `GET /api/portfolio` con sesión vigente               | Saldo, posiciones, valores y resultados.                                              | 401: retirar datos y cerrar sesión; otros: error inicial o aviso de cifras desactualizadas con reintento. |
+| `GET /api/players/{id}` por jugador distinto          | Nombre legible.                                                                       | Mostrar `playerId`; la cartera permanece visible.                                                         |
+| `GET /api/players/{id}/quotes` en el perfil existente | Evolución real de la cotización del token, sin nueva consulta de la página portfolio. | Mantener el error y reintento de cotizaciones ya existentes; 401 cierra sesión.                           |
 
 No se crea ni modifica un contrato público de backend.
 
 ## Estados observables
 
-| Estado | Resultado visible |
-|---|---|
-| Carga inicial | Mensaje de carga, sin cifras anteriores. |
-| Cartera vacía | Saldo, valor de tenencias 0, resultado 0, patrimonio igual al saldo y mensaje de vacío. |
-| Contenido | Resumen, posiciones y comparación de resultados basada en el snapshot; el perfil del jugador muestra la tendencia histórica del token en la tarjeta junto a «Rendimiento». |
-| Refresco | Cifras anteriores con aviso de actualización pendiente. |
-| Error inicial | Mensaje y «Reintentar», sin cifras. |
-| Error de refresco | Cifras anteriores de la misma sesión marcadas como desactualizadas y «Reintentar». |
-| Sesión ausente, vencida o cambiada | Ningún dato anterior; flujo de autenticación actual. |
+| Estado                             | Resultado visible                                                                                                                                                          |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Carga inicial                      | Mensaje de carga, sin cifras anteriores.                                                                                                                                   |
+| Cartera vacía                      | Saldo, valor de tenencias 0, resultado 0, patrimonio igual al saldo y mensaje de vacío.                                                                                    |
+| Contenido                          | Resumen, posiciones y comparación de resultados basada en el snapshot; el perfil del jugador muestra la tendencia histórica del token en la tarjeta junto a «Rendimiento». |
+| Refresco                           | Cifras anteriores con aviso de actualización pendiente.                                                                                                                    |
+| Error inicial                      | Mensaje y «Reintentar», sin cifras.                                                                                                                                        |
+| Error de refresco                  | Cifras anteriores de la misma sesión marcadas como desactualizadas y «Reintentar».                                                                                         |
+| Sesión ausente, vencida o cambiada | Ningún dato anterior; flujo de autenticación actual.                                                                                                                       |
 
 ## Invariantes de visualización
 

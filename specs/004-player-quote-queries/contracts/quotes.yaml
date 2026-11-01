@@ -26,26 +26,26 @@ paths:
             type: string
             pattern: '^\\d{4}-\\d{2}-\\d{2}$'
       responses:
-        '200':
+        "200":
           description: Quote history, or one quote when date is provided
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PlayerQuotesResponse'
-        '400':
+                $ref: "#/components/schemas/PlayerQuotesResponse"
+        "400":
           description: Invalid player UUID or date
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
           description: Missing or invalid JWT
-        '404':
+        "404":
           description: Player not found or no quote available for requested date
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   securitySchemes:
     BearerAuth:
@@ -60,7 +60,7 @@ components:
         items:
           type: array
           items:
-            $ref: '#/components/schemas/PlayerQuoteResponse'
+            $ref: "#/components/schemas/PlayerQuoteResponse"
     PlayerQuoteResponse:
       type: object
       required:
@@ -91,7 +91,7 @@ components:
         strategyVersion:
           type: string
         score:
-          $ref: '#/components/schemas/PlayerQuoteScore'
+          $ref: "#/components/schemas/PlayerQuoteScore"
     PlayerQuoteScore:
       type: object
       required: [individualScore, finalScore, components]

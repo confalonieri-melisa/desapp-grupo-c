@@ -15,9 +15,7 @@ const teamSourceLinkSchema = z.object({
 async function main(): Promise<void> {
   const filePath = process.argv[2];
   if (!filePath) {
-    throw new Error(
-      "Usage: npm run db:load-team-links -- <confirmed-links.json>",
-    );
+    throw new Error("Usage: npm run db:load-team-links -- <confirmed-links.json>");
   }
 
   let rawData: unknown;

@@ -1,9 +1,7 @@
 {
   "version": "1.0.6.dev0",
   "integration_state_schema": 1,
-  "installed_integrations": [
-    "gemini"
-  ],
+  "installed_integrations": ["gemini"],
   "integration_settings": {
     "gemini": {
       "script": "ps",

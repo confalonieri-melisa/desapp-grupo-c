@@ -1,4 +1,4 @@
-import type { League, Position } from '@/backend/models/enums';
+import type { League, Position } from "@/backend/models/enums";
 
 export const RANKING_PAGE_SIZE = 20;
 

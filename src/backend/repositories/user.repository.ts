@@ -8,21 +8,13 @@ export class UserRepository {
   constructor(private readonly database: Database = defaultDatabase) {}
 
   async findById(id: string): Promise<User | null> {
-    const rows = await this.database
-      .select()
-      .from(users)
-      .where(eq(users.id, id))
-      .limit(1);
+    const rows = await this.database.select().from(users).where(eq(users.id, id)).limit(1);
 
     return rows[0] ? toUser(rows[0]) : null;
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const rows = await this.database
-      .select()
-      .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+    const rows = await this.database.select().from(users).where(eq(users.email, email)).limit(1);
 
     return rows[0] ? toUser(rows[0]) : null;
   }

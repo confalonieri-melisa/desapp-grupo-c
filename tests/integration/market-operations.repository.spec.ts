@@ -30,7 +30,9 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       await db.delete(marketOperations);
       await db.delete(tokenHoldings).where(eq(tokenHoldings.playerId, playerId));
       await db.delete(playerQuotes).where(eq(playerQuotes.id, quoteId));
-      await db.delete(valuationStrategyVersions).where(eq(valuationStrategyVersions.id, strategyId));
+      await db
+        .delete(valuationStrategyVersions)
+        .where(eq(valuationStrategyVersions.id, strategyId));
       await db.delete(players).where(eq(players.id, playerId));
       await db.delete(users).where(inArray(users.id, [investorId, poolId]));
     });
@@ -100,8 +102,9 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       await repository.assignInitialTokens([playerId]);
       await repository.assignInitialTokens([playerId]);
 
-      await expect(db.select().from(tokenHoldings)
-        .where(eq(tokenHoldings.playerId, playerId))).resolves.toMatchObject([
+      await expect(
+        db.select().from(tokenHoldings).where(eq(tokenHoldings.playerId, playerId)),
+      ).resolves.toMatchObject([
         {
           userId: poolId,
           quantity: 100,
@@ -129,10 +132,12 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
 
       expect(sell.creditBalance).toBe(980);
       expect(sell.holding.quantity).toBe(2);
-      expect((await db.select().from(marketOperations))).toHaveLength(2);
-      expect((await db.select().from(financialAuditRecords))).toHaveLength(2);
+      expect(await db.select().from(marketOperations)).toHaveLength(2);
+      expect(await db.select().from(financialAuditRecords)).toHaveLength(2);
 
-      const holdings = await db.select().from(tokenHoldings)
+      const holdings = await db
+        .select()
+        .from(tokenHoldings)
         .where(eq(tokenHoldings.playerId, playerId));
       expect(holdings.reduce((sum, holding) => sum + holding.quantity, 0)).toBe(100);
     });
@@ -140,13 +145,15 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
     it("rejects a sale without changing state", async () => {
       await seedMarket();
 
-      await expect(service.sell(auth, {
-        playerId,
-        quantity: 1,
-      })).rejects.toMatchObject({ status: 409 });
+      await expect(
+        service.sell(auth, {
+          playerId,
+          quantity: 1,
+        }),
+      ).rejects.toMatchObject({ status: 409 });
 
-      expect((await db.select().from(marketOperations))).toHaveLength(0);
-      expect((await db.select().from(financialAuditRecords))).toHaveLength(0);
+      expect(await db.select().from(marketOperations)).toHaveLength(0);
+      expect(await db.select().from(financialAuditRecords)).toHaveLength(0);
     });
   },
 );

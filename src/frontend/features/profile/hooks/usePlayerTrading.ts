@@ -1,7 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { buyPlayerTokens, getPortfolio, sellPlayerTokens, type MarketOperationResult, type PortfolioSnapshot } from "@/frontend/services/client/player-trading.service";
+import {
+  buyPlayerTokens,
+  getPortfolio,
+  sellPlayerTokens,
+  type MarketOperationResult,
+  type PortfolioSnapshot,
+} from "@/frontend/services/client/player-trading.service";
 import { publishPortfolioUpdate } from "@/frontend/services/client/portfolio-events";
-import { classifyBuyError, classifySellError, selectPlayerPosition, validateBuyQuantity, validateSellQuantity } from "../utils/player-trading";
+import {
+  classifyBuyError,
+  classifySellError,
+  selectPlayerPosition,
+  validateBuyQuantity,
+  validateSellQuantity,
+} from "../utils/player-trading";
 
 export type PortfolioStatus = "idle" | "loading" | "success" | "empty" | "error" | "refreshing";
 
@@ -41,17 +53,39 @@ export interface OrderState {
   playerName: string | null;
 }
 
-interface ScopedDraft { token: string | null; playerId: string; quantity: string; error: string | null }
-interface ScopedConfirmation { token: string; value: OrderConfirmation }
-interface ScopedOrder extends OrderState { token: string | null }
+interface ScopedDraft {
+  token: string | null;
+  playerId: string;
+  quantity: string;
+  error: string | null;
+}
+interface ScopedConfirmation {
+  token: string;
+  value: OrderConfirmation;
+}
+interface ScopedOrder extends OrderState {
+  token: string | null;
+}
 
 const idleOrder = (token: string | null = null): ScopedOrder => ({
-  token, status: "idle", receipt: null, error: null, playerId: null, playerName: null,
+  token,
+  status: "idle",
+  receipt: null,
+  error: null,
+  playerId: null,
+  playerName: null,
 });
 
-const idlePortfolio = (generation = 0): PortfolioState => ({ status: "idle", snapshot: null, error: null, generation });
+const idlePortfolio = (generation = 0): PortfolioState => ({
+  status: "idle",
+  snapshot: null,
+  error: null,
+  generation,
+});
 const initial = (token: string | null = null, playerId = ""): TradingState => ({
-  token, playerId, portfolio: idlePortfolio(),
+  token,
+  playerId,
+  portfolio: idlePortfolio(),
 });
 
 function invalidate(slot: RequestSlot) {
@@ -59,9 +93,18 @@ function invalidate(slot: RequestSlot) {
   slot.generation++;
 }
 
-export function usePlayerTrading(token: string | null, playerId: string, onUnauthorized: () => void) {
+export function usePlayerTrading(
+  token: string | null,
+  playerId: string,
+  onUnauthorized: () => void,
+) {
   const [state, setState] = useState<TradingState>(initial);
-  const [draft, setDraft] = useState<ScopedDraft>({ token: null, playerId: "", quantity: "", error: null });
+  const [draft, setDraft] = useState<ScopedDraft>({
+    token: null,
+    playerId: "",
+    quantity: "",
+    error: null,
+  });
   const [pendingConfirmation, setConfirmation] = useState<ScopedConfirmation | null>(null);
   const [orderState, setOrder] = useState<ScopedOrder>(idleOrder);
   const unauthorized = useRef(onUnauthorized);
@@ -71,7 +114,9 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
   const latestLoad = useRef<() => Promise<void>>(async () => {});
   const submission = useRef<{ token: string; sequence: number } | null>(null);
   const sequence = useRef(0);
-  useEffect(() => { unauthorized.current = onUnauthorized; }, [onUnauthorized]);
+  useEffect(() => {
+    unauthorized.current = onUnauthorized;
+  }, [onUnauthorized]);
   useEffect(() => {
     if (submission.current?.token !== token) submission.current = null;
     identity.current = { token, playerId };
@@ -82,8 +127,10 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
   const draftMatches = draft.token === token && draft.playerId === playerId;
   const draftQuantity = draftMatches ? draft.quantity : "";
   const draftError = draftMatches ? draft.error : null;
-  const confirmation = pendingConfirmation?.token === token && pendingConfirmation.value.playerId === playerId
-    ? pendingConfirmation.value : null;
+  const confirmation =
+    pendingConfirmation?.token === token && pendingConfirmation.value.playerId === playerId
+      ? pendingConfirmation.value
+      : null;
   const order: OrderState = orderState.token === token ? orderState : idleOrder();
 
   const load = async () => {
@@ -97,22 +144,36 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
     }
     loadedIdentity.current = { token, playerId };
     if (!token || !playerId) return;
-    setDraft((old) => old.token === token && old.playerId === playerId
-      ? old : { token, playerId, quantity: "", error: null });
-    setConfirmation((old) => old?.token === token && old.value.playerId === playerId ? old : null);
+    setDraft((old) =>
+      old.token === token && old.playerId === playerId
+        ? old
+        : { token, playerId, quantity: "", error: null },
+    );
+    setConfirmation((old) =>
+      old?.token === token && old.value.playerId === playerId ? old : null,
+    );
     const slot = request.current;
     invalidate(slot);
     const controller = new AbortController();
     slot.controller = controller;
     const generation = slot.generation;
-    const valid = () => !controller.signal.aborted && generation === slot.generation
-      && identity.current.token === token && identity.current.playerId === playerId;
+    const valid = () =>
+      !controller.signal.aborted &&
+      generation === slot.generation &&
+      identity.current.token === token &&
+      identity.current.playerId === playerId;
 
     setState((old) => ({
-      token, playerId,
+      token,
+      playerId,
       portfolio: {
-        status: old.token === token && old.playerId === playerId && old.portfolio.snapshot ? "refreshing" : "loading",
-        snapshot: null, error: null, generation,
+        status:
+          old.token === token && old.playerId === playerId && old.portfolio.snapshot
+            ? "refreshing"
+            : "loading",
+        snapshot: null,
+        error: null,
+        generation,
       },
     }));
     publishPortfolioUpdate({ token, status: "loading", snapshot: null });
@@ -120,9 +181,16 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
     try {
       const snapshot = await getPortfolio(token, controller.signal);
       if (!valid()) return;
-      setState({ token, playerId, portfolio: {
-        status: snapshot.items.length ? "success" : "empty", snapshot, error: null, generation,
-      } });
+      setState({
+        token,
+        playerId,
+        portfolio: {
+          status: snapshot.items.length ? "success" : "empty",
+          snapshot,
+          error: null,
+          generation,
+        },
+      });
       publishPortfolioUpdate({ token, status: "success", snapshot });
     } catch (error) {
       if (!valid()) return;
@@ -136,16 +204,23 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
         unauthorized.current();
         return;
       }
-      setState({ token, playerId, portfolio: {
-        status: "error", snapshot: null,
-        error: error instanceof Error ? error.message : "No se pudo cargar el portfolio",
-        generation,
-      } });
+      setState({
+        token,
+        playerId,
+        portfolio: {
+          status: "error",
+          snapshot: null,
+          error: error instanceof Error ? error.message : "No se pudo cargar el portfolio",
+          generation,
+        },
+      });
       publishPortfolioUpdate({ token, status: "error", snapshot: null });
     }
   };
 
-  useEffect(() => { latestLoad.current = load; });
+  useEffect(() => {
+    latestLoad.current = load;
+  });
 
   useEffect(() => {
     const slot = request.current;
@@ -163,47 +238,84 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
   };
 
   const openConfirmation = (type: "BUY" | "SELL", playerName: string, quoteValue: number) => {
-    if (!token || !playerId || submission.current || !matches ||
-      (visible.status !== "success" && visible.status !== "empty")) {
+    if (
+      !token ||
+      !playerId ||
+      submission.current ||
+      !matches ||
+      (visible.status !== "success" && visible.status !== "empty")
+    ) {
       return;
     }
-    const result = type === "BUY"
-      ? validateBuyQuantity(draftQuantity, quoteValue, visible.snapshot?.creditBalance ?? null)
-      : validateSellQuantity(draftQuantity, quoteValue,
-        visible.snapshot ? selectPlayerPosition(visible.snapshot, playerId).quantity : null);
+    const result =
+      type === "BUY"
+        ? validateBuyQuantity(draftQuantity, quoteValue, visible.snapshot?.creditBalance ?? null)
+        : validateSellQuantity(
+            draftQuantity,
+            quoteValue,
+            visible.snapshot ? selectPlayerPosition(visible.snapshot, playerId).quantity : null,
+          );
     if (result.error || result.quantity === null || result.estimatedTotal === null) {
       setDraft({ token, playerId, quantity: draftQuantity, error: result.error });
       return;
     }
     setDraft({ token, playerId, quantity: draftQuantity, error: null });
-    setConfirmation({ token, value: {
-      type, playerId, playerName, quantity: result.quantity,
-      quoteValue, estimatedTotal: result.estimatedTotal,
-    } });
+    setConfirmation({
+      token,
+      value: {
+        type,
+        playerId,
+        playerName,
+        quantity: result.quantity,
+        quoteValue,
+        estimatedTotal: result.estimatedTotal,
+      },
+    });
   };
 
-  const openBuyConfirmation = (playerName: string, quoteValue: number) => openConfirmation("BUY", playerName, quoteValue);
-  const openSellConfirmation = (playerName: string, quoteValue: number) => openConfirmation("SELL", playerName, quoteValue);
+  const openBuyConfirmation = (playerName: string, quoteValue: number) =>
+    openConfirmation("BUY", playerName, quoteValue);
+  const openSellConfirmation = (playerName: string, quoteValue: number) =>
+    openConfirmation("SELL", playerName, quoteValue);
 
   const cancelConfirmation = () => setConfirmation(null);
 
   const confirmOrder = (currentQuoteValue?: number) => {
-    if (!token || !confirmation || submission.current || identity.current.token !== token ||
-      identity.current.playerId !== playerId || !matches ||
-      (visible.status !== "success" && visible.status !== "empty")) return;
+    if (
+      !token ||
+      !confirmation ||
+      submission.current ||
+      identity.current.token !== token ||
+      identity.current.playerId !== playerId ||
+      !matches ||
+      (visible.status !== "success" && visible.status !== "empty")
+    )
+      return;
 
-    const validated = confirmation.type === "BUY"
-      ? validateBuyQuantity(String(confirmation.quantity),
-        currentQuoteValue ?? null, visible.snapshot?.creditBalance ?? null)
-      : validateSellQuantity(String(confirmation.quantity), currentQuoteValue ?? null,
-        visible.snapshot ? selectPlayerPosition(visible.snapshot, playerId).quantity : null);
+    const validated =
+      confirmation.type === "BUY"
+        ? validateBuyQuantity(
+            String(confirmation.quantity),
+            currentQuoteValue ?? null,
+            visible.snapshot?.creditBalance ?? null,
+          )
+        : validateSellQuantity(
+            String(confirmation.quantity),
+            currentQuoteValue ?? null,
+            visible.snapshot ? selectPlayerPosition(visible.snapshot, playerId).quantity : null,
+          );
     if (validated.error || validated.quantity === null || validated.estimatedTotal === null) {
       setDraft({ token, playerId, quantity: draftQuantity, error: validated.error });
       setConfirmation(null);
       return;
     }
     if (currentQuoteValue !== undefined && currentQuoteValue !== confirmation.quoteValue) {
-      setDraft({ token, playerId, quantity: draftQuantity, error: "La cotización cambió. Revisá la operación otra vez" });
+      setDraft({
+        token,
+        playerId,
+        quantity: draftQuantity,
+        error: "La cotización cambió. Revisá la operación otra vez",
+      });
       setConfirmation(null);
       return;
     }
@@ -211,18 +323,31 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
     const key = { token, sequence: ++sequence.current };
     submission.current = key;
     setConfirmation(null);
-    setOrder({ token, status: "submitting", receipt: null, error: null,
-      playerId: confirmation.playerId, playerName: confirmation.playerName });
+    setOrder({
+      token,
+      status: "submitting",
+      receipt: null,
+      error: null,
+      playerId: confirmation.playerId,
+      playerName: confirmation.playerName,
+    });
 
     const submit = async () => {
       try {
         const execute = confirmation.type === "BUY" ? buyPlayerTokens : sellPlayerTokens;
         const receipt = await execute(token, {
-          playerId: confirmation.playerId, quantity: confirmation.quantity,
+          playerId: confirmation.playerId,
+          quantity: confirmation.quantity,
         });
         if (identity.current.token !== token || submission.current !== key) return;
-        setOrder({ token, status: "succeeded", receipt, error: null,
-          playerId: confirmation.playerId, playerName: confirmation.playerName });
+        setOrder({
+          token,
+          status: "succeeded",
+          receipt,
+          error: null,
+          playerId: confirmation.playerId,
+          playerName: confirmation.playerName,
+        });
         setDraft({ token, playerId, quantity: "", error: null });
         await latestLoad.current();
       } catch (error) {
@@ -235,9 +360,16 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
           unauthorized.current();
           return;
         }
-        const failure = confirmation.type === "BUY" ? classifyBuyError(error) : classifySellError(error);
-        setOrder({ token, status: failure.kind, receipt: null, error: failure.message,
-          playerId: confirmation.playerId, playerName: confirmation.playerName });
+        const failure =
+          confirmation.type === "BUY" ? classifyBuyError(error) : classifySellError(error);
+        setOrder({
+          token,
+          status: failure.kind,
+          receipt: null,
+          error: failure.message,
+          playerId: confirmation.playerId,
+          playerName: confirmation.playerName,
+        });
       } finally {
         if (submission.current === key) submission.current = null;
       }
@@ -247,7 +379,9 @@ export function usePlayerTrading(token: string | null, playerId: string, onUnaut
 
   return {
     portfolio: visible,
-    retryPortfolio: () => { void load(); },
+    retryPortfolio: () => {
+      void load();
+    },
     draftQuantity,
     draftError,
     setDraftQuantity,

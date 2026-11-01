@@ -17,7 +17,10 @@ describe("AuthService", () => {
   it("registers an investor and issues a token", async () => {
     const save = vi.fn(async (user: User) => user);
     const service = new AuthService(
-      repositoryMock(vi.fn(async () => null), save),
+      repositoryMock(
+        vi.fn(async () => null),
+        save,
+      ),
     );
 
     const result = await service.register({
@@ -47,7 +50,10 @@ describe("AuthService", () => {
       password: "secret",
     });
     const service = new AuthService(
-      repositoryMock(vi.fn(async () => existing), vi.fn()),
+      repositoryMock(
+        vi.fn(async () => existing),
+        vi.fn(),
+      ),
     );
 
     await expect(
@@ -67,7 +73,10 @@ describe("AuthService", () => {
       password: "secret",
     });
     const service = new AuthService(
-      repositoryMock(vi.fn(async () => user), vi.fn()),
+      repositoryMock(
+        vi.fn(async () => user),
+        vi.fn(),
+      ),
     );
 
     const result = await service.login({
@@ -87,7 +96,10 @@ describe("AuthService", () => {
 
   it("rejects invalid credentials", async () => {
     const service = new AuthService(
-      repositoryMock(vi.fn(async () => null), vi.fn()),
+      repositoryMock(
+        vi.fn(async () => null),
+        vi.fn(),
+      ),
     );
 
     await expect(

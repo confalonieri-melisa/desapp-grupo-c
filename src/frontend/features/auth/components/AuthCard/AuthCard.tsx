@@ -1,7 +1,12 @@
-import type { ReactNode } from 'react';
-import Card, { CardFooter, CardHeader, CardText, CardTitle } from '@/frontend/components/ui/Card/Card';
-import PageContainer from '@/frontend/components/ui/PageContainer/PageContainer';
-import styles from './AuthCard.module.scss';
+import type { ReactNode } from "react";
+import Card, {
+  CardFooter,
+  CardHeader,
+  CardText,
+  CardTitle,
+} from "@/frontend/components/ui/Card/Card";
+import PageContainer from "@/frontend/components/ui/PageContainer/PageContainer";
+import styles from "./AuthCard.module.scss";
 
 interface AuthCardProps {
   title: ReactNode;
@@ -28,8 +33,16 @@ export default function AuthCard({
           <CardText>{description}</CardText>
         </CardHeader>
 
-        {error && <div className={styles.alert} role="alert">{error}</div>}
-        {successMessage && <div className={styles.successAlert} role="status">{successMessage}</div>}
+        {error && (
+          <div className={styles.alert} role="alert">
+            {error}
+          </div>
+        )}
+        {successMessage && (
+          <div className={styles.successAlert} role="status">
+            {successMessage}
+          </div>
+        )}
         {form}
         <CardFooter>{footer}</CardFooter>
       </Card>

@@ -32,8 +32,6 @@ describe("authentication schemas", () => {
       }),
     ).toThrow();
 
-    expect(() =>
-      loginSchema.parse({ email: "not-an-email", password: "" }),
-    ).toThrow();
+    expect(() => loginSchema.parse({ email: "not-an-email", password: "" })).toThrow();
   });
 });

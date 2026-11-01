@@ -61,10 +61,12 @@ describe("MarketOperationController", () => {
     };
     const controller = new MarketOperationController(service as never);
 
-    await expect(controller.sell(
-      { sub: "investor-id", email: "investor@example.com", role: "INVESTOR" },
-      { playerId: "player-id", quantity: 1 },
-    )).resolves.toMatchObject({
+    await expect(
+      controller.sell(
+        { sub: "investor-id", email: "investor@example.com", role: "INVESTOR" },
+        { playerId: "player-id", quantity: 1 },
+      ),
+    ).resolves.toMatchObject({
       operation: { type: "SELL", userId: "investor-id" },
       account: { creditBalance: 1010 },
       holding: { quantity: 2 },
@@ -81,8 +83,9 @@ describe("MarketOperationController", () => {
     const controller = new MarketOperationController({ getHistory } as never);
     const auth = { sub: "investor-id", email: "investor@example.com", role: "INVESTOR" };
 
-    await expect(controller.getHistory(auth, "investor-id", { limit: 50, offset: 0 }))
-      .resolves.toEqual({ items: [], limit: 50, offset: 0, hasMore: false });
+    await expect(
+      controller.getHistory(auth, "investor-id", { limit: 50, offset: 0 }),
+    ).resolves.toEqual({ items: [], limit: 50, offset: 0, hasMore: false });
     expect(getHistory).toHaveBeenCalledWith(auth, "investor-id", { limit: 50, offset: 0 });
   });
 });

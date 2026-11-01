@@ -446,15 +446,34 @@
 }
 
 @media (max-width: 780px) {
-  .topGrid { grid-template-columns: 1fr; }
+  .topGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 560px) {
-  .sectionHeading { align-items: start; flex-direction: column; }
-  .sectionHeading > p { font-size: 0.8rem; }
-  .currentPanel, .datePanel { padding: 1rem; }
-  .dateControls input { flex-basis: 100%; }
-  .scores, .individualScores { grid-template-columns: 1fr; }
-  .historyContent { padding: 0.8rem; }
-  .compact .quoteValue { display: grid; }
+  .sectionHeading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .sectionHeading > p {
+    font-size: 0.8rem;
+  }
+  .currentPanel,
+  .datePanel {
+    padding: 1rem;
+  }
+  .dateControls input {
+    flex-basis: 100%;
+  }
+  .scores,
+  .individualScores {
+    grid-template-columns: 1fr;
+  }
+  .historyContent {
+    padding: 0.8rem;
+  }
+  .compact .quoteValue {
+    display: grid;
+  }
 }

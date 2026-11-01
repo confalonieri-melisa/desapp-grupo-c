@@ -1,9 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { League } from "@/backend/models/enums";
-import {
-  formatEnumLabel,
-  leagueLabels,
-} from "@/frontend/utils/player-labels";
+import { formatEnumLabel, leagueLabels } from "@/frontend/utils/player-labels";
 import {
   detailedStatistics,
   summaryStatistics,

@@ -46,8 +46,6 @@ describe("PlayerSyncService", () => {
         player: expect.objectContaining({ name: "Kylian Mbappé" }),
       }),
     ]);
-    expect(marketRepository.assignInitialTokens).toHaveBeenCalledWith([
-      persisted[0]?.id,
-    ]);
+    expect(marketRepository.assignInitialTokens).toHaveBeenCalledWith([persisted[0]?.id]);
   });
 });

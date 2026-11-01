@@ -8,18 +8,18 @@ La feature reutiliza la tabla `market_operations` creada por
 
 ## Fuente de verdad
 
-| Dato expuesto | Columna persistida |
-|---|---|
-| Identificador | `market_operations.id` |
-| Tipo | `market_operations.type` |
-| Jugador | `market_operations.player_id` |
-| Cantidad | `market_operations.quantity` |
-| Cotización referenciada | `market_operations.quote_id` |
-| Cotización aplicada | `market_operations.quote_value` |
-| Importe total | `market_operations.total` |
-| Unidad | `market_operations.unit` |
-| Fecha | `market_operations.created_at` |
-| Correlation ID | `market_operations.correlation_id` |
+| Dato expuesto           | Columna persistida                 |
+| ----------------------- | ---------------------------------- |
+| Identificador           | `market_operations.id`             |
+| Tipo                    | `market_operations.type`           |
+| Jugador                 | `market_operations.player_id`      |
+| Cantidad                | `market_operations.quantity`       |
+| Cotización referenciada | `market_operations.quote_id`       |
+| Cotización aplicada     | `market_operations.quote_value`    |
+| Importe total           | `market_operations.total`          |
+| Unidad                  | `market_operations.unit`           |
+| Fecha                   | `market_operations.created_at`     |
+| Correlation ID          | `market_operations.correlation_id` |
 
 `investor_id` se usa para autorización y filtrado, pero no es necesario
 exponerlo en la respuesta porque ya está determinado por `auth.sub` y `:id`.

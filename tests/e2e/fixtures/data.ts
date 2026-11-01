@@ -17,9 +17,24 @@ export const E2E_IDS = {
 };
 
 export const E2E_USERS = {
-  investor: { id: E2E_IDS.investor, email: `investor@${E2E_EMAIL_DOMAIN}`, name: "E2E Investor", password: E2E_PASSWORD },
-  trader: { id: E2E_IDS.trader, email: `trader@${E2E_EMAIL_DOMAIN}`, name: "E2E Trader", password: E2E_PASSWORD },
-  superuser: { id: E2E_IDS.superuser, email: `superuser@${E2E_EMAIL_DOMAIN}`, name: "E2E Superuser", password: E2E_PASSWORD },
+  investor: {
+    id: E2E_IDS.investor,
+    email: `investor@${E2E_EMAIL_DOMAIN}`,
+    name: "E2E Investor",
+    password: E2E_PASSWORD,
+  },
+  trader: {
+    id: E2E_IDS.trader,
+    email: `trader@${E2E_EMAIL_DOMAIN}`,
+    name: "E2E Trader",
+    password: E2E_PASSWORD,
+  },
+  superuser: {
+    id: E2E_IDS.superuser,
+    email: `superuser@${E2E_EMAIL_DOMAIN}`,
+    name: "E2E Superuser",
+    password: E2E_PASSWORD,
+  },
 } as const;
 
 const leagues = Object.values(League);
@@ -29,7 +44,12 @@ const teams = ["E2E United", "E2E Athletic", "E2E City"];
 export const E2E_PLAYERS = E2E_IDS.players.map((playerId, index) => ({
   id: playerId,
   externalId: `e2e-player-${String(index + 1).padStart(2, "0")}`,
-  name: index === 0 ? "E2E Ada Striker" : index === 1 ? "E2E Beto Keeper" : `E2E Player ${String(index + 1).padStart(2, "0")}`,
+  name:
+    index === 0
+      ? "E2E Ada Striker"
+      : index === 1
+        ? "E2E Beto Keeper"
+        : `E2E Player ${String(index + 1).padStart(2, "0")}`,
   team: teams[index % teams.length],
   league: leagues[index % leagues.length],
   position: positions[index % positions.length],

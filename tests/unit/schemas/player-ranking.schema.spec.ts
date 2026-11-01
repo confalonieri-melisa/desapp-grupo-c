@@ -11,12 +11,14 @@ describe("player ranking query schema", () => {
   });
 
   it("accepts valid filters and pagination", () => {
-    expect(playerRankingQuerySchema.parse({
-      league: "PREMIER_LEAGUE",
-      position: "FORWARD",
-      page: "2",
-      limit: "50",
-    })).toEqual({
+    expect(
+      playerRankingQuerySchema.parse({
+        league: "PREMIER_LEAGUE",
+        position: "FORWARD",
+        page: "2",
+        limit: "50",
+      }),
+    ).toEqual({
       league: "PREMIER_LEAGUE",
       position: "FORWARD",
       page: 2,
@@ -24,13 +26,10 @@ describe("player ranking query schema", () => {
     });
   });
 
-  it.each([
-    { page: "0" },
-    { limit: "0" },
-    { limit: "101" },
-    { team: "   " },
-    { unknown: "value" },
-  ])("rejects invalid or unknown query data: %j", (input) => {
-    expect(() => playerRankingQuerySchema.parse(input)).toThrow();
-  });
+  it.each([{ page: "0" }, { limit: "0" }, { limit: "101" }, { team: "   " }, { unknown: "value" }])(
+    "rejects invalid or unknown query data: %j",
+    (input) => {
+      expect(() => playerRankingQuerySchema.parse(input)).toThrow();
+    },
+  );
 });

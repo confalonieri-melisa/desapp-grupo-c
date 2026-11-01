@@ -288,16 +288,16 @@ este MVP.
 
 ## Risks and Mitigations
 
-| Riesgo | Impacto | Mitigación |
-|---|---|---|
-| Elegir una quote de una versión inactiva | Ranking incorrecto | Capturar `strategyVersionId` activo y filtrar por FK, no por código textual |
-| Duplicar jugadores por múltiples quotes | Rank y total incorrectos | Subconsulta/CTE deduplicada por `player_id` con orden temporal estable |
-| Paginar antes de ordenar o deduplicar | Páginas inconsistentes | Orden y conteo sobre el conjunto deduplicado; `LIMIT/OFFSET` al final |
-| Cambiar estrategia durante la lectura | Mezcla de versiones | El service captura una versión y el repository recibe solo ese ID |
-| Query params desconocidos silenciosamente ignorados | Contrato ambiguo | Schema Zod estricto y test de `400` |
-| Índice insuficiente con mucho historial | Latencia creciente | Mantener query acotada a versión/página y medir antes de agregar migración |
-| Filtrar/ordenar en memoria | Uso excesivo de memoria y rank incorrecto | Join, filtros, conteo y orden en PostgreSQL |
-| Exponer detalles internos de valuación | Contrato innecesariamente pesado | DTO mínimo sin explicación ni scores secundarios |
+| Riesgo                                              | Impacto                                   | Mitigación                                                                  |
+| --------------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------- |
+| Elegir una quote de una versión inactiva            | Ranking incorrecto                        | Capturar `strategyVersionId` activo y filtrar por FK, no por código textual |
+| Duplicar jugadores por múltiples quotes             | Rank y total incorrectos                  | Subconsulta/CTE deduplicada por `player_id` con orden temporal estable      |
+| Paginar antes de ordenar o deduplicar               | Páginas inconsistentes                    | Orden y conteo sobre el conjunto deduplicado; `LIMIT/OFFSET` al final       |
+| Cambiar estrategia durante la lectura               | Mezcla de versiones                       | El service captura una versión y el repository recibe solo ese ID           |
+| Query params desconocidos silenciosamente ignorados | Contrato ambiguo                          | Schema Zod estricto y test de `400`                                         |
+| Índice insuficiente con mucho historial             | Latencia creciente                        | Mantener query acotada a versión/página y medir antes de agregar migración  |
+| Filtrar/ordenar en memoria                          | Uso excesivo de memoria y rank incorrecto | Join, filtros, conteo y orden en PostgreSQL                                 |
+| Exponer detalles internos de valuación              | Contrato innecesariamente pesado          | DTO mínimo sin explicación ni scores secundarios                            |
 
 ## Implementation Order
 

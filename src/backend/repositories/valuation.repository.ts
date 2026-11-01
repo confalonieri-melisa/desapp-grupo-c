@@ -1,9 +1,6 @@
 import { and, desc, eq, lt } from "drizzle-orm";
 import { db as defaultDatabase, type Database } from "@/backend/db";
-import {
-  playerQuotes,
-  valuationStrategyVersions,
-} from "@/backend/db/schema";
+import { playerQuotes, valuationStrategyVersions } from "@/backend/db/schema";
 import type {
   PlayerQuoteSnapshot,
   ValuationConfig,
@@ -17,8 +14,11 @@ export class ValuationRepository {
   constructor(private readonly database: Database = defaultDatabase) {}
 
   async findActiveStrategyVersion() {
-    const rows = await this.database.select().from(valuationStrategyVersions)
-      .where(eq(valuationStrategyVersions.isActive, 1)).limit(1);
+    const rows = await this.database
+      .select()
+      .from(valuationStrategyVersions)
+      .where(eq(valuationStrategyVersions.isActive, 1))
+      .limit(1);
     return rows[0] ?? null;
   }
 
@@ -30,7 +30,13 @@ export class ValuationRepository {
   ) {
     return this.database.transaction(async (tx) => {
       await this.deactivateAll(tx);
-      const row = await this.findOrCreateVersion(tx, strategyCode, version, configuration, createdBy);
+      const row = await this.findOrCreateVersion(
+        tx,
+        strategyCode,
+        version,
+        configuration,
+        createdBy,
+      );
       return this.activateVersion(tx, row.id);
     });
   }
@@ -46,22 +52,33 @@ export class ValuationRepository {
     configuration: ValuationConfig,
     createdBy: string,
   ) {
-    const existing = await tx.select().from(valuationStrategyVersions)
-      .where(and(
-        eq(valuationStrategyVersions.strategyCode, strategyCode),
-        eq(valuationStrategyVersions.version, version),
-      ))
+    const existing = await tx
+      .select()
+      .from(valuationStrategyVersions)
+      .where(
+        and(
+          eq(valuationStrategyVersions.strategyCode, strategyCode),
+          eq(valuationStrategyVersions.version, version),
+        ),
+      )
       .limit(1);
     if (existing[0]) return existing[0];
-    const created = await tx.insert(valuationStrategyVersions).values({
-      strategyCode, version, configuration, createdBy,
-    }).returning();
+    const created = await tx
+      .insert(valuationStrategyVersions)
+      .values({
+        strategyCode,
+        version,
+        configuration,
+        createdBy,
+      })
+      .returning();
     if (!created[0]) throw new Error("Valuation version could not be created");
     return created[0];
   }
 
   private async activateVersion(tx: ValuationTransaction, id: string) {
-    const activated = await tx.update(valuationStrategyVersions)
+    const activated = await tx
+      .update(valuationStrategyVersions)
       .set({ isActive: 1, activatedAt: new Date() })
       .where(eq(valuationStrategyVersions.id, id))
       .returning();
@@ -69,20 +86,28 @@ export class ValuationRepository {
   }
 
   async saveQuote(input: {
-    playerId: string; strategyVersionId: string; individualScore: number;
-    teamScore: number | null; finalScore: number; quoteValue: number;
-    contextUpdateId?: string; explanation: unknown;
+    playerId: string;
+    strategyVersionId: string;
+    individualScore: number;
+    teamScore: number | null;
+    finalScore: number;
+    quoteValue: number;
+    contextUpdateId?: string;
+    explanation: unknown;
   }) {
-    const rows = await this.database.insert(playerQuotes).values({
-      playerId: input.playerId,
-      strategyVersionId: input.strategyVersionId,
-      individualScore: String(input.individualScore),
-      teamScore: input.teamScore === null ? null : String(input.teamScore),
-      finalScore: String(input.finalScore),
-      quoteValue: String(input.quoteValue),
-      contextUpdateId: input.contextUpdateId,
-      explanation: input.explanation,
-    }).returning();
+    const rows = await this.database
+      .insert(playerQuotes)
+      .values({
+        playerId: input.playerId,
+        strategyVersionId: input.strategyVersionId,
+        individualScore: String(input.individualScore),
+        teamScore: input.teamScore === null ? null : String(input.teamScore),
+        finalScore: String(input.finalScore),
+        quoteValue: String(input.quoteValue),
+        contextUpdateId: input.contextUpdateId,
+        explanation: input.explanation,
+      })
+      .returning();
     return rows[0];
   }
 
@@ -104,7 +129,10 @@ export class ValuationRepository {
     return rows.map(toPlayerQuoteSnapshot);
   }
 
-  async findLatestQuoteBefore(playerId: string, upperBound: Date): Promise<PlayerQuoteSnapshot | null> {
+  async findLatestQuoteBefore(
+    playerId: string,
+    upperBound: Date,
+  ): Promise<PlayerQuoteSnapshot | null> {
     const rows = await this.database
       .select({
         quote: playerQuotes,
@@ -116,10 +144,7 @@ export class ValuationRepository {
         valuationStrategyVersions,
         eq(playerQuotes.strategyVersionId, valuationStrategyVersions.id),
       )
-      .where(and(
-        eq(playerQuotes.playerId, playerId),
-        lt(playerQuotes.calculatedAt, upperBound),
-      ))
+      .where(and(eq(playerQuotes.playerId, playerId), lt(playerQuotes.calculatedAt, upperBound)))
       .orderBy(desc(playerQuotes.calculatedAt), desc(playerQuotes.id))
       .limit(1);
 

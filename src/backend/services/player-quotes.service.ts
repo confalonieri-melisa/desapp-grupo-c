@@ -3,7 +3,10 @@ import { PlayerRepository } from "@/backend/repositories/player.repository";
 import { ValuationRepository } from "@/backend/repositories/valuation.repository";
 
 export class PlayerQuotesService {
-  constructor(private readonly playerRepository = new PlayerRepository(), private readonly valuationRepository = new ValuationRepository()) {}
+  constructor(
+    private readonly playerRepository = new PlayerRepository(),
+    private readonly valuationRepository = new ValuationRepository(),
+  ) {}
 
   async getQuotes(playerId: string, date?: string) {
     const player = await this.playerRepository.findById(playerId);
@@ -13,7 +16,10 @@ export class PlayerQuotesService {
       return this.valuationRepository.findHistoryByPlayerId(playerId);
     }
 
-    const quote = await this.valuationRepository.findLatestQuoteBefore(playerId, nextDayStartUtc(date));
+    const quote = await this.valuationRepository.findLatestQuoteBefore(
+      playerId,
+      nextDayStartUtc(date),
+    );
     if (!quote) throw new NotFoundError("Quote not available for the requested date");
     return [quote];
   }

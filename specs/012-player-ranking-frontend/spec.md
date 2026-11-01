@@ -24,7 +24,7 @@ Esta entrega permite consultar visualmente el ranking ya calculado por la featur
 
 - Q: ¿Dónde querés que aparezca el ranking para los usuarios autenticados? → A: Página «Ranking» con acceso en la navegación principal.
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Consultar el ranking activo (Priority: P1)
 
@@ -86,7 +86,7 @@ Como usuario, quiero distinguir entre una consulta en curso, un ranking vacío y
 - Una cotización o puntaje se muestra con su unidad y significado correctos; el puntaje no se convierte en una clasificación calculada por la interfaz.
 - Una respuesta tardía de una sesión cerrada no vuelve a poblar la vista.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -101,14 +101,14 @@ Como usuario, quiero distinguir entre una consulta en curso, un ranking vacío y
 - **FR-009**: Los controles, enlaces, puestos y estados DEBEN ser comprensibles con teclado y tecnologías asistivas, tener foco visible y conservar la legibilidad en escritorio y móvil. El puesto y el estado no DEBEN depender exclusivamente del color.
 - **FR-010**: La vista DEBE usar únicamente datos del ranking y perfiles existentes. NO DEBE ofrecer recálculo, cambio de estrategia, trading, portfolio, rankings históricos ni búsqueda por nombre dentro del ranking.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Entrada de ranking**: Puesto global, identidad del jugador, puntaje final, cotización persistida, unidad y fecha de cálculo recibidos para la versión activa.
 - **Contexto de ranking**: Código y versión de la estrategia activa asociada a la respuesta mostrada.
 - **Selección de consulta**: Filtros de liga, equipo y posición junto con la página solicitada.
 - **Paginación**: Total de jugadores, página actual, tamaño de página y total de páginas del conjunto filtrado.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

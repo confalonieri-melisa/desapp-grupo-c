@@ -8,6 +8,7 @@ export default defineConfig({
   out: "./src/backend/db/migrations",
   dialect: "postgresql",
   dbCredentials: {
-    url: process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/desapp_marketplace",
+    url:
+      process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/desapp_marketplace",
   },
 });

@@ -22,14 +22,14 @@
 
 `GET /api/players/ranking` con `Authorization: Bearer <JWT>`. El contrato original está en [ranking.yaml](../../007-player-ranking/contracts/ranking.yaml); este documento no lo reemplaza ni modifica.
 
-| Respuesta | Resultado visible |
-|---|---|
-| `200` con `players` | Mantener orden y `rank`; mostrar identidad, score, cotización, unidad, fecha, estrategia/versión y paginación. |
-| `200` con `players: []`, `totalPages: 0` | Comunicar ausencia de jugadores; permitir cambiar o limpiar filtros. |
-| `200` con página vacía y `totalPages > 0` | Volver una vez a la última página válida y consultarla. |
-| `401` | Retirar resultados, cerrar sesión y dirigir a `/login`. |
-| `409` | Informar que no hay estrategia de valuación activa. |
-| `400`, `500` o fallo de red | Mensaje recuperable y reintento de la selección vigente. |
+| Respuesta                                 | Resultado visible                                                                                              |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `200` con `players`                       | Mantener orden y `rank`; mostrar identidad, score, cotización, unidad, fecha, estrategia/versión y paginación. |
+| `200` con `players: []`, `totalPages: 0`  | Comunicar ausencia de jugadores; permitir cambiar o limpiar filtros.                                           |
+| `200` con página vacía y `totalPages > 0` | Volver una vez a la última página válida y consultarla.                                                        |
+| `401`                                     | Retirar resultados, cerrar sesión y dirigir a `/login`.                                                        |
+| `409`                                     | Informar que no hay estrategia de valuación activa.                                                            |
+| `400`, `500` o fallo de red               | Mensaje recuperable y reintento de la selección vigente.                                                       |
 
 ## Datos presentados
 

@@ -29,7 +29,9 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
     afterEach(async () => {
       await db.delete(marketOperations).where(inArray(marketOperations.id, operationIds));
       await db.delete(playerQuotes).where(eq(playerQuotes.id, quoteId));
-      await db.delete(valuationStrategyVersions).where(eq(valuationStrategyVersions.id, strategyId));
+      await db
+        .delete(valuationStrategyVersions)
+        .where(eq(valuationStrategyVersions.id, strategyId));
       await db.delete(players).where(eq(players.id, playerId));
       await db.delete(users).where(inArray(users.id, [investorId, otherInvestorId]));
     });

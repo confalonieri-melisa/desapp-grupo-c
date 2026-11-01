@@ -16,7 +16,10 @@ function repositoryMock(
 describe("authentication application flows", () => {
   it("returns 201 for a valid registration", async () => {
     const service = new AuthService(
-      repositoryMock(vi.fn(async () => null), vi.fn(async (user: User) => user)),
+      repositoryMock(
+        vi.fn(async () => null),
+        vi.fn(async (user: User) => user),
+      ),
     );
     const user = await new AuthController(service).register({
       name: "Alice",
@@ -34,11 +37,16 @@ describe("authentication application flows", () => {
 
   it("returns 401 for invalid login credentials", async () => {
     const service = new AuthService(
-      repositoryMock(vi.fn(async () => null), vi.fn()),
+      repositoryMock(
+        vi.fn(async () => null),
+        vi.fn(),
+      ),
     );
-    await expect(new AuthController(service).login({
-      email: "alice@example.com",
-      password: "wrong",
-    })).rejects.toBeInstanceOf(UnauthorizedError);
+    await expect(
+      new AuthController(service).login({
+        email: "alice@example.com",
+        password: "wrong",
+      }),
+    ).rejects.toBeInstanceOf(UnauthorizedError);
   });
 });

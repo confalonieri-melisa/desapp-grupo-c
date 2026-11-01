@@ -1,4 +1,7 @@
-import type { PortfolioItem, PortfolioSnapshot } from "@/frontend/services/client/player-trading.service";
+import type {
+  PortfolioItem,
+  PortfolioSnapshot,
+} from "@/frontend/services/client/player-trading.service";
 
 export type MetricAggregate = {
   value: number | null;
@@ -6,13 +9,22 @@ export type MetricAggregate = {
   status: "complete" | "partial" | "unavailable";
 };
 
-function aggregate(items: PortfolioItem[], field: "currentValue" | "unrealizedPnl"): MetricAggregate {
+function aggregate(
+  items: PortfolioItem[],
+  field: "currentValue" | "unrealizedPnl",
+): MetricAggregate {
   const known = items.map((item) => item[field]).filter((value): value is number => value !== null);
   const excludedCount = items.length - known.length;
   return {
-    value: items.length > 0 && known.length === 0 ? null : known.reduce((sum, value) => sum + value, 0),
+    value:
+      items.length > 0 && known.length === 0 ? null : known.reduce((sum, value) => sum + value, 0),
     excludedCount,
-    status: known.length === 0 && items.length > 0 ? "unavailable" : excludedCount > 0 ? "partial" : "complete",
+    status:
+      known.length === 0 && items.length > 0
+        ? "unavailable"
+        : excludedCount > 0
+          ? "partial"
+          : "complete",
   };
 }
 
@@ -31,5 +43,7 @@ export function formatNumber(value: number): string {
 }
 
 export function formatCredits(value: number | null): string {
-  return value === null ? "No disponible" : `${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(value)} créditos`;
+  return value === null
+    ? "No disponible"
+    : `${new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(value)} créditos`;
 }

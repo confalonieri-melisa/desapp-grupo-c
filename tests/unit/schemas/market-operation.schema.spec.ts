@@ -7,10 +7,12 @@ import {
 
 describe("market operation schema", () => {
   it("accepts only player and positive integer quantity", () => {
-    expect(marketOperationRequestSchema.parse({
-      playerId: "00000000-0000-4000-8000-000000000001",
-      quantity: 3,
-    })).toEqual({
+    expect(
+      marketOperationRequestSchema.parse({
+        playerId: "00000000-0000-4000-8000-000000000001",
+        quantity: 3,
+      }),
+    ).toEqual({
       playerId: "00000000-0000-4000-8000-000000000001",
       quantity: 3,
     });
@@ -53,9 +55,11 @@ describe("market operation history schema", () => {
   });
 
   it("accepts only a valid user id path parameter", () => {
-    expect(marketOperationHistoryParamsSchema.safeParse({
-      id: "00000000-0000-4000-8000-000000000001",
-    }).success).toBe(true);
+    expect(
+      marketOperationHistoryParamsSchema.safeParse({
+        id: "00000000-0000-4000-8000-000000000001",
+      }).success,
+    ).toBe(true);
     expect(marketOperationHistoryParamsSchema.safeParse({ id: "other" }).success).toBe(false);
   });
 });

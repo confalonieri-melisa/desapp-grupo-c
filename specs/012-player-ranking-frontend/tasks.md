@@ -8,7 +8,7 @@
 
 **Purpose**: Aislar la feature antes de modificar código.
 
-- [X] T001 Crear la rama `feature/012-player-ranking-frontend` desde la actual `feature/011-player-name-search` y conservar `specs/012-player-ranking-frontend/` en el workspace; comprobar la branch antes de continuar, sin reescribir historia ni cambiar `main`.
+- [x] T001 Crear la rama `feature/012-player-ranking-frontend` desde la actual `feature/011-player-name-search` y conservar `specs/012-player-ranking-frontend/` en el workspace; comprobar la branch antes de continuar, sin reescribir historia ni cambiar `main`.
 
 ---
 
@@ -16,7 +16,7 @@
 
 **Purpose**: Definir el contrato compartido de lectura sin modificar la API 007.
 
-- [X] T002 Definir en `src/frontend/features/ranking/ranking.ts` los tipos de respuesta, selección y paginación usados por las tres historias: `rank` entero positivo recibido; `finalScore` 0–1 sin conversión; `league` y `position` solo enums existentes; `page` >=1; `limit` fijo 20; `totalPages` >=0 y 0 cuando `total=0`; incluir estrategia, versión, cotización, unidad e instante ISO, sin lógica de reordenamiento ni persistencia.
+- [x] T002 Definir en `src/frontend/features/ranking/ranking.ts` los tipos de respuesta, selección y paginación usados por las tres historias: `rank` entero positivo recibido; `finalScore` 0–1 sin conversión; `league` y `position` solo enums existentes; `page` >=1; `limit` fijo 20; `totalPages` >=0 y 0 cuando `total=0`; incluir estrategia, versión, cotización, unidad e instante ISO, sin lógica de reordenamiento ni persistencia.
 
 **Checkpoint**: El cliente y la vista pueden compartir un tipo exacto del contrato 007.
 
@@ -30,16 +30,16 @@
 
 ### Tests for User Story 1
 
-- [X] T003 [P] [US1] Crear pruebas de `GET /api/players/ranking` con Bearer, `limit=20` y preservación de `players`, `rank`, `strategyCode`, `strategyVersion` y `pagination` en `tests/unit/services/client/player-ranking.service.spec.ts`; usar una respuesta con empate para detectar reordenamiento local.
-- [X] T004 [P] [US1] Crear pruebas de la página autenticada que verifiquen acceso desde navegación, orden y puesto recibidos, identidad, `finalScore`, `quoteValue` con `CREDIT_PER_TOKEN`, instante UTC y enlace de perfil en `tests/unit/features/ranking/RankingPage.spec.ts`.
+- [x] T003 [P] [US1] Crear pruebas de `GET /api/players/ranking` con Bearer, `limit=20` y preservación de `players`, `rank`, `strategyCode`, `strategyVersion` y `pagination` en `tests/unit/services/client/player-ranking.service.spec.ts`; usar una respuesta con empate para detectar reordenamiento local.
+- [x] T004 [P] [US1] Crear pruebas de la página autenticada que verifiquen acceso desde navegación, orden y puesto recibidos, identidad, `finalScore`, `quoteValue` con `CREDIT_PER_TOKEN`, instante UTC y enlace de perfil en `tests/unit/features/ranking/RankingPage.spec.ts`.
 
 ### Implementation for User Story 1
 
-- [X] T005 [P] [US1] Implementar cliente de solo lectura en `src/frontend/services/client/player-ranking.service.ts`: enviar token Bearer, `page=1&limit=20` por defecto, aceptar `AbortSignal`, preservar respuesta y exponer estado HTTP sin modificar `src/app/api/players/ranking/route.ts`.
-- [X] T006 [P] [US1] Añadir enlace «Ranking» hacia `/ranking` con `aria-current="page"` solo en esa ruta en `src/frontend/components/GlobalNav/GlobalNav.tsx`; ajustar foco y distribución móvil si hace falta en `src/frontend/components/GlobalNav/GlobalNav.module.scss`.
-- [X] T007 [US1] Implementar la carga inicial ligada a `AuthContext` hidratado y token actual en `src/frontend/features/ranking/hooks/usePlayerRanking.ts`; mantener juntos `players`, `strategyCode`, `strategyVersion` y `pagination` de una respuesta, y no pedir perfiles adicionales.
-- [X] T008 [P] [US1] Crear presentación semántica de entradas en `src/frontend/features/ranking/components/RankingList.tsx` y `src/frontend/features/ranking/components/RankingList.module.scss`: puesto `rank` textual, nombre enlazado a `/players/:id`, equipo, liga, posición, puntaje 0–1, cotización «créditos por token» y fecha/hora UTC indicada; conservar exactamente el orden recibido.
-- [X] T009 [US1] Integrar `usePlayerRanking`, `RankingList`, encabezado de estrategia/versión y estado de carga en `src/app/ranking/page.tsx` y `src/app/ranking/RankingPage.module.scss`; bloquear datos antes de hidratación y llevar al usuario sin sesión a `/login`.
+- [x] T005 [P] [US1] Implementar cliente de solo lectura en `src/frontend/services/client/player-ranking.service.ts`: enviar token Bearer, `page=1&limit=20` por defecto, aceptar `AbortSignal`, preservar respuesta y exponer estado HTTP sin modificar `src/app/api/players/ranking/route.ts`.
+- [x] T006 [P] [US1] Añadir enlace «Ranking» hacia `/ranking` con `aria-current="page"` solo en esa ruta en `src/frontend/components/GlobalNav/GlobalNav.tsx`; ajustar foco y distribución móvil si hace falta en `src/frontend/components/GlobalNav/GlobalNav.module.scss`.
+- [x] T007 [US1] Implementar la carga inicial ligada a `AuthContext` hidratado y token actual en `src/frontend/features/ranking/hooks/usePlayerRanking.ts`; mantener juntos `players`, `strategyCode`, `strategyVersion` y `pagination` de una respuesta, y no pedir perfiles adicionales.
+- [x] T008 [P] [US1] Crear presentación semántica de entradas en `src/frontend/features/ranking/components/RankingList.tsx` y `src/frontend/features/ranking/components/RankingList.module.scss`: puesto `rank` textual, nombre enlazado a `/players/:id`, equipo, liga, posición, puntaje 0–1, cotización «créditos por token» y fecha/hora UTC indicada; conservar exactamente el orden recibido.
+- [x] T009 [US1] Integrar `usePlayerRanking`, `RankingList`, encabezado de estrategia/versión y estado de carga en `src/app/ranking/page.tsx` y `src/app/ranking/RankingPage.module.scss`; bloquear datos antes de hidratación y llevar al usuario sin sesión a `/login`.
 
 **Checkpoint**: La página ya permite consultar un ranking de una página desde navegación sin filtros ni acciones de mercado.
 
@@ -53,17 +53,17 @@
 
 ### Tests for User Story 2
 
-- [X] T010 [P] [US2] Crear pruebas de parseo y serialización de `league`, `team`, `position`, `page` en `tests/unit/features/ranking/ranking-url.spec.ts`: omitir filtros vacíos, recortar equipo, aceptar solo enums válidos, normalizar página no positiva a 1, ignorar parámetros ajenos, reiniciar página al cambiar filtros y conservarlos al paginar.
-- [X] T011 [P] [US2] Ampliar `tests/unit/features/ranking/RankingPage.spec.ts` con escenarios de filtros combinados, equipo parcial confirmado por formulario, limpiar filtros, navegación entre páginas, controles en extremos y puestos globales en página 2.
+- [x] T010 [P] [US2] Crear pruebas de parseo y serialización de `league`, `team`, `position`, `page` en `tests/unit/features/ranking/ranking-url.spec.ts`: omitir filtros vacíos, recortar equipo, aceptar solo enums válidos, normalizar página no positiva a 1, ignorar parámetros ajenos, reiniciar página al cambiar filtros y conservarlos al paginar.
+- [x] T011 [P] [US2] Ampliar `tests/unit/features/ranking/RankingPage.spec.ts` con escenarios de filtros combinados, equipo parcial confirmado por formulario, limpiar filtros, navegación entre páginas, controles en extremos y puestos globales en página 2.
 
 ### Implementation for User Story 2
 
-- [X] T012 [P] [US2] Implementar parseo y serialización canónica de la selección de `/ranking` en `src/frontend/features/ranking/utils/ranking-url.ts`: `league` y `position` enums existentes, `team` recortado, `page` entero >=1, omisión de parámetros desconocidos y `limit=20` fuera de la URL visible.
-- [X] T013 [P] [US2] Crear formulario de filtros en `src/frontend/features/ranking/components/RankingFilters.tsx` y `src/frontend/features/ranking/components/RankingFilters.module.scss`: selects de liga/posición, campo de texto para equipo parcial independiente de la página visible, envío explícito, limpiar filtros y etiquetas accesibles.
-- [X] T014 [P] [US2] Crear controles de paginación en `src/frontend/features/ranking/components/RankingPagination.tsx` y `src/frontend/features/ranking/components/RankingPagination.module.scss`: mostrar `total`, `page` y `totalPages` del backend, deshabilitar extremos y omitir controles cuando `totalPages=0`.
-- [X] T015 [US2] Extender `src/frontend/services/client/player-ranking.service.ts` para enviar solo `league`, `team`, `position`, `page` y `limit=20`, sin `name` ni parámetros desconocidos; `team` debe conservar la coincidencia parcial que resuelve el backend.
-- [X] T016 [US2] Ajustar `src/frontend/features/ranking/hooks/usePlayerRanking.ts` para consultar la selección aplicada, invalidar resultados de otra selección al cambiar filtros o página y evitar solicitudes duplicadas mientras cambia de página.
-- [X] T017 [US2] Integrar selección por URL, formulario, limpiar y paginación en `src/app/ranking/page.tsx`; al cambiar cualquier filtro volver a página 1, al paginar conservar filtros y, ante una URL con página mayor que `totalPages`, reemplazar una vez por la última válida o por 1 si el total es cero, sin inventar filas.
+- [x] T012 [P] [US2] Implementar parseo y serialización canónica de la selección de `/ranking` en `src/frontend/features/ranking/utils/ranking-url.ts`: `league` y `position` enums existentes, `team` recortado, `page` entero >=1, omisión de parámetros desconocidos y `limit=20` fuera de la URL visible.
+- [x] T013 [P] [US2] Crear formulario de filtros en `src/frontend/features/ranking/components/RankingFilters.tsx` y `src/frontend/features/ranking/components/RankingFilters.module.scss`: selects de liga/posición, campo de texto para equipo parcial independiente de la página visible, envío explícito, limpiar filtros y etiquetas accesibles.
+- [x] T014 [P] [US2] Crear controles de paginación en `src/frontend/features/ranking/components/RankingPagination.tsx` y `src/frontend/features/ranking/components/RankingPagination.module.scss`: mostrar `total`, `page` y `totalPages` del backend, deshabilitar extremos y omitir controles cuando `totalPages=0`.
+- [x] T015 [US2] Extender `src/frontend/services/client/player-ranking.service.ts` para enviar solo `league`, `team`, `position`, `page` y `limit=20`, sin `name` ni parámetros desconocidos; `team` debe conservar la coincidencia parcial que resuelve el backend.
+- [x] T016 [US2] Ajustar `src/frontend/features/ranking/hooks/usePlayerRanking.ts` para consultar la selección aplicada, invalidar resultados de otra selección al cambiar filtros o página y evitar solicitudes duplicadas mientras cambia de página.
+- [x] T017 [US2] Integrar selección por URL, formulario, limpiar y paginación en `src/app/ranking/page.tsx`; al cambiar cualquier filtro volver a página 1, al paginar conservar filtros y, ante una URL con página mayor que `totalPages`, reemplazar una vez por la última válida o por 1 si el total es cero, sin inventar filas.
 
 **Checkpoint**: Filtros y paginación de la API funcionan sin depender de la lista visible del catálogo.
 
@@ -77,15 +77,15 @@
 
 ### Tests for User Story 3
 
-- [X] T018 [P] [US3] Ampliar `tests/unit/services/client/player-ranking.service.spec.ts` para clasificar `401`, `409`, `400`, `500` y fallo de red sin exponer detalles internos ni convertirlos en `players: []`.
-- [X] T019 [P] [US3] Crear pruebas de estado y concurrencia en `tests/unit/features/ranking/usePlayerRanking.spec.ts`: carga frente a vacío, reintento de selección vigente, `409` específico, `401` que limpia datos y cierra sesión, y respuestas tardías descartadas tras cambios de filtros, página o token.
-- [X] T020 [P] [US3] Ampliar `tests/unit/features/ranking/RankingPage.spec.ts` con anuncios de carga, vacío con filtros modificables, error y reintento, falta de estrategia, ausencia de sesión y controles por teclado.
+- [x] T018 [P] [US3] Ampliar `tests/unit/services/client/player-ranking.service.spec.ts` para clasificar `401`, `409`, `400`, `500` y fallo de red sin exponer detalles internos ni convertirlos en `players: []`.
+- [x] T019 [P] [US3] Crear pruebas de estado y concurrencia en `tests/unit/features/ranking/usePlayerRanking.spec.ts`: carga frente a vacío, reintento de selección vigente, `409` específico, `401` que limpia datos y cierra sesión, y respuestas tardías descartadas tras cambios de filtros, página o token.
+- [x] T020 [P] [US3] Ampliar `tests/unit/features/ranking/RankingPage.spec.ts` con anuncios de carga, vacío con filtros modificables, error y reintento, falta de estrategia, ausencia de sesión y controles por teclado.
 
 ### Implementation for User Story 3
 
-- [X] T021 [US3] Completar clasificación de errores HTTP y de red en `src/frontend/services/client/player-ranking.service.ts`, conservando `status` para `401` y `409` y un mensaje seguro para fallos recuperables.
-- [X] T022 [US3] Completar transiciones de `loading`, `content`, `empty`, `error`, `no-active-strategy` y `unauthenticated` en `src/frontend/features/ranking/hooks/usePlayerRanking.ts`; abortar al cambiar selección/sesión/desmontar, comprobar clave vigente antes de aplicar respuesta, limpiar datos de sesión anterior y exponer reintento de la selección actual.
-- [X] T023 [US3] Presentar los estados y acciones en `src/app/ranking/page.tsx` y `src/app/ranking/RankingPage.module.scss`: carga perceptible, vacío solo tras `200`, error recuperable con «Reintentar», `409` específico y `401` con `logout()` y redirección a `/login`, sin reutilizar resultados obsoletos.
+- [x] T021 [US3] Completar clasificación de errores HTTP y de red en `src/frontend/services/client/player-ranking.service.ts`, conservando `status` para `401` y `409` y un mensaje seguro para fallos recuperables.
+- [x] T022 [US3] Completar transiciones de `loading`, `content`, `empty`, `error`, `no-active-strategy` y `unauthenticated` en `src/frontend/features/ranking/hooks/usePlayerRanking.ts`; abortar al cambiar selección/sesión/desmontar, comprobar clave vigente antes de aplicar respuesta, limpiar datos de sesión anterior y exponer reintento de la selección actual.
+- [x] T023 [US3] Presentar los estados y acciones en `src/app/ranking/page.tsx` y `src/app/ranking/RankingPage.module.scss`: carga perceptible, vacío solo tras `200`, error recuperable con «Reintentar», `409` específico y `401` con `logout()` y redirección a `/login`, sin reutilizar resultados obsoletos.
 
 **Checkpoint**: La vista informa correctamente cada estado y nunca muestra resultados de otra selección o sesión.
 
@@ -95,8 +95,8 @@
 
 **Purpose**: Validar accesibilidad, contrato y calidad de la entrega completa.
 
-- [X] T024 Revisar en `src/app/ranking/RankingPage.module.scss`, `src/frontend/features/ranking/components/RankingList.module.scss`, `src/frontend/features/ranking/components/RankingFilters.module.scss` y `src/frontend/features/ranking/components/RankingPagination.module.scss` foco visible, lectura móvil sin desplazamiento horizontal y ausencia de significado transmitido solo por color.
-- [X] T025 Ejecutar tests dirigidos, lint, TypeScript y build indicados en `specs/012-player-ranking-frontend/quickstart.md`; corregir fallos de la feature en `src/app/ranking/`, `src/frontend/features/ranking/` y `src/frontend/services/client/player-ranking.service.ts` sin modificar tests existentes para forzar verde.
+- [x] T024 Revisar en `src/app/ranking/RankingPage.module.scss`, `src/frontend/features/ranking/components/RankingList.module.scss`, `src/frontend/features/ranking/components/RankingFilters.module.scss` y `src/frontend/features/ranking/components/RankingPagination.module.scss` foco visible, lectura móvil sin desplazamiento horizontal y ausencia de significado transmitido solo por color.
+- [x] T025 Ejecutar tests dirigidos, lint, TypeScript y build indicados en `specs/012-player-ranking-frontend/quickstart.md`; corregir fallos de la feature en `src/app/ranking/`, `src/frontend/features/ranking/` y `src/frontend/services/client/player-ranking.service.ts` sin modificar tests existentes para forzar verde.
 - [ ] T026 Recorrer los escenarios manuales de `specs/012-player-ranking-frontend/quickstart.md` contra la API 007, registrar resultados y cualquier límite real en ese archivo; verificar que `src/app/api/players/ranking/route.ts` y `specs/007-player-ranking/contracts/ranking.yaml` permanecen sin cambios.
 
 ---

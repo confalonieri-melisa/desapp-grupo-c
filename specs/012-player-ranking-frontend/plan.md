@@ -30,16 +30,16 @@ Agregar una página autenticada `/ranking` y su acceso «Ranking» en la navegac
 
 ## Constitution Check
 
-*GATE: evaluado antes de Phase 0 y nuevamente después del diseño de Phase 1.*
+_GATE: evaluado antes de Phase 0 y nuevamente después del diseño de Phase 1._
 
-| Principio | Antes | Después | Evidencia y decisión |
-|---|---|---|---|
-| I-II. Alcance y especificación | PASS | PASS | [spec.md](./spec.md) fija la experiencia y excluye cambios de negocio; la aprobación de implementación sigue pendiente. |
-| III-IV. Capas y validación | PASS | PASS | Página y hook de vista → cliente HTTP → API 007. El backend sigue validando filtros y autorizando. |
-| V-IX. Verificación y entrega | PASS | PASS | [quickstart.md](./quickstart.md) cubre recorridos, errores y límites; la aprobación formal de entrega se gestiona después de implementar. |
-| VI. Seguridad | PASS | PASS | Se espera hidratación, se usa Bearer, se retiran datos al cambiar sesión y se descartan respuestas tardías. |
-| VII-VIII. Incrementalidad y simplicidad | PASS | PASS | Se reutilizan contexto, navegación, etiquetas y estilos; no hay cambios de backend ni abstracciones generales. |
-| X. Rama propia por feature | EXCEPCIÓN | EXCEPCIÓN ACOTADA | La documentación se preparó en `feature/011-player-name-search` y la implementación se aisló en `feature/012-player-ranking-frontend` creada desde ella. La base difiere de `main` hasta integrar la 011. |
+| Principio                               | Antes     | Después           | Evidencia y decisión                                                                                                                                                                                      |
+| --------------------------------------- | --------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| I-II. Alcance y especificación          | PASS      | PASS              | [spec.md](./spec.md) fija la experiencia y excluye cambios de negocio; la aprobación de implementación sigue pendiente.                                                                                   |
+| III-IV. Capas y validación              | PASS      | PASS              | Página y hook de vista → cliente HTTP → API 007. El backend sigue validando filtros y autorizando.                                                                                                        |
+| V-IX. Verificación y entrega            | PASS      | PASS              | [quickstart.md](./quickstart.md) cubre recorridos, errores y límites; la aprobación formal de entrega se gestiona después de implementar.                                                                 |
+| VI. Seguridad                           | PASS      | PASS              | Se espera hidratación, se usa Bearer, se retiran datos al cambiar sesión y se descartan respuestas tardías.                                                                                               |
+| VII-VIII. Incrementalidad y simplicidad | PASS      | PASS              | Se reutilizan contexto, navegación, etiquetas y estilos; no hay cambios de backend ni abstracciones generales.                                                                                            |
+| X. Rama propia por feature              | EXCEPCIÓN | EXCEPCIÓN ACOTADA | La documentación se preparó en `feature/011-player-name-search` y la implementación se aisló en `feature/012-player-ranking-frontend` creada desde ella. La base difiere de `main` hasta integrar la 011. |
 
 No hay aclaraciones funcionales pendientes. La excepción de base de rama se registra en Complexity Tracking; la primera tarea de implementación aisló la feature en su propia rama.
 
@@ -117,6 +117,6 @@ Pruebas dirigidas para serialización de filtros, equipo parcial y página invá
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|---|---|---|
+| Violation                                    | Why Needed                                                                                    | Simpler Alternative Rejected Because                                                                                                                       |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Principio X: base de rama distinta de `main` | El usuario indicó partir de la rama 011; se creó la rama 012 desde ella antes de implementar. | Crear 012 directamente desde `main` omitiría el estado de partida solicitado y podría perder el trabajo de la feature 011 que esta entrega toma como base. |

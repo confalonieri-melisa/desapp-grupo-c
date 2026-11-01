@@ -37,16 +37,15 @@ describe("toHttpResponse", () => {
   it.each([
     [new ForbiddenError(), 403, "Forbidden"],
     [new BadGatewayError(), 502, "External provider unavailable"],
-  ])("maps new HTTP errors preserving their status and default message", async (
-    error,
-    expectedStatus,
-    expectedMessage,
-  ) => {
-    const response = toHttpResponse(error);
+  ])(
+    "maps new HTTP errors preserving their status and default message",
+    async (error, expectedStatus, expectedMessage) => {
+      const response = toHttpResponse(error);
 
-    expect(response.status).toBe(expectedStatus);
-    await expect(response.json()).resolves.toEqual({ error: expectedMessage });
-  });
+      expect(response.status).toBe(expectedStatus);
+      await expect(response.json()).resolves.toEqual({ error: expectedMessage });
+    },
+  );
 
   it("rethrows unexpected errors", () => {
     const error = new Error("database unavailable");

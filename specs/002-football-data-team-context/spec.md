@@ -10,7 +10,7 @@
 
 **Input**: User description: "Incorporar football-data.org como segunda fuente externa para obtener y persistir el contexto colectivo de los equipos de las cinco ligas soportadas, separado de las estadísticas individuales de WhoScored, sin implementar todavía estrategias ni cotizaciones."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Sincronizar tablas de posiciones de las cinco ligas (Priority: P1)
 
@@ -87,7 +87,7 @@ Como operador autorizado, quiero iniciar y consultar sincronizaciones de context
 - La ausencia o invalidez de la credencial de football-data.org impide iniciar la sincronización, pero no afecta la lectura de la última versión válida.
 - Los datos históricos de temporadas anteriores permanecen consultables para recalcular fórmulas futuras y no son sobrescritos por una temporada nueva.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -135,13 +135,13 @@ Header: X-Auth-Token: <provider credential>
 
 Los valores soportados son:
 
-| Internal league | football-data.org competition | Code |
-|---|---|---|
-| `PREMIER_LEAGUE` | Premier League | `PL` |
-| `BUNDESLIGA` | Bundesliga | `BL1` |
-| `LA_LIGA` | Primera División | `PD` |
-| `SERIE_A` | Serie A | `SA` |
-| `LIGUE_1` | Ligue 1 | `FL1` |
+| Internal league  | football-data.org competition | Code  |
+| ---------------- | ----------------------------- | ----- |
+| `PREMIER_LEAGUE` | Premier League                | `PL`  |
+| `BUNDESLIGA`     | Bundesliga                    | `BL1` |
+| `LA_LIGA`        | Primera División              | `PD`  |
+| `SERIE_A`        | Serie A                       | `SA`  |
+| `LIGUE_1`        | Ligue 1                       | `FL1` |
 
 El parámetro `season` identifica el año de inicio de la temporada según el
 contrato del proveedor. No se deben consultar endpoints de scorers, matches,
@@ -153,7 +153,7 @@ La frontera normalizada contiene únicamente los campos necesarios para reconstr
 
 El snapshot original se conserva aparte de los registros normalizados. La existencia del snapshot no habilita a consumidores internos a tratar campos no permitidos como estadísticas individuales.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

@@ -13,19 +13,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MarketOrderRequest'
+              $ref: "#/components/schemas/MarketOrderRequest"
       responses:
-        '201':
+        "201":
           description: Completed purchase
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MarketOperationResult'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-        '500': { description: Unexpected error without partial changes }
+                $ref: "#/components/schemas/MarketOperationResult"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { description: Unexpected error without partial changes }
   /orders/sell:
     post:
       summary: Sell player tokens at the current persisted quote
@@ -36,32 +36,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MarketOrderRequest'
+              $ref: "#/components/schemas/MarketOrderRequest"
       responses:
-        '201':
+        "201":
           description: Completed sale
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MarketOperationResult'
-        '400': { $ref: '#/components/responses/BadRequest' }
-        '401': { $ref: '#/components/responses/Unauthorized' }
-        '404': { $ref: '#/components/responses/NotFound' }
-        '409': { $ref: '#/components/responses/Conflict' }
-        '500': { description: Unexpected error without partial changes }
+                $ref: "#/components/schemas/MarketOperationResult"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { description: Unexpected error without partial changes }
   /portfolio:
     get:
       summary: Get the authenticated investor portfolio
       security:
         - BearerAuth: []
       responses:
-        '200':
+        "200":
           description: Portfolio
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Portfolio'
-        '401': { $ref: '#/components/responses/Unauthorized' }
+                $ref: "#/components/schemas/Portfolio"
+        "401": { $ref: "#/components/responses/Unauthorized" }
 components:
   securitySchemes:
     BearerAuth:
@@ -112,7 +112,15 @@ components:
           type: array
           items:
             type: object
-            required: [playerId, quantity, averagePurchasePrice, currentQuoteValue, currentValue, unrealizedPnl]
+            required:
+              [
+                playerId,
+                quantity,
+                averagePurchasePrice,
+                currentQuoteValue,
+                currentValue,
+                unrealizedPnl,
+              ]
             properties:
               playerId: { type: string, format: uuid }
               quantity: { type: integer, minimum: 1 }
@@ -128,13 +136,13 @@ components:
   responses:
     BadRequest:
       description: Invalid request
-      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     Unauthorized:
       description: Missing or invalid JWT
-      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     NotFound:
       description: Player, pool or quote not found
-      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
     Conflict:
       description: Balance, holding, availability or concurrency conflict
-      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }

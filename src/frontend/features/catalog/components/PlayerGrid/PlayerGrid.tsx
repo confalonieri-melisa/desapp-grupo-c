@@ -9,7 +9,9 @@ interface PlayerGridProps {
 export default function PlayerGrid({ players }: PlayerGridProps) {
   return (
     <div className={styles.grid}>
-      {players.map((player) => <PlayerCard key={player.id} player={player} />)}
+      {players.map((player) => (
+        <PlayerCard key={player.id} player={player} />
+      ))}
     </div>
   );
 }

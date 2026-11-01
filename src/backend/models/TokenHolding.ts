@@ -23,8 +23,7 @@ export class TokenHolding {
 
   constructor(props: TokenHoldingProps) {
     const quantity = props.quantity ?? 0;
-    const averagePurchasePrice =
-      props.averagePurchasePrice ?? INITIAL_TOKEN_PRICE;
+    const averagePurchasePrice = props.averagePurchasePrice ?? INITIAL_TOKEN_PRICE;
 
     TokenHolding.validateQuantity(quantity);
     TokenHolding.validatePrice(averagePurchasePrice);
@@ -109,9 +108,7 @@ export class TokenHolding {
 
   private static validatePrice(price: number): void {
     if (!Number.isFinite(price) || price < 0) {
-      throw new DomainValidationError(
-        "Average purchase price cannot be negative",
-      );
+      throw new DomainValidationError("Average purchase price cannot be negative");
     }
   }
 }

@@ -19,14 +19,17 @@ describe("market financial records", () => {
   });
 
   it("rejects invalid operation values", () => {
-    expect(() => new MarketOperation({
-      type: "BUY",
-      investorId: "investor-id",
-      playerId: "player-id",
-      quoteId: "quote-id",
-      quoteValue: 10,
-      quantity: 0,
-    })).toThrow(DomainValidationError);
+    expect(
+      () =>
+        new MarketOperation({
+          type: "BUY",
+          investorId: "investor-id",
+          playerId: "player-id",
+          quoteId: "quote-id",
+          quoteValue: 10,
+          quantity: 0,
+        }),
+    ).toThrow(DomainValidationError);
   });
 
   it("keeps the before and after financial snapshots", () => {

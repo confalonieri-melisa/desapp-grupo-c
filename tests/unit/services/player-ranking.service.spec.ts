@@ -43,12 +43,16 @@ describe("PlayerRankingService", () => {
 
   it("returns zero pages for an empty ranking", async () => {
     const service = new PlayerRankingService(
-      { findRankedPlayers: vi.fn().mockResolvedValue({ rows: [], total: 0, page: 1, limit: 20 }) } as never,
-      { findActiveStrategyVersion: vi.fn().mockResolvedValue({
-        id: "version-1",
-        strategyCode: "INDIVIDUAL_PERFORMANCE",
-        version: "1.0.0",
-      }) } as never,
+      {
+        findRankedPlayers: vi.fn().mockResolvedValue({ rows: [], total: 0, page: 1, limit: 20 }),
+      } as never,
+      {
+        findActiveStrategyVersion: vi.fn().mockResolvedValue({
+          id: "version-1",
+          strategyCode: "INDIVIDUAL_PERFORMANCE",
+          version: "1.0.0",
+        }),
+      } as never,
     );
 
     await expect(service.getRanking({ page: 1, limit: 20 })).resolves.toMatchObject({

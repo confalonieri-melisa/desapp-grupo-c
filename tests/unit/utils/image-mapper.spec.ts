@@ -23,8 +23,9 @@ describe("getPlayerImage", () => {
 
   it("maps different player IDs to available placeholders", () => {
     const results = new Set(
-      ["player-1", "player-2", "player-3", "player-4", "player-5", "player-6"]
-        .map((playerId) => getPlayerImage(playerId)),
+      ["player-1", "player-2", "player-3", "player-4", "player-5", "player-6"].map((playerId) =>
+        getPlayerImage(playerId),
+      ),
     );
 
     expect(results.size).toBeGreaterThan(1);

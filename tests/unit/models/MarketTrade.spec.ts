@@ -39,12 +39,15 @@ function createState() {
 describe("MarketTrade", () => {
   it("settles a purchase against the central pool", () => {
     const state = createState();
-    const outcome = marketTrade.buy({
-      type: "BUY",
-      investorId: "investor-id",
-      playerId: "player-id",
-      quantity: 3,
-    }, state);
+    const outcome = marketTrade.buy(
+      {
+        type: "BUY",
+        investorId: "investor-id",
+        playerId: "player-id",
+        quantity: 3,
+      },
+      state,
+    );
 
     expect(state.investor.creditBalance).toBe(70);
     expect(state.pool.creditBalance).toBe(530);
@@ -76,12 +79,15 @@ describe("MarketTrade", () => {
     });
     state.investorHoldingExists = true;
 
-    const outcome = marketTrade.sell({
-      type: "SELL",
-      investorId: "investor-id",
-      playerId: "player-id",
-      quantity: 1,
-    }, state);
+    const outcome = marketTrade.sell(
+      {
+        type: "SELL",
+        investorId: "investor-id",
+        playerId: "player-id",
+        quantity: 1,
+      },
+      state,
+    );
 
     expect(state.investor.creditBalance).toBe(110);
     expect(state.pool.creditBalance).toBe(490);
@@ -114,12 +120,17 @@ describe("MarketTrade", () => {
       averagePurchasePrice: 1,
     });
 
-    expect(() => marketTrade.buy({
-      type: "BUY",
-      investorId: "investor-id",
-      playerId: "player-id",
-      quantity: 3,
-    }, state)).toThrow(new ConflictError("Insufficient tokens in central pool"));
+    expect(() =>
+      marketTrade.buy(
+        {
+          type: "BUY",
+          investorId: "investor-id",
+          playerId: "player-id",
+          quantity: 3,
+        },
+        state,
+      ),
+    ).toThrow(new ConflictError("Insufficient tokens in central pool"));
   });
 
   it("rejects a purchase when the investor has insufficient credits", () => {
@@ -132,23 +143,33 @@ describe("MarketTrade", () => {
       creditBalance: 20,
     });
 
-    expect(() => marketTrade.buy({
-      type: "BUY",
-      investorId: "investor-id",
-      playerId: "player-id",
-      quantity: 3,
-    }, state)).toThrow(new ConflictError("Insufficient credit balance"));
+    expect(() =>
+      marketTrade.buy(
+        {
+          type: "BUY",
+          investorId: "investor-id",
+          playerId: "player-id",
+          quantity: 3,
+        },
+        state,
+      ),
+    ).toThrow(new ConflictError("Insufficient credit balance"));
   });
 
   it("rejects a sale when the investor has no sufficient holding", () => {
     const state = createState();
 
-    expect(() => marketTrade.sell({
-      type: "SELL",
-      investorId: "investor-id",
-      playerId: "player-id",
-      quantity: 1,
-    }, state)).toThrow(new ConflictError("Insufficient token holding"));
+    expect(() =>
+      marketTrade.sell(
+        {
+          type: "SELL",
+          investorId: "investor-id",
+          playerId: "player-id",
+          quantity: 1,
+        },
+        state,
+      ),
+    ).toThrow(new ConflictError("Insufficient token holding"));
   });
 
   it("rejects a sale when the pool has insufficient credits", () => {
@@ -169,12 +190,17 @@ describe("MarketTrade", () => {
     });
     state.investorHoldingExists = true;
 
-    expect(() => marketTrade.sell({
-      type: "SELL",
-      investorId: "investor-id",
-      playerId: "player-id",
-      quantity: 1,
-    }, state)).toThrow(new ConflictError("Insufficient central pool balance"));
+    expect(() =>
+      marketTrade.sell(
+        {
+          type: "SELL",
+          investorId: "investor-id",
+          playerId: "player-id",
+          quantity: 1,
+        },
+        state,
+      ),
+    ).toThrow(new ConflictError("Insufficient central pool balance"));
   });
 
   it("rejects the central pool as an investor", () => {
@@ -188,11 +214,16 @@ describe("MarketTrade", () => {
       creditBalance: 500,
     });
 
-    expect(() => marketTrade.buy({
-      type: "BUY",
-      investorId: "pool-id",
-      playerId: "player-id",
-      quantity: 1,
-    }, state)).toThrow(new ConflictError("The central pool cannot operate as an investor"));
+    expect(() =>
+      marketTrade.buy(
+        {
+          type: "BUY",
+          investorId: "pool-id",
+          playerId: "player-id",
+          quantity: 1,
+        },
+        state,
+      ),
+    ).toThrow(new ConflictError("The central pool cannot operate as an investor"));
   });
 });
