@@ -49,6 +49,16 @@ describe("WhoScoredAdapter", () => {
     ]);
   });
 
+  it("removes trailing commas from team names", async () => {
+    const adapter = new WhoScoredAdapter(
+      vi.fn().mockResolvedValue([{ ...rawPlayer, team: "Real Madrid,, " }]),
+    );
+
+    await expect(adapter.fetchPlayers()).resolves.toMatchObject([
+      { team: "Real Madrid" },
+    ]);
+  });
+
   it("rejects invalid normalized statistics", async () => {
     const adapter = new WhoScoredAdapter(
       vi.fn().mockResolvedValue([{ ...rawPlayer, goals: "-1" }]),
