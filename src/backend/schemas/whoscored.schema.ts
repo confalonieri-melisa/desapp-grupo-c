@@ -16,13 +16,37 @@ export const whoScoredPlayerRecordSchema = z.object({
 
 export const whoScoredStatisticSchema = z.preprocess(
   (value) => typeof value === "string"
-    ? value.replace(",", ".").replace(/\([^)]*\)/g, "").trim()
+    ? removeParenthesizedText(value.replace(",", ".")).trim()
     : value,
   z.coerce
   .number()
   .nonnegative()
   .refine(Number.isFinite, "Statistic must be finite"),
 );
+
+function removeParenthesizedText(value: string): string {
+  const parts: string[] = [];
+  let cursor = 0;
+
+  while (cursor < value.length) {
+    const openIndex = value.indexOf("(", cursor);
+    if (openIndex === -1) {
+      parts.push(value.slice(cursor));
+      break;
+    }
+
+    const closeIndex = value.indexOf(")", openIndex + 1);
+    if (closeIndex === -1) {
+      parts.push(value.slice(cursor));
+      break;
+    }
+
+    parts.push(value.slice(cursor, openIndex));
+    cursor = closeIndex + 1;
+  }
+
+  return parts.join("");
+}
 
 export type WhoScoredPlayerRecord = z.infer<typeof whoScoredPlayerRecordSchema>;
 

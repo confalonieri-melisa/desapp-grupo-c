@@ -40,11 +40,21 @@ function normalizeWhoScoredPlayer(playerRecord: WhoScoredPlayerRecord): ScrapedP
   return {
     externalId: validatedPlayer.externalId,
     name: validatedPlayer.player.trim(),
-    team: validatedPlayer.team.trim().replace(/,+$/, "").trim(),
+    team: trimTrailingCommas(validatedPlayer.team.trim()).trim(),
     league: validatedPlayer.league,
     position: validatedPlayer.position,
     statistics: normalizeStatistics(validatedPlayer),
   };
+}
+
+function trimTrailingCommas(value: string): string {
+  let end = value.length;
+
+  while (end > 0 && value[end - 1] === ",") {
+    end -= 1;
+  }
+
+  return value.slice(0, end);
 }
 
 function normalizeStatistics(source: Record<string, unknown>): MinimalPlayerStatistics {
