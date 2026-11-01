@@ -11,7 +11,9 @@ if (!/e2e/i.test(databaseName)) {
   throw new Error("E2E_DATABASE_URL must point to an E2E database");
 }
 
-const baseURL = "http://127.0.0.1:3100";
+const baseURL = "http://localhost:3100";
+const browserChannel = process.env.E2E_BROWSER_CHANNEL;
+const browserUse = { ...devices["Desktop Chrome"], ...(browserChannel ? { channel: browserChannel } : {}) };
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -24,7 +26,16 @@ export default defineConfig({
     baseURL,
     trace: "retain-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [
+    { name: "setup", testMatch: /.*\.setup\.ts/, use: browserUse, teardown: "cleanup" },
+    {
+      name: "chromium",
+      testMatch: /.*\.spec\.ts/,
+      use: browserUse,
+      dependencies: ["setup"],
+    },
+    { name: "cleanup", testMatch: /.*\.teardown\.ts/ },
+  ],
   webServer: {
     command: process.env.CI ? "npm run start -- --port 3100" : "npm run dev -- --port 3100",
     url: baseURL,
