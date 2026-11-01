@@ -4,7 +4,7 @@
 
 Cover every user-facing route with browser tests against the running Next.js app and a dedicated PostgreSQL database. Exercise real API routes for the primary flows. Keep the existing Vitest unit and integration suites separate.
 
-Routes: `/` (redirect), `/login`, `/register`, `/players`, `/players/[id]`, `/ranking`, `/comparison`, `/transactions`, and `/portfolio`. Add a lightweight `/api/docs` smoke check because it serves a browser UI. API-only endpoints are already covered by integration tests and are outside this page matrix.
+Routes: `/` (redirect), `/login`, `/register`, `/players`, `/players/[id]`, `/ranking`, `/comparison`, `/transactions`, and `/portfolio`. This matrix covers application pages only.
 
 ## Harness and data
 
@@ -27,7 +27,6 @@ Routes: `/` (redirect), `/login`, `/register`, `/players`, `/players/[id]`, `/ra
 | `/comparison` | Empty state; search and select two players; matrix/chart render their values; add third, enforce maximum of three, remove and clear; verify selection survives navigation/reload for the same user. |
 | `/transactions` | Seeded buy/sell entries and summary; search, type, and period filters; clear; load-more when the fixture exceeds one page; new trade appears after returning from profile. |
 | `/portfolio` | Investor balance, positions, valuation/P&L, search, and link to profile; new trade updates the position; superuser and signed-out redirects. |
-| `/api/docs` | HTML response/title smoke check. Its Swagger assets currently load from a CDN, so full UI rendering would need a locally served asset to be reliable in offline CI. |
 
 ## Cross-page journeys and access
 
