@@ -101,7 +101,7 @@ function PlayersPageContent() {
               onReset={() => updateFilters(emptyPlayerCatalogFilters)}
             />
           </aside>
-          <div className={`${styles.catalog} ${styles.box}`}>
+          <div className={styles.catalog}>
             <p className={styles.resultCount} aria-live="polite">
               {isLoading ? "Cargando jugadores..." : `${pagination.total} ${resultLabel}`}
             </p>

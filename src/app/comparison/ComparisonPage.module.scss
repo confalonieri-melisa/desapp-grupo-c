@@ -1,9 +1,11 @@
 .page {
+  width: 100%;
+  padding: 24px var(--page-gutter) 48px;
   padding-bottom: 3rem;
 }
 
 .content {
-  width: min(100%, 1500px);
+  width: min(100%, var(--page-content-width));
   margin: 0 auto;
 }
 
@@ -12,13 +14,13 @@
 }
 
 .heading h1 {
-  color: var(--crimson-violet);
-  font-size: clamp(2rem, 4vw, 3.25rem);
+  color: var(--heading-color);
+  font-size: var(--page-title-size);
 }
 
 .heading p {
-  color: var(--dusty-violet);
-  font-size: 1.1rem;
+  color: var(--muted-text-color);
+  font-size: var(--page-description-size);
 }
 
 .surface {
@@ -398,7 +400,7 @@
 
 .matrixWrapper {
   overflow-x: auto;
-  background: rgb(255 251 254 / 96%);
+  background: var(--surface);
 }
 
 .matrix {

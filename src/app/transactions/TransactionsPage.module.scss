@@ -1,9 +1,9 @@
 .page {
   align-items: flex-start;
-  padding: 2.5rem 1rem 4rem;
+  padding: 24px var(--page-gutter) 48px;
 }
 .content {
-  width: min(100%, 1280px);
+  width: min(100%, var(--page-content-width));
   margin: 0 auto;
   color: var(--crimson-violet);
 }
@@ -11,13 +11,14 @@
   margin-bottom: 1.5rem;
 }
 .header h1 {
-  font-size: clamp(2.4rem, 4.5vw, 3.25rem);
-  line-height: 1.15;
+  color: var(--heading-color);
+  font-size: var(--page-title-size);
   margin: 0 0 0.55rem;
   letter-spacing: -0.04em;
 }
 .header p {
-  font-size: 1rem;
+  color: var(--muted-text-color);
+  font-size: var(--page-description-size);
 }
 .summary {
   display: grid;
@@ -26,8 +27,8 @@
   margin-bottom: 1.6rem;
   padding: 1rem 0.35rem;
   border: 1px solid var(--border);
-  border-radius: 20px;
-  background: rgb(255 251 254 / 82%);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
   box-shadow: 0 10px 30px rgb(70 27 59 / 8%);
 }
 .summaryItem {

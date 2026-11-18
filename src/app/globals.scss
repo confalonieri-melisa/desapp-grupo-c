@@ -8,9 +8,26 @@
   --watermelon-10: rgb(236 66 85 / 10%);
   --crimson-violet: #4d1838;
   --dusty-violet: #625b73;
-  --surface: rgb(255 251 254 / 0.94);
+  --heading-color: var(--crimson-violet);
+  --muted-text-color: var(--dusty-violet);
+  --text-primary: var(--crimson-violet);
+  --page-title-size: clamp(2rem, 3vw, 2.75rem);
+  --page-description-size: 1rem;
+  --section-title-size: 1.35rem;
+  --card-title-size: 1.1rem;
+  --font-xs: 0.75rem;
+  --font-sm: 0.875rem;
+  --font-base: 1rem;
+  --font-lg: 1.1rem;
+  --control-height: 42px;
+  --surface: rgb(255 251 254 / 0.82);
   --border: rgb(232 230 238 / 0.9);
+  --page-gutter: 20px;
+  --page-content-width: 1280px;
   --radius: 16px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
   --shadow: 0 10px 24px rgb(49 30 55 / 8%);
   --position-goalkeeper: var(--tangerine);
   --position-defender: var(--watermelon);
@@ -52,7 +69,7 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   font-family: var(--font-poppins), Arial, Helvetica, sans-serif;
-  background: url("../frontend/assets/bg.png") center / cover no-repeat fixed;
+  background: url("../../Nuevo_fondo.webp") center / cover no-repeat fixed;
 }
 
 img,
@@ -79,6 +96,25 @@ h4,
 h5,
 h6 {
   overflow-wrap: break-word;
+}
+
+h1 {
+  color: var(--heading-color);
+  font-size: var(--page-title-size);
+  line-height: 1.12;
+  font-weight: 700;
+}
+
+h2 {
+  color: var(--heading-color);
+  font-size: var(--section-title-size);
+  line-height: 1.2;
+}
+
+h3 {
+  color: var(--heading-color);
+  font-size: var(--card-title-size);
+  line-height: 1.25;
 }
 
 p {
