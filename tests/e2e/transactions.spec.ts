@@ -1,8 +1,10 @@
-import { expect } from "@playwright/test";
-import { investorTest } from "./fixtures/auth";
+import { expect, test } from "@playwright/test";
+import { AUTH_STATE } from "./fixtures/auth";
 import { E2E_PLAYERS } from "./fixtures/data";
 
-investorTest("history loads all operations and filters the loaded entries", async ({ page }) => {
+test.use({ storageState: AUTH_STATE.investor });
+
+test("history loads all operations and filters the loaded entries", async ({ page }) => {
   await page.goto("/transactions");
   await expect(page.getByRole("heading", { name: "Mi historial" })).toBeVisible();
 

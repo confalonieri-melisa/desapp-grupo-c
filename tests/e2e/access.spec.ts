@@ -1,6 +1,8 @@
-import { expect } from "@playwright/test";
-import { anonymousTest } from "./fixtures/auth";
+import { expect, test } from "@playwright/test";
+import { ANONYMOUS_STATE } from "./fixtures/auth";
 import { E2E_PLAYERS } from "./fixtures/data";
+
+test.use({ storageState: ANONYMOUS_STATE });
 
 for (const route of [
   "/players",
@@ -10,7 +12,7 @@ for (const route of [
   "/transactions",
   "/portfolio",
 ]) {
-  anonymousTest(`signed-out visitor is redirected from ${route}`, async ({ page }) => {
+  test(`signed-out visitor is redirected from ${route}`, async ({ page }) => {
     await page.goto(route);
     await expect(page).toHaveURL(/\/login$/);
   });

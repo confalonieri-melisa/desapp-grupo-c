@@ -1,45 +1,46 @@
 import { randomUUID } from "node:crypto";
-import { expect } from "@playwright/test";
-import { anonymousTest } from "./fixtures/auth";
+import { expect, test } from "@playwright/test";
+import { ANONYMOUS_STATE } from "./fixtures/auth";
 import { E2E_EMAIL_DOMAIN, E2E_PASSWORD, E2E_USERS } from "./fixtures/data";
 
-anonymousTest(
-  "registration validates input, rejects duplicates, and creates an investor",
-  async ({ page }) => {
-    await page.goto("/register");
+test.use({ storageState: ANONYMOUS_STATE });
 
-    const name = page.getByLabel("Nombre completo");
-    const email = page.getByLabel("Correo electrónico");
-    const password = page.getByLabel("Contraseña");
-    const submit = page.getByRole("button", { name: "Registrarse" });
+test("registration validates input, rejects duplicates, and creates an investor", async ({
+  page,
+}) => {
+  await page.goto("/register");
 
-    await submit.click();
-    await expect(page.getByText("El nombre es obligatorio")).toBeVisible();
-    await expect(page.getByText("Ingresa un correo electrónico válido")).toBeVisible();
-    await expect(page.getByText("La contraseña es obligatoria")).toBeVisible();
+  const name = page.getByLabel("Nombre completo");
+  const email = page.getByLabel("Correo electrónico");
+  const password = page.getByLabel("Contraseña");
+  const submit = page.getByRole("button", { name: "Registrarse" });
 
-    await name.fill("E2E New Investor");
-    await email.fill("invalid-address");
-    await password.fill(E2E_PASSWORD);
-    await submit.click();
-    await expect(page.getByText("Ingresa un correo electrónico válido")).toBeVisible();
+  await submit.click();
+  await expect(page.getByText("El nombre es obligatorio")).toBeVisible();
+  await expect(page.getByText("Ingresa un correo electrónico válido")).toBeVisible();
+  await expect(page.getByText("La contraseña es obligatoria")).toBeVisible();
 
-    await email.fill(E2E_USERS.investor.email);
-    await submit.click();
-    await expect(
-      page
-        .getByRole("alert")
-        .filter({ hasText: "El correo electrónico ya se encuentra registrado." }),
-    ).toBeVisible();
+  await name.fill("E2E New Investor");
+  await email.fill("invalid-address");
+  await password.fill(E2E_PASSWORD);
+  await submit.click();
+  await expect(page.getByText("Ingresa un correo electrónico válido")).toBeVisible();
 
-    const newEmail = `registration-${randomUUID()}@${E2E_EMAIL_DOMAIN}`;
-    await email.fill(newEmail);
-    await submit.click();
-    await expect(page).toHaveURL(/\/players$/);
-    await expect(page.getByRole("heading", { name: "Jugadores", exact: true })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Mi portfolio" })).toBeVisible();
+  await email.fill(E2E_USERS.investor.email);
+  await submit.click();
+  await expect(
+    page
+      .getByRole("alert")
+      .filter({ hasText: "El correo electrónico ya se encuentra registrado." }),
+  ).toBeVisible();
 
-    await page.reload();
-    await expect(page.getByRole("heading", { name: "Jugadores", exact: true })).toBeVisible();
-  },
-);
+  const newEmail = `registration-${randomUUID()}@${E2E_EMAIL_DOMAIN}`;
+  await email.fill(newEmail);
+  await submit.click();
+  await expect(page).toHaveURL(/\/players$/);
+  await expect(page.getByRole("heading", { name: "Jugadores", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Mi portfolio" })).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Jugadores", exact: true })).toBeVisible();
+});
