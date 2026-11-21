@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/frontend/context/AuthContext";
 import GlobalNav from "@/frontend/components/GlobalNav/GlobalNav";
@@ -11,6 +12,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isHydrated } = useAuth();
 
   const shouldShowNavigation = isHydrated && isAuthenticated && !AUTH_ROUTES.has(pathname);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <>

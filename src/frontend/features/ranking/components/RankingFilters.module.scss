@@ -5,17 +5,18 @@
   align-items: end;
   padding: 17px;
   border: 1px solid #f5eaf0;
-  border-radius: 14px;
-  background: rgb(255 252 255 / 79%);
+  border-radius: var(--radius);
+  background: var(--surface);
   box-shadow: 0 9px 28px rgb(96 45 79 / 8%);
+  backdrop-filter: blur(8px);
 }
 .panel label,
 .teamForm {
   display: grid;
   gap: 7px;
   min-width: 0;
-  color: #4b213e;
-  font-size: 13px;
+  color: var(--heading-color);
+  font-size: var(--font-sm);
   font-weight: 700;
 }
 .labelText {
@@ -30,21 +31,21 @@
 .panel input {
   width: 100%;
   min-width: 0;
-  height: 42px;
+  height: var(--control-height);
   padding: 8px 11px;
   border: 1px solid #f1e9f0;
-  border-radius: 6px;
-  background: white;
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 72%);
   box-shadow: 0 4px 12px rgb(67 23 47 / 5%);
-  color: #5b4b67;
-  font-size: 13px;
+  color: var(--text-primary);
+  font-size: var(--font-sm);
   font-weight: 400;
 }
 .panel select {
   cursor: pointer;
 }
 .panel input::placeholder {
-  color: #9a90a4;
+  color: var(--muted-text-color);
 }
 .teamInput {
   position: relative;
@@ -69,7 +70,7 @@
   border-radius: 5px;
   background: #fff1f5;
   color: #ec4268;
-  font-size: 12px;
+  font-size: var(--font-xs);
   font-weight: 700;
   cursor: pointer;
 }
@@ -78,13 +79,13 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 42px;
+  height: var(--control-height);
   padding: 0 14px;
   border: 1px solid #ff486b;
-  border-radius: 99px;
-  background: white;
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 72%);
   color: #f13861;
-  font-size: 13px;
+  font-size: var(--font-sm);
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;

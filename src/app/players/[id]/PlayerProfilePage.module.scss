@@ -1,13 +1,13 @@
 .page {
   display: block;
   width: 100%;
-  padding: 1rem 1rem 2rem;
+  padding: 24px var(--page-gutter) 48px;
 }
 
 .content {
   display: grid;
   gap: 1.25rem;
-  width: min(95%, 1180px);
+  width: min(100%, var(--page-content-width));
   margin: 0 auto;
   color: var(--crimson-violet);
 }

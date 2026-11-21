@@ -3,12 +3,11 @@
   width: 100%;
   margin: 0;
   display: block;
-  padding: 1rem 1rem 2rem;
+  padding: 24px var(--page-gutter) 48px;
 }
 
 .content {
-  width: min(95%, 1480px);
-  padding-top: 1rem;
+  width: min(100%, var(--page-content-width));
   margin: 0 auto;
   color: var(--crimson-violet);
 }
@@ -24,32 +23,26 @@
   align-items: start;
 }
 
-.box {
-  min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(8px);
-}
-
 .sidebar {
   padding: 0;
 }
 
 .catalog {
   min-height: 220px;
-  padding: 1.5rem;
+  min-width: 0;
+  padding: 0;
 }
 
 .title {
   margin-top: 0;
-  color: var(--crimson-violet);
-  font-size: clamp(2rem, 4vw, 3rem);
+  color: var(--heading-color);
+  font-size: var(--page-title-size);
 }
 
 .description {
   margin-top: 0.5rem;
+  color: var(--muted-text-color);
+  font-size: var(--page-description-size);
 }
 
 .resultCount {
