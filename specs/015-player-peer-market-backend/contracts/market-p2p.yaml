@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Player Token Primary and P2P Market
+  version: 1.0.0
+paths:
+  /orders/buy:
+    post:
+      summary: Buy tokens from the central pool
+      security: [{ BearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: '#/components/schemas/OrderRequest' } }
+      responses:
+        '201': { description: Pool purchase completed, content: { application/json: { schema: { $ref: '#/components/schemas/MarketOperationResult' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+  /orders/sell:
+    post:
+      summary: Disabled central-pool repurchase route
+      security: [{ BearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      responses:
+        '409': { description: Central pool repurchase is disabled, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+  /p2p/offers:
+    get:
+      summary: List open P2P offers
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - in: query
+          name: playerId
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: Open offers, content: { application/json: { schema: { $ref: '#/components/schemas/OfferList' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    post:
+      summary: Publish a fixed-size P2P offer
+      security: [{ BearerAuth: [] }]
+      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
+      requestBody:
+        required: true
+        content:
+          application/json: { schema: { $ref: '#/components/schemas/OfferRequest' } }
+      responses:
+        '201': { description: Offer published, content: { application/json: { schema: { $ref: '#/components/schemas/Offer' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+  /p2p/offers/{offerId}/purchase:
+    post:
+      summary: Fill an open offer completely
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/OfferId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { description: Offer filled, content: { application/json: { schema: { $ref: '#/components/schemas/P2PTradeResult' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+  /p2p/offers/{offerId}/cancel:
+    post:
+      summary: Cancel an open offer owned by the seller
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/OfferId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200': { description: Offer cancelled, content: { application/json: { schema: { $ref: '#/components/schemas/Offer' } } } }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+components:
+  securitySchemes:
+    BearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  parameters:
+    IdempotencyKey: { in: header, name: Idempotency-Key, required: true, schema: { type: string, minLength: 1, maxLength: 255 } }
+    OfferId: { in: path, name: offerId, required: true, schema: { type: string, format: uuid } }
+  schemas:
+    OrderRequest:
+      type: object
+      additionalProperties: false
+      required: [playerId, quantity]
+      properties: { playerId: { type: string, format: uuid }, quantity: { type: integer, minimum: 1 } }
+    OfferRequest:
+      type: object
+      additionalProperties: false
+      required: [playerId, quantity]
+      properties: { playerId: { type: string, format: uuid }, quantity: { type: integer, minimum: 1 } }
+    Offer:
+      type: object
+      required: [id, sellerId, playerId, quantity, reservedQuantity, quoteId, unitPrice, total, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        sellerId: { type: string, format: uuid }
+        buyerId: { type: string, format: uuid, nullable: true }
+        playerId: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1 }
+        reservedQuantity: { type: integer, minimum: 0 }
+        quoteId: { type: string, format: uuid }
+        unitPrice: { type: number, format: double, minimum: 0 }
+        total: { type: number, format: double, exclusiveMinimum: 0 }
+        status: { type: string, enum: [OPEN, SOLD, CANCELLED] }
+        createdAt: { type: string, format: date-time }
+        closedAt: { type: string, format: date-time, nullable: true }
+    OfferList:
+      type: object
+      required: [items]
+      properties: { items: { type: array, items: { $ref: '#/components/schemas/Offer' } } }
+    MarketOperationResult: { type: object, additionalProperties: true }
+    P2PTradeResult: { type: object, additionalProperties: true }
+    Error:
+      type: object
+      required: [code, message, correlationId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        correlationId: { type: string, nullable: true }
+  responses:
+    BadRequest: { description: Invalid request, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Unauthorized: { description: Missing or invalid JWT, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Forbidden: { description: Role or ownership violation, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    NotFound: { description: Resource not found, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    Conflict: { description: Business or idempotency conflict, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
+    ServiceUnavailable: { description: Exhausted transient transaction retries, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }

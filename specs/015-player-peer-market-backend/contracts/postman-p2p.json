@@ -1,0 +1,73 @@
+{
+  "info": {
+    "name": "DesApp Grupo C - Feature 015 P2P Backend",
+    "_postman_id": "desapp-grupo-c-feature-015-p2p",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "sellerToken", "value": "" },
+    { "key": "buyerToken", "value": "" },
+    { "key": "playerId", "value": "" },
+    { "key": "offerId", "value": "" },
+    { "key": "idempotencyKey", "value": "feature-015-unique-key" }
+  ],
+  "item": [
+    {
+      "name": "List open offers",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{sellerToken}}" }],
+        "url": "{{baseUrl}}/p2p/offers?playerId={{playerId}}"
+      }
+    },
+    {
+      "name": "Publish offer",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{sellerToken}}" },
+          { "key": "Idempotency-Key", "value": "{{idempotencyKey}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"quantity\": 3\n}" },
+        "url": "{{baseUrl}}/p2p/offers"
+      }
+    },
+    {
+      "name": "Purchase offer completely",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{buyerToken}}" },
+          { "key": "Idempotency-Key", "value": "purchase-unique-key" }
+        ],
+        "url": "{{baseUrl}}/p2p/offers/{{offerId}}/purchase"
+      }
+    },
+    {
+      "name": "Cancel offer",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{sellerToken}}" },
+          { "key": "Idempotency-Key", "value": "cancel-unique-key" }
+        ],
+        "url": "{{baseUrl}}/p2p/offers/{{offerId}}/cancel"
+      }
+    },
+    {
+      "name": "Reject central pool repurchase",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{sellerToken}}" },
+          { "key": "Idempotency-Key", "value": "disabled-sell-key" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"quantity\": 1\n}" },
+        "url": "{{baseUrl}}/orders/sell"
+      }
+    }
+  ]
+}
