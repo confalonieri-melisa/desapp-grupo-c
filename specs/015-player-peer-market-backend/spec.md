@@ -232,18 +232,17 @@ respectivamente resultado idéntico y `409`.
 - **FR-017**: Toda operación mutante iniciada por el frontend DEBE requerir
   `Idempotency-Key` en `POST /api/orders/buy`, publicación, aceptación y
   cancelación.
-- **FR-018**: La idempotencia DEBE estar vinculada al usuario autenticado y al
-  método HTTP, ruta y payload normalizado; misma clave y huella DEBE esperar
-  si la primera solicitud sigue en curso y luego devolver exactamente el mismo
-  código y cuerpo sin duplicar efectos; cualquier diferencia de usuario,
-  método, ruta o payload DEBE responder `409`.
+- **FR-018**: La idempotencia DEBE estar vinculada al usuario autenticado y a
+  los datos relevantes de cada operación; una misma clave con los mismos datos
+  DEBE esperar si la primera solicitud sigue en curso y luego devolver la misma
+  respuesta sin duplicar efectos; una diferencia en esos datos DEBE responder
+  `409`.
 - **FR-019**: Las solicitudes sin clave, con clave vacía o con formato fuera
   del contrato DEBEN responder `400` antes de mutar el estado.
 - **FR-020**: El backend NO DEBE reintentar automáticamente errores de negocio
   ni llamadas a APIs externas. Ante deadlock o serialization failure de
-  PostgreSQL, puede reintentar internamente como máximo 3 intentos totales,
-  con backoff de 50 ms y 100 ms; agotados los intentos, DEBE responder `503`
-  sin efectos parciales.
+  PostgreSQL, puede hacer un único retry adicional con una espera breve;
+  agotado ese retry, DEBE responder `503` sin efectos parciales.
 - **FR-021**: Un timeout o error de red posterior al envío DEBE tratarse como
   resultado incierto y la repetición con la misma clave DEBE ser segura. Los
   conflictos de negocio DEBEN responder `409`; deadlock o serialization

@@ -8,7 +8,7 @@ describe("MarketOperationController", () => {
         operation: {
           id: "operation-id",
           type: "BUY",
-          investorId: "investor-id",
+          userId: "investor-id",
           playerId: "player-id",
           quoteValue: 10,
           quantity: 2,
@@ -24,6 +24,7 @@ describe("MarketOperationController", () => {
     const result = await controller.buy(
       { sub: "investor-id", email: "investor@example.com", role: "INVESTOR" },
       { playerId: "player-id", quantity: 2 },
+      "buy-key",
     );
 
     expect(result).toEqual({
@@ -39,37 +40,6 @@ describe("MarketOperationController", () => {
       },
       account: { creditBalance: 980 },
       holding: { quantity: 2, averagePurchasePrice: 10 },
-    });
-  });
-
-  it("serializes a sell with the authenticated user id", async () => {
-    const service = {
-      sell: vi.fn().mockResolvedValue({
-        operation: {
-          id: "operation-id",
-          type: "SELL",
-          investorId: "investor-id",
-          playerId: "player-id",
-          quoteValue: 10,
-          quantity: 1,
-          total: 10,
-          createdAt: new Date("2026-10-24T15:00:00.000Z"),
-        },
-        creditBalance: 1010,
-        holding: { quantity: 2, averagePurchasePrice: 10 },
-      }),
-    };
-    const controller = new MarketOperationController(service as never);
-
-    await expect(
-      controller.sell(
-        { sub: "investor-id", email: "investor@example.com", role: "INVESTOR" },
-        { playerId: "player-id", quantity: 1 },
-      ),
-    ).resolves.toMatchObject({
-      operation: { type: "SELL", userId: "investor-id" },
-      account: { creditBalance: 1010 },
-      holding: { quantity: 2 },
     });
   });
 

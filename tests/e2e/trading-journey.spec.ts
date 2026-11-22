@@ -5,10 +5,18 @@ import { E2E_EMAIL_DOMAIN, E2E_PASSWORD, E2E_PLAYERS } from "./fixtures/data";
 
 test.use({ storageState: ANONYMOUS_STATE });
 
-test("new investor buys and sells through catalog, profile, portfolio, and history", async ({
-  page,
-}) => {
+test("new investor buys through catalog, profile, portfolio, and history", async ({ page }) => {
   const player = E2E_PLAYERS[0];
+  const idempotencyKey = `e2e-buy-${randomUUID()}`;
+  await page.route("**/api/orders/buy", async (route) => {
+    await route.continue({
+      headers: {
+        ...route.request().headers(),
+        "Idempotency-Key": idempotencyKey,
+      },
+    });
+  });
+
   await page.goto("/register");
   await page.getByLabel("Nombre completo").fill("E2E Journey Investor");
   await page.getByLabel("Correo electrónico").fill(`journey-${randomUUID()}@${E2E_EMAIL_DOMAIN}`);
@@ -41,26 +49,4 @@ test("new investor buys and sells through catalog, profile, portfolio, and histo
   await expect(operations).toHaveCount(1);
   await expect(operations.first()).toContainText("Compra");
   await expect(operations.first()).toContainText(player.name);
-  await operations.first().getByRole("link", { name: player.name }).click();
-  await expect(page).toHaveURL(new RegExp(`/players/${player.id}$`));
-
-  await page.getByRole("radio", { name: "Vender" }).check();
-  await page.getByRole("textbox", { name: "Cantidad de tokens" }).fill("1");
-  await page.getByRole("button", { name: "Ver detalle de la venta" }).click();
-  await page
-    .getByRole("dialog", { name: "Confirmar venta" })
-    .getByRole("button", { name: "Confirmar venta" })
-    .click();
-  await expect(
-    page.getByRole("heading", { name: `Venta confirmada de ${player.name}` }),
-  ).toBeVisible();
-
-  await page.goto("/portfolio");
-  await expect(summary.getByText("Saldo disponible").locator("..")).toContainText("970 créditos");
-  await expect(row).toContainText("1 token");
-  await expect(row).toContainText("30 créditos");
-  await page.goto("/transactions");
-  await expect(operations).toHaveCount(2);
-  await expect(operations.first()).toContainText("Venta");
-  await expect(operations.last()).toContainText("Compra");
 });

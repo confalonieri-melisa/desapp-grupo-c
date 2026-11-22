@@ -1,14 +1,13 @@
-import type { AuthTokenPayload } from "@/backend/utils/jwt";
 import type { MarketOperationRow } from "@/backend/db/schema";
+import { AuthorizationError } from "@/backend/errors/application.error";
+import { MarketTrade, type MarketTradeRequest } from "@/backend/models/MarketTrade";
+import type { TokenPurchaseReceipt } from "@/backend/models/TokenPurchaseReceipt";
+import { MarketRepository } from "@/backend/repositories/market.repository";
 import type {
   MarketOperationHistoryQuery,
   MarketOperationRequest,
 } from "@/backend/schemas/market-operation.schema";
-import { MarketRepository } from "@/backend/repositories/market.repository";
-import { MarketTrade, type MarketTradeRequest } from "@/backend/models/MarketTrade";
-import type { MarketOperation } from "@/backend/models/MarketOperation";
-import { TokenHolding } from "@/backend/models/TokenHolding";
-import { ForbiddenError } from "@/backend/errors/http.error";
+import type { AuthTokenPayload } from "@/backend/utils/jwt";
 
 export interface MarketOperationHistoryItem {
   id: string;
@@ -30,24 +29,24 @@ export interface MarketOperationHistoryResult {
   hasMore: boolean;
 }
 
-export interface MarketTradeResult {
-  operation: MarketOperation;
-  creditBalance: number;
-  holding: TokenHolding;
-}
-
 export class MarketOperationService {
   constructor(
     private readonly marketRepository = new MarketRepository(),
     private readonly marketTrade = new MarketTrade(),
   ) {}
 
-  buy(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
-    return this.trade("BUY", auth, input, correlationId);
-  }
-
-  sell(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
-    return this.trade("SELL", auth, input, correlationId);
+  async buy(auth: AuthTokenPayload, input: MarketOperationRequest, idempotencyKey: string, correlationId?: string): Promise<TokenPurchaseReceipt> {
+    const request: MarketTradeRequest = {
+      investorId: auth.sub,
+      playerId: input.playerId,
+      quantity: input.quantity,
+      correlationId,
+    };
+    return this.marketRepository.executeTokenPurchase(
+      request,
+      (state) => this.marketTrade.buyFromPool(request, state),
+      { key: idempotencyKey, playerId: input.playerId, quantity: input.quantity },
+    );
   }
 
   async getHistory(
@@ -55,7 +54,7 @@ export class MarketOperationService {
     userId: string,
     query: MarketOperationHistoryQuery,
   ): Promise<MarketOperationHistoryResult> {
-    if (auth.sub !== userId) throw new ForbiddenError();
+    if (auth.sub !== userId) throw new AuthorizationError("Forbidden");
 
     const page = await this.marketRepository.findOperationsByInvestorId(
       userId,
@@ -68,33 +67,6 @@ export class MarketOperationService {
       limit: query.limit,
       offset: query.offset,
       hasMore: page.hasMore,
-    };
-  }
-
-  private async trade(
-    type: MarketTradeRequest["type"],
-    auth: AuthTokenPayload,
-    input: MarketOperationRequest,
-    correlationId?: string,
-  ): Promise<MarketTradeResult> {
-    const request: MarketTradeRequest = {
-      type,
-      investorId: auth.sub,
-      playerId: input.playerId,
-      quantity: input.quantity,
-      correlationId,
-    };
-
-    const result = await this.marketRepository.executeTrade(request, (state) =>
-      request.type === "BUY"
-        ? this.marketTrade.buy(request, state)
-        : this.marketTrade.sell(request, state),
-    );
-
-    return {
-      operation: result.outcome.operation,
-      creditBalance: result.creditBalance,
-      holding: result.outcome.investorHolding,
     };
   }
 }

@@ -41,8 +41,8 @@ npm run build
    assert confirmed reservations never exceed availability and no negative
    holding exists.
 9. Run purchase/cancel concurrently; assert exactly one terminal transition.
-10. Verify the legacy pool sell endpoint is rejected with the documented
-    business conflict and produces no operation.
+10. Verify that no central-pool sell endpoint is part of this feature; selling
+    to the pool is intentionally absent and future exchange belongs to P2P.
 
 See [contracts/market-p2p.yaml](contracts/market-p2p.yaml) for HTTP examples
 and [data-model.md](data-model.md) for invariants and constraints.

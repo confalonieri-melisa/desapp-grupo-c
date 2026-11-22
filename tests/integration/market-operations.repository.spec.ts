@@ -3,6 +3,7 @@ import { eq, inArray } from "drizzle-orm";
 import { closeDatabase, db } from "@/backend/db";
 import {
   financialAuditRecords,
+  idempotencyKeys,
   marketOperations,
   playerQuotes,
   players,
@@ -11,6 +12,10 @@ import {
   valuationStrategyVersions,
 } from "@/backend/db/schema";
 import { League, Position, UserRole } from "@/backend/models/enums";
+import {
+  BusinessConflictError,
+  IdempotencyConflictError,
+} from "@/backend/errors/application.error";
 import { MarketOperationService } from "@/backend/services/market-operation.service";
 import { MarketRepository } from "@/backend/repositories/market.repository";
 
@@ -27,6 +32,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
   () => {
     afterEach(async () => {
       await db.delete(financialAuditRecords);
+      await db.delete(idempotencyKeys);
       await db.delete(marketOperations);
       await db.delete(tokenHoldings).where(eq(tokenHoldings.playerId, playerId));
       await db.delete(playerQuotes).where(eq(playerQuotes.id, quoteId));
@@ -41,7 +47,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       await closeDatabase();
     });
 
-    async function seedMarket(withPoolHolding = true) {
+    async function seedMarket(withPoolHolding = true, poolQuantity = 100) {
       await db.insert(users).values([
         {
           id: investorId,
@@ -89,7 +95,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
         await db.insert(tokenHoldings).values({
           userId: poolId,
           playerId,
-          quantity: 100,
+          quantity: poolQuantity,
           averagePurchasePrice: "1.00",
         });
       }
@@ -113,27 +119,25 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       ]);
     });
 
-    it("transfers buy and sell atomically and records audit snapshots", async () => {
+    it("transfers a buy atomically and records audit snapshots", async () => {
       await seedMarket();
 
-      const buy = await service.buy(auth, {
-        playerId,
-        quantity: 3,
-      });
+      const buy = await service.buy(
+        auth,
+        {
+          playerId,
+          quantity: 3,
+        },
+        "initial-buy",
+        undefined,
+      );
 
       expect(buy.creditBalance).toBe(970);
       expect(buy.holding.quantity).toBe(3);
       expect(buy.holding.averagePurchasePrice).toBe(10);
 
-      const sell = await service.sell(auth, {
-        playerId,
-        quantity: 1,
-      });
-
-      expect(sell.creditBalance).toBe(980);
-      expect(sell.holding.quantity).toBe(2);
-      expect(await db.select().from(marketOperations)).toHaveLength(2);
-      expect(await db.select().from(financialAuditRecords)).toHaveLength(2);
+      expect(await db.select().from(marketOperations)).toHaveLength(1);
+      expect(await db.select().from(financialAuditRecords)).toHaveLength(1);
 
       const holdings = await db
         .select()
@@ -142,18 +146,56 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       expect(holdings.reduce((sum, holding) => sum + holding.quantity, 0)).toBe(100);
     });
 
-    it("rejects a sale without changing state", async () => {
+    it("replays an idempotent buy without duplicating financial effects", async () => {
+      await seedMarket();
+      const order = { playerId, quantity: 3 };
+
+      const first = await service.buy(auth, order, "buy-replay", undefined);
+      const replay = await service.buy(auth, order, "buy-replay", undefined);
+
+      expect(replay.operation.id).toBe(first.operation.id);
+      expect(replay.creditBalance).toBe(first.creditBalance);
+      expect(await db.select().from(marketOperations)).toHaveLength(1);
+      expect(await db.select().from(financialAuditRecords)).toHaveLength(1);
+      expect(
+        await db.select().from(tokenHoldings).where(eq(tokenHoldings.userId, investorId)),
+      ).toMatchObject([{ quantity: 3 }]);
+    });
+
+    it("rejects a reused key with a different buy payload", async () => {
       await seedMarket();
 
+      await service.buy(auth, { playerId, quantity: 3 }, "buy-conflict", undefined);
       await expect(
-        service.sell(auth, {
-          playerId,
-          quantity: 1,
-        }),
-      ).rejects.toMatchObject({ status: 409 });
+        service.buy(auth, { playerId, quantity: 4 }, "buy-conflict", undefined),
+      ).rejects.toBeInstanceOf(IdempotencyConflictError);
 
+      expect(await db.select().from(marketOperations)).toHaveLength(1);
+      expect(await db.select().from(financialAuditRecords)).toHaveLength(1);
+    });
+
+    it("rejects an exhausted pool without changing balances or audit", async () => {
+      await seedMarket(true, 1);
+
+      await expect(
+        service.buy(auth, { playerId, quantity: 2 }, "pool-empty", undefined),
+      ).rejects.toBeInstanceOf(BusinessConflictError);
       expect(await db.select().from(marketOperations)).toHaveLength(0);
       expect(await db.select().from(financialAuditRecords)).toHaveLength(0);
+    });
+
+    it("rejects an insufficient balance without changing holdings", async () => {
+      await seedMarket();
+      await db.update(users).set({ creditBalance: "1.00" }).where(eq(users.id, investorId));
+
+      await expect(
+        service.buy(auth, { playerId, quantity: 1 }, "balance-low", undefined),
+      ).rejects.toBeInstanceOf(BusinessConflictError);
+      expect(await db.select().from(marketOperations)).toHaveLength(0);
+      expect(await db.select().from(financialAuditRecords)).toHaveLength(0);
+      expect(
+        await db.select().from(tokenHoldings).where(eq(tokenHoldings.userId, investorId)),
+      ).toHaveLength(0);
     });
   },
 );

@@ -15,18 +15,22 @@ import type {
   MarketTradeState,
 } from "@/backend/models/MarketTrade";
 import { TokenHolding } from "@/backend/models/TokenHolding";
+import {
+  TokenPurchaseReceipt,
+  type StoredTokenPurchaseReceipt,
+} from "@/backend/models/TokenPurchaseReceipt";
 import { User } from "@/backend/models/User";
 import { UserRole } from "@/backend/models/enums";
 import { toUser } from "@/backend/repositories/user.repository";
 import { ValuationRepository } from "@/backend/repositories/valuation.repository";
+import { FinancialTransactionRunner } from "@/backend/repositories/financial-transaction";
+import {
+  IdempotencyRepository,
+  type BuyIdempotencyRequest,
+} from "@/backend/repositories/idempotency.repository";
 
 export type MarketExecutor = Pick<Database, "select" | "insert" | "update">;
 type TokenHoldingRow = typeof tokenHoldings.$inferSelect;
-
-export interface MarketRepositoryResult {
-  outcome: MarketTradeOutcome;
-  creditBalance: number;
-}
 
 export interface MarketOperationHistoryPage {
   rows: MarketOperationRow[];
@@ -37,6 +41,8 @@ export class MarketRepository {
   constructor(
     private readonly database: Database = defaultDatabase,
     private readonly valuationRepository = new ValuationRepository(database),
+    private readonly idempotencyRepository = new IdempotencyRepository(),
+    private readonly transactionRunner = new FinancialTransactionRunner(),
   ) {}
 
   async findOperationsByInvestorId(
@@ -89,19 +95,51 @@ export class MarketRepository {
     });
   }
 
-  async executeTrade(
+  async executeTokenPurchase(
     request: MarketTradeRequest,
-    applyTrade: (state: MarketTradeState) => MarketTradeOutcome,
-  ): Promise<MarketRepositoryResult> {
-    return this.database.transaction(async (tx) => {
-      const state = await this.findTradeState(tx, request);
-      const outcome = applyTrade(state);
-      await this.saveTrade(tx, state, outcome);
-      return { outcome, creditBalance: state.investor.creditBalance };
-    });
+    applyPurchase: (state: MarketTradeState) => MarketTradeOutcome,
+    idempotency: BuyIdempotencyRequest,
+  ): Promise<TokenPurchaseReceipt> {
+    return this.runPurchaseTransaction(request, applyPurchase, idempotency);
   }
 
-  async findTradeState(tx: MarketExecutor, request: MarketTradeRequest): Promise<MarketTradeState> {
+  private runPurchaseTransaction(
+    request: MarketTradeRequest,
+    applyPurchase: (state: MarketTradeState) => MarketTradeOutcome,
+    idempotency: BuyIdempotencyRequest,
+  ) {
+    return this.transactionRunner.run(() =>
+      this.database.transaction((tx) => this.settlePurchase(tx, request, applyPurchase, idempotency)),
+    );
+  }
+
+  private async settlePurchase(
+    tx: MarketExecutor,
+    request: MarketTradeRequest,
+    applyPurchase: (state: MarketTradeState) => MarketTradeOutcome,
+    idempotency: BuyIdempotencyRequest,
+  ): Promise<TokenPurchaseReceipt> {
+    const replay = await this.idempotencyRepository.claim(tx, request.investorId, idempotency);
+    if (replay?.responseBody) {
+      return TokenPurchaseReceipt.fromStored(
+        replay.responseBody as unknown as StoredTokenPurchaseReceipt,
+      );
+    }
+
+    const state = await this.findPurchaseState(tx, request);
+    const outcome = applyPurchase(state);
+    await this.savePurchase(tx, state, outcome);
+
+    const receipt = TokenPurchaseReceipt.fromTrade(outcome, state.investor.creditBalance);
+    if (replay) await this.idempotencyRepository.complete(tx, replay.id, receipt.toStored());
+
+    return receipt;
+  }
+
+  async findPurchaseState(
+    tx: MarketExecutor,
+    request: MarketTradeRequest,
+  ): Promise<MarketTradeState> {
     await this.requirePlayer(tx, request.playerId);
 
     const investorRow = await this.lockInvestorAccount(tx, request.investorId);
@@ -130,7 +168,7 @@ export class MarketRepository {
     };
   }
 
-  async saveTrade(
+  async savePurchase(
     tx: MarketExecutor,
     state: MarketTradeState,
     outcome: MarketTradeOutcome,

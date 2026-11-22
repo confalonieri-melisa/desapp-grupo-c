@@ -11,9 +11,9 @@ estados `OPEN`, `SOLD` y `CANCELLED`, reservas separadas de
 `token_holdings`, idempotencia persistida en PostgreSQL y transacciones
 atómicas para publicar, comprar y cancelar.
 
-La solución no agrega lógica frontend. El endpoint existente de venta al pool
-se conservará como ruta rechazada con conflicto de negocio, sin transferir
-tokens ni créditos al `SUPERUSER`.
+La solución no agrega lógica frontend. No se incorpora un endpoint de venta al
+pool: el intercambio posterior ocurre únicamente mediante las operaciones P2P
+de esta feature.
 
 ## Technical Context
 
@@ -61,10 +61,10 @@ Se mantiene la estructura actual y se extiende el módulo de mercado:
 ```text
 src/backend/
 ├── controllers/
-│   ├── market-operation.controller.ts       # compra primaria y rechazo de sell al pool
+│   ├── market-operation.controller.ts       # compra primaria existente
 │   └── p2p-offer.controller.ts              # publicar, listar, comprar, cancelar
 ├── services/
-│   ├── market-operation.service.ts          # buy existente; sell rechazado
+│   ├── market-operation.service.ts          # buy existente
 │   └── p2p-offer.service.ts                 # autorización y orquestación P2P
 ├── models/
 │   └── P2POffer.ts                          # máquina de estados e invariantes
@@ -81,7 +81,6 @@ src/backend/
     └── to-http-response.ts                  # error estable con correlationId
 
 src/app/api/
-├── orders/sell/route.ts                     # rechaza recompra del pool
 └── p2p/offers/
     ├── route.ts                             # GET listado y POST publicación
     └── [offerId]/
@@ -110,7 +109,7 @@ decisiones que desbloquean implementación son:
 2. Estados canónicos `OPEN`, `SOLD`, `CANCELLED`.
 3. Idempotencia en la misma transacción que el efecto financiero.
 4. Orden global de locks usuarios → ofertas → tenencias.
-5. Retry máximo de 3 intentos solo para `40P01`/`40001`, luego `503`.
+5. Retry máximo de 2 intentos totales solo para `40P01`/`40001`, luego `503`.
 6. Precio y total con escala 2 y aritmética decimal exacta.
 7. Consulta autenticada de ofertas abiertas con filtro `playerId`.
 
@@ -121,8 +120,9 @@ decisiones que desbloquean implementación son:
 - Agregar `p2p_offers` según [data-model.md](data-model.md), con FKs a users,
   players y player_quotes; constraints de cantidad, precio, total, estado,
   buyer, reserva y timestamps.
-- Agregar `idempotency_keys` con unicidad `(user_id, idempotency_key)`, hash
-  de método/ruta/payload, respuesta JSON y estado final.
+- Reutilizar `idempotency_keys` con unicidad `(user_id, key)` y los datos
+  mínimos necesarios para reconocer cada request mutante; guardar la respuesta
+  JSON al completar.
 - Extender `market_operations` con `offer_id` y `counterparty_user_id`
   nullable; mantener `BUY`/`SELL` y los constraints actuales.
 - Extender la auditoría sin eliminar registros existentes: hacer
@@ -210,20 +210,18 @@ usuario.
 
 ### 4. Idempotency and retry implementation
 
-- Crear un helper de huella determinista para JSON normalizado, con método y
-  path canónico, y validación de clave de 1–255 caracteres.
 - La fila de idempotencia se inserta/lee dentro de la misma transacción que la
   operación. La unicidad hace que el request concurrente idéntico espere al
-  commit; después reproduce `response_status` y `response_body`.
-- Una misma clave con otro usuario, método, ruta o hash devuelve `409`.
+  commit; después reproduce la respuesta guardada.
+- Cada operación compara con la clave los campos de request que necesita para
+  evitar reutilizarla con otro jugador, cantidad u oferta; no se agrega hash
+  de payload para este MVP.
 - Errores de autenticación y forma inválida se rechazan antes de persistir la
   clave; los resultados de negocio de una operación validada se guardan para
   repetir el mismo resultado.
 - Envolver la transacción en `runFinancialTransactionWithRetry`:
-  - attempt 1 inmediato;
-  - si SQLSTATE `40P01`, esperar 50 ms y reintentar;
-  - si SQLSTATE `40001`, esperar 100 ms y reintentar;
-  - máximo 3 intentos totales;
+  - primer intento inmediato;
+  - si SQLSTATE `40P01` o `40001`, esperar 50 ms y reintentar una sola vez;
   - al agotarse, lanzar `ServiceUnavailableError` con código estable;
   - no capturar/reintentar `ConflictError`, `NotFoundError`, `ForbiddenError`
     ni errores de validación.
@@ -239,9 +237,8 @@ usuario.
   `503` retry técnico agotado, `500` inesperado.
 - Extender el mapper central para devolver `{ code, message, correlationId }`
   sin exponer SQL, credenciales ni snapshots de terceros.
-- Mantener `/api/orders/buy` como flujo existente y hacer que
-  `/api/orders/sell` responda conflicto `CENTRAL_POOL_REPURCHASE_DISABLED`
-  sin abrir transacción financiera ni crear operación.
+- Mantener `/api/orders/buy` como flujo existente. No agregar una ruta de venta
+  contra el pool.
 
 ### 6. Contracts and API documentation
 
@@ -251,8 +248,8 @@ usuario.
   `OPEN/SOLD/CANCELLED`, errores y respuestas.
 - Actualizar la colección Postman canónica existente en
   `specs/001-player-token-marketplace/contracts/postman_collection.json`;
-  agregar requests/asserts para replay, conflicto de clave, compra completa,
-  cancelación y rechazo de `/orders/sell`.
+  agregar requests/asserts para replay, conflicto de clave, compra completa y
+  cancelación.
 - Mantener `contracts/market-p2p.yaml` y `contracts/postman-p2p.json` como
   artefactos de diseño de la feature, sin crear una nueva ruta de documentación
   ni cambiar el mecanismo existente de Swagger/Postman.
@@ -265,18 +262,18 @@ usuario.
 
 - `P2POffer`: publicación válida, precio/total, fill, cancel, terminalidad,
   auto-compra, reserva y estado inválido.
-- Idempotency fingerprint: mismo payload estable, diferencias por método/ruta/
-  usuario/payload, clave vacía o mayor a 255.
+- Idempotencia: misma clave con los mismos datos de operación reproduce; una
+  diferencia en los datos relevantes responde `409`.
 - Servicio: autorización de inversor, rechazo de `SUPERUSER`, clasificación de
   `409` y mapping de respuestas.
-- Retry helper: retry únicamente `40P01`/`40001`, backoff/3 intentos y `503`
+- Retry helper: retry únicamente `40P01`/`40001`, una repetición y `503`
   final; no retry de errores de negocio.
 
 #### Integration tests against real PostgreSQL
 
 - Migración y constraints: FK, unique key, estado, reserva, total y
   idempotencia.
-- Compra primaria sigue funcionando y `/orders/sell` no altera datos.
+- Compra primaria sigue funcionando y no existe recompra central.
 - Publicación conserva holding total, calcula disponibilidad y evita doble
   reserva bajo concurrencia.
 - Compra P2P completa actualiza saldos, holdings, oferta, operación y

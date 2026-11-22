@@ -9,11 +9,13 @@ const controller = new MarketOperationController(new MarketOperationService());
 export async function POST(request: Request): Promise<Response> {
   try {
     const auth = requireAuth(request);
+    const correlationId = request.headers.get("x-correlation-id") ?? undefined;
+    const idempotencyKey = request.headers.get("Idempotency-Key")!;
+
     const input = marketOperationRequestSchema.parse(await request.json());
-    return Response.json(
-      await controller.buy(auth, input, request.headers.get("x-correlation-id") ?? undefined),
-      { status: 201 },
-    );
+    return Response.json(await controller.buy(auth, input, idempotencyKey, correlationId), {
+      status: 201,
+    });
   } catch (error) {
     return toHttpResponse(error);
   }

@@ -71,6 +71,7 @@ function tradeDatabase() {
     transaction,
     update,
     insert,
+    queries,
   };
 }
 
@@ -85,30 +86,54 @@ describe("MarketRepository", () => {
       }),
     } as never);
 
-    const result = await repository.executeTrade(
+    const idempotencyRows = query([
       {
-        type: "BUY",
+        id: "idempotency-id",
+        userId: investorId,
+        key: "buy-key",
+        playerId,
+        quantity: 3,
+        responseBody: null,
+      },
+    ]);
+    const fakeInsert = vi.fn(() => ({
+      values: vi.fn(() => ({
+        onConflictDoNothing: vi.fn(async () => []),
+      })),
+    }));
+    const selectQueries = [idempotencyRows, ...fake.queries];
+    fake.transaction.mockImplementationOnce(
+      async (callback: (tx: Database) => Promise<unknown>) =>
+        callback({
+          select: vi.fn(() => selectQueries.shift()),
+          update: fake.update,
+          insert: fakeInsert,
+        } as unknown as Database),
+    );
+
+    const result = await repository.executeTokenPurchase(
+      {
         investorId,
         playerId,
         quantity: 3,
       },
       (state) =>
-        new MarketTrade().buy(
+        new MarketTrade().buyFromPool(
           {
-            type: "BUY",
             investorId,
             playerId,
             quantity: 3,
           },
           state,
         ),
+      { key: "buy-key", playerId, quantity: 3 },
     );
 
     expect(fake.transaction).toHaveBeenCalledOnce();
     expect(result.creditBalance).toBe(970);
-    expect(result.outcome.investorHolding.quantity).toBe(3);
-    expect(fake.update).toHaveBeenCalledTimes(3);
-    expect(fake.insert).toHaveBeenCalledTimes(3);
+    expect(result.holding.quantity).toBe(3);
+    expect(fake.update).toHaveBeenCalledTimes(4);
+    expect(fakeInsert).toHaveBeenCalledTimes(4);
   });
 
   it("assigns the initial tokens idempotently to the central pool", async () => {

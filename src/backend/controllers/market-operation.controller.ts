@@ -11,12 +11,8 @@ import type {
 export class MarketOperationController {
   constructor(private readonly service: MarketOperationService) {}
 
-  async buy(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
-    return toResponse(await this.service.buy(auth, input, correlationId));
-  }
-
-  async sell(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
-    return toResponse(await this.service.sell(auth, input, correlationId));
+  async buy(auth: AuthTokenPayload, input: MarketOperationRequest, idempotencyKey: string, correlationId?: string) {
+    return toResponse(await this.service.buy(auth, input, idempotencyKey, correlationId));
   }
 
   getHistory(
@@ -33,7 +29,7 @@ function toResponse(result: Awaited<ReturnType<MarketOperationService["buy"]>>) 
     operation: {
       id: result.operation.id,
       type: result.operation.type,
-      userId: result.operation.investorId,
+      userId: result.operation.userId,
       playerId: result.operation.playerId,
       quantity: result.operation.quantity,
       quoteValue: result.operation.quoteValue,

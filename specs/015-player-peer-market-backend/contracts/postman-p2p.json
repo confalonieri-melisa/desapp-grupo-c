@@ -55,19 +55,6 @@
         ],
         "url": "{{baseUrl}}/p2p/offers/{{offerId}}/cancel"
       }
-    },
-    {
-      "name": "Reject central pool repurchase",
-      "request": {
-        "method": "POST",
-        "header": [
-          { "key": "Authorization", "value": "Bearer {{sellerToken}}" },
-          { "key": "Idempotency-Key", "value": "disabled-sell-key" },
-          { "key": "Content-Type", "value": "application/json" }
-        ],
-        "body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"quantity\": 1\n}" },
-        "url": "{{baseUrl}}/orders/sell"
-      }
     }
   ]
 }

@@ -43,12 +43,11 @@ preserva la auditoría existente.
 
 **Purpose**: Hacer seguros los reintentos de todas las operaciones mutantes.
 
-- [ ] T014 [P] Crear `src/backend/repositories/idempotency.repository.ts` para insertar/leer por `(userId, key)` y guardar hash, status y body final; dependencia: T012; criterio: la capa no duplica filas y distingue replay de conflicto.
-- [ ] T015 [P] Crear helper de huella normalizada en `src/backend/services/idempotency.service.ts`; dependencia: T014; criterio: el hash incluye usuario, método, ruta y payload normalizado, y una diferencia en cualquiera de ellos se detecta.
-- [ ] T016 Integrar claim/replay de idempotencia dentro de la transacción financiera en `src/backend/services/idempotency.service.ts` y repositorios de mercado; dependencia: T014-T015; criterio: dos requests idénticos concurrentes esperan/reproducen el mismo status/body y no duplican efectos.
-- [ ] T017 [P] Agregar tests unitarios de fingerprint y reglas de clave en `tests/unit/services/idempotency.service.spec.ts`; dependencia: T015; criterio: cubre misma clave/payload, misma clave/distinto payload, usuario distinto, ruta distinta, clave vacía y longitud mayor a 255.
-- [ ] T018 [US5] Agregar test de integración para repetir cada POST mutante con la misma `Idempotency-Key` en `tests/integration/p2p-offers.routes.spec.ts`; dependencia: T016; criterio: compra pool, publicación, compra P2P y cancelación devuelven el mismo resultado lógico sin operaciones/auditorías/reservas duplicadas.
-- [ ] T019 [US5] Agregar test de integración de misma clave con payload diferente en `tests/integration/p2p-offers.routes.spec.ts`; dependencia: T016; criterio: responde `409` y no altera saldos, holdings, oferta, operación ni auditoría.
+- [ ] T014 [P] Crear `src/backend/repositories/idempotency.repository.ts` para insertar/leer por `(userId, key)` y guardar los campos mínimos de la operación y el body final; dependencia: T012; criterio: la capa no duplica filas y distingue replay de conflicto.
+- [ ] T015 Integrar claim/replay de idempotencia dentro de la transacción financiera en los repositorios de mercado; dependencia: T014; criterio: dos requests idénticos concurrentes esperan/reproducen la misma respuesta y no duplican efectos.
+- [ ] T016 [P] Agregar tests unitarios de reglas de clave en `tests/unit/repositories/idempotency.repository.spec.ts`; dependencia: T014; criterio: cubre misma clave y datos, misma clave con datos distintos, usuario distinto y longitud mayor a 255.
+- [ ] T017 [US5] Agregar test de integración para repetir cada POST mutante con la misma `Idempotency-Key` en `tests/integration/p2p-offers.routes.spec.ts`; dependencia: T015; criterio: compra pool, publicación, compra P2P y cancelación devuelven el mismo resultado lógico sin operaciones/auditorías/reservas duplicadas.
+- [ ] T018 [US5] Agregar test de integración de misma clave con payload diferente en `tests/integration/p2p-offers.routes.spec.ts`; dependencia: T015; criterio: responde `409` y no altera saldos, holdings, oferta, operación ni auditoría.
 
 ## Phase 5: Reserva de tokens
 
@@ -116,9 +115,9 @@ operaciones que comparten cuentas, ofertas y holdings.
 
 **Purpose**: Reintentar solo fallos técnicos transitorios de PostgreSQL.
 
-- [ ] T048 Crear `runFinancialTransactionWithRetry` en `src/backend/repositories/financial-transaction.ts` o módulo compartido equivalente; dependencia: T016, T045; criterio: reconoce solo SQLSTATE `40P01` y `40001`, usa backoff 50/100 ms y máximo 3 intentos.
+- [ ] T048 Crear `FinancialTransactionRunner` en `src/backend/repositories/financial-transaction.ts` o módulo compartido equivalente; dependencia: T016, T045; criterio: reconoce solo SQLSTATE `40P01` y `40001`, espera 50 ms y hace como máximo un retry adicional.
 - [ ] T049 [P] Agregar `ServiceUnavailableError` y clasificación estable en `src/backend/errors/http.error.ts` y `src/backend/errors/to-http-response.ts`; dependencia: T048; criterio: retry agotado responde `503` con `code`, `message` y `correlationId`, mientras errores de negocio conservan `409`.
-- [ ] T050 Agregar test unitario del retry en `tests/unit/repositories/financial-transaction.spec.ts`; dependencia: T048-T049; criterio: deadlock/serialization failure se reintentan, un tercer fallo termina en `503` y `ConflictError`/`NotFoundError` no se reintentan.
+- [ ] T050 Agregar test unitario del retry en `tests/unit/repositories/financial-transaction.spec.ts`; dependencia: T048-T049; criterio: deadlock/serialization failure se reintentan una vez, un segundo fallo termina en `503` y los errores de negocio no se reintentan.
 - [ ] T051 [US5] Agregar test de timeout simulado después de persistir la operación en `tests/integration/p2p-offers.idempotency.spec.ts`; dependencia: T016, T034, T048; criterio: el timeout deja resultado incierto para el cliente, repetir la misma clave reproduce el resultado y no duplica operación, auditoría ni transferencia.
 
 ## Phase 12: Compra al pool y rechazo de venta al SUPERUSER
@@ -127,8 +126,8 @@ operaciones que comparten cuentas, ofertas y holdings.
 
 - [ ] T052 [US1] Integrar `Idempotency-Key` y el wrapper de retry en `src/app/api/orders/buy/route.ts` y `src/backend/services/market-operation.service.ts`; dependencia: T016, T048; criterio: compra primaria sigue funcionando, repite seguro y pool sin tokens responde `409` sin efectos parciales.
 - [ ] T053 [US1] Reordenar locks de compra primaria en `src/backend/repositories/market.repository.ts`; dependencia: T045; criterio: investor/pool y holdings se bloquean en orden UUID sin alterar el resultado financiero existente.
-- [ ] T054 [US1] Rechazar `/api/orders/sell` en `src/app/api/orders/sell/route.ts` y `src/backend/services/market-operation.service.ts` con `CENTRAL_POOL_REPURCHASE_DISABLED`; dependencia: T052; criterio: cualquier venta al `SUPERUSER` responde `409` y no modifica saldo, holding, operación ni auditoría.
-- [ ] T055 [US1] Agregar tests de integración de compra primaria y venta al `SUPERUSER` en `tests/integration/market-primary.routes.spec.ts`; dependencia: T052-T054; criterio: cubre compra válida, pool agotado, `SUPERUSER` no comprador y venta al pool rechazada.
+- [ ] T054 [US1] Mantener fuera de esta feature cualquier endpoint de venta al pool; dependencia: T052; criterio: el contrato solo expone la compra primaria y deja el intercambio para P2P.
+- [ ] T055 [US1] Agregar tests de integración de compra primaria en `tests/integration/market-primary.routes.spec.ts`; dependencia: T052-T054; criterio: cubre compra válida, pool agotado, replay idempotente y ausencia de efectos duplicados.
 
 ## Phase 13: Auditoría y market_operations
 

@@ -87,20 +87,15 @@ Constraints and indexes:
 |---|---|---|
 | `id` | UUID | Primary key |
 | `user_id` | UUID | Required FK to `users` |
-| `idempotency_key` | varchar(255) | Required, trimmed non-empty |
-| `method` | varchar(10) | Required HTTP method |
-| `path` | varchar(255) | Required canonical route |
-| `request_hash` | varchar(128) | Required hash of normalized payload |
-| `response_status` | integer | Nullable until the transaction completes |
+| `key` | varchar(255) | Required idempotency key |
+| `request fields` | operation-specific | Minimal fields needed to detect a different request |
 | `response_body` | jsonb | Nullable until the transaction completes |
-| `created_at` | timestamptz | Required |
-| `completed_at` | timestamptz | Nullable until completion |
 
 Constraints and indexes:
 
 - Unique `(user_id, idempotency_key)`.
-- `response_status` and `response_body` are both null or both non-null.
-- A same-key request with a different method, path, or hash returns `409`.
+- A same-key request with different operation fields returns `409`.
+- The response body is stored only after the financial operation completes.
 - Authentication and request-shape validation happen before creating a row;
   only authenticated, well-formed mutating requests are idempotency records.
 

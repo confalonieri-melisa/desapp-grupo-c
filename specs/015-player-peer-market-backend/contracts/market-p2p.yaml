@@ -20,13 +20,6 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
         '503': { $ref: '#/components/responses/ServiceUnavailable' }
-  /orders/sell:
-    post:
-      summary: Disabled central-pool repurchase route
-      security: [{ BearerAuth: [] }]
-      parameters: [{ $ref: '#/components/parameters/IdempotencyKey' }]
-      responses:
-        '409': { description: Central pool repurchase is disabled, content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } } }
   /p2p/offers:
     get:
       summary: List open P2P offers

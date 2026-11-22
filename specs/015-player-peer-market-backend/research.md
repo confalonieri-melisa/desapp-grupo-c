@@ -72,7 +72,7 @@ de deadlock y de doble reserva.
 ## Decision 5: Retry y clasificación de fallos
 
 **Decision**: Solo se reintentan SQLSTATE `40P01` (deadlock) y `40001`
-(serialization failure), con 3 intentos totales y backoff de 50 ms y 100 ms.
+(serialization failure), con un único retry adicional y una espera de 50 ms.
 Errores de negocio se devuelven como `409` sin retry. Si se agotan los
 intentos técnicos, se devuelve `503`; no se reintentan APIs externas. Un
 timeout o error de red posterior al envío queda incierto y se resuelve

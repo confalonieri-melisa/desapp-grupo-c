@@ -268,6 +268,26 @@ export const financialAuditRecords = pgTable(
   ],
 );
 
+export const idempotencyKeys = pgTable(
+  "idempotency_keys",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+    key: varchar("key", { length: 255 }).notNull(),
+    playerId: uuid("player_id")
+      .notNull()
+      .references(() => players.id),
+    quantity: integer("quantity").notNull(),
+    responseBody: jsonb("response_body").$type<Record<string, unknown>>(),
+  },
+  (table) => [
+    uniqueIndex("uq_idempotency_user_key").on(table.userId, table.key),
+    check("chk_idempotency_quantity", sql`${table.quantity} > 0`),
+  ],
+);
+
 export type UserRow = typeof users.$inferSelect;
 export type NewUserRow = typeof users.$inferInsert;
 export type PlayerRow = typeof players.$inferSelect;
