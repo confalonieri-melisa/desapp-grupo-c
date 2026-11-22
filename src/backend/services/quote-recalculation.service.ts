@@ -10,6 +10,8 @@ import type {
   ValuationStrategyCode,
 } from "@/backend/models/valuation";
 import { VALUATION_STRATEGY_CODES } from "@/backend/models/valuation";
+import type { Database } from "@/backend/db";
+import { BatchJobRepository } from "@/backend/repositories/batch-job.repository";
 
 type PlayerToQuote = Awaited<ReturnType<PlayerRepository["findAll"]>>[number];
 type ActiveVersion = NonNullable<
@@ -43,6 +45,74 @@ export class QuoteRecalculationService {
     const contexts = await this.resolveTeamContexts(players, strategyCode);
     const outcome = await this.recalculatePlayers(active, players, contexts, strategyCode, config);
     const response = buildRecalculationResponse(active, outcome);
+    return response;
+  }
+
+  async recalculateBatch(turnId: string, session: Database) {
+    const active = await this.findActiveStrategyVersion();
+    const players = await this.playerRepository.findAll();
+    if (players.length === 0) throw new Error("No players available for recalculation");
+    const strategyCode = active.strategyCode as ValuationStrategyCode;
+    const config = active.configuration as ValuationConfig;
+    const contexts = await this.resolveTeamContexts(players, strategyCode);
+    const outcome: RecalculationOutcome = { results: [], errors: [] };
+    const prepared: {
+      player: PlayerToQuote;
+      context: TeamContext | null;
+      result: ReturnType<ValuationEngine["calculate"]>;
+    }[] = [];
+
+    for (const player of players) {
+      const context = contexts.get(player.id) ?? null;
+      try {
+        const result = this.engine.calculate(
+          player,
+          strategyCode,
+          config,
+          context ?? undefined,
+          active.version,
+        );
+        prepared.push({ player, context, result });
+        outcome.results.push({
+          playerId: player.id,
+          quoteValue: result.quoteValue,
+          teamScore: result.teamScore,
+        });
+      } catch (error) {
+        outcome.errors.push({
+          playerId: player.id,
+          error: error instanceof Error ? error.message : "Unable to calculate quote",
+        });
+      }
+    }
+
+    const response = buildRecalculationResponse(active, outcome);
+    await session.transaction(async (tx) => {
+      for (const { player, context, result } of prepared) {
+        await this.valuationRepository.saveQuote(
+          {
+            turnId,
+            calculatedAt: new Date(),
+            playerId: player.id,
+            strategyVersionId: active.id,
+            individualScore: result.individualScore,
+            teamScore: result.teamScore,
+            finalScore: result.finalScore,
+            quoteValue: result.quoteValue,
+            contextUpdateId: context?.contextUpdateId,
+            explanation: result.explanation,
+          },
+          tx,
+        );
+      }
+      await new BatchJobRepository(session).finishTurn(
+        turnId,
+        response.status as "COMPLETED" | "PARTIAL" | "FAILED",
+        { processed: players.length, succeeded: prepared.length, rejected: outcome.errors.length },
+        undefined,
+        tx,
+      );
+    });
     return response;
   }
 

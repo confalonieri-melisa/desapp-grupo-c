@@ -45,6 +45,14 @@ export class PlayerRepository {
     });
   }
 
+  /** Used inside the batch transaction on the lock-owning connection. */
+  async savePlayerInTransaction(
+    playerData: PlayerPersistenceData,
+    transaction: PlayerDatabaseExecutor,
+  ): Promise<Player> {
+    return this.upsertPlayer(transaction, playerData);
+  }
+
   private async upsertPlayer(
     database: PlayerDatabaseExecutor,
     playerData: PlayerPersistenceData,

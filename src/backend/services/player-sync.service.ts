@@ -5,6 +5,10 @@ import {
   type PlayerPersistenceData,
 } from "@/backend/repositories/player.repository";
 import { MarketRepository } from "@/backend/repositories/market.repository";
+import { setTimeout as delay } from "node:timers/promises";
+import type { Database } from "@/backend/db";
+import type { BatchCounts } from "@/backend/models/batch-job";
+import { BatchJobRepository } from "@/backend/repositories/batch-job.repository";
 
 export class PlayerSyncService {
   constructor(
@@ -16,6 +20,41 @@ export class PlayerSyncService {
   async syncFromSource(): Promise<Player[]> {
     const scrapedPlayers = await this.dataSource.fetchPlayers();
     return this.savePlayers(scrapedPlayers);
+  }
+
+  async syncBatch(turnId: string, session: Database): Promise<BatchCounts> {
+    let scraped: ScrapedPlayer[];
+    try {
+      scraped = await this.dataSource.fetchPlayers();
+    } catch {
+      console.info(JSON.stringify({ event: "batch.source.retry", turnId }));
+      await delay(1000);
+      scraped = await this.dataSource.fetchPlayers();
+    }
+    if (scraped.length === 0) throw new Error("WhoScored returned no players");
+    const inputs: PlayerPersistenceData[] = scraped.map((item) => ({
+      player: new Player({
+        name: item.name,
+        team: item.team,
+        league: item.league,
+        position: item.position,
+        statistics: item.statistics,
+      }),
+      source: this.dataSource.source,
+      externalId: item.externalId,
+    }));
+    const counts = { processed: inputs.length, succeeded: inputs.length, rejected: 0 };
+    await session.transaction(async (tx) => {
+      const saved: Player[] = [];
+      for (const input of inputs)
+        saved.push(await this.playerRepository.savePlayerInTransaction(input, tx));
+      await this.marketRepository.assignInitialTokensInTransaction(
+        saved.map((player) => player.id),
+        tx,
+      );
+      await new BatchJobRepository(session).finishTurn(turnId, "COMPLETED", counts, undefined, tx);
+    });
+    return counts;
   }
 
   private async savePlayers(scrapedPlayers: ScrapedPlayer[]): Promise<Player[]> {
