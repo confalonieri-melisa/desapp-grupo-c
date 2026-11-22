@@ -142,6 +142,19 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       expect(holdings.reduce((sum, holding) => sum + holding.quantity, 0)).toBe(100);
     });
 
+    it("replays an idempotent buy without applying it twice", async () => {
+      await seedMarket();
+
+      const first = await service.buy(auth, { playerId, quantity: 3 }, undefined, "buy-key");
+      const replay = await service.buy(auth, { playerId, quantity: 3 }, undefined, "buy-key");
+
+      expect(replay.operation.id).toBe(first.operation.id);
+      expect(replay.creditBalance).toBe(970);
+      expect(replay.holding.quantity).toBe(3);
+      expect(await db.select().from(marketOperations)).toHaveLength(1);
+      expect(await db.select().from(financialAuditRecords)).toHaveLength(1);
+    });
+
     it("rejects a sale without changing state", async () => {
       await seedMarket();
 

@@ -13,7 +13,12 @@ export async function POST(request: Request): Promise<Response> {
       const auth = requireAuth(request);
       const input = marketOperationRequestSchema.parse(await request.json());
       return Response.json(
-        await controller.sell(auth, input, request.headers.get("x-correlation-id") ?? undefined),
+        await controller.sell(
+          auth,
+          input,
+          request.headers.get("x-correlation-id") ?? undefined,
+          request.headers.get("idempotency-key") ?? undefined,
+        ),
         { status: 201 },
       );
     } catch (error) {

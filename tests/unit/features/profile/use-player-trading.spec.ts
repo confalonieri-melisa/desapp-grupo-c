@@ -300,10 +300,11 @@ describe("usePlayerTrading BUY", () => {
     const confirm = h.render().confirmOrder;
     confirm(8);
     confirm(8);
-    expect(mocks.buy).toHaveBeenCalledExactlyOnceWith("token", {
-      playerId: "player-a",
-      quantity: 2,
-    });
+    expect(mocks.buy).toHaveBeenCalledOnce();
+    expect(mocks.buy.mock.calls[0]?.slice(0, 2)).toEqual([
+      "token",
+      { playerId: "player-a", quantity: 2 },
+    ]);
     expect(h.render().order.status).toBe("submitting");
     expect(mocks.get).toHaveBeenCalledOnce();
     order.resolve(receipt);
@@ -657,10 +658,11 @@ describe("usePlayerTrading SELL", () => {
     const confirm = h.render().confirmOrder;
     confirm(8);
     confirm(8);
-    expect(mocks.sell).toHaveBeenCalledExactlyOnceWith("token", {
-      playerId: "player-a",
-      quantity: 3,
-    });
+    expect(mocks.sell).toHaveBeenCalledOnce();
+    expect(mocks.sell.mock.calls[0]?.slice(0, 2)).toEqual([
+      "token",
+      { playerId: "player-a", quantity: 3 },
+    ]);
     expect(mocks.buy).not.toHaveBeenCalled();
     expect(h.render().order.status).toBe("submitting");
     order.resolve({ ...sellReceipt, operation: { ...sellReceipt.operation, quantity: 3 } });

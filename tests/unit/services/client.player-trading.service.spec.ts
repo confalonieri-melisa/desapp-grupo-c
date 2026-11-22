@@ -108,10 +108,14 @@ describe("sellPlayerTokens", () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(Response.json(result, { status: 201 }));
-    await expect(sellPlayerTokens("jwt", order)).resolves.toEqual(result);
+    await expect(sellPlayerTokens("jwt", order, "sell-key")).resolves.toEqual(result);
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/orders/sell", {
       method: "POST",
-      headers: { Authorization: "Bearer jwt", "Content-Type": "application/json" },
+      headers: {
+        Authorization: "Bearer jwt",
+        "Content-Type": "application/json",
+        "Idempotency-Key": "sell-key",
+      },
       body: JSON.stringify(order),
     });
     const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
@@ -192,10 +196,14 @@ describe("buyPlayerTokens", () => {
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(Response.json(result, { status: 201 }));
-    await expect(buyPlayerTokens("jwt", order)).resolves.toEqual(result);
+    await expect(buyPlayerTokens("jwt", order, "buy-key")).resolves.toEqual(result);
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith("/api/orders/buy", {
       method: "POST",
-      headers: { Authorization: "Bearer jwt", "Content-Type": "application/json" },
+      headers: {
+        Authorization: "Bearer jwt",
+        "Content-Type": "application/json",
+        "Idempotency-Key": "buy-key",
+      },
       body: JSON.stringify(order),
     });
     const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);

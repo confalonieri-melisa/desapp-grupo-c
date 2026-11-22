@@ -14,6 +14,7 @@ export interface MarketTradeRequest {
   playerId: string;
   quantity: number;
   correlationId?: string;
+  idempotencyKey?: string;
 }
 
 export interface MarketQuote {
@@ -118,6 +119,7 @@ export class MarketTrade {
       quantity: request.quantity,
       unit: state.quote.unit,
       correlationId: request.correlationId,
+      idempotencyKey: request.idempotencyKey,
     });
   }
 

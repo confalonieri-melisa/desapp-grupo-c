@@ -42,12 +42,22 @@ export class MarketOperationService {
     private readonly marketTrade = new MarketTrade(),
   ) {}
 
-  buy(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
-    return this.trade("BUY", auth, input, correlationId);
+  buy(
+    auth: AuthTokenPayload,
+    input: MarketOperationRequest,
+    correlationId?: string,
+    idempotencyKey?: string,
+  ) {
+    return this.trade("BUY", auth, input, correlationId, idempotencyKey);
   }
 
-  sell(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
-    return this.trade("SELL", auth, input, correlationId);
+  sell(
+    auth: AuthTokenPayload,
+    input: MarketOperationRequest,
+    correlationId?: string,
+    idempotencyKey?: string,
+  ) {
+    return this.trade("SELL", auth, input, correlationId, idempotencyKey);
   }
 
   async getHistory(
@@ -76,6 +86,7 @@ export class MarketOperationService {
     auth: AuthTokenPayload,
     input: MarketOperationRequest,
     correlationId?: string,
+    idempotencyKey?: string,
   ): Promise<MarketTradeResult> {
     const request: MarketTradeRequest = {
       type,
@@ -83,6 +94,7 @@ export class MarketOperationService {
       playerId: input.playerId,
       quantity: input.quantity,
       correlationId,
+      ...(idempotencyKey ? { idempotencyKey } : {}),
     };
 
     const result = await this.marketRepository.executeTrade(request, (state) =>
@@ -92,9 +104,9 @@ export class MarketOperationService {
     );
 
     return {
-      operation: result.outcome.operation,
+      operation: result.operation,
       creditBalance: result.creditBalance,
-      holding: result.outcome.investorHolding,
+      holding: result.holding,
     };
   }
 }

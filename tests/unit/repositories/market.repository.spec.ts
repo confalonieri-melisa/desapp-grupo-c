@@ -106,7 +106,7 @@ describe("MarketRepository", () => {
 
     expect(fake.transaction).toHaveBeenCalledOnce();
     expect(result.creditBalance).toBe(970);
-    expect(result.outcome.investorHolding.quantity).toBe(3);
+    expect(result.holding.quantity).toBe(3);
     expect(fake.update).toHaveBeenCalledTimes(3);
     expect(fake.insert).toHaveBeenCalledTimes(3);
   });

@@ -12,6 +12,7 @@ export interface MarketOperationProps {
   quantity: number;
   unit?: string;
   correlationId?: string;
+  idempotencyKey?: string;
   createdAt?: Date;
 }
 
@@ -26,6 +27,7 @@ export class MarketOperation {
   readonly total: number;
   readonly unit: string;
   readonly correlationId?: string;
+  readonly idempotencyKey?: string;
   readonly createdAt: Date;
 
   constructor(props: MarketOperationProps) {
@@ -49,7 +51,12 @@ export class MarketOperation {
     this.total = roundMoney(this.quantity * this.quoteValue);
     this.unit = props.unit ?? "CREDIT_PER_TOKEN";
     this.correlationId = props.correlationId;
+    this.idempotencyKey = props.idempotencyKey;
     this.createdAt = props.createdAt ?? new Date();
+  }
+
+  matchesOrder(type: MarketOperationType, playerId: string, quantity: number): boolean {
+    return this.type === type && this.playerId === playerId && this.quantity === quantity;
   }
 }
 
