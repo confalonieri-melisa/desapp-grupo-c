@@ -96,9 +96,9 @@ src/
 │   └── metrics/advanced/route.ts
 └── backend/
     ├── observability/
-    │   ├── logger.ts
-    │   ├── metrics.ts
-    │   └── request-observability.ts
+    │   ├── audit-log.ts
+    │   ├── application-metrics.ts
+    │   └── request-observation.ts
     ├── controllers/
     │   └── health.controller.ts, metrics.controller.ts
     └── services/

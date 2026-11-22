@@ -30,9 +30,9 @@ user stories. No database schema, Redis client, cache abstraction or external
 logging service is introduced.
 
 - [ ] T003 [P] Add unit tests for in-memory counters, duration aggregation, secret redaction and correlation ID generation in `tests/unit/observability/observability.test.ts`.
-- [ ] T004 Implement the in-memory HTTP metrics state, reset helper for tests and Prometheus text serialization in `src/backend/observability/metrics.ts`.
-- [ ] T005 Implement structured JSON audit logging and parameter sanitization for passwords, access tokens and secret fields in `src/backend/observability/logger.ts`.
-- [ ] T006 Implement the common request wrapper that assigns or propagates `x-correlation-id`, measures duration, captures status and invokes metrics/logging without changing the route response in `src/backend/observability/request-observability.ts`.
+- [ ] T004 Implement the in-memory HTTP metrics state, reset helper for tests and Prometheus text serialization in `src/backend/observability/application-metrics.ts`.
+- [ ] T005 Implement structured JSON audit logging and parameter sanitization for passwords, access tokens and secret fields in `src/backend/observability/audit-log.ts`.
+- [ ] T006 Implement the common request wrapper that assigns or propagates `x-correlation-id`, measures duration, captures status and invokes metrics/logging without changing the route response in `src/backend/observability/request-observation.ts`.
 - [ ] T007 Update the shared response/error path only as needed so unexpected route failures are recorded as `5xx` while existing known error responses remain unchanged in `src/backend/errors/to-http-response.ts` and the wrapper integration points.
 
 **Checkpoint**: The shared observability primitives can be tested without
@@ -56,8 +56,8 @@ response correlation IDs without exposing secrets.
 ### Implementation for User Story 1
 
 - [ ] T009 [US1] Wrap every handler under `src/app/api` with the common request observability helper, preserving the existing controller/service calls and route-specific authentication behavior.
-- [ ] T010 [US1] Extract the authenticated user when available and collect query, path and body parameters through the wrapper without consuming the request body needed by existing handlers in `src/backend/observability/request-observability.ts`.
-- [ ] T011 [US1] Verify that audit records use normalized route labels and never use full query values, tokens or user-specific values as metric labels in `src/backend/observability/logger.ts` and `src/backend/observability/metrics.ts`.
+- [ ] T010 [US1] Extract the authenticated user when available and collect query, path and body parameters through the wrapper without consuming the request body needed by existing handlers in `src/backend/observability/request-observation.ts`.
+- [ ] T011 [US1] Verify that audit records use normalized route labels and never use full query values, tokens or user-specific values as metric labels in `src/backend/observability/audit-log.ts` and `src/backend/observability/application-metrics.ts`.
 
 **Checkpoint**: All current REST services produce auditable events and preserve
 their existing responses.
@@ -78,8 +78,8 @@ call `/api/metrics`, and verify the output contains the expected aggregates.
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Add the public `GET /api/metrics` route using `src/app/api/metrics/route.ts` and expose the serialized snapshot from `src/backend/observability/metrics.ts` without authentication.
-- [ ] T014 [US2] Add the required Prometheus metric names and stable labels for method, normalized operation and status in `src/backend/observability/metrics.ts`.
+- [ ] T013 [US2] Add the public `GET /api/metrics` route using `src/app/api/metrics/route.ts` and expose the serialized snapshot from `src/backend/observability/application-metrics.ts` without authentication.
+- [ ] T014 [US2] Add the required Prometheus metric names and stable labels for method, normalized operation and status in `src/backend/observability/application-metrics.ts`.
 
 **Checkpoint**: Operational traffic, duration and error metrics are queryable
 without Redis, Prometheus deployment or database persistence.
