@@ -470,6 +470,14 @@ paths:
       tags: [Market]
       security:
         - BearerAuth: []
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Clave estable para reintentar la misma orden sin ejecutarla dos veces.
+          schema:
+            type: string
+            maxLength: 100
       requestBody:
         required: true
         content:
@@ -496,6 +504,14 @@ paths:
       tags: [Market]
       security:
         - BearerAuth: []
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: false
+          description: Clave estable para reintentar la misma orden sin ejecutarla dos veces.
+          schema:
+            type: string
+            maxLength: 100
       requestBody:
         required: true
         content:

@@ -13,10 +13,14 @@ describe("MarketOperationService", () => {
     const state = { investor: { creditBalance: 900 } };
     const outcome = { operation: { type: "BUY" }, investorHolding: { quantity: 1 } };
     const buy = vi.fn().mockReturnValue(outcome);
-    const executeTrade = vi.fn().mockImplementation(async (_request, applyTrade) => ({
-      outcome: applyTrade(state),
-      creditBalance: state.investor.creditBalance,
-    }));
+    const executeTrade = vi.fn().mockImplementation(async (_request, applyTrade) => {
+      const trade = applyTrade(state);
+      return {
+        operation: trade.operation,
+        creditBalance: state.investor.creditBalance,
+        holding: trade.investorHolding,
+      };
+    });
     const service = new MarketOperationService({ executeTrade } as never, { buy } as never);
 
     await expect(
@@ -47,13 +51,17 @@ describe("MarketOperationService", () => {
     const state = { investor: { creditBalance: 900 } };
     const outcome = { operation: { type: "SELL" }, investorHolding: { quantity: 1 } };
     const sell = vi.fn().mockReturnValue(outcome);
-    const executeTrade = vi.fn().mockImplementation(async (_request, applyTrade) => ({
-      outcome: applyTrade(state),
-      creditBalance: state.investor.creditBalance,
-    }));
+    const executeTrade = vi.fn().mockImplementation(async (_request, applyTrade) => {
+      const trade = applyTrade(state);
+      return {
+        operation: trade.operation,
+        creditBalance: state.investor.creditBalance,
+        holding: trade.investorHolding,
+      };
+    });
     const service = new MarketOperationService({ executeTrade } as never, { sell } as never);
 
-    await service.sell(auth, { playerId: "player-id", quantity: 2 }, "request-id");
+    await service.sell(auth, { playerId: "player-id", quantity: 2 }, "request-id", "sell-key");
 
     expect(executeTrade).toHaveBeenCalledWith(
       {
@@ -62,6 +70,7 @@ describe("MarketOperationService", () => {
         playerId: "player-id",
         quantity: 2,
         correlationId: "request-id",
+        idempotencyKey: "sell-key",
       },
       expect.any(Function),
     );

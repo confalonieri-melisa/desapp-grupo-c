@@ -11,12 +11,17 @@ import type {
 export class MarketOperationController {
   constructor(private readonly service: MarketOperationService) {}
 
-  async buy(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
-    return toResponse(await this.service.buy(auth, input, correlationId));
+  async buy(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string, idempotencyKey?: string) {
+    return toResponse(await this.service.buy(auth, input, correlationId, idempotencyKey));
   }
 
-  async sell(auth: AuthTokenPayload, input: MarketOperationRequest, correlationId?: string) {
-    return toResponse(await this.service.sell(auth, input, correlationId));
+  async sell(
+    auth: AuthTokenPayload,
+    input: MarketOperationRequest,
+    correlationId?: string,
+    idempotencyKey?: string,
+  ) {
+    return toResponse(await this.service.sell(auth, input, correlationId, idempotencyKey));
   }
 
   getHistory(

@@ -8,12 +8,13 @@ import {
   users,
   type MarketOperationRow,
 } from "@/backend/db/schema";
-import { NotFoundError } from "@/backend/errors/http.error";
+import { ConflictError, NotFoundError } from "@/backend/errors/http.error";
 import type {
   MarketTradeOutcome,
   MarketTradeRequest,
   MarketTradeState,
 } from "@/backend/models/MarketTrade";
+import { MarketOperation } from "@/backend/models/MarketOperation";
 import { TokenHolding } from "@/backend/models/TokenHolding";
 import { User } from "@/backend/models/User";
 import { UserRole } from "@/backend/models/enums";
@@ -24,8 +25,9 @@ export type MarketExecutor = Pick<Database, "select" | "insert" | "update">;
 type TokenHoldingRow = typeof tokenHoldings.$inferSelect;
 
 export interface MarketRepositoryResult {
-  outcome: MarketTradeOutcome;
+  operation: MarketTradeOutcome["operation"];
   creditBalance: number;
+  holding: TokenHolding;
 }
 
 export interface MarketOperationHistoryPage {
@@ -95,10 +97,64 @@ export class MarketRepository {
   ): Promise<MarketRepositoryResult> {
     return this.database.transaction(async (tx) => {
       const state = await this.findTradeState(tx, request);
+      const replay = await this.findIdempotentReplay(tx, request, state);
+      if (replay) return replay;
+
       const outcome = applyTrade(state);
-      await this.saveTrade(tx, state, outcome);
-      return { outcome, creditBalance: state.investor.creditBalance };
+      return this.persistTrade(tx, state, outcome);
     });
+  }
+
+  private async findIdempotentReplay(
+    tx: MarketExecutor,
+    request: MarketTradeRequest,
+    state: MarketTradeState,
+  ): Promise<MarketRepositoryResult | undefined> {
+    const existingOperation = await this.findExistingOperation(tx, request);
+    if (!existingOperation) return undefined;
+
+    const operation = toMarketOperation(existingOperation);
+    if (!operation.matchesOrder(request.type, request.playerId, request.quantity)) {
+      throw new ConflictError("Idempotency key already used for another order");
+    }
+
+    return {
+      operation,
+      creditBalance: state.investor.creditBalance,
+      holding: state.investorHolding,
+    };
+  }
+
+  private async persistTrade(
+    tx: MarketExecutor,
+    state: MarketTradeState,
+    outcome: MarketTradeOutcome,
+  ): Promise<MarketRepositoryResult> {
+    await this.saveTrade(tx, state, outcome);
+    return {
+      operation: outcome.operation,
+      creditBalance: state.investor.creditBalance,
+      holding: outcome.investorHolding,
+    };
+  }
+
+  private async findExistingOperation(
+    tx: MarketExecutor,
+    request: MarketTradeRequest,
+  ): Promise<MarketOperationRow | undefined> {
+    if (!request.idempotencyKey) return undefined;
+
+    const rows = await tx
+      .select()
+      .from(marketOperations)
+      .where(
+        and(
+          eq(marketOperations.investorId, request.investorId),
+          eq(marketOperations.idempotencyKey, request.idempotencyKey),
+        ),
+      )
+      .limit(1);
+    return rows[0];
   }
 
   async findTradeState(tx: MarketExecutor, request: MarketTradeRequest): Promise<MarketTradeState> {
@@ -241,6 +297,7 @@ async function saveMarketOperation(
     total: operation.total.toFixed(2),
     unit: operation.unit,
     correlationId: operation.correlationId,
+    idempotencyKey: operation.idempotencyKey,
     createdAt: operation.createdAt,
   });
 }
@@ -273,5 +330,21 @@ function toHolding(row: TokenHoldingRow): TokenHolding {
     quantity: row.quantity,
     averagePurchasePrice: Number(row.averagePurchasePrice),
     updatedAt: row.updatedAt,
+  });
+}
+
+function toMarketOperation(row: MarketOperationRow): MarketOperation {
+  return new MarketOperation({
+    id: row.id,
+    type: row.type as "BUY" | "SELL",
+    investorId: row.investorId,
+    playerId: row.playerId,
+    quoteId: row.quoteId,
+    quoteValue: Number(row.quoteValue),
+    quantity: row.quantity,
+    unit: row.unit,
+    correlationId: row.correlationId ?? undefined,
+    idempotencyKey: row.idempotencyKey ?? undefined,
+    createdAt: row.createdAt,
   });
 }

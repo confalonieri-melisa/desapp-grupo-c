@@ -9,11 +9,14 @@ const controller = new MarketOperationController(new MarketOperationService());
 
 export async function POST(request: Request): Promise<Response> {
   return requestObservation.observe(request, "/api/orders/buy", async () => {
+    const correlationId = request.headers.get("x-correlation-id") ?? undefined;
+    const idempotencyKey = request.headers.get("idempotency-key") ?? undefined;
+
     try {
       const auth = requireAuth(request);
       const input = marketOperationRequestSchema.parse(await request.json());
       return Response.json(
-        await controller.buy(auth, input, request.headers.get("x-correlation-id") ?? undefined),
+        await controller.buy(auth, input, correlationId, idempotencyKey),
         { status: 201 },
       );
     } catch (error) {

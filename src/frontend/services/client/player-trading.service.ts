@@ -93,10 +93,15 @@ async function postPlayerTokens(
   token: string,
   order: MarketOrderRequest,
   type: "BUY" | "SELL",
+  idempotencyKey = crypto.randomUUID(),
 ): Promise<MarketOperationResult> {
   const response = await fetch(`/api/orders/${type.toLowerCase()}`, {
     method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      "Idempotency-Key": idempotencyKey,
+    },
     body: JSON.stringify({ playerId: order.playerId, quantity: order.quantity }),
   });
   let body: unknown;
@@ -121,13 +126,15 @@ async function postPlayerTokens(
 export function buyPlayerTokens(
   token: string,
   order: MarketOrderRequest,
+  idempotencyKey?: string,
 ): Promise<MarketOperationResult> {
-  return postPlayerTokens(token, order, "BUY");
+  return postPlayerTokens(token, order, "BUY", idempotencyKey);
 }
 
 export function sellPlayerTokens(
   token: string,
   order: MarketOrderRequest,
+  idempotencyKey?: string,
 ): Promise<MarketOperationResult> {
-  return postPlayerTokens(token, order, "SELL");
+  return postPlayerTokens(token, order, "SELL", idempotencyKey);
 }

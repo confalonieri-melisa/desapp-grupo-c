@@ -33,7 +33,7 @@ function query(rows: unknown[]) {
   return builder;
 }
 
-function tradeDatabase() {
+function tradeDatabase(existingOperation?: Record<string, unknown>) {
   const playersQuery = query([{ id: playerId }]);
   const investorQuery = query([userRow(investorId, UserRole.INVESTOR, "1000.00")]);
   const poolQuery = query([userRow(poolId, UserRole.SUPERUSER, "500.00")]);
@@ -47,7 +47,8 @@ function tradeDatabase() {
       updatedAt: new Date("2026-01-01T00:00:00.000Z"),
     },
   ]);
-  const queries = [playersQuery, investorQuery, poolQuery, holdingsQuery];
+  const operationQuery = query(existingOperation ? [existingOperation] : []);
+  const queries = [playersQuery, investorQuery, poolQuery, holdingsQuery, operationQuery];
   const update = vi.fn(() => ({
     set: vi.fn(() => ({
       where: vi.fn(async () => []),
@@ -106,7 +107,7 @@ describe("MarketRepository", () => {
 
     expect(fake.transaction).toHaveBeenCalledOnce();
     expect(result.creditBalance).toBe(970);
-    expect(result.outcome.investorHolding.quantity).toBe(3);
+    expect(result.holding.quantity).toBe(3);
     expect(fake.update).toHaveBeenCalledTimes(3);
     expect(fake.insert).toHaveBeenCalledTimes(3);
   });
@@ -135,5 +136,75 @@ describe("MarketRepository", () => {
         averagePurchasePrice: "1.00",
       }),
     ]);
+  });
+
+  it("replays an existing operation without writing a second trade", async () => {
+    const fake = tradeDatabase({
+      id: "operation-id",
+      type: "BUY",
+      investorId,
+      playerId,
+      quoteId: "quote-id",
+      quoteValue: "10.00",
+      quantity: 3,
+      total: "30.00",
+      unit: "CREDIT_PER_TOKEN",
+      correlationId: null,
+      idempotencyKey: "buy-key",
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
+    const repository = new MarketRepository(fake.database, {
+      findLatestForPlayer: vi.fn().mockResolvedValue({
+        id: "quote-id",
+        quoteValue: 10,
+        unit: "CREDIT_PER_TOKEN",
+      }),
+    } as never);
+    const applyTrade = vi.fn();
+
+    const result = await repository.executeTrade(
+      { type: "BUY", investorId, playerId, quantity: 3, idempotencyKey: "buy-key" },
+      applyTrade,
+    );
+
+    expect(result.operation.id).toBe("operation-id");
+    expect(result.creditBalance).toBe(1000);
+    expect(result.holding.quantity).toBe(0);
+    expect(applyTrade).not.toHaveBeenCalled();
+    expect(fake.update).not.toHaveBeenCalled();
+    expect(fake.insert).not.toHaveBeenCalled();
+  });
+
+  it("rejects reusing an idempotency key for different order data", async () => {
+    const fake = tradeDatabase({
+      id: "operation-id",
+      type: "BUY",
+      investorId,
+      playerId,
+      quoteId: "quote-id",
+      quoteValue: "10.00",
+      quantity: 3,
+      total: "30.00",
+      unit: "CREDIT_PER_TOKEN",
+      correlationId: null,
+      idempotencyKey: "buy-key",
+      createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    });
+    const repository = new MarketRepository(fake.database, {
+      findLatestForPlayer: vi.fn().mockResolvedValue({
+        id: "quote-id",
+        quoteValue: 10,
+        unit: "CREDIT_PER_TOKEN",
+      }),
+    } as never);
+
+    await expect(
+      repository.executeTrade(
+        { type: "BUY", investorId, playerId, quantity: 4, idempotencyKey: "buy-key" },
+        vi.fn(),
+      ),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(fake.update).not.toHaveBeenCalled();
+    expect(fake.insert).not.toHaveBeenCalled();
   });
 });

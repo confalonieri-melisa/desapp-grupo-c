@@ -234,6 +234,7 @@ export const marketOperations = pgTable(
     total: numeric("total", { precision: 12, scale: 2 }).notNull(),
     unit: varchar("unit", { length: 30 }).notNull().default("CREDIT_PER_TOKEN"),
     correlationId: varchar("correlation_id", { length: 100 }),
+    idempotencyKey: varchar("idempotency_key", { length: 100 }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
@@ -243,6 +244,10 @@ export const marketOperations = pgTable(
     check("chk_market_operation_total", sql`${table.total} > 0`),
     index("idx_market_operations_investor_date").on(table.investorId, table.createdAt),
     index("idx_market_operations_player_date").on(table.playerId, table.createdAt),
+    uniqueIndex("uq_market_operations_investor_idempotency").on(
+      table.investorId,
+      table.idempotencyKey,
+    ),
   ],
 );
 

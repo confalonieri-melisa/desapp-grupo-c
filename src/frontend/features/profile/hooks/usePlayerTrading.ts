@@ -335,10 +335,14 @@ export function usePlayerTrading(
     const submit = async () => {
       try {
         const execute = confirmation.type === "BUY" ? buyPlayerTokens : sellPlayerTokens;
-        const receipt = await execute(token, {
-          playerId: confirmation.playerId,
-          quantity: confirmation.quantity,
-        });
+        const receipt = await execute(
+          token,
+          {
+            playerId: confirmation.playerId,
+            quantity: confirmation.quantity,
+          },
+          crypto.randomUUID(),
+        );
         if (identity.current.token !== token || submission.current !== key) return;
         setOrder({
           token,
