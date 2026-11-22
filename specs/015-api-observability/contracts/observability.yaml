@@ -1,0 +1,84 @@
+openapi: 3.0.3
+info:
+  title: Marketplace Observability API
+  version: 1.0.0
+paths:
+  /api/metrics:
+    get:
+      summary: Métricas operativas en formato Prometheus
+      responses:
+        "200":
+          description: Métricas agregadas de requests y errores
+          content:
+            text/plain:
+              schema:
+                type: string
+  /api/health/live:
+    get:
+      summary: Verifica que la aplicación está activa
+      responses:
+        "200":
+          description: Aplicación activa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /api/health/ready:
+    get:
+      summary: Verifica que la aplicación puede atender solicitudes
+      responses:
+        "200":
+          description: Aplicación preparada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+        "503":
+          description: Dependencia mínima no disponible
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /api/metrics/advanced:
+    get:
+      summary: Resumen agregado del estado del marketplace
+      responses:
+        "200":
+          description: Métricas avanzadas agregadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdvancedMetricsSummary"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status, check]
+      properties:
+        status:
+          type: string
+          enum: [ok, unhealthy]
+        check:
+          type: string
+          enum: [live, ready]
+        database:
+          type: string
+          nullable: true
+    AdvancedMetricsSummary:
+      type: object
+      required: [generatedAt, players, strategy]
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        players:
+          type: integer
+          minimum: 0
+        strategy:
+          type: object
+          nullable: true
+          properties:
+            code:
+              type: string
+            version:
+              type: string
