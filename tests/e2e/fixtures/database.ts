@@ -32,6 +32,11 @@ async function deleteFixtureRows(tx: TransactionSql): Promise<void> {
        )
   `;
   await tx`
+    DELETE FROM idempotency_keys
+    WHERE user_id IN (SELECT id FROM users WHERE email LIKE ${emailPattern})
+       OR player_id IN (SELECT id FROM players WHERE source = ${E2E_SOURCE})
+  `;
+  await tx`
     DELETE FROM market_operations
     WHERE investor_id IN (SELECT id FROM users WHERE email LIKE ${emailPattern})
        OR player_id IN (SELECT id FROM players WHERE source = ${E2E_SOURCE})

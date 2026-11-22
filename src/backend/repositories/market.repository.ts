@@ -8,7 +8,7 @@ import {
   users,
   type MarketOperationRow,
 } from "@/backend/db/schema";
-import { NotFoundError } from "@/backend/errors/http.error";
+import { ResourceNotFoundError } from "@/backend/errors/application.error";
 import type {
   MarketTradeOutcome,
   MarketTradeRequest,
@@ -16,9 +16,9 @@ import type {
 } from "@/backend/models/MarketTrade";
 import { TokenHolding } from "@/backend/models/TokenHolding";
 import {
-  TokenPurchaseReceipt,
-  type StoredTokenPurchaseReceipt,
-} from "@/backend/models/TokenPurchaseReceipt";
+  tokenPurchaseResultFromTrade,
+  type TokenPurchaseResult,
+} from "@/backend/models/TokenPurchaseResult";
 import { User } from "@/backend/models/User";
 import { UserRole } from "@/backend/models/enums";
 import { toUser } from "@/backend/repositories/user.repository";
@@ -99,7 +99,7 @@ export class MarketRepository {
     request: MarketTradeRequest,
     applyPurchase: (state: MarketTradeState) => MarketTradeOutcome,
     idempotency: BuyIdempotencyRequest,
-  ): Promise<TokenPurchaseReceipt> {
+  ): Promise<TokenPurchaseResult> {
     return this.runPurchaseTransaction(request, applyPurchase, idempotency);
   }
 
@@ -118,25 +118,23 @@ export class MarketRepository {
     request: MarketTradeRequest,
     applyPurchase: (state: MarketTradeState) => MarketTradeOutcome,
     idempotency: BuyIdempotencyRequest,
-  ): Promise<TokenPurchaseReceipt> {
-    const replay = await this.idempotencyRepository.claim(tx, request.investorId, idempotency);
-    if (replay?.responseBody) {
-      return TokenPurchaseReceipt.fromStored(
-        replay.responseBody as unknown as StoredTokenPurchaseReceipt,
-      );
+  ): Promise<TokenPurchaseResult> {
+    const replay = await this.idempotencyRepository.claim<TokenPurchaseResult>(tx, request.investorId, idempotency);
+    if (replay.responseBody) {
+      return replay.responseBody;
     }
 
     const state = await this.findPurchaseState(tx, request);
     const outcome = applyPurchase(state);
     await this.savePurchase(tx, state, outcome);
 
-    const receipt = TokenPurchaseReceipt.fromTrade(outcome, state.investor.creditBalance);
-    if (replay) await this.idempotencyRepository.complete(tx, replay.id, receipt.toStored());
+    const result = tokenPurchaseResultFromTrade(outcome, state.investor.creditBalance);
+    await this.idempotencyRepository.complete(tx, replay.id, result);
 
-    return receipt;
+    return result;
   }
 
-  async findPurchaseState(
+  private async findPurchaseState(
     tx: MarketExecutor,
     request: MarketTradeRequest,
   ): Promise<MarketTradeState> {
@@ -145,7 +143,7 @@ export class MarketRepository {
     const investorRow = await this.lockInvestorAccount(tx, request.investorId);
     const poolRow = await this.lockPoolAccount(tx);
     const quote = await this.valuationRepository.findLatestForPlayer(request.playerId, tx);
-    if (!quote) throw new NotFoundError("Current quote not available");
+    if (!quote) throw new ResourceNotFoundError("Current quote not available");
 
     const positions = await this.lockTokenPositions(
       tx,
@@ -168,7 +166,7 @@ export class MarketRepository {
     };
   }
 
-  async savePurchase(
+  private async savePurchase(
     tx: MarketExecutor,
     state: MarketTradeState,
     outcome: MarketTradeOutcome,
@@ -183,7 +181,7 @@ export class MarketRepository {
 
   private async requirePlayer(tx: MarketExecutor, playerId: string): Promise<void> {
     const rows = await tx.select().from(players).where(eq(players.id, playerId)).limit(1);
-    if (!rows[0]) throw new NotFoundError("Player not found");
+    if (!rows[0]) throw new ResourceNotFoundError("Player not found");
   }
 
   private async lockInvestorAccount(tx: MarketExecutor, investorId: string) {
@@ -194,7 +192,7 @@ export class MarketRepository {
       .orderBy(asc(users.id))
       .for("update");
     const investor = rows[0];
-    if (!investor) throw new NotFoundError("Investor not found");
+    if (!investor) throw new ResourceNotFoundError("Investor not found");
     return investor;
   }
 

@@ -37,14 +37,14 @@ venta y fue preferido para este dominio.
 ## Decision 3: Idempotencia transaccional
 
 **Decision**: Crear una tabla `idempotency_keys` con unicidad por
-`(user_id, idempotency_key)`, huella de método, ruta y payload normalizado, y
-respuesta final serializada. La fila se inserta en la misma transacción que el
-efecto financiero; un request concurrente con la misma huella queda bloqueado
+`(user_id, idempotency_key)`, datos relevantes de la operación y respuesta final
+serializada. La fila se inserta en la misma transacción que el efecto
+financiero; un request concurrente con los mismos datos queda bloqueado
 por la unicidad hasta que el primero confirme y luego reproduce el resultado.
 
 **Rationale**: El commit conjunto evita que exista una respuesta de éxito sin
-efecto o un efecto sin respuesta reproducible. La huella incluye método y ruta
-para impedir reutilizar accidentalmente una clave entre operaciones distintas.
+efecto o un efecto sin resultado reproducible. Los datos relevantes evitan
+reutilizar accidentalmente una clave para otra operación.
 
 **Alternatives considered**:
 

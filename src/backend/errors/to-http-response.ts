@@ -4,6 +4,7 @@ import {
   AuthorizationError,
   BusinessConflictError,
   IdempotencyConflictError,
+  ResourceNotFoundError,
   TransientTransactionError,
 } from "@/backend/errors/application.error";
 
@@ -18,6 +19,9 @@ export function toHttpResponse(error: unknown): Response {
 
   if (error instanceof AuthorizationError) {
     return Response.json({ error: error.message }, { status: 403 });
+  }
+  if (error instanceof ResourceNotFoundError) {
+    return Response.json({ error: error.message }, { status: 404 });
   }
   if (error instanceof IdempotencyConflictError) {
     return Response.json({ error: error.message }, { status: 409 });

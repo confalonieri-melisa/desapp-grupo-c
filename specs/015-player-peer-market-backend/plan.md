@@ -169,8 +169,8 @@ usuario.
 
 1. Autenticar, verificar rol inversor, validar body y exigir
    `Idempotency-Key`.
-2. Abrir transacción y registrar/revalidar idempotencia con huella de usuario,
-   método, ruta y payload.
+2. Abrir transacción y registrar/revalidar idempotencia con los datos relevantes
+   de la publicación.
 3. Lock seller y sus ofertas abiertas del jugador; lock de holding seller.
 4. Calcular `available = holding.quantity - SUM(open.reserved_quantity)`.
 5. Validar player y quote vigente; capturar quote, `unitPrice` y `total`.
@@ -193,8 +193,8 @@ usuario.
 6. Crear una operación `SELL` con seller como `investor_id`, buyer como
    `counterparty_user_id`, offer como `offer_id`, y auditoría con snapshots de
    ambas partes.
-7. Guardar respuesta idempotente; commit conjunto. Una segunda aceptación ve
-   estado terminal y devuelve `409`, salvo replay con la misma huella.
+7. Guardar el resultado idempotente; commit conjunto. Una segunda aceptación ve
+   estado terminal y devuelve `409`, salvo replay con los mismos datos.
 
 #### Cancel
 
@@ -219,11 +219,12 @@ usuario.
 - Errores de autenticación y forma inválida se rechazan antes de persistir la
   clave; los resultados de negocio de una operación validada se guardan para
   repetir el mismo resultado.
-- Envolver la transacción en `runFinancialTransactionWithRetry`:
+- Envolver la transacción en `FinancialTransactionRunner`:
   - primer intento inmediato;
   - si SQLSTATE `40P01` o `40001`, esperar 50 ms y reintentar una sola vez;
   - al agotarse, lanzar `ServiceUnavailableError` con código estable;
-  - no capturar/reintentar `ConflictError`, `NotFoundError`, `ForbiddenError`
+  - no capturar/reintentar conflictos de negocio, errores de recurso ausente,
+    autorización ni errores de validación.
     ni errores de validación.
 - No agregar retry de APIs externas porque esta feature no las consume.
 
@@ -282,8 +283,8 @@ usuario.
   purchase concurrente.
 - Dos compras concurrentes de una oferta: una `200`, el resto `409` o replay;
   una sola operación/auditoría.
-- Repetición con misma clave/payload reproduce cuerpo; distinta huella da
-  `409`; usuario distinto queda aislado.
+- Repetición con misma clave y datos reproduce el resultado; datos distintos
+  dan `409`; usuario distinto queda aislado.
 - Emisión por jugador permanece exactamente en 100 y no aparecen negativos.
 - GET devuelve solo `OPEN`, filtra `playerId`, devuelve vacío con `200` y
   rechaza parámetros no permitidos.

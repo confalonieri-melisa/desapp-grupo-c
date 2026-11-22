@@ -34,7 +34,7 @@ avanzada de precios, APIs externas y cambios de frontend.
 
 - Q: ¿La reserva debe descontarse de la tenencia visible del vendedor o mantenerse como una reserva separada que reduzca únicamente su cantidad disponible? → A: Mantener la reserva separada; `token_holdings.quantity` representa la tenencia total y la disponibilidad se calcula restando las reservas abiertas.
 - Q: ¿Debe esta feature incluir una consulta `GET /api/p2p/offers` para descubrir ofertas abiertas, y cuál debe ser su alcance? → A: Sí; listar únicamente ofertas `OPEN`, con filtro opcional por `playerId`, sin historial ni filtros avanzados.
-- Q: ¿Cómo debe comportarse una repetición con la misma `Idempotency-Key` cuando coincide el usuario, el método, la ruta y el payload normalizado? → A: La huella incluye usuario, método, ruta y payload; una repetición idéntica espera si la primera está en curso y luego reproduce exactamente el mismo código y cuerpo.
+- Q: ¿Cómo debe comportarse una repetición con la misma `Idempotency-Key`? → A: La clave se asocia al usuario y a los datos relevantes de la operación; una repetición idéntica espera si la primera está en curso y luego reproduce el mismo resultado, mientras que una diferencia en esos datos responde `409`.
 - Q: ¿Qué respuesta debe usar el backend cuando un fallo transitorio impide confirmar una operación financiera después de agotar los reintentos internos permitidos? → A: `409` solo para conflictos de negocio; deadlock o serialization failure agotado responde `503`; timeout o error de red posterior al envío queda como resultado incierto y se repite la misma clave.
 - Q: ¿Qué política de redondeo debe aplicarse al precio capturado y al total de una oferta? → A: Precio y total con dos decimales; `total = unitPrice × quantity` con aritmética decimal exacta y sin redondeos adicionales.
 
@@ -267,12 +267,11 @@ Idempotency-Key: <clave-no-vacia>
 Content-Type: application/json
 ```
 
-La clave se considera una cadena opaca de 1 a 255 caracteres. La huella de
-idempotencia se forma con el usuario autenticado, método HTTP, ruta y payload
-JSON normalizado según el contrato. Una repetición con la misma clave y huella
-que encuentre la operación en curso debe esperar su finalización y reproducir
-el mismo código y cuerpo; la misma clave con cualquier huella distinta debe
-responder `409`.
+La clave se considera una cadena opaca de 1 a 255 caracteres. Cada operación
+compara los datos necesarios para reconocer la misma intención —en esta compra,
+usuario, jugador y cantidad—. Una repetición idéntica que encuentre la
+operación en curso debe esperar su finalización y reproducir el mismo resultado;
+la misma clave con datos distintos debe responder `409`.
 
 ### `POST /api/orders/buy`
 
@@ -372,10 +371,9 @@ terceros ni detalles internos.
   cantidad que el vendedor no puede volver a comprometer mientras la oferta
   está abierta. La disponibilidad se calcula como tenencia total menos
   reservas abiertas.
-- **IdempotencyRecord**: registro asociado a usuario, clave, operación,
-  método, ruta, huella del payload, estado en curso/finalizado, código y
-  respuesta final, para serializar y repetir de forma segura solicitudes
-  mutantes.
+- **IdempotencyRecord**: registro asociado a usuario, clave, datos relevantes
+  de la operación y resultado final, para serializar y repetir de forma segura
+  solicitudes mutantes.
 - **MarketOperation**: registro existente append-only extendido solo para
   identificar la venta P2P, sus dos participantes, precio capturado, total y
   cantidad, manteniendo los tipos financieros existentes.

@@ -1,7 +1,7 @@
 import type { MarketOperationRow } from "@/backend/db/schema";
 import { AuthorizationError } from "@/backend/errors/application.error";
 import { MarketTrade, type MarketTradeRequest } from "@/backend/models/MarketTrade";
-import type { TokenPurchaseReceipt } from "@/backend/models/TokenPurchaseReceipt";
+import type { TokenPurchaseResult } from "@/backend/models/TokenPurchaseResult";
 import { MarketRepository } from "@/backend/repositories/market.repository";
 import type {
   MarketOperationHistoryQuery,
@@ -35,7 +35,7 @@ export class MarketOperationService {
     private readonly marketTrade = new MarketTrade(),
   ) {}
 
-  async buy(auth: AuthTokenPayload, input: MarketOperationRequest, idempotencyKey: string, correlationId?: string): Promise<TokenPurchaseReceipt> {
+  async buy(auth: AuthTokenPayload, input: MarketOperationRequest, idempotencyKey: string, correlationId?: string): Promise<TokenPurchaseResult> {
     const request: MarketTradeRequest = {
       investorId: auth.sub,
       playerId: input.playerId,
