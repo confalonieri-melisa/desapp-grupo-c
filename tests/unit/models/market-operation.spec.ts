@@ -32,6 +32,22 @@ describe("market financial records", () => {
     ).toThrow(DomainValidationError);
   });
 
+  it("matches only the same order identity", () => {
+    const operation = new MarketOperation({
+      type: "BUY",
+      investorId: "investor-id",
+      playerId: "player-id",
+      quoteId: "quote-id",
+      quoteValue: 10,
+      quantity: 3,
+    });
+
+    expect(operation.matchesOrder("BUY", "player-id", 3)).toBe(true);
+    expect(operation.matchesOrder("SELL", "player-id", 3)).toBe(false);
+    expect(operation.matchesOrder("BUY", "other-player", 3)).toBe(false);
+    expect(operation.matchesOrder("BUY", "player-id", 4)).toBe(false);
+  });
+
   it("keeps the before and after financial snapshots", () => {
     const audit = new FinancialAuditRecord({
       operationId: "operation-id",

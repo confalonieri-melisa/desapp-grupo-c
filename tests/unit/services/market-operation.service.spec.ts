@@ -61,7 +61,7 @@ describe("MarketOperationService", () => {
     });
     const service = new MarketOperationService({ executeTrade } as never, { sell } as never);
 
-    await service.sell(auth, { playerId: "player-id", quantity: 2 }, "request-id");
+    await service.sell(auth, { playerId: "player-id", quantity: 2 }, "request-id", "sell-key");
 
     expect(executeTrade).toHaveBeenCalledWith(
       {
@@ -70,6 +70,7 @@ describe("MarketOperationService", () => {
         playerId: "player-id",
         quantity: 2,
         correlationId: "request-id",
+        idempotencyKey: "sell-key",
       },
       expect.any(Function),
     );
