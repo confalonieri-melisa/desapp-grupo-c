@@ -9,6 +9,7 @@ import {
   playerQuotesQuerySchema,
 } from "@/backend/schemas/player-quotes.schema";
 import { PlayerQuotesService } from "@/backend/services/player-quotes.service";
+import { requestObservation } from "@/backend/observability/request-observation";
 
 const controller = new PlayerQuotesController(
   new PlayerQuotesService(new PlayerRepository(), new ValuationRepository()),
@@ -19,15 +20,17 @@ interface PlayerQuotesRouteContext {
 }
 
 export async function GET(request: Request, context: PlayerQuotesRouteContext): Promise<Response> {
-  try {
-    requireAuth(request);
-    const params = await context.params;
-    const playerId = parseParams(params).id;
-    const date = parseQuery(request).date;
-    return Response.json(await controller.getQuotes(playerId, date));
-  } catch (error) {
-    return toHttpResponse(error);
-  }
+  return requestObservation.observe(request, "/api/players/:id/quotes", async () => {
+    try {
+      requireAuth(request);
+      const params = await context.params;
+      const playerId = parseParams(params).id;
+      const date = parseQuery(request).date;
+      return Response.json(await controller.getQuotes(playerId, date));
+    } catch (error) {
+      return toHttpResponse(error);
+    }
+  });
 }
 
 function parseParams(params: unknown) {

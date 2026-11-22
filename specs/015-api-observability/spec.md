@@ -137,12 +137,10 @@ consultar el resumen y verificar que refleje el estado actual del sistema.
 1. **Given** que existe una estrategia de valuación activa, **When** se
    consulta `GET /api/metrics/advanced`, **Then** la respuesta informa el
    código y versión de la estrategia activa.
-2. **Given** que existen jugadores y resultados de recálculo, **When** se
-   consulta el endpoint, **Then** informa cantidades de jugadores, cotizaciones
-   calculadas y rechazadas, y el estado del último recálculo disponible.
-3. **Given** que no existe información opcional de recálculo o mercado, **When**
-   se consulta el endpoint, **Then** devuelve valores explícitos de ausencia o
-   cero sin inventar datos.
+2. **Given** que existen jugadores, **When** se consulta el endpoint, **Then**
+   informa la cantidad de jugadores disponible.
+3. **Given** que no existe una estrategia activa, **When** se consulta el
+   endpoint, **Then** informa la ausencia con `strategy: null`.
 4. **Given** que cualquier persona o sistema consulta el endpoint, **When** se
    devuelve el resumen operativo, **Then** sólo se exponen datos técnicos o
    agregados y nunca datos personales, credenciales, saldos o portfolios
@@ -162,9 +160,8 @@ consultar el resumen y verificar que refleje el estado actual del sistema.
 - El endpoint de métricas no debe contabilizarse a sí mismo de forma recursiva.
 - Si la base de datos no está disponible, el liveness check puede continuar
   saludable mientras el readiness check informa que la aplicación no está lista.
-- Si no hay estrategia activa o no hay recálculos, las métricas avanzadas deben
-  responder de forma válida indicando la ausencia, sin producir un error
-  interno.
+- Si no hay estrategia activa, las métricas avanzadas deben responder de forma
+  válida indicando la ausencia, sin producir un error interno.
 - La futura incorporación de una cache no debe ser necesaria para que esta
   feature funcione.
 
@@ -193,10 +190,10 @@ consultar el resumen y verificar que refleje el estado actual del sistema.
 - **FR-009**: El sistema MUST exponer `GET /api/health/ready` para informar si
   la aplicación puede utilizar sus dependencias mínimas requeridas.
 - **FR-010**: El sistema MUST exponer `GET /api/metrics/advanced` con un
-  resumen válido de métricas operativas del dominio, incluyendo estrategia de
-  valuación activa y resultado del último recálculo disponible.
-- **FR-011**: El endpoint de métricas avanzadas MUST informar explícitamente
-  ausencia o cero cuando no existan datos opcionales, sin inventar valores.
+  resumen válido de métricas operativas del dominio, incluyendo cantidad de
+  jugadores y estrategia de valuación activa.
+- **FR-011**: El endpoint de métricas avanzadas MUST informar explícitamente la
+  ausencia de estrategia activa con `strategy: null`.
 - **FR-012**: Los endpoints de observabilidad MUST poder consultarse sin iniciar
   sesión y MUST evitar cualquier dependencia del superusuario del marketplace.
 - **FR-013**: Los endpoints públicos de observabilidad MUST exponer únicamente

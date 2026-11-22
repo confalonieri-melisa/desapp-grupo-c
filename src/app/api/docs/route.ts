@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import YAML from "yaml";
+import { requestObservation } from "@/backend/observability/request-observation";
 
 const openApiPath = path.join(
   process.cwd(),
@@ -17,11 +18,12 @@ function loadOpenApiDocument(): string {
   return JSON.stringify(openApiDocument).replace(/</g, "\\u003c");
 }
 
-export function GET(): Response {
-  const openApiDocument = loadOpenApiDocument();
+export function GET(request: Request): Promise<Response> {
+  return requestObservation.observe(request, "/api/docs", () => {
+    const openApiDocument = loadOpenApiDocument();
 
-  return new Response(
-    `<!doctype html>
+    return new Response(
+      `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -46,11 +48,12 @@ export function GET(): Response {
     </script>
   </body>
 </html>`,
-    {
-      headers: {
-        "Cache-Control": "no-store",
-        "Content-Type": "text/html; charset=utf-8",
+      {
+        headers: {
+          "Cache-Control": "no-store",
+          "Content-Type": "text/html; charset=utf-8",
+        },
       },
-    },
-  );
+    );
+  });
 }

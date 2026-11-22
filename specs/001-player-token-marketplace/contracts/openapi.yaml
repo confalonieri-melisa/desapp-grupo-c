@@ -25,6 +25,68 @@ paths:
               schema:
                 $ref: "#/components/schemas/HealthResponse"
 
+  /health/live:
+    get:
+      summary: Liveness de la aplicación
+      description: Endpoint público que confirma que la aplicación está activa.
+      tags:
+        - System
+      responses:
+        "200":
+          description: Aplicación activa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationalHealthResponse"
+
+  /health/ready:
+    get:
+      summary: Readiness de la aplicación
+      description: Endpoint público que confirma que la aplicación puede utilizar PostgreSQL.
+      tags:
+        - System
+      responses:
+        "200":
+          description: Aplicación preparada
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationalHealthResponse"
+        "503":
+          description: Dependencia mínima no disponible
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationalHealthResponse"
+
+  /metrics:
+    get:
+      summary: Métricas operativas
+      description: Endpoint público con métricas HTTP en formato compatible con Prometheus.
+      tags:
+        - System
+      responses:
+        "200":
+          description: Métricas agregadas
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /metrics/advanced:
+    get:
+      summary: Métricas avanzadas del marketplace
+      description: Endpoint público con información técnica y agregada del catálogo y la valuación.
+      tags:
+        - System
+      responses:
+        "200":
+          description: Resumen agregado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdvancedMetricsSummary"
+
   /auth/register:
     post:
       summary: Registro de Usuario Inversor
@@ -989,6 +1051,38 @@ components:
         database:
           type: string
           example: connected
+
+    OperationalHealthResponse:
+      type: object
+      required: [status, check]
+      properties:
+        status:
+          type: string
+          enum: [ok, unhealthy]
+        check:
+          type: string
+          enum: [live, ready]
+        database:
+          type: string
+          nullable: true
+          enum: [ok, unhealthy]
+
+    AdvancedMetricsSummary:
+      type: object
+      required: [generatedAt, players, strategy]
+      properties:
+        generatedAt:
+          type: string
+          format: date-time
+        players:
+          type: integer
+          minimum: 0
+        strategy:
+          type: object
+          nullable: true
+          properties:
+            code: { type: string }
+            version: { type: string }
 
     ErrorResponse:
       type: object

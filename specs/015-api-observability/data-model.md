@@ -7,16 +7,16 @@ estructuras operativas en memoria y respuestas públicas.
 
 Registro estructurado de una solicitud procesada.
 
-| Campo | Tipo conceptual | Requerido | Regla |
-|---|---|---:|---|
-| timestamp | fecha/hora ISO-8601 | Sí | Momento de finalización o error de la solicitud. |
-| user | identificador o `anonymous` | Sí | Se obtiene del contexto autenticado si existe. |
-| method | texto | Sí | Método HTTP. |
-| operation | texto | Sí | Ruta normalizada, sin valores sensibles. |
-| parameters | objeto sanitizado | Sí | Query, path y body sin secretos. |
-| status | número HTTP | Sí | Status de la respuesta. |
-| durationMs | número | Sí | Duración no negativa. |
-| correlationId | texto | Sí | Recibido o generado para la solicitud. |
+| Campo         | Tipo conceptual             | Requerido | Regla                                            |
+| ------------- | --------------------------- | --------: | ------------------------------------------------ |
+| timestamp     | fecha/hora ISO-8601         |        Sí | Momento de finalización o error de la solicitud. |
+| user          | identificador o `anonymous` |        Sí | Se obtiene del contexto autenticado si existe.   |
+| method        | texto                       |        Sí | Método HTTP.                                     |
+| operation     | texto                       |        Sí | Ruta normalizada, sin valores sensibles.         |
+| parameters    | objeto sanitizado           |        Sí | Query, path y body sin secretos.                 |
+| status        | número HTTP                 |        Sí | Status de la respuesta.                          |
+| durationMs    | número                      |        Sí | Duración no negativa.                            |
+| correlationId | texto                       |        Sí | Recibido o generado para la solicitud.           |
 
 ## HttpMetricsSnapshot
 
@@ -44,11 +44,9 @@ Resumen agregado del dominio:
 - Fecha de generación.
 - Cantidad de jugadores.
 - Estrategia activa y versión, si existe.
-- Estado, cantidad calculada y cantidad rechazada del último recálculo
-  disponible durante la ejecución actual.
 
-Cuando no existe una estrategia o recálculo, el campo se informa como ausencia,
-`null` o cero según el contrato, sin inventar información.
+Cuando no existe una estrategia activa, el campo se informa como `null`, sin
+inventar información.
 
 ## Lifecycle
 

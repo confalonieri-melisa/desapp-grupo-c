@@ -42,7 +42,8 @@ export class QuoteRecalculationService {
     const config = active.configuration as ValuationConfig;
     const contexts = await this.resolveTeamContexts(players, strategyCode);
     const outcome = await this.recalculatePlayers(active, players, contexts, strategyCode, config);
-    return buildRecalculationResponse(active, outcome);
+    const response = buildRecalculationResponse(active, outcome);
+    return response;
   }
 
   private async findActiveStrategyVersion() {
