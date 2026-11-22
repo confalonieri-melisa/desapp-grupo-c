@@ -3,7 +3,7 @@ import { verifyToken } from "@/backend/utils/jwt";
 import { httpMetrics } from "@/backend/observability/http-metrics";
 import { requestAudit } from "@/backend/observability/request-audit";
 
-type RequestAction = (request: Request) => Response | Promise<Response>;
+type RequestAction = (request: Request, correlationId: string) => Response | Promise<Response>;
 
 type Observation = {
   correlationId: string;
@@ -60,7 +60,7 @@ export class RequestObservation {
     let status = 500;
 
     try {
-      response = await action(request);
+      response = await action(request, observation.correlationId);
       status = response.status;
       return withCorrelationId(response, observation.correlationId);
     } finally {
