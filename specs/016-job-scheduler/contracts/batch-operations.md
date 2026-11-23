@@ -2,7 +2,7 @@
 
 ## Configuración
 
-Ambos procesos son semanales. `BATCH_SYNC_WEEKDAY` y `BATCH_RECALC_WEEKDAY` aceptan día ISO 1–7 (inicial `1`); `BATCH_SYNC_TIME` y `BATCH_RECALC_TIME` aceptan `HH:mm` (iniciales `02:00` y `03:00`); `BATCH_SYNC_TIMEZONE` y `BATCH_RECALC_TIMEZONE` aceptan zona IANA (inicial `America/Argentina/Buenos_Aires`). `BATCH_POLL_SECONDS` es entero 1–30 (inicial `15`). Una configuración inválida detiene el worker con error observable.
+Ambos procesos son semanales. `BATCH_SYNC_WEEKDAY` y `BATCH_RECALC_WEEKDAY` aceptan día ISO 1–7 (inicial `2`, martes); `BATCH_SYNC_TIME` y `BATCH_RECALC_TIME` aceptan `HH:mm` (iniciales `18:00` y `18:15`); `BATCH_SYNC_TIMEZONE` y `BATCH_RECALC_TIMEZONE` aceptan zona IANA (inicial `America/Argentina/Buenos_Aires`). `BATCH_POLL_SECONDS` es entero 1–30 (inicial `15`). Una configuración inválida detiene el worker con error observable.
 
 ## Comandos
 

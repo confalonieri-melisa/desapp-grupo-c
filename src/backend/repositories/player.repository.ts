@@ -45,7 +45,6 @@ export class PlayerRepository {
     });
   }
 
-  /** Used inside the batch transaction on the lock-owning connection. */
   async savePlayerInTransaction(
     playerData: PlayerPersistenceData,
     transaction: PlayerDatabaseExecutor,
