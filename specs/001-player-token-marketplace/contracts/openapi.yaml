@@ -591,6 +591,53 @@ paths:
         "403": { description: El id no coincide con el sujeto autenticado }
         "500": { description: Error inesperado }
 
+  /p2p/offers:
+    get:
+      summary: Listar ofertas P2P abiertas
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - name: playerId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Ofertas abiertas }
+        "401": { description: Token ausente o inválido }
+    post:
+      summary: Publicar una oferta P2P a precio fijo
+      security: [{ BearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/P2POfferInput"
+      responses:
+        "201": { description: Oferta publicada }
+        "400": { description: Datos inválidos }
+        "409": { description: Tenencia insuficiente }
+
+  /p2p/offers/{id}/accept:
+    post:
+      summary: Aceptar una oferta P2P completa
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: Idempotency-Key, in: header, required: true, schema: { type: string } }
+      responses:
+        "201": { description: Operación P2P completada }
+        "400": { description: Idempotency-Key ausente }
+        "409": { description: Oferta cerrada o fondos insuficientes }
+
+  /p2p/offers/{id}:
+    delete:
+      summary: Cancelar una oferta propia
+      security: [{ BearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        "204": { description: Oferta cancelada }
+        "404": { description: Oferta inexistente o ajena }
+
 components:
   securitySchemes:
     BearerAuth:
@@ -600,6 +647,14 @@ components:
       description: Ingrese su token JWT emitido por `/auth/login` (válido por 24 horas).
 
   schemas:
+    P2POfferInput:
+      type: object
+      required: [playerId, quantity, unitPrice]
+      properties:
+        playerId: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1 }
+        unitPrice: { type: number, exclusiveMinimum: 0, multipleOf: 0.01 }
+
     CollectiveSyncRequest:
       type: object
       required:

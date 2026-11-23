@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, or } from "drizzle-orm";
 import { db as defaultDatabase, type Database } from "@/backend/db";
 import {
   financialAuditRecords,
@@ -6,6 +6,7 @@ import {
   players,
   tokenHoldings,
   users,
+  type FinancialAuditRecordRow,
   type MarketOperationRow,
 } from "@/backend/db/schema";
 import { ConflictError, NotFoundError } from "@/backend/errors/http.error";
@@ -15,6 +16,11 @@ import type {
   MarketTradeState,
 } from "@/backend/models/MarketTrade";
 import { MarketOperation } from "@/backend/models/MarketOperation";
+import {
+  type AuditStateSnapshot,
+  FinancialAuditRecord,
+  type P2PFinancialStateSnapshot,
+} from "@/backend/models/FinancialAuditRecord";
 import { TokenHolding } from "@/backend/models/TokenHolding";
 import { User } from "@/backend/models/User";
 import { UserRole } from "@/backend/models/enums";
@@ -35,11 +41,116 @@ export interface MarketOperationHistoryPage {
   hasMore: boolean;
 }
 
+export interface P2PReplay {
+  operation: MarketOperation;
+  audit: FinancialAuditRecord<P2PFinancialStateSnapshot>;
+}
+
 export class MarketRepository {
   constructor(
     private readonly database: Database = defaultDatabase,
     private readonly valuationRepository = new ValuationRepository(database),
   ) {}
+
+  withTransaction<T>(work: (transaction: MarketExecutor) => Promise<T>): Promise<T> {
+    return this.database.transaction((transaction) => work(transaction));
+  }
+
+  async findTradeParticipants(
+    transaction: MarketExecutor,
+    buyerId: string,
+    sellerId: string,
+  ): Promise<{ buyer: User; seller: User }> {
+    const rows = await transaction
+      .select()
+      .from(users)
+      .where(inArray(users.id, [buyerId, sellerId]))
+      .orderBy(asc(users.id))
+      .for("update");
+    const buyer = rows.find((row) => row.id === buyerId);
+    const seller = rows.find((row) => row.id === sellerId);
+    if (!buyer || !seller) throw new NotFoundError("Trade participant not found");
+    return { buyer: toUser(buyer), seller: toUser(seller) };
+  }
+
+  async findTradeHoldings(
+    transaction: MarketExecutor,
+    playerId: string,
+    buyerId: string,
+    sellerId: string,
+  ): Promise<{ buyer: TokenHolding | null; seller: TokenHolding | null }> {
+    const rows = await transaction
+      .select()
+      .from(tokenHoldings)
+      .where(
+        and(eq(tokenHoldings.playerId, playerId), inArray(tokenHoldings.userId, [buyerId, sellerId])),
+      )
+      .orderBy(asc(tokenHoldings.userId))
+      .for("update");
+    const buyer = rows.find((row) => row.userId === buyerId);
+    const seller = rows.find((row) => row.userId === sellerId);
+    return {
+      buyer: buyer ? toHolding(buyer) : null,
+      seller: seller ? toHolding(seller) : null,
+    };
+  }
+
+  async persistTradeParticipants(
+    transaction: MarketExecutor,
+    participants: User[],
+  ): Promise<void> {
+    for (const participant of participants) await saveAccountBalance(transaction, participant);
+  }
+
+  async persistTradeHoldings(
+    transaction: MarketExecutor,
+    holdings: Array<{ holding: TokenHolding; exists: boolean }>,
+  ): Promise<void> {
+    for (const { holding, exists } of holdings) {
+      await saveTokenPosition(transaction, holding, exists);
+    }
+  }
+
+  async findP2PReplay(
+    transaction: MarketExecutor,
+    buyerId: string,
+    idempotencyKey: string,
+  ): Promise<P2PReplay | undefined> {
+    const operations = await transaction
+      .select()
+      .from(marketOperations)
+      .where(
+        and(
+          eq(marketOperations.investorId, buyerId),
+          eq(marketOperations.idempotencyKey, idempotencyKey),
+        ),
+      )
+      .limit(1);
+    const operationRow = operations[0];
+    if (!operationRow) return undefined;
+    const audits = await transaction
+      .select()
+      .from(financialAuditRecords)
+      .where(eq(financialAuditRecords.operationId, operationRow.id))
+      .limit(1);
+    const auditRow = audits[0];
+    if (!auditRow) throw new ConflictError("P2P trade audit is missing");
+    return { operation: toMarketOperation(operationRow), audit: toFinancialAuditRecord(auditRow) };
+  }
+
+  async recordCompletedTrade(
+    transaction: MarketExecutor,
+    operation: MarketOperation,
+  ): Promise<void> {
+    await saveMarketOperation(transaction, operation);
+  }
+
+  async recordFinancialTransition(
+    transaction: MarketExecutor,
+    audit: FinancialAuditRecord<AuditStateSnapshot>,
+  ): Promise<void> {
+    await saveFinancialAudit(transaction, audit);
+  }
 
   async findOperationsByInvestorId(
     investorId: string,
@@ -49,7 +160,13 @@ export class MarketRepository {
     const rows = await this.database
       .select()
       .from(marketOperations)
-      .where(eq(marketOperations.investorId, investorId))
+      .where(
+        or(
+          eq(marketOperations.investorId, investorId),
+          eq(marketOperations.buyerId, investorId),
+          eq(marketOperations.sellerId, investorId),
+        ),
+      )
       .orderBy(desc(marketOperations.createdAt), desc(marketOperations.id))
       .limit(limit + 1)
       .offset(offset);
@@ -297,6 +414,9 @@ async function saveMarketOperation(
     investorId: operation.investorId,
     playerId: operation.playerId,
     quoteId: operation.quoteId,
+    buyerId: operation.buyerId,
+    sellerId: operation.sellerId,
+    offerId: operation.offerId,
     quoteValue: operation.quoteValue.toFixed(2),
     quantity: operation.quantity,
     total: operation.total.toFixed(2),
@@ -309,7 +429,7 @@ async function saveMarketOperation(
 
 async function saveFinancialAudit(
   tx: MarketExecutor,
-  audit: MarketTradeOutcome["audit"],
+  audit: FinancialAuditRecord<AuditStateSnapshot>,
 ): Promise<void> {
   await tx.insert(financialAuditRecords).values({
     id: audit.id,
@@ -338,18 +458,36 @@ function toHolding(row: TokenHoldingRow): TokenHolding {
   });
 }
 
-function toMarketOperation(row: MarketOperationRow): MarketOperation {
+export function toMarketOperation(row: MarketOperationRow): MarketOperation {
   return new MarketOperation({
     id: row.id,
     type: row.type as "BUY" | "SELL",
     investorId: row.investorId,
     playerId: row.playerId,
-    quoteId: row.quoteId,
+    quoteId: row.quoteId ?? undefined,
+    buyerId: row.buyerId ?? undefined,
+    sellerId: row.sellerId ?? undefined,
+    offerId: row.offerId ?? undefined,
     quoteValue: Number(row.quoteValue),
     quantity: row.quantity,
     unit: row.unit,
     correlationId: row.correlationId ?? undefined,
     idempotencyKey: row.idempotencyKey ?? undefined,
+    createdAt: row.createdAt,
+  });
+}
+
+function toFinancialAuditRecord(
+  row: FinancialAuditRecordRow,
+): FinancialAuditRecord<P2PFinancialStateSnapshot> {
+  return new FinancialAuditRecord<P2PFinancialStateSnapshot>({
+    id: row.id,
+    operationId: row.operationId,
+    actorUserId: row.actorUserId,
+    action: row.action as "TOKEN_BUY" | "TOKEN_SELL" | "P2P_TRADE",
+    previousState: row.previousState as P2PFinancialStateSnapshot,
+    newState: row.newState as P2PFinancialStateSnapshot,
+    correlationId: row.correlationId ?? undefined,
     createdAt: row.createdAt,
   });
 }

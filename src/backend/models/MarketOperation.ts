@@ -7,7 +7,10 @@ export interface MarketOperationProps {
   type: MarketOperationType;
   investorId: string;
   playerId: string;
-  quoteId: string;
+  quoteId?: string;
+  buyerId?: string;
+  sellerId?: string;
+  offerId?: string;
   quoteValue: number;
   quantity: number;
   unit?: string;
@@ -21,7 +24,10 @@ export class MarketOperation {
   readonly type: MarketOperationType;
   readonly investorId: string;
   readonly playerId: string;
-  readonly quoteId: string;
+  readonly quoteId?: string;
+  readonly buyerId?: string;
+  readonly sellerId?: string;
+  readonly offerId?: string;
   readonly quoteValue: number;
   readonly quantity: number;
   readonly total: number;
@@ -46,6 +52,9 @@ export class MarketOperation {
     this.investorId = props.investorId;
     this.playerId = props.playerId;
     this.quoteId = props.quoteId;
+    this.buyerId = props.buyerId;
+    this.sellerId = props.sellerId;
+    this.offerId = props.offerId;
     this.quoteValue = props.quoteValue;
     this.quantity = props.quantity;
     this.total = roundMoney(this.quantity * this.quoteValue);
@@ -57,6 +66,10 @@ export class MarketOperation {
 
   matchesOrder(type: MarketOperationType, playerId: string, quantity: number): boolean {
     return this.type === type && this.playerId === playerId && this.quantity === quantity;
+  }
+
+  matchesOffer(offerId: string): boolean {
+    return this.type === "BUY" && this.offerId === offerId;
   }
 }
 

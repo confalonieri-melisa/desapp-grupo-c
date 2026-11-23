@@ -12,13 +12,17 @@ import { ForbiddenError } from "@/backend/errors/http.error";
 
 export interface MarketOperationHistoryItem {
   id: string;
-  type: string;
+  type: "BUY" | "SELL";
+  market: "CENTRAL" | "P2P";
   playerId: string;
   quantity: number;
-  quoteId: string;
+  quoteId: string | null;
   quoteValue: number;
   total: number;
   unit: string;
+  buyerId: string | null;
+  sellerId: string | null;
+  offerId: string | null;
   createdAt: Date;
   correlationId: string | null;
 }
@@ -74,7 +78,7 @@ export class MarketOperationService {
     );
 
     return {
-      items: page.rows.map(toHistoryItem),
+      items: page.rows.map((row) => toHistoryItem(row, userId)),
       limit: query.limit,
       offset: query.offset,
       hasMore: page.hasMore,
@@ -111,16 +115,21 @@ export class MarketOperationService {
   }
 }
 
-function toHistoryItem(row: MarketOperationRow): MarketOperationHistoryItem {
+function toHistoryItem(row: MarketOperationRow, viewerId: string): MarketOperationHistoryItem {
+  const isP2P = Boolean(row.offerId);
   return {
     id: row.id,
-    type: row.type,
+    type: isP2P ? (row.buyerId === viewerId ? "BUY" : "SELL") : (row.type as "BUY" | "SELL"),
+    market: isP2P ? "P2P" : "CENTRAL",
     playerId: row.playerId,
     quantity: row.quantity,
     quoteId: row.quoteId,
     quoteValue: Number(row.quoteValue),
     total: Number(row.total),
     unit: row.unit,
+    buyerId: row.buyerId,
+    sellerId: row.sellerId,
+    offerId: row.offerId,
     createdAt: row.createdAt,
     correlationId: row.correlationId,
   };

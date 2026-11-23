@@ -1,4 +1,4 @@
-import { DomainValidationError } from "./errors";
+import { DomainValidationError, InsufficientTokenHoldingError } from "./errors";
 
 export const INITIAL_TOKEN_QUANTITY = 100;
 export const INITIAL_TOKEN_PRICE = 1;
@@ -71,7 +71,7 @@ export class TokenHolding {
   sell(quantity: number): TokenHolding {
     TokenHolding.validateQuantity(quantity, false);
     if (quantity > this.quantity) {
-      throw new DomainValidationError("Insufficient token holding");
+      throw new InsufficientTokenHoldingError();
     }
 
     const nextQuantity = this.quantity - quantity;
@@ -82,6 +82,10 @@ export class TokenHolding {
       quantity: nextQuantity,
       averagePurchasePrice: nextQuantity === 0 ? 0 : this.averagePurchasePrice,
     });
+  }
+
+  canSell(quantity: number): boolean {
+    return Number.isInteger(quantity) && quantity > 0 && quantity <= this.quantity;
   }
 
   currentValueAt(price: number): number {

@@ -10,28 +10,43 @@ export interface FinancialStateSnapshot {
   };
 }
 
-export interface FinancialAuditRecordProps {
+export interface P2PFinancialStateSnapshot {
+  buyer: {
+    creditBalance: number;
+    quantity: number;
+    averagePurchasePrice: number;
+  };
+  seller: {
+    creditBalance: number;
+    quantity: number;
+    averagePurchasePrice: number;
+  };
+}
+
+export type AuditStateSnapshot = FinancialStateSnapshot | P2PFinancialStateSnapshot;
+
+export interface FinancialAuditRecordProps<T extends AuditStateSnapshot = FinancialStateSnapshot> {
   id?: string;
   operationId: string;
   actorUserId: string;
-  action: "TOKEN_BUY" | "TOKEN_SELL";
-  previousState: FinancialStateSnapshot;
-  newState: FinancialStateSnapshot;
+  action: "TOKEN_BUY" | "TOKEN_SELL" | "P2P_TRADE";
+  previousState: T;
+  newState: T;
   correlationId?: string;
   createdAt?: Date;
 }
 
-export class FinancialAuditRecord {
+export class FinancialAuditRecord<T extends AuditStateSnapshot = FinancialStateSnapshot> {
   readonly id: string;
   readonly operationId: string;
   readonly actorUserId: string;
-  readonly action: "TOKEN_BUY" | "TOKEN_SELL";
-  readonly previousState: FinancialStateSnapshot;
-  readonly newState: FinancialStateSnapshot;
+  readonly action: "TOKEN_BUY" | "TOKEN_SELL" | "P2P_TRADE";
+  readonly previousState: T;
+  readonly newState: T;
   readonly correlationId?: string;
   readonly createdAt: Date;
 
-  constructor(props: FinancialAuditRecordProps) {
+  constructor(props: FinancialAuditRecordProps<T>) {
     this.id = props.id ?? crypto.randomUUID();
     this.operationId = props.operationId;
     this.actorUserId = props.actorUserId;

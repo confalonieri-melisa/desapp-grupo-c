@@ -12,20 +12,20 @@
 
 **Purpose**: Preparar la estructura mínima sin agregar infraestructura nueva.
 
-- [ ] T001 Confirmar que la implementación parte de `main` en `feature/017-p2p-fixed-offers`, documentar el vocabulario de negocio (`publicarOferta`, `aceptarOferta`, `cancelarOferta`, `registrarOperacion`) y registrar el alcance MVP en `specs/017-p2p-fixed-offers/plan.md`
-- [ ] T002 [P] Preparar fixtures reutilizables de dos inversores, jugador, tenencias y saldo para P2P en `tests/fixtures/p2p-offers.ts`
+- [X] T001 Confirmar que la implementación parte de `main` en `feature/017-p2p-fixed-offers`, documentar el vocabulario de negocio (`publicarOferta`, `aceptarOferta`, `cancelarOferta`, `registrarOperacion`) y registrar el alcance MVP en `specs/017-p2p-fixed-offers/plan.md`
+- [X] T002 [P] Preparar fixtures reutilizables de dos inversores, jugador, tenencias y saldo para P2P en `tests/fixtures/p2p-offers.ts`
 
 ## Phase 2: Foundational
 
 **Purpose**: Crear contratos de dominio y persistencia que bloquean las historias de usuario.
 
-- [ ] T003 [P] Implementar `P2POffer` con estados `OPEN`, `FILLED`, `CANCELLED`, cantidad entera positiva, precio positivo de hasta dos decimales y transiciones válidas en `src/backend/models/P2POffer.ts`
-- [ ] T004 [P] Agregar tests unitarios de creación, validación y transiciones de `P2POffer` en `tests/unit/models/p2p-offer.spec.ts`
-- [ ] T005 [P] Extender `MarketOperation` y `FinancialAuditRecord` para representar comprador, vendedor, oferta, operación P2P y snapshots `buyer/seller`, preservando las operaciones centrales en `src/backend/models/MarketOperation.ts` y `src/backend/models/FinancialAuditRecord.ts`
-- [ ] T006 [P] Cubrir las invariantes de operación única P2P, acción `P2P_TRADE` y snapshots de comprador/vendedor en `tests/unit/models/market-operation.spec.ts` y `tests/unit/models/financial-audit-record.spec.ts`
-- [ ] T007 Agregar `p2p_offers`, campos P2P opcionales en `market_operations`, `quote_id` nullable para P2P y acción de auditoría `P2P_TRADE` en `src/backend/db/schema.ts` y `src/backend/db/migrations/0008_p2p_fixed_offers.sql`
-- [ ] T008 [P] Implementar los mapeos y operaciones de persistencia de ofertas —crear, listar abiertas, cargar con lock y cancelar— sin reglas de transferencia en `src/backend/repositories/p2p-offer.repository.ts`
-- [ ] T009 Implementar en `src/backend/repositories/market.repository.ts` el contexto transaccional interno y las operaciones de persistencia con nombres de negocio (`findTradeParticipants`, `findTradeHoldings`, `recordCompletedTrade`, `recordFinancialTransition`), sin invocar dominio ni coordinar el caso de uso
+- [X] T003 [P] Implementar `P2POffer` con estados `OPEN`, `FILLED`, `CANCELLED`, cantidad entera positiva, precio positivo de hasta dos decimales y transiciones válidas en `src/backend/models/P2POffer.ts`
+- [X] T004 [P] Agregar tests unitarios de creación, validación y transiciones de `P2POffer` en `tests/unit/models/p2p-offer.spec.ts`
+- [X] T005 [P] Extender `MarketOperation` y `FinancialAuditRecord` para representar comprador, vendedor, oferta, operación P2P y snapshots `buyer/seller`, preservando las operaciones centrales en `src/backend/models/MarketOperation.ts` y `src/backend/models/FinancialAuditRecord.ts`
+- [X] T006 [P] Cubrir las invariantes de operación única P2P, acción `P2P_TRADE` y snapshots de comprador/vendedor en `tests/unit/models/market-operation.spec.ts` y `tests/unit/models/financial-audit-record.spec.ts`
+- [X] T007 Agregar `p2p_offers`, campos P2P opcionales en `market_operations`, `quote_id` nullable para P2P y acción de auditoría `P2P_TRADE` en `src/backend/db/schema.ts` y `src/backend/db/migrations/0008_p2p_fixed_offers.sql`
+- [X] T008 [P] Implementar los mapeos y operaciones de persistencia de ofertas —crear, listar abiertas, cargar con lock y cancelar— sin reglas de transferencia en `src/backend/repositories/p2p-offer.repository.ts`
+- [X] T009 Implementar en `src/backend/repositories/market.repository.ts` el contexto transaccional interno y las operaciones de persistencia con nombres de negocio (`findTradeParticipants`, `findTradeHoldings`, `recordCompletedTrade`, `recordFinancialTransition`), sin invocar dominio ni coordinar el caso de uso
 - [ ] T010 Agregar tests de integración de migración, unicidad de `offer_id`, estados y primitivas transaccionales en `tests/integration/p2p-offers.repository.spec.ts`
 
 **Checkpoint**: Los modelos y repositories exponen contratos suficientes; ningún repository coordina una operación completa.
@@ -38,14 +38,14 @@
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Agregar schemas estrictos para crear y listar ofertas, incluyendo `playerId`, `quantity`, `unitPrice` y filtro opcional, en `src/backend/schemas/p2p-offer.schema.ts` y sus tests en `tests/unit/schemas/p2p-offer.schema.spec.ts`
-- [ ] T012 [P] [US1] Escribir tests unitarios del service para validar identidad autenticada, existencia del jugador, tenencia suficiente y creación/listado en `tests/unit/services/p2p-offer.service.spec.ts`
-- [ ] T013 [P] [US1] Escribir tests de contrato/ruta para `POST /api/p2p/offers` y `GET /api/p2p/offers` en `tests/integration/p2p-offers.routes.spec.ts`
+- [X] T011 [P] [US1] Agregar schemas estrictos para crear y listar ofertas, incluyendo `playerId`, `quantity`, `unitPrice` y filtro opcional, en `src/backend/schemas/p2p-offer.schema.ts` y sus tests en `tests/unit/schemas/p2p-offer.schema.spec.ts`
+- [X] T012 [P] [US1] Escribir tests unitarios del service para validar identidad autenticada, existencia del jugador, tenencia suficiente y creación/listado en `tests/unit/services/p2p-offer.service.spec.ts`
+- [X] T013 [P] [US1] Escribir tests de contrato/ruta para `POST /api/p2p/offers` y `GET /api/p2p/offers` en `tests/integration/p2p-offers.routes.spec.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implementar `P2POfferService.publishOffer` y `P2POfferService.findAvailableOffers` como coordinador entre schema, dominio y repositories en `src/backend/services/p2p-offer.service.ts`
-- [ ] T015 [US1] Implementar `P2POfferController` y las rutas autenticadas `POST/GET /api/p2p/offers` en `src/backend/controllers/p2p-offer.controller.ts` y `src/app/api/p2p/offers/route.ts`
+- [X] T014 [US1] Implementar `P2POfferService.publishOffer` y `P2POfferService.findAvailableOffers` como coordinador entre schema, dominio y repositories en `src/backend/services/p2p-offer.service.ts`
+- [X] T015 [US1] Implementar `P2POfferController` y las rutas autenticadas `POST/GET /api/p2p/offers` en `src/backend/controllers/p2p-offer.controller.ts` y `src/app/api/p2p/offers/route.ts`
 - [ ] T016 [US1] Implementar el cliente HTTP y el hook de estado de listado/publicación reutilizando autenticación y componentes de jugadores en `src/frontend/services/client/p2p-offer.service.ts` y `src/frontend/features/p2p/hooks/useP2POffers.ts`
 - [ ] T017 [US1] Completar la integración de publicación y listado en la interfaz existente, sin duplicar portfolio ni cotizaciones, en `src/frontend/features/p2p/components/P2POfferPanel.tsx`, `src/frontend/features/p2p/components/P2POfferList.tsx` y `tests/unit/features/p2p/P2POfferPanel.spec.tsx`
 
@@ -59,17 +59,17 @@
 
 ### Tests for User Story 2
 
-- [ ] T018 [P] [US2] Escribir tests unitarios de `P2PTrade.execute` para saldo, tenencia, precio fijo, comprador distinto y snapshots buyer/seller en `tests/unit/models/p2p-trade.spec.ts`
-- [ ] T019 [P] [US2] Escribir tests unitarios de `P2PTradeService` para coordinación service→domain→repositories, idempotencia compatible/incompatible y ocultamiento del saldo del vendedor en `tests/unit/services/p2p-trade.service.spec.ts`
-- [ ] T020 [P] [US2] Escribir tests de integración para aceptación atómica, doble aceptación concurrente, rollback y conservación de emisión en `tests/integration/p2p-offers.repository.spec.ts`
+- [X] T018 [P] [US2] Escribir tests unitarios de `P2PTrade.complete` para saldo, tenencia, precio fijo, comprador distinto y snapshots buyer/seller en `tests/unit/models/p2p-trade.spec.ts`
+- [X] T019 [P] [US2] Escribir tests unitarios de `P2PTradeService` para coordinación service→domain→repositories, idempotencia compatible/incompatible y ocultamiento del saldo del vendedor en `tests/unit/services/p2p-trade.service.spec.ts`
+- [X] T020 [P] [US2] Escribir tests de integración para aceptación atómica, doble aceptación concurrente, rollback y conservación de emisión en `tests/integration/p2p-trade.repository.spec.ts`
 - [ ] T021 [P] [US2] Escribir tests de ruta para autenticación, saldo/tenencia insuficiente, propia oferta, `Idempotency-Key` y respuesta 201 en `tests/integration/p2p-offers.routes.spec.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implementar `P2PTrade` como modelo puro que componga `User.debit/credit` y `TokenHolding.buy/sell`, sin importar repositories ni infraestructura, en `src/backend/models/P2PTrade.ts`
-- [ ] T023 [US2] Implementar `P2PTradeService.completeOffer` para coordinar participantes/tenencias solicitados a repositories, ejecutar `P2PTrade`, completar la oferta, registrar operación/transición y reconstruir el replay desde la auditoría en `src/backend/services/p2p-trade.service.ts`
-- [ ] T024 [US2] Implementar controller y route `POST /api/p2p/offers/[id]/accept`, propagando `Idempotency-Key` y `correlationId` al service en `src/backend/controllers/p2p-offer.controller.ts` y `src/app/api/p2p/offers/[id]/accept/route.ts`
-- [ ] T025 [US2] Ampliar la consulta de historial para filtrar por comprador o vendedor y proyectar `BUY`/`SELL` según el usuario, preservando el mismo `operationId`, en `src/backend/repositories/market.repository.ts`, `src/backend/services/market-operation.service.ts` y `src/backend/controllers/market-operation.controller.ts`
+- [X] T022 [US2] Implementar `P2PTrade` como modelo puro que componga `User.debit/credit` y `TokenHolding.buy/sell`, sin importar repositories ni infraestructura, en `src/backend/models/P2PTrade.ts`
+- [X] T023 [US2] Implementar `P2PTradeService.completeOffer` para coordinar participantes/tenencias solicitados a repositories, ejecutar `P2PTrade`, completar la oferta, registrar operación/transición y reconstruir el replay desde la auditoría en `src/backend/services/p2p-trade.service.ts`
+- [X] T024 [US2] Implementar controller y route `POST /api/p2p/offers/[id]/accept`, propagando `Idempotency-Key` y `correlationId` al service en `src/backend/controllers/p2p-offer.controller.ts` y `src/app/api/p2p/offers/[id]/accept/route.ts`
+- [X] T025 [US2] Ampliar la consulta de historial para filtrar por comprador o vendedor y proyectar `BUY`/`SELL` según el usuario, preservando el mismo `operationId`, en `src/backend/repositories/market.repository.ts`, `src/backend/services/market-operation.service.ts` y `src/backend/controllers/market-operation.controller.ts`
 - [ ] T026 [US2] Actualizar el contrato y cliente de historial para mostrar contraparte, oferta y precio P2P sin exponer balances ajenos en `specs/006-operation-history/contracts/transactions.yaml`, `src/frontend/services/client/transaction-history.service.ts` y `src/frontend/features/history/`
 - [ ] T027 [US2] Integrar aceptación, recibo, refresco de portfolio e historial en la interfaz P2P reutilizando los hooks y eventos existentes en `src/frontend/features/p2p/hooks/useP2POffers.ts`, `src/frontend/features/p2p/components/P2POfferList.tsx` y `src/frontend/services/client/portfolio-events.ts`
 - [ ] T028 [US2] Agregar prueba E2E del flujo vendedor→listado→comprador→aceptación→historial en `tests/e2e/p2p-trading-journey.spec.ts`
@@ -89,8 +89,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implementar `P2POfferService.cancelOffer` y consulta de ofertas propias usando `P2POffer.cancel`, sin tocar saldos ni tenencias, en `src/backend/services/p2p-offer.service.ts`
-- [ ] T032 [US3] Implementar `DELETE /api/p2p/offers/[id]` en `src/app/api/p2p/offers/[id]/route.ts` y mapear autorización/estado a errores existentes en `src/backend/controllers/p2p-offer.controller.ts`
+- [X] T031 [US3] Implementar `P2POfferService.cancelOffer` y consulta de ofertas propias usando `P2POffer.cancel`, sin tocar saldos ni tenencias, en `src/backend/services/p2p-offer.service.ts`
+- [X] T032 [US3] Implementar `DELETE /api/p2p/offers/[id]` en `src/app/api/p2p/offers/[id]/route.ts` y mapear autorización/estado a errores existentes en `src/backend/controllers/p2p-offer.controller.ts`
 - [ ] T033 [US3] Agregar acciones de cancelar y consulta de ofertas propias en la interfaz P2P reutilizando el cliente y estado de US1 en `src/frontend/features/p2p/hooks/useP2POffers.ts` y `src/frontend/features/p2p/components/P2POfferPanel.tsx`
 
 **Checkpoint**: US3 completa la gestión mínima del ciclo de vida sin agregar expiración automática.

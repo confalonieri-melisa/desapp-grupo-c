@@ -111,12 +111,16 @@ describe("MarketOperationService", () => {
         {
           id: "operation-id",
           type: "BUY",
+          market: "CENTRAL",
           playerId: "player-id",
           quantity: 3,
           quoteId: "quote-id",
           quoteValue: 82.5,
           total: 247.5,
           unit: "CREDIT_PER_TOKEN",
+          buyerId: undefined,
+          sellerId: undefined,
+          offerId: undefined,
           createdAt: new Date("2026-10-24T15:00:00.000Z"),
           correlationId: null,
         },
@@ -140,5 +144,40 @@ describe("MarketOperationService", () => {
       service.getHistory(auth, "other-user", { limit: 50, offset: 0 }),
     ).rejects.toBeInstanceOf(ForbiddenError);
     expect(findOperationsByInvestorId).not.toHaveBeenCalled();
+  });
+
+  it("projects the same P2P operation as buy and sell for each participant", async () => {
+    const row = {
+      id: "p2p-operation-id",
+      type: "BUY",
+      investorId: "buyer-id",
+      buyerId: "buyer-id",
+      sellerId: "seller-id",
+      offerId: "offer-id",
+      playerId: "player-id",
+      quoteId: null,
+      quoteValue: "12.50",
+      quantity: 2,
+      total: "25.00",
+      unit: "CREDIT_PER_TOKEN",
+      correlationId: null,
+      createdAt: new Date("2026-10-24T15:00:00.000Z"),
+    };
+    const findOperationsByInvestorId = vi.fn().mockResolvedValue({ rows: [row], hasMore: false });
+    const service = new MarketOperationService({ findOperationsByInvestorId } as never, {} as never);
+
+    const buyerHistory = await service.getHistory(
+      { ...auth, sub: "buyer-id", email: "buyer@test.local" },
+      "buyer-id",
+      { limit: 50, offset: 0 },
+    );
+    const sellerHistory = await service.getHistory(
+      { ...auth, sub: "seller-id", email: "seller@test.local" },
+      "seller-id",
+      { limit: 50, offset: 0 },
+    );
+
+    expect(buyerHistory.items[0]).toMatchObject({ id: "p2p-operation-id", type: "BUY", market: "P2P" });
+    expect(sellerHistory.items[0]).toMatchObject({ id: "p2p-operation-id", type: "SELL", market: "P2P" });
   });
 });
