@@ -30,7 +30,7 @@ export class P2POffer {
     if (!Number.isFinite(props.unitPrice) || props.unitPrice <= 0) {
       throw new DomainValidationError("Offer price must be positive");
     }
-    if (Math.round(props.unitPrice * 100) !== props.unitPrice * 100) {
+    if (!P2POffer.isValidUnitPrice(props.unitPrice)) {
       throw new DomainValidationError("Offer price must have at most two decimals");
     }
     if (props.status && !["OPEN", "FILLED", "CANCELLED"].includes(props.status)) {
@@ -45,6 +45,10 @@ export class P2POffer {
     this.status = props.status ?? "OPEN";
     this.createdAt = props.createdAt ?? new Date();
     this.completedAt = props.completedAt;
+  }
+
+  static isValidUnitPrice(value: number): boolean {
+    return Number.isFinite(value) && Number(value.toFixed(2)) === value;
   }
 
   complete(at = new Date()): P2POffer {

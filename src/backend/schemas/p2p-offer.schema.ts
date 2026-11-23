@@ -1,10 +1,14 @@
 import { z } from "zod";
+import { P2POffer } from "@/backend/models/P2POffer";
 
 export const createP2POfferSchema = z
   .object({
     playerId: z.uuid(),
     quantity: z.number().int().positive(),
-    unitPrice: z.number().positive().multipleOf(0.01),
+    unitPrice: z
+      .number()
+      .positive()
+      .refine(P2POffer.isValidUnitPrice, "unitPrice must have at most two decimals"),
   })
   .strict();
 

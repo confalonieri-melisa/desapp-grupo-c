@@ -23,9 +23,16 @@ describe("P2POffer", () => {
     { quantity: 1.5, unitPrice: 10 },
     { quantity: 1, unitPrice: 0 },
     { quantity: 1, unitPrice: 10.123 },
+    { quantity: 1, unitPrice: 1.005 },
   ])("rejects invalid offer values", (props) => {
     expect(() => new P2POffer({ sellerId: "seller-id", playerId: "player-id", ...props })).toThrow(
       DomainValidationError,
     );
+  });
+
+  it("accepts valid decimal prices despite floating-point representation", () => {
+    expect(
+      new P2POffer({ sellerId: "seller-id", playerId: "player-id", quantity: 1, unitPrice: 0.29 }).unitPrice,
+    ).toBe(0.29);
   });
 });
