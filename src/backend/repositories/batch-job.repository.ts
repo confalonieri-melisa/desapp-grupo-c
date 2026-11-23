@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { db, databaseForReservedConnection, postgresClient, type Database } from "@/backend/db";
 import { batchTurns } from "@/backend/db/schema";
 import type {
@@ -90,16 +90,6 @@ export class BatchJobRepository {
       .select()
       .from(batchTurns)
       .where(eq(batchTurns.id, id))
-      .limit(1);
-    return rows[0] ?? null;
-  }
-
-  async activeTurn(): Promise<BatchTurnRow | null> {
-    const rows = await this.database
-      .select()
-      .from(batchTurns)
-      .where(eq(batchTurns.status, "RUNNING"))
-      .orderBy(desc(batchTurns.startedAt))
       .limit(1);
     return rows[0] ?? null;
   }

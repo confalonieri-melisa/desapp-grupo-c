@@ -1,5 +1,4 @@
-export const BATCH_PROCESSES = ["PLAYER_SYNC", "QUOTE_RECALCULATION"] as const;
-export type BatchProcess = (typeof BATCH_PROCESSES)[number];
+export type BatchProcess = "PLAYER_SYNC" | "QUOTE_RECALCULATION";
 export type BatchOrigin = "SCHEDULED" | "MANUAL_API" | "MANUAL_CLI";
 export type BatchStatus = "PENDING" | "RUNNING" | "COMPLETED" | "PARTIAL" | "FAILED";
 

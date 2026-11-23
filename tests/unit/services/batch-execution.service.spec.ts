@@ -130,6 +130,30 @@ describe("BatchExecutionService", () => {
     expect(mocks.repository.setTurnRunning).not.toHaveBeenCalled();
   });
 
+  it("runs a scheduled recalculation after taking the lock", async () => {
+    const scheduledTurn = { ...turn, process: "QUOTE_RECALCULATION" };
+    mocks.repository.turnById.mockResolvedValue(scheduledTurn);
+    const service = new BatchExecutionService();
+
+    await expect(service.runScheduled(scheduledTurn as never)).resolves.toBe(true);
+    expect(mocks.recalculateBatch).toHaveBeenCalledWith("turn-1", expect.anything());
+  });
+
+  it("builds the configured source for a scheduled player sync", async () => {
+    const service = new BatchExecutionService();
+
+    await expect(service.runScheduled(turn as never)).resolves.toBe(true);
+    expect(mocks.syncBatch).toHaveBeenCalledWith("turn-1", expect.anything());
+  });
+
+  it("returns false when another process owns the lock", async () => {
+    mocks.repository.withLock.mockResolvedValue({ acquired: false });
+    const service = new BatchExecutionService();
+
+    await expect(service.runScheduled(turn as never)).resolves.toBe(false);
+    expect(mocks.repository.setTurnRunning).not.toHaveBeenCalled();
+  });
+
   it("marks a failed batch before propagating its error", async () => {
     mocks.syncBatch.mockRejectedValue(new Error("source unavailable"));
     const service = new BatchExecutionService(undefined, () => ({

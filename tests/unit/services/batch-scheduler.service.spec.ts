@@ -1,7 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { occurrencesBetween } from "@/backend/services/batch-scheduler.service";
+import {
+  configuredBatchSchedules,
+  occurrencesBetween,
+} from "@/backend/services/batch-scheduler.service";
 
 describe("weekly batch schedule", () => {
+  it("loads both weekly schedules from the environment", () => {
+    expect(configuredBatchSchedules()).toEqual([
+      {
+        process: "PLAYER_SYNC",
+        weekday: 2,
+        localTime: "18:00",
+        timezone: "America/Argentina/Buenos_Aires",
+      },
+      {
+        process: "QUOTE_RECALCULATION",
+        weekday: 2,
+        localTime: "18:15",
+        timezone: "America/Argentina/Buenos_Aires",
+      },
+    ]);
+  });
+
   it("enumerates the configured weekday in local time", () => {
     const turns = occurrencesBetween(
       {
