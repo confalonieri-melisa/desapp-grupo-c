@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  title: Player Token Market - P2P Fixed Offers
+  version: 1.0.0
+paths:
+  /p2p/offers:
+    post:
+      summary: Publish a fixed-price P2P sell offer
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOfferRequest'
+      responses:
+        '201':
+          description: Offer created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Offer'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    get:
+      summary: List open P2P sell offers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: playerId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Open offers
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Offer' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+  /p2p/offers/{id}:
+    delete:
+      summary: Cancel an owned open offer
+      security:
+        - BearerAuth: []
+      parameters:
+        - { $ref: '#/components/parameters/OfferId' }
+      responses:
+        '204': { description: Offer cancelled }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+  /p2p/offers/{id}/accept:
+    post:
+      summary: Accept a complete P2P sell offer
+      security:
+        - BearerAuth: []
+      parameters:
+        - { $ref: '#/components/parameters/OfferId' }
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 100 }
+      responses:
+        '201':
+          description: P2P trade completed or idempotent replay
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/P2PTradeResult'
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    OfferId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    CreateOfferRequest:
+      type: object
+      additionalProperties: false
+      required: [playerId, quantity, unitPrice]
+      properties:
+        playerId: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1 }
+        unitPrice: { type: number, exclusiveMinimum: 0, multipleOf: 0.01 }
+    Offer:
+      type: object
+      required: [id, sellerId, playerId, quantity, unitPrice, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        sellerId: { type: string, format: uuid }
+        playerId: { type: string, format: uuid }
+        quantity: { type: integer, minimum: 1 }
+        unitPrice: { type: number, exclusiveMinimum: 0, multipleOf: 0.01 }
+        status: { type: string, enum: [OPEN] }
+        createdAt: { type: string, format: date-time }
+    P2PTradeResult:
+      type: object
+      required: [operation, account, holding]
+      properties:
+        operation:
+          type: object
+          required: [id, buyerId, sellerId, offerId, playerId, quantity, unitPrice, total, createdAt]
+          properties:
+            id: { type: string, format: uuid }
+            buyerId: { type: string, format: uuid }
+            sellerId: { type: string, format: uuid }
+            offerId: { type: string, format: uuid }
+            playerId: { type: string, format: uuid }
+            quantity: { type: integer, minimum: 1 }
+            unitPrice: { type: number, exclusiveMinimum: 0 }
+            total: { type: number, exclusiveMinimum: 0 }
+            createdAt: { type: string, format: date-time }
+        account:
+          type: object
+          required: [creditBalance]
+          properties:
+            creditBalance: { type: number, minimum: 0 }
+        holding:
+          type: object
+          required: [quantity, averagePurchasePrice]
+          properties:
+            quantity: { type: integer, minimum: 0 }
+            averagePurchasePrice: { type: number, minimum: 0 }
+    Error:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+  responses:
+    BadRequest:
+      description: Invalid request
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unauthorized:
+      description: Missing or invalid JWT
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Forbidden:
+      description: The authenticated user cannot manage this offer
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    NotFound:
+      description: Player or offer not found
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Conflict:
+      description: Offer, balance, holding, concurrency, or idempotency conflict
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }

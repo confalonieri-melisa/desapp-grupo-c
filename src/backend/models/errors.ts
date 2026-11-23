@@ -13,3 +13,19 @@ export class InvalidLeagueError extends DomainValidationError {
     this.name = "InvalidLeagueError";
   }
 }
+
+/** Raised when a holding cannot cover a requested sale. */
+export class InsufficientTokenHoldingError extends DomainValidationError {
+  constructor() {
+    super("Insufficient token holding");
+    this.name = "InsufficientTokenHoldingError";
+  }
+}
+
+/** Raised when an offer cannot transition because it is no longer open. */
+export class OfferNotOpenError extends DomainValidationError {
+  constructor() {
+    super("Offer is no longer open");
+    this.name = "OfferNotOpenError";
+  }
+}

@@ -4,7 +4,7 @@ import {
   INITIAL_TOKEN_QUANTITY,
   TokenHolding,
 } from "@/backend/models/TokenHolding";
-import { DomainValidationError } from "@/backend/models/errors";
+import { DomainValidationError, InsufficientTokenHoldingError } from "@/backend/models/errors";
 
 describe("TokenHolding", () => {
   it("creates the initial superuser holding at t0", () => {
@@ -100,6 +100,7 @@ describe("TokenHolding", () => {
 
   it("rejects selling more tokens than held", () => {
     const holding = new TokenHolding({ userId: "investor-id", playerId: "player-id", quantity: 1 });
-    expect(() => holding.sell(2)).toThrow(DomainValidationError);
+    expect(holding.canSell(2)).toBe(false);
+    expect(() => holding.sell(2)).toThrow(InsufficientTokenHoldingError);
   });
 });

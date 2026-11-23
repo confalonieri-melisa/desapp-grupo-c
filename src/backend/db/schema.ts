@@ -244,6 +244,43 @@ export const batchTurns = pgTable(
     index("idx_batch_turn_status_process").on(table.status, table.process),
   ],
 );
+
+export const p2pOffers = pgTable(
+  "p2p_offers",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    sellerId: uuid("seller_id")
+      .notNull()
+      .references(() => users.id),
+    playerId: uuid("player_id")
+      .notNull()
+      .references(() => players.id),
+    quantity: integer("quantity").notNull(),
+    unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("OPEN"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (table) => [
+    check("chk_p2p_offer_quantity", sql`${table.quantity} > 0`),
+    check("chk_p2p_offer_price", sql`${table.unitPrice} > 0`),
+    check(
+      "chk_p2p_offer_status",
+      sql`${table.status} in ('OPEN', 'FILLED', 'CANCELLED')`,
+    ),
+    index("idx_p2p_offers_status_player_date").on(
+      table.status,
+      table.playerId,
+      table.createdAt,
+    ),
+    index("idx_p2p_offers_seller_status_date").on(
+      table.sellerId,
+      table.status,
+      table.createdAt,
+    ),
+  ],
+);
+
 export const marketOperations = pgTable(
   "market_operations",
   {
@@ -255,9 +292,10 @@ export const marketOperations = pgTable(
     playerId: uuid("player_id")
       .notNull()
       .references(() => players.id),
-    quoteId: uuid("quote_id")
-      .notNull()
-      .references(() => playerQuotes.id),
+    quoteId: uuid("quote_id").references(() => playerQuotes.id),
+    buyerId: uuid("buyer_id").references(() => users.id),
+    sellerId: uuid("seller_id").references(() => users.id),
+    offerId: uuid("offer_id").references(() => p2pOffers.id),
     quoteValue: numeric("quote_value", { precision: 10, scale: 2 }).notNull(),
     quantity: integer("quantity").notNull(),
     total: numeric("total", { precision: 12, scale: 2 }).notNull(),
@@ -273,6 +311,9 @@ export const marketOperations = pgTable(
     check("chk_market_operation_total", sql`${table.total} > 0`),
     index("idx_market_operations_investor_date").on(table.investorId, table.createdAt),
     index("idx_market_operations_player_date").on(table.playerId, table.createdAt),
+    index("idx_market_operations_buyer_date").on(table.buyerId, table.createdAt),
+    index("idx_market_operations_seller_date").on(table.sellerId, table.createdAt),
+    uniqueIndex("uq_market_operations_offer").on(table.offerId),
     uniqueIndex("uq_market_operations_investor_idempotency").on(
       table.investorId,
       table.idempotencyKey,
@@ -298,7 +339,10 @@ export const financialAuditRecords = pgTable(
   },
   (table) => [
     uniqueIndex("uq_financial_audit_operation").on(table.operationId),
-    check("chk_financial_audit_action", sql`${table.action} in ('TOKEN_BUY', 'TOKEN_SELL')`),
+    check(
+      "chk_financial_audit_action",
+      sql`${table.action} in ('TOKEN_BUY', 'TOKEN_SELL', 'P2P_TRADE')`,
+    ),
   ],
 );
 
@@ -311,3 +355,4 @@ export type ValuationStrategyVersionRow = typeof valuationStrategyVersions.$infe
 export type PlayerQuoteRow = typeof playerQuotes.$inferSelect;
 export type MarketOperationRow = typeof marketOperations.$inferSelect;
 export type FinancialAuditRecordRow = typeof financialAuditRecords.$inferSelect;
+export type P2POfferRow = typeof p2pOffers.$inferSelect;

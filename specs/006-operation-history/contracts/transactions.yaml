@@ -65,16 +65,20 @@ components:
     TransactionHistoryItem:
       type: object
       required:
-        [id, type, playerId, quantity, quoteId, quoteValue, total, unit, createdAt, correlationId]
+        [id, type, market, playerId, quantity, quoteId, quoteValue, total, unit, createdAt, correlationId]
       properties:
         id: { type: string, format: uuid }
         type: { type: string, enum: [BUY, SELL] }
+        market: { type: string, enum: [CENTRAL, P2P] }
         playerId: { type: string, format: uuid }
         quantity: { type: integer, minimum: 1 }
-        quoteId: { type: string, format: uuid }
+        quoteId: { type: string, format: uuid, nullable: true }
         quoteValue: { type: number, format: double }
         total: { type: number, format: double }
         unit: { type: string, example: CREDIT_PER_TOKEN }
+        buyerId: { type: string, format: uuid, nullable: true }
+        sellerId: { type: string, format: uuid, nullable: true }
+        offerId: { type: string, format: uuid, nullable: true }
         createdAt: { type: string, format: date-time }
         correlationId: { type: string, nullable: true }
     Error:
