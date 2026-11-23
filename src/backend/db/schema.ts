@@ -204,6 +204,7 @@ export const playerQuotes = pgTable(
     calculatedAt: timestamp("calculated_at", { withTimezone: true }).notNull().defaultNow(),
     contextUpdateId: uuid("context_update_id").references(() => competitionContextUpdates.id),
     explanation: jsonb("explanation").notNull(),
+    turnId: uuid("turn_id").references(() => batchTurns.id),
   },
   (table) => [
     check(
@@ -212,9 +213,37 @@ export const playerQuotes = pgTable(
     ),
     check("chk_player_quote_value", sql`${table.quoteValue} >= 1 and ${table.quoteValue} <= 100`),
     index("idx_player_quotes_player_date").on(table.playerId, table.calculatedAt),
+    uniqueIndex("uq_player_quotes_turn_player")
+      .on(table.turnId, table.playerId)
+      .where(sql`${table.turnId} is not null`),
   ],
 );
 
+export const batchTurns = pgTable(
+  "batch_turns",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    process: varchar("process", { length: 30 }).notNull(),
+    origin: varchar("origin", { length: 20 }).notNull(),
+    scheduledLocal: varchar("scheduled_local", { length: 32 }).notNull(),
+    timezone: varchar("timezone", { length: 100 }).notNull(),
+    scheduledFor: timestamp("scheduled_for", { withTimezone: true }).notNull(),
+    status: varchar("status", { length: 20 }).notNull().default("PENDING"),
+    correlationId: varchar("correlation_id", { length: 100 }).notNull(),
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    finishedAt: timestamp("finished_at", { withTimezone: true }),
+    processedCount: integer("processed_count").notNull().default(0),
+    succeededCount: integer("succeeded_count").notNull().default(0),
+    rejectedCount: integer("rejected_count").notNull().default(0),
+    reasonCode: varchar("reason_code", { length: 80 }),
+  },
+  (table) => [
+    uniqueIndex("uq_batch_turn_scheduled_process_time")
+      .on(table.process, table.scheduledFor)
+      .where(sql`${table.origin} = 'SCHEDULED'`),
+    index("idx_batch_turn_status_process").on(table.status, table.process),
+  ],
+);
 export const marketOperations = pgTable(
   "market_operations",
   {

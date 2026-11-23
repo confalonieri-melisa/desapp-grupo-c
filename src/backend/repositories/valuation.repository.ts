@@ -85,17 +85,22 @@ export class ValuationRepository {
     return activated[0];
   }
 
-  async saveQuote(input: {
-    playerId: string;
-    strategyVersionId: string;
-    individualScore: number;
-    teamScore: number | null;
-    finalScore: number;
-    quoteValue: number;
-    contextUpdateId?: string;
-    explanation: unknown;
-  }) {
-    const rows = await this.database
+  async saveQuote(
+    input: {
+      turnId?: string;
+      calculatedAt?: Date;
+      playerId: string;
+      strategyVersionId: string;
+      individualScore: number;
+      teamScore: number | null;
+      finalScore: number;
+      quoteValue: number;
+      contextUpdateId?: string;
+      explanation: unknown;
+    },
+    executor: Pick<Database, "insert"> = this.database,
+  ) {
+    const rows = await executor
       .insert(playerQuotes)
       .values({
         playerId: input.playerId,
@@ -106,6 +111,8 @@ export class ValuationRepository {
         quoteValue: String(input.quoteValue),
         contextUpdateId: input.contextUpdateId,
         explanation: input.explanation,
+        turnId: input.turnId,
+        calculatedAt: input.calculatedAt,
       })
       .returning();
     return rows[0];

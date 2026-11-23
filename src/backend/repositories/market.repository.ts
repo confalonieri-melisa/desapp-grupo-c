@@ -62,33 +62,38 @@ export class MarketRepository {
 
   async assignInitialTokens(playerIds: string[]): Promise<void> {
     if (playerIds.length === 0) return;
+    await this.database.transaction((tx) => this.assignInitialTokensInTransaction(playerIds, tx));
+  }
 
-    await this.database.transaction(async (tx) => {
-      const poolRows = await tx
-        .select()
-        .from(users)
-        .where(eq(users.role, UserRole.SUPERUSER))
-        .limit(1);
-      const pool = poolRows[0]!;
+  async assignInitialTokensInTransaction(
+    playerIds: string[],
+    transaction: MarketExecutor,
+  ): Promise<void> {
+    if (playerIds.length === 0) return;
+    const poolRows = await transaction
+      .select()
+      .from(users)
+      .where(eq(users.role, UserRole.SUPERUSER))
+      .limit(1);
+    const pool = poolRows[0]!;
 
-      const initialHoldings = playerIds.map((playerId) => {
-        const holding = TokenHolding.initialSeed(pool.id, playerId);
-        return {
-          id: holding.id,
-          userId: holding.userId,
-          playerId: holding.playerId,
-          quantity: holding.quantity,
-          averagePurchasePrice: holding.averagePurchasePrice.toFixed(2),
-        };
-      });
-
-      await tx
-        .insert(tokenHoldings)
-        .values(initialHoldings)
-        .onConflictDoNothing({
-          target: [tokenHoldings.userId, tokenHoldings.playerId],
-        });
+    const initialHoldings = playerIds.map((playerId) => {
+      const holding = TokenHolding.initialSeed(pool.id, playerId);
+      return {
+        id: holding.id,
+        userId: holding.userId,
+        playerId: holding.playerId,
+        quantity: holding.quantity,
+        averagePurchasePrice: holding.averagePurchasePrice.toFixed(2),
+      };
     });
+
+    await transaction
+      .insert(tokenHoldings)
+      .values(initialHoldings)
+      .onConflictDoNothing({
+        target: [tokenHoldings.userId, tokenHoldings.playerId],
+      });
   }
 
   async executeTrade(

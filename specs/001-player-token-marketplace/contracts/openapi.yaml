@@ -461,7 +461,7 @@ paths:
         "400": { description: "El body debe ser {}" }
         "401": { description: Token ausente o inválido }
         "403": { description: Se requiere SUPERUSER }
-        "409": { description: No existe estrategia activa }
+        "409": { description: No existe estrategia activa o hay otro lote en ejecución }
 
   /orders/buy:
     post:

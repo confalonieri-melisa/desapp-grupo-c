@@ -1,12 +1,27 @@
 import { defineConfig } from "vitest/config";
 import path from "path";
 
+const testDatabaseUrl = process.env.TEST_DATABASE_URL;
+if (testDatabaseUrl) {
+  const databaseName = new URL(testDatabaseUrl).pathname.slice(1);
+  if (!/(test|integration)/i.test(databaseName)) {
+    throw new Error("TEST_DATABASE_URL must point to a test database");
+  }
+  process.env.DATABASE_URL = testDatabaseUrl;
+  process.env.RUN_DB_INTEGRATION_TESTS = "true";
+}
+
 export default defineConfig({
   test: {
     globals: true,
     environment: "node",
     fileParallelism: false,
-    include: ["tests/unit/**/*.spec.ts", "tests/unit/**/*.test.ts"],
+    include: [
+      "tests/unit/**/*.spec.ts",
+      "tests/unit/**/*.test.ts",
+      "tests/integration/**/*.spec.ts",
+      "tests/integration/**/*.test.ts",
+    ],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],

@@ -53,6 +53,14 @@ Realiza los `upsert` contra PostgreSQL. Los jugadores nuevos se insertan y los y
 
 ## Ejecución
 
+La sincronización también puede ejecutarse sin tráfico web con `npm run jobs:worker`.
+En terminales separadas, iniciar `npm run dev` y `npm run jobs:worker` con el mismo
+`DATABASE_URL`. Los valores iniciales ejecutan WhoScored los lunes a las 02:00 y
+recálculo los lunes a las 03:00 en `America/Argentina/Buenos_Aires`. El
+día ISO, la hora local y la zona IANA de cada proceso se configuran con las variables
+`BATCH_SYNC_*` y `BATCH_RECALC_*` de `.env.example`; el worker debe reiniciarse
+para aplicar un cambio. `npm run db:sync-whoscored` sigue siendo la vía manual.
+
 Instalar la dependencia Python:
 
 ```powershell
@@ -99,7 +107,7 @@ El modo visible (`WHOSCORED_HEADLESS=false`) es el predeterminado porque suele s
 
 ## Alcance y límites
 
-- La ingesta no se ejecuta automáticamente al levantar la aplicación; se ejecuta mediante el script y más adelante podrá ser invocada por un scheduler.
+- La ingesta se ejecuta semanalmente mientras `npm run jobs:worker` permanece activo; el script manual sigue disponible.
 - Si WhoScored bloquea la navegación, la ejecución falla y no se persiste una ingesta incompleta.
 - La base conserva la última ingesta exitosa.
 - Esta implementación obtiene estadísticas agregadas de la página de estadísticas. Todavía no obtiene eventos detallados de cada partido.

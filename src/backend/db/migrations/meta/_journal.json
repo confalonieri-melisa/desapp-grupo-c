@@ -43,6 +43,13 @@
       "when": 1795365355912,
       "tag": "0006_simple-order-idempotency",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795380635372,
+      "tag": "0007_job_scheduler",
+      "breakpoints": true
     }
   ]
 }
