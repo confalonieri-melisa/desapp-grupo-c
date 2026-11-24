@@ -1,5 +1,7 @@
 # Implementation Plan: Caché en memoria del ranking de jugadores
 
+> Actualización 2026-11-24: la implementación final elimina el TTL de 60 segundos y usa la revisión persistida de turnos de recálculo y sincronización. Las referencias al TTL debajo registran el plan original.
+
 **Branch**: `018-player-ranking-cache` (identificador de Spec Kit; checkout Git actual: `feature/017-p2p-fixed-offers`) | **Date**: 2026-11-23 | **Spec**: [spec.md](spec.md)
 
 **Input**: Especificación de `specs/018-player-ranking-cache/spec.md`. La rama propia `feature/018-player-ranking-cache`, basada en `main`, debe existir antes de implementar esta feature.

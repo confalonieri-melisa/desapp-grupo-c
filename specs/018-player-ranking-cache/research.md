@@ -1,5 +1,7 @@
 # Research: caché del ranking de jugadores
 
+> Actualización 2026-11-24: se reemplazó la decisión de TTL de 60 segundos por invalidación según la revisión persistida de turnos de recálculo y sincronización. El análisis siguiente registra la decisión original.
+
 ## Decisión 1: detectar publicaciones entre procesos
 
 **Decision**: Antes de reutilizar un resultado, leer una revisión persistida calculada como la cantidad de turnos de `batch_turns` con `process = QUOTE_RECALCULATION`, `status` en `COMPLETED` o `PARTIAL` y `succeeded_count > 0`. Asociar esa revisión a cada entrada. El recálculo manual de la API y el worker programado usan `BatchExecutionService` y `QuoteRecalculationService.recalculateBatch`; este último guarda cotizaciones y finaliza el turno dentro de la misma transacción.

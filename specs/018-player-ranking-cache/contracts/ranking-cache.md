@@ -12,14 +12,15 @@ La optimización conserva el contrato público definido en `specs/007-player-ran
 
 ## Garantías de comportamiento
 
-| Situación | Comportamiento observable |
-| --- | --- |
-| Misma versión activa, filtros, página y límite antes de 60 segundos | Puede reutilizarse la respuesta completa vigente; el contenido no cambia por usar caché. |
-| Filtros, página, límite o versión activa distintos | Se obtiene el resultado correspondiente a esa consulta, sin mezclar entradas. |
-| Resultado con 60 segundos o más, o descartado por el límite de 100 | La consulta vuelve a leer los datos persistidos. |
-| Publicación de una o más cotizaciones por recálculo manual o programado, incluso `PARTIAL` | La primera consulta que comienza después de la confirmación refleja las cotizaciones publicadas. |
-| Fallo de lectura o respuesta incompleta | Se mantiene el error actual; no se devuelve un resultado parcial ni se guarda para solicitudes posteriores. |
-| Reinicio de la aplicación web | Se pierde la caché local; la lectura del ranking sigue disponible con datos persistidos. |
+| Situación                                                                                  | Comportamiento observable                                                                                   |
+| ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Misma versión activa, filtros, página, límite y revisión de publicaciones                  | Puede reutilizarse la respuesta completa vigente sin límite de tiempo.                                      |
+| Filtros, página, límite o versión activa distintos                                         | Se obtiene el resultado correspondiente a esa consulta, sin mezclar entradas.                               |
+| Resultado descartado por el límite de 100                                                  | La consulta vuelve a leer los datos persistidos.                                                            |
+| Publicación de una o más cotizaciones por recálculo manual o programado, incluso `PARTIAL` | La primera consulta que comienza después de la confirmación refleja las cotizaciones publicadas.            |
+| Sincronización confirmada de jugadores por el flujo manual o programado                    | La primera consulta posterior refleja los jugadores persistidos.                                            |
+| Fallo de lectura o respuesta incompleta                                                    | Se mantiene el error actual; no se devuelve un resultado parcial ni se guarda para solicitudes posteriores. |
+| Reinicio de la aplicación web                                                              | Se pierde la caché local; la lectura del ranking sigue disponible con datos persistidos.                    |
 
 El encabezado `x-correlation-id` y la observación HTTP existentes siguen aplicándose también a respuestas servidas desde la caché. No se expone al consumidor si una respuesta fue reutilizada.
 

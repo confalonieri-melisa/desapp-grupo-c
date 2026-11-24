@@ -18,24 +18,25 @@ Desde la raíz del repositorio:
 npm test -- tests/unit/services/player-ranking-cache.spec.ts tests/unit/services/player-ranking.service.spec.ts tests/unit/repositories/player-ranking.repository.spec.ts tests/unit/controllers/player-ranking.controller.spec.ts
 ```
 
-La suite debe cubrir: acierto y falta, clave por criterios y versión, respuesta vacía, límites exactos de tiempo, 101 entradas con descarte de la primera generada aun después de un acierto, errores sin almacenamiento y carrera entre lectura y publicación.
+La suite debe cubrir: acierto y falta, clave por criterios y versión, respuesta vacía, invalidación al cambiar la revisión, 101 entradas con descarte de la primera generada aun después de un acierto, errores sin almacenamiento y carrera entre lectura y publicación.
 
 Con `TEST_DATABASE_URL` apuntando a la base aislada:
 
 ```powershell
-npm run test:integration -- tests/integration/player-ranking.routes.spec.ts tests/integration/player-ranking.repository.spec.ts
+npm run test:integration -- tests/integration/player-ranking.routes.spec.ts tests/integration/player-ranking.repository.spec.ts tests/integration/batch-job.repository.spec.ts
 ```
 
-La integración debe verificar autenticación y códigos actuales, filas y total coherentes, recálculo `COMPLETED` y `PARTIAL` visible en la primera lectura posterior, y publicación del worker en otro proceso sin dependencia de memoria compartida. Ejecutar también `npm run build` con la configuración local válida.
+La integración debe verificar autenticación y códigos actuales, filas y total coherentes, recálculo `COMPLETED` y `PARTIAL` visible en la primera lectura posterior, inclusión de sincronizaciones confirmadas en la revisión y publicación del worker en otro proceso sin dependencia de memoria compartida. Ejecutar también `npm run build` con la configuración local válida.
 
 ## Comprobación manual de la API
 
 1. Iniciar `npm run dev` y autenticar un usuario para obtener un JWT. Usar un cliente HTTP con `Authorization: Bearer <JWT>`.
-2. Consultar dos veces `GET http://localhost:3000/api/players/ranking?league=PREMIER_LEAGUE&page=1&limit=20` antes de 60 segundos. Verificar igualdad de `strategyCode`, `strategyVersion`, `players` y `pagination`; el segundo acceso debe usar el resultado vigente.
+2. Consultar dos veces `GET http://localhost:3000/api/players/ranking?league=PREMIER_LEAGUE&page=1&limit=20`. Verificar igualdad de `strategyCode`, `strategyVersion`, `players` y `pagination`; el segundo acceso debe usar el resultado vigente.
 3. Cambiar `page`, `limit` o uno de los filtros y verificar el conjunto y los puestos correspondientes. Volver a la combinación original mientras siga vigente.
-4. Esperar hasta que la respuesta original cumpla 60 segundos desde su generación. La siguiente consulta debe leer datos persistidos. Repetir tras reiniciar la aplicación web.
+4. Esperar más de 60 segundos sin publicaciones. La siguiente consulta debe reutilizar el resultado. Repetir tras reiniciar la aplicación web: la primera consulta del proceso nuevo debe leer datos persistidos.
 5. Como superusuario, ejecutar el recálculo manual existente o dejar que el worker ejecute un turno programado. Si se publica al menos una cotización, consultar inmediatamente el ranking con la misma combinación anterior y contrastar valores, orden y puestos con los datos nuevos.
 6. Probar sin JWT, con `page=0`, con un parámetro desconocido y sin estrategia activa: deben permanecer `401`, `400` y `409` según corresponda. Simular una lectura fallida y repetirla después de restablecer la base: el error no debe quedar guardado.
+7. Ejecutar una sincronización de jugadores mediante el turno manual o programado; comprobar que la siguiente consulta refleja los datos confirmados.
 
 El mismo `x-correlation-id` de observación debe seguir presente en respuestas servidas con y sin resultado vigente. No debe aparecer un campo público que indique el origen de la respuesta.
 
@@ -46,7 +47,7 @@ En el mismo entorno y con al menos 1000 jugadores rankeables, medir solo el tiem
 ## Evidencia esperada
 
 - Respuestas `200` iguales para la misma consulta y estado persistido, con y sin caché.
-- Ningún resultado servido tras 60 segundos o tras una publicación confirmada de cotizaciones.
+- Resultado reutilizable después de 60 segundos sin publicaciones; invalidación tras publicar cotizaciones o jugadores.
 - Capacidad máxima de 100 entradas; la consulta descartada vuelve a la lectura persistida.
 - Errores y respuestas incompletas ausentes de la caché.
 - Mediana de consultas vigentes al menos 25% menor que la mediana fría en la prueba controlada.

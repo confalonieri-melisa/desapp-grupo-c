@@ -1,5 +1,7 @@
 # Tasks: Caché en memoria del ranking de jugadores
 
+> Actualización 2026-11-24: estas tareas registran la implementación original. El TTL de 60 segundos fue eliminado y la revisión ahora incluye sincronizaciones de jugadores confirmadas.
+
 **Input**: Design documents from `specs/018-player-ranking-cache/`
 
 **Prerequisites**: [plan.md](plan.md), [spec.md](spec.md), [research.md](research.md), [data-model.md](data-model.md), [contracts/ranking-cache.md](contracts/ranking-cache.md), [quickstart.md](quickstart.md)
