@@ -95,13 +95,15 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
     });
   });
 
-  it("counts only confirmed quote turns with published rows", async () => {
+  it("counts confirmed quote and player sync turns that affect the ranking", async () => {
     const cases = [
       { process: "QUOTE_RECALCULATION", status: "COMPLETED", succeededCount: 2 },
       { process: "QUOTE_RECALCULATION", status: "PARTIAL", succeededCount: 1 },
       { process: "QUOTE_RECALCULATION", status: "FAILED", succeededCount: 1 },
       { process: "QUOTE_RECALCULATION", status: "COMPLETED", succeededCount: 0 },
       { process: "PLAYER_SYNC", status: "COMPLETED", succeededCount: 1 },
+      { process: "PLAYER_SYNC", status: "FAILED", succeededCount: 1 },
+      { process: "PLAYER_SYNC", status: "COMPLETED", succeededCount: 0 },
     ];
     for (const [index, item] of cases.entries()) {
       await db.insert(batchTurns).values({
@@ -113,7 +115,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
         correlationId: `ranking-revision-${index}`,
       });
     }
-    expect(await repository.getQuotePublicationRevision()).toBe(2);
+    expect(await repository.getRankingPublicationRevision()).toBe(3);
   });
 
   it("exposes a finished turn only after its transaction commits", async () => {
@@ -144,7 +146,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
     const inserted = new Promise<void>((resolve) => {
       ready = resolve;
     });
-    const before = await repository.getQuotePublicationRevision();
+    const before = await repository.getRankingPublicationRevision();
     const transaction = db.transaction(async (tx) => {
       await tx.insert(playerQuotes).values({
         playerId: revisionPlayerId,
@@ -166,13 +168,13 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
       await held;
     });
     await inserted;
-    expect(await repository.getQuotePublicationRevision()).toBe(before);
+    expect(await repository.getRankingPublicationRevision()).toBe(before);
     expect(
       await db.select().from(playerQuotes).where(eq(playerQuotes.playerId, revisionPlayerId)),
     ).toHaveLength(0);
     release();
     await transaction;
-    expect(await repository.getQuotePublicationRevision()).toBe(before + 1);
+    expect(await repository.getRankingPublicationRevision()).toBe(before + 1);
     expect(
       await db.select().from(playerQuotes).where(eq(playerQuotes.playerId, revisionPlayerId)),
     ).toHaveLength(1);

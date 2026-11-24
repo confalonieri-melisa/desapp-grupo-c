@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   requireAuth: vi.fn(),
   findRankedPlayers: vi.fn(),
   findActiveStrategyVersion: vi.fn(),
-  getQuotePublicationRevision: vi.fn(),
+  getRankingPublicationRevision: vi.fn(),
 }));
 
 vi.mock("@/backend/middlewares/auth.middleware", () => ({ requireAuth: mocks.requireAuth }));
@@ -22,7 +22,7 @@ vi.mock("@/backend/repositories/valuation.repository", () => ({
 }));
 vi.mock("@/backend/repositories/batch-job.repository", () => ({
   BatchJobRepository: class {
-    getQuotePublicationRevision = mocks.getQuotePublicationRevision;
+    getRankingPublicationRevision = mocks.getRankingPublicationRevision;
   },
 }));
 
@@ -71,7 +71,7 @@ describe("player ranking route", () => {
       strategyCode: "INDIVIDUAL_PERFORMANCE",
       version: "1.0.0",
     });
-    mocks.getQuotePublicationRevision.mockImplementation(async () => revision);
+    mocks.getRankingPublicationRevision.mockImplementation(async () => revision);
     mocks.findRankedPlayers.mockImplementation(async (_version, criteria) => ({
       rows: [
         criteria.page > 1 ||

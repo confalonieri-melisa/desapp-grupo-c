@@ -45,6 +45,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("PlayerRankingR
     await db.delete(playerQuotes).where(eq(playerQuotes.playerId, playerThreeId));
     await db.delete(playerQuotes).where(eq(playerQuotes.playerId, playerFourId));
     await db.delete(batchTurns).where(eq(batchTurns.process, "QUOTE_RECALCULATION"));
+    await db.delete(batchTurns).where(eq(batchTurns.correlationId, "ranking-sync-cache-test"));
     await db
       .delete(valuationStrategyVersions)
       .where(and(eq(valuationStrategyVersions.id, activeVersionId)));
@@ -278,6 +279,67 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("PlayerRankingR
     expect(fresh).not.toBe(warm);
     expect(await service.getRanking(criteria)).toBe(fresh);
   }, 30_000);
+
+  it("refreshes a cached player after a confirmed sync turn", async () => {
+    await db.insert(players).values({
+      id: playerOneId,
+      source: "RANKING_TEST",
+      externalId: "ranking-one",
+      name: "Original Player",
+      team: "Example FC",
+      league: League.PREMIER_LEAGUE,
+      position: Position.FORWARD,
+      statistics: {},
+    });
+    await db.insert(valuationStrategyVersions).values({
+      id: activeVersionId,
+      strategyCode: "INDIVIDUAL_PERFORMANCE",
+      version: "sync-test",
+      configuration: {},
+      isActive: 1,
+    });
+    await db.insert(playerQuotes).values({
+      playerId: playerOneId,
+      strategyVersionId: activeVersionId,
+      individualScore: "0.900000",
+      finalScore: "0.900000",
+      quoteValue: "90.00",
+      explanation: {},
+    });
+
+    const service = new PlayerRankingService(
+      repository,
+      new ValuationRepository(),
+      new BatchJobRepository(),
+      new PlayerRankingCache(),
+    );
+    const criteria = { page: 1, limit: 20 };
+    const original = await service.getRanking(criteria);
+    expect(original.players[0].player.name).toBe("Original Player");
+
+    const batch = new BatchJobRepository();
+    const turn = await batch.createManualTurn(
+      "PLAYER_SYNC",
+      "MANUAL_CLI",
+      "ranking-sync-cache-test",
+    );
+    await batch.setTurnRunning(turn.id);
+    await db.transaction(async (tx) => {
+      await tx.update(players).set({ name: "Updated Player" }).where(eq(players.id, playerOneId));
+      await batch.finishTurn(
+        turn.id,
+        "COMPLETED",
+        { processed: 1, succeeded: 1, rejected: 0 },
+        undefined,
+        tx,
+      );
+    });
+
+    const refreshed = await service.getRanking(criteria);
+    expect(refreshed.players[0].player.name).toBe("Updated Player");
+    expect(refreshed).not.toBe(original);
+    expect(await service.getRanking(criteria)).toBe(refreshed);
+  });
 
   it("refreshes an empty cached ranking after the real scheduled worker publishes a quote", async () => {
     await db.insert(players).values({

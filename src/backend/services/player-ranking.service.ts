@@ -25,7 +25,7 @@ export class PlayerRankingService {
     for (let attempt = 0; attempt < 2; attempt++) {
       const active = await this.valuationRepository.findActiveStrategyVersion();
       if (!active) throw new ConflictError("No active valuation strategy");
-      const revision = await this.batchJobRepository.getQuotePublicationRevision();
+      const revision = await this.batchJobRepository.getRankingPublicationRevision();
       if (attempt === 0) {
         const cached = this.cache.get(active.id, criteria, revision);
         if (cached) return cached;
@@ -41,7 +41,7 @@ export class PlayerRankingService {
       };
 
       const latestActive = await this.valuationRepository.findActiveStrategyVersion();
-      const latestRevision = await this.batchJobRepository.getQuotePublicationRevision();
+      const latestRevision = await this.batchJobRepository.getRankingPublicationRevision();
       if (latestActive?.id === active.id && latestRevision === revision) {
         this.cache.put(active.id, criteria, revision, response);
         return response;

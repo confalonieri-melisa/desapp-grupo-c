@@ -34,7 +34,7 @@ describe("PlayerRankingService", () => {
     const service = new PlayerRankingService(
       { findRankedPlayers } as never,
       { findActiveStrategyVersion } as never,
-      { getQuotePublicationRevision: vi.fn().mockResolvedValue(0) } as never,
+      { getRankingPublicationRevision: vi.fn().mockResolvedValue(0) } as never,
       new PlayerRankingCache(),
     );
 
@@ -57,7 +57,7 @@ describe("PlayerRankingService", () => {
           version: "1.0.0",
         }),
       } as never,
-      { getQuotePublicationRevision: vi.fn().mockResolvedValue(0) } as never,
+      { getRankingPublicationRevision: vi.fn().mockResolvedValue(0) } as never,
       new PlayerRankingCache(),
     );
 
@@ -72,7 +72,7 @@ describe("PlayerRankingService", () => {
     const service = new PlayerRankingService(
       { findRankedPlayers } as never,
       { findActiveStrategyVersion: vi.fn().mockResolvedValue(null) } as never,
-      { getQuotePublicationRevision: vi.fn().mockResolvedValue(0) } as never,
+      { getRankingPublicationRevision: vi.fn().mockResolvedValue(0) } as never,
       new PlayerRankingCache(),
     );
 
@@ -89,11 +89,11 @@ describe("PlayerRankingService", () => {
       strategyCode: "INDIVIDUAL_PERFORMANCE",
       version: "1.0.0",
     });
-    const getQuotePublicationRevision = vi.fn().mockResolvedValue(5);
+    const getRankingPublicationRevision = vi.fn().mockResolvedValue(5);
     const service = new PlayerRankingService(
       { findRankedPlayers } as never,
       { findActiveStrategyVersion } as never,
-      { getQuotePublicationRevision } as never,
+      { getRankingPublicationRevision } as never,
       new PlayerRankingCache(),
     );
     const first = await service.getRanking({ page: 1, limit: 20 });
@@ -122,7 +122,7 @@ describe("PlayerRankingService", () => {
     });
     expect(findRankedPlayers).toHaveBeenCalledTimes(1);
     expect(findActiveStrategyVersion).toHaveBeenCalledTimes(3);
-    expect(getQuotePublicationRevision).toHaveBeenCalledTimes(3);
+    expect(getRankingPublicationRevision).toHaveBeenCalledTimes(3);
   });
 
   it("stores and reuses an empty result", async () => {
@@ -134,7 +134,7 @@ describe("PlayerRankingService", () => {
           .fn()
           .mockResolvedValue({ id: "v", strategyCode: "S", version: "1" }),
       } as never,
-      { getQuotePublicationRevision: vi.fn().mockResolvedValue(0) } as never,
+      { getRankingPublicationRevision: vi.fn().mockResolvedValue(0) } as never,
       new PlayerRankingCache(),
     );
     expect((await service.getRanking({ page: 1, limit: 20 })).players).toEqual([]);
@@ -156,7 +156,7 @@ describe("PlayerRankingService", () => {
           .fn()
           .mockResolvedValue({ id: "v", strategyCode: "S", version: "1" }),
       } as never,
-      { getQuotePublicationRevision: vi.fn().mockResolvedValue(0) } as never,
+      { getRankingPublicationRevision: vi.fn().mockResolvedValue(0) } as never,
       new PlayerRankingCache(),
     );
     const controller = new PlayerRankingController(service);
@@ -175,7 +175,7 @@ describe("PlayerRankingService", () => {
       .fn()
       .mockResolvedValueOnce({ rows: [row], total: 1, page: 1, limit: 20 })
       .mockResolvedValueOnce({ rows: [fresh], total: 1, page: 1, limit: 20 });
-    const getQuotePublicationRevision = vi
+    const getRankingPublicationRevision = vi
       .fn()
       .mockResolvedValueOnce(1)
       .mockResolvedValueOnce(2)
@@ -187,7 +187,7 @@ describe("PlayerRankingService", () => {
           .fn()
           .mockResolvedValue({ id: "v", strategyCode: "S", version: "1" }),
       } as never,
-      { getQuotePublicationRevision } as never,
+      { getRankingPublicationRevision } as never,
       new PlayerRankingCache(),
     );
     expect((await service.getRanking({ page: 1, limit: 20 })).players[0].quoteValue).toBe(99);
@@ -206,7 +206,7 @@ describe("PlayerRankingService", () => {
     const service = new PlayerRankingService(
       { findRankedPlayers } as never,
       { findActiveStrategyVersion } as never,
-      { getQuotePublicationRevision: vi.fn().mockResolvedValue(0) } as never,
+      { getRankingPublicationRevision: vi.fn().mockResolvedValue(0) } as never,
       new PlayerRankingCache(),
     );
     expect((await service.getRanking({ page: 1, limit: 20 })).strategyVersion).toBe("2");
@@ -217,7 +217,7 @@ describe("PlayerRankingService", () => {
     const findRankedPlayers = vi
       .fn()
       .mockResolvedValue({ rows: [row], total: 1, page: 1, limit: 20 });
-    const getQuotePublicationRevision = vi
+    const getRankingPublicationRevision = vi
       .fn()
       .mockResolvedValueOnce(1)
       .mockResolvedValueOnce(2)
@@ -231,7 +231,7 @@ describe("PlayerRankingService", () => {
           .fn()
           .mockResolvedValue({ id: "v", strategyCode: "S", version: "1" }),
       } as never,
-      { getQuotePublicationRevision } as never,
+      { getRankingPublicationRevision } as never,
       new PlayerRankingCache(),
     );
     expect((await service.getRanking({ page: 1, limit: 20 })).players).toHaveLength(1);
@@ -248,24 +248,24 @@ describe("PlayerRankingService", () => {
       const findActiveStrategyVersion = vi
         .fn()
         .mockResolvedValue({ id: "v", strategyCode: "S", version: "1" });
-      const getQuotePublicationRevision = vi.fn().mockResolvedValue(0);
+      const getRankingPublicationRevision = vi.fn().mockResolvedValue(0);
       const service = new PlayerRankingService(
         { findRankedPlayers } as never,
         { findActiveStrategyVersion } as never,
-        { getQuotePublicationRevision } as never,
+        { getRankingPublicationRevision } as never,
         new PlayerRankingCache(),
       );
       await service.getRanking({ page: 1, limit: 20 });
       if (source === "version")
         findActiveStrategyVersion.mockRejectedValueOnce(new Error("version down"));
       if (source === "revision")
-        getQuotePublicationRevision.mockRejectedValueOnce(new Error("revision down"));
+        getRankingPublicationRevision.mockRejectedValueOnce(new Error("revision down"));
       if (source === "rows") {
-        getQuotePublicationRevision.mockResolvedValueOnce(1);
+        getRankingPublicationRevision.mockResolvedValueOnce(1);
         findRankedPlayers.mockRejectedValueOnce(new Error("rows down"));
       }
       await expect(service.getRanking({ page: 1, limit: 20 })).rejects.toThrow("down");
-      if (source === "rows") getQuotePublicationRevision.mockResolvedValue(1);
+      if (source === "rows") getRankingPublicationRevision.mockResolvedValue(1);
       await service.getRanking({ page: 1, limit: 20 });
       expect(findRankedPlayers).toHaveBeenCalledTimes(source === "rows" ? 3 : 1);
     },
@@ -275,7 +275,7 @@ describe("PlayerRankingService", () => {
     const findRankedPlayers = vi
       .fn()
       .mockResolvedValue({ rows: [row], total: 1, page: 1, limit: 20 });
-    const getQuotePublicationRevision = vi
+    const getRankingPublicationRevision = vi
       .fn()
       .mockResolvedValueOnce(1)
       .mockRejectedValueOnce(new Error("revision unavailable"))
@@ -287,7 +287,7 @@ describe("PlayerRankingService", () => {
           .fn()
           .mockResolvedValue({ id: "v", strategyCode: "S", version: "1" }),
       } as never,
-      { getQuotePublicationRevision } as never,
+      { getRankingPublicationRevision } as never,
       new PlayerRankingCache(),
     );
     await expect(service.getRanking({ page: 1, limit: 20 })).rejects.toThrow(
