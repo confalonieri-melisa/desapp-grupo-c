@@ -21,6 +21,7 @@ type RankingDatabaseRow = {
 };
 
 type CountDatabaseRow = { total: string | number };
+type RankingExecutor = Pick<Database, "execute">;
 
 export class PlayerRankingRepository {
   constructor(private readonly database: Database = defaultDatabase) {}
@@ -29,18 +30,23 @@ export class PlayerRankingRepository {
     strategyVersionId: string,
     criteria: PlayerRankingCriteria,
   ): Promise<PlayerRankingResult> {
-    const rows = await this.findRankedPlayerRows(strategyVersionId, criteria);
-    const total = await this.countRankedPlayers(strategyVersionId, criteria);
-
-    return {
-      rows: rows.map(toPlayerRankingRow),
-      total,
-      page: criteria.page,
-      limit: criteria.limit,
-    };
+    return this.database.transaction(
+      async (tx) => {
+        const rows = await this.findRankedPlayerRows(tx, strategyVersionId, criteria);
+        const total = await this.countRankedPlayers(tx, strategyVersionId, criteria);
+        return {
+          rows: rows.map(toPlayerRankingRow),
+          total,
+          page: criteria.page,
+          limit: criteria.limit,
+        };
+      },
+      { isolationLevel: "repeatable read", accessMode: "read only" },
+    );
   }
 
   private async findRankedPlayerRows(
+    executor: RankingExecutor,
     strategyVersionId: string,
     criteria: PlayerRankingCriteria,
   ): Promise<RankingDatabaseRow[]> {
@@ -48,7 +54,7 @@ export class PlayerRankingRepository {
     const filters = this.playerFiltersWhere(criteria);
     const latestQuotePerPlayer = this.latestQuotePerPlayer(strategyVersionId);
 
-    return (await this.database.execute(sql`
+    return (await executor.execute(sql`
       ${latestQuotePerPlayer}
       SELECT
         p.id AS player_id,
@@ -70,12 +76,13 @@ export class PlayerRankingRepository {
   }
 
   private async countRankedPlayers(
+    executor: RankingExecutor,
     strategyVersionId: string,
     criteria: PlayerRankingCriteria,
   ): Promise<number> {
     const filters = this.playerFiltersWhere(criteria);
     const latestQuotePerPlayer = this.latestQuotePerPlayer(strategyVersionId);
-    const rows = (await this.database.execute(sql`
+    const rows = (await executor.execute(sql`
       ${latestQuotePerPlayer}
       SELECT COUNT(*)::int AS total
       FROM players p

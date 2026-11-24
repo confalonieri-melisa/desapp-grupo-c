@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, gt, inArray, sql } from "drizzle-orm";
 import { db, databaseForReservedConnection, postgresClient, type Database } from "@/backend/db";
 import { batchTurns } from "@/backend/db/schema";
 import type {
@@ -15,6 +15,20 @@ const GLOBAL_LOCK = [83117, 1] as const;
 
 export class BatchJobRepository {
   constructor(private readonly database: Database = db) {}
+
+  async getQuotePublicationRevision(): Promise<number> {
+    const rows = await this.database
+      .select({ revision: sql<number>`COUNT(*)::int` })
+      .from(batchTurns)
+      .where(
+        and(
+          eq(batchTurns.process, "QUOTE_RECALCULATION"),
+          inArray(batchTurns.status, ["COMPLETED", "PARTIAL"]),
+          gt(batchTurns.succeededCount, 0),
+        ),
+      );
+    return Number(rows[0]?.revision ?? 0);
+  }
 
   async withLock<T>(
     action: (session: Database) => Promise<T>,
