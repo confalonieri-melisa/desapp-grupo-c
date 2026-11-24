@@ -26,6 +26,14 @@ describe("player ranking query schema", () => {
     });
   });
 
+  it("accepts the maximum page size and explicit defaults", () => {
+    expect(playerRankingQuerySchema.parse({ page: "1", limit: "20" })).toEqual({
+      page: 1,
+      limit: 20,
+    });
+    expect(playerRankingQuerySchema.parse({ limit: "100" }).limit).toBe(100);
+  });
+
   it.each([{ page: "0" }, { limit: "0" }, { limit: "101" }, { team: "   " }, { unknown: "value" }])(
     "rejects invalid or unknown query data: %j",
     (input) => {
