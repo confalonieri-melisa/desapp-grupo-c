@@ -3,6 +3,7 @@ import { GET as getLiveness } from "@/app/api/health/live/route";
 import { GET as getMetrics } from "@/app/api/metrics/route";
 import { MetricsController } from "@/backend/controllers/metrics.controller";
 import { HttpMetrics, httpMetrics } from "@/backend/observability/http-metrics";
+import { MetricsService } from "@/backend/services/metrics.service";
 
 describe("observability routes", () => {
   beforeEach(() => {
@@ -40,13 +41,15 @@ describe("observability routes", () => {
 
   it("returns aggregate advanced metrics without individual portfolio data", async () => {
     const controller = new MetricsController(
-      { findAll: vi.fn(async () => [{ id: "p1" }, { id: "p2" }]) } as never,
-      {
-        findActiveStrategyVersion: vi.fn(async () => ({
-          strategyCode: "INDIVIDUAL_PERFORMANCE",
-          version: "1",
-        })),
-      } as never,
+      new MetricsService(
+        { findAll: vi.fn(async () => [{ id: "p1" }, { id: "p2" }]) } as never,
+        {
+          findActiveStrategyVersion: vi.fn(async () => ({
+            strategyCode: "INDIVIDUAL_PERFORMANCE",
+            version: "1",
+          })),
+        } as never,
+      ),
       new HttpMetrics(),
     );
 
