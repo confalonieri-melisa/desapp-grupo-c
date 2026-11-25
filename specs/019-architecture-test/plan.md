@@ -1,8 +1,8 @@
 # Implementation Plan: Test de arquitectura por capas
 
-**Branch**: `018-architecture-test` | **Date**: 2026-11-25 | **Spec**: [spec.md](./spec.md)
+**Branch**: `019-architecture-test` | **Date**: 2026-11-25 | **Spec**: [spec.md](./spec.md)
 
-**Input**: Feature specification from `/specs/018-architecture-test/spec.md`
+**Input**: Feature specification from `/specs/019-architecture-test/spec.md`
 
 ## Summary
 
@@ -42,7 +42,7 @@ Pass.
 ### Documentation
 
 ```text
-specs/018-architecture-test/
+specs/019-architecture-test/
 ├── plan.md
 ├── research.md
 ├── data-model.md

@@ -1,6 +1,6 @@
 # Feature Specification: Test de arquitectura por capas
 
-**Feature Branch**: `018-architecture-test`
+**Feature Branch**: `019-architecture-test`
 
 **Created**: 2026-11-25
 

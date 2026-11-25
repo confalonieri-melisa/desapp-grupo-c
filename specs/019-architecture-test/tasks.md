@@ -1,6 +1,6 @@
 # Tasks: Test de arquitectura por capas
 
-**Input**: Design documents from `/specs/018-architecture-test/`
+**Input**: Design documents from `/specs/019-architecture-test/`
 
 **Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md` y `quickstart.md`
 
@@ -44,7 +44,7 @@
 
 **Purpose**: Validar la feature completa y mantener la documentación alineada.
 
-- [X] T011 [P] Actualizar `specs/018-architecture-test/quickstart.md` con la validación de independencia de los models.
+- [X] T011 [P] Actualizar `specs/019-architecture-test/quickstart.md` con la validación de independencia de los models.
 - [X] T012 Ejecutar `npm test` y confirmar que la suite completa pasa sin conexión a PostgreSQL para el test de arquitectura.
 
 ## Dependencies & Execution Order
