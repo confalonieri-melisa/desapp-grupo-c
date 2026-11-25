@@ -9,6 +9,7 @@ Esta feature no agrega entidades, tablas ni cambios de datos.
 | Controller | `src/backend/controllers` | Puede importar servicios; no puede importar repositories ni `db`. |
 | Service | `src/backend/services` | Puede importar repositories. |
 | Repository | `src/backend/repositories` | Encapsula el acceso a persistencia. |
+| Model | `src/backend/models` | No puede importar controllers, services, repositories, `db` ni adapters. |
 
 ## Ajustes necesarios
 

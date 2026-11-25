@@ -1,7 +1,8 @@
 import { MetricsController } from "@/backend/controllers/metrics.controller";
 import { requestObservation } from "@/backend/observability/request-observation";
+import { MetricsService } from "@/backend/services/metrics.service";
 
-const controller = new MetricsController();
+const controller = new MetricsController(new MetricsService());
 
 export function GET(request: Request): Promise<Response> {
   return requestObservation.observe(request, "/api/metrics/advanced", async () =>

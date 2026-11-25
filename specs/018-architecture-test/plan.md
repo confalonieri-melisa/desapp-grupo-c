@@ -6,7 +6,7 @@
 
 ## Summary
 
-Agregar un test estático que revise las dependencias entre `controllers`, `services` y `repositories`. El test debe impedir que un controller importe directamente un repository o la base de datos. Antes de incorporarlo, se corregirán las dependencias directas existentes en `MetricsController` y `CompetitionContextController`, sin agregar excepciones al test.
+Agregar un test estático que revise las dependencias entre `controllers`, `services`, `repositories` y `models`. El test debe impedir que un controller importe directamente un repository o la base de datos, y que un model dependa de capas de aplicación o infraestructura. Antes de incorporarlo, se corregirán las dependencias directas existentes en `MetricsController` y `CompetitionContextController`, sin agregar excepciones al test.
 
 ## Technical Context
 
@@ -26,7 +26,7 @@ Agregar un test estático que revise las dependencias entre `controllers`, `serv
 
 **Constraints**: No agregar dependencias nuevas ni modificar la configuración global de Vitest si el archivo puede ubicarse bajo `tests/unit`.
 
-**Scale/Scope**: Solo archivos TypeScript de `src/backend/controllers`, `src/backend/services` y `src/backend/repositories`.
+**Scale/Scope**: Solo archivos TypeScript de `src/backend/controllers`, `src/backend/services`, `src/backend/repositories` y `src/backend/models`.
 
 ## Constitution Check
 
@@ -62,7 +62,7 @@ tests/unit/architecture/
 └── dependencies.spec.ts
 ```
 
-**Structure Decision**: El test se ubica en `tests/unit/architecture/dependencies.spec.ts`, que ya está incluido por la configuración actual de Vitest. Inspeccionará los imports de los controllers y verificará que no apunten a `repositories` ni a `db`. Los services pueden importar repositories, y los controllers pueden importar services. `MetricsService` concentrará la consulta de métricas; el wiring de `CompetitionContextService` y sus dependencias se realizará fuera del controller, desde la composición de la ruta o un factory. Así el test no necesita excepciones.
+**Structure Decision**: El test se ubica en `tests/unit/architecture/dependencies.spec.ts`, que ya está incluido por la configuración actual de Vitest. Verificará que los controllers no apunten a `repositories` ni a `db`, que los models no apunten a capas de aplicación o infraestructura, que los controllers usen services y que los services puedan usar repositories. `MetricsService` concentrará la consulta de métricas; el wiring de `CompetitionContextService` y sus dependencias se realizará fuera del controller, desde la composición de la ruta o un factory. Así el test no necesita excepciones.
 
 ## Complexity Tracking
 
