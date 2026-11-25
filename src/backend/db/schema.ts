@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   check,
   integer,
   index,
@@ -243,6 +244,15 @@ export const batchTurns = pgTable(
       .where(sql`${table.origin} = 'SCHEDULED'`),
     index("idx_batch_turn_status_process").on(table.status, table.process),
   ],
+);
+
+export const rankingPublicationRevision = pgTable(
+  "ranking_publication_revision",
+  {
+    id: integer("id").primaryKey(),
+    revision: bigint("revision", { mode: "number" }).notNull().default(0),
+  },
+  (table) => [check("chk_ranking_publication_revision_singleton", sql`${table.id} = 1`)],
 );
 
 export const p2pOffers = pgTable(

@@ -46,6 +46,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
   });
 
   it("rolls back a player write and the run result together", async () => {
+    const beforeRevision = await repository.getRankingPublicationRevision();
     const turn = await repository.createManualTurn("PLAYER_SYNC", "MANUAL_CLI");
     await repository.withLock(async (session) => {
       const batch = new BatchJobRepository(session);
@@ -81,6 +82,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
       await db.select().from(players).where(eq(players.externalId, "rollback-player")),
     ).toHaveLength(0);
     expect((await repository.turnById(turn.id))?.status).toBe("RUNNING");
+    expect(await repository.getRankingPublicationRevision()).toBe(beforeRevision);
   });
 
   it("marks abandoned running turns as failed after taking the lock", async () => {
@@ -95,27 +97,43 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
     });
   });
 
-  it("counts confirmed quote and player sync turns that affect the ranking", async () => {
+  it("increments the stored revision only for confirmed quote and player sync turns", async () => {
+    const before = await repository.getRankingPublicationRevision();
     const cases = [
-      { process: "QUOTE_RECALCULATION", status: "COMPLETED", succeededCount: 2 },
-      { process: "QUOTE_RECALCULATION", status: "PARTIAL", succeededCount: 1 },
-      { process: "QUOTE_RECALCULATION", status: "FAILED", succeededCount: 1 },
-      { process: "QUOTE_RECALCULATION", status: "COMPLETED", succeededCount: 0 },
-      { process: "PLAYER_SYNC", status: "COMPLETED", succeededCount: 1 },
-      { process: "PLAYER_SYNC", status: "FAILED", succeededCount: 1 },
-      { process: "PLAYER_SYNC", status: "COMPLETED", succeededCount: 0 },
+      { process: "QUOTE_RECALCULATION", status: "COMPLETED", succeededCount: 2, increment: 1 },
+      { process: "QUOTE_RECALCULATION", status: "PARTIAL", succeededCount: 1, increment: 1 },
+      { process: "QUOTE_RECALCULATION", status: "FAILED", succeededCount: 1, increment: 0 },
+      { process: "QUOTE_RECALCULATION", status: "COMPLETED", succeededCount: 0, increment: 0 },
+      { process: "PLAYER_SYNC", status: "COMPLETED", succeededCount: 1, increment: 1 },
+      { process: "PLAYER_SYNC", status: "FAILED", succeededCount: 1, increment: 0 },
+      { process: "PLAYER_SYNC", status: "COMPLETED", succeededCount: 0, increment: 0 },
     ];
+    let expected = before;
     for (const [index, item] of cases.entries()) {
-      await db.insert(batchTurns).values({
-        ...item,
-        origin: "MANUAL_CLI",
-        scheduledLocal: `2026-11-23T12:00:${String(index).padStart(2, "0")}`,
-        scheduledFor: new Date(`2026-11-23T12:00:${String(index).padStart(2, "0")}Z`),
-        timezone: "UTC",
-        correlationId: `ranking-revision-${index}`,
+      const turn = await repository.createManualTurn(
+        item.process as "QUOTE_RECALCULATION" | "PLAYER_SYNC",
+        "MANUAL_CLI",
+        `ranking-revision-${index}`,
+      );
+      await repository.setTurnRunning(turn.id);
+      await db.transaction(async (tx) =>
+        repository.finishTurn(
+          turn.id,
+          item.status as "COMPLETED" | "PARTIAL" | "FAILED",
+          { processed: item.succeededCount, succeeded: item.succeededCount, rejected: 0 },
+          undefined,
+          tx,
+        ),
+      );
+      expected += item.increment;
+      expect(await repository.getRankingPublicationRevision()).toBe(expected);
+      await repository.finishTurn(turn.id, "COMPLETED", {
+        processed: 1,
+        succeeded: 1,
+        rejected: 0,
       });
+      expect(await repository.getRankingPublicationRevision()).toBe(expected);
     }
-    expect(await repository.getRankingPublicationRevision()).toBe(3);
   });
 
   it("exposes a finished turn only after its transaction commits", async () => {

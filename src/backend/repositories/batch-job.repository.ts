@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq, gt, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db, databaseForReservedConnection, postgresClient, type Database } from "@/backend/db";
-import { batchTurns } from "@/backend/db/schema";
+import { batchTurns, rankingPublicationRevision } from "@/backend/db/schema";
 import type {
   BatchCounts,
   BatchOccurrence,
@@ -18,12 +18,11 @@ export class BatchJobRepository {
 
   async getRankingPublicationRevision(): Promise<number> {
     const rows = await this.database
-      .select({ revision: sql<number>`COUNT(*)::int` })
-      .from(batchTurns)
-      .where(
-        and(inArray(batchTurns.status, ["COMPLETED", "PARTIAL"]), gt(batchTurns.succeededCount, 0)),
-      );
-    return Number(rows[0]?.revision ?? 0);
+      .select({ revision: rankingPublicationRevision.revision })
+      .from(rankingPublicationRevision)
+      .where(eq(rankingPublicationRevision.id, 1));
+    if (!rows[0]) throw new Error("Ranking publication revision is missing");
+    return rows[0].revision;
   }
 
   async withLock<T>(
@@ -118,9 +117,14 @@ export class BatchJobRepository {
     status: "COMPLETED" | "PARTIAL" | "FAILED",
     counts: BatchCounts,
     reasonCode?: string,
-    writer: BatchWriter = this.database,
+    writer?: BatchWriter,
   ): Promise<void> {
-    await writer
+    if (!writer && status !== "FAILED" && counts.succeeded > 0) {
+      await this.database.transaction((tx) => this.finishTurn(id, status, counts, reasonCode, tx));
+      return;
+    }
+    const executor = writer ?? this.database;
+    const finished = await executor
       .update(batchTurns)
       .set({
         status,
@@ -130,7 +134,16 @@ export class BatchJobRepository {
         rejectedCount: counts.rejected,
         reasonCode,
       })
-      .where(and(eq(batchTurns.id, id), eq(batchTurns.status, "RUNNING")));
+      .where(and(eq(batchTurns.id, id), eq(batchTurns.status, "RUNNING")))
+      .returning({ id: batchTurns.id });
+    if (finished.length > 0 && status !== "FAILED" && counts.succeeded > 0) {
+      const updated = await executor
+        .update(rankingPublicationRevision)
+        .set({ revision: sql`${rankingPublicationRevision.revision} + 1` })
+        .where(eq(rankingPublicationRevision.id, 1))
+        .returning({ id: rankingPublicationRevision.id });
+      if (updated.length === 0) throw new Error("Ranking publication revision is missing");
+    }
   }
 
   async rejectManualTurn(id: string): Promise<void> {
