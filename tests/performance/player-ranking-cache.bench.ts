@@ -15,14 +15,18 @@ if (!/(test|integration)/i.test(databaseName)) {
   throw new Error("The ranking benchmark requires an isolated test database");
 }
 
-const playerIds = Array.from({ length: 1000 }, () => randomUUID());
+const BENCHMARK_PLAYER_COUNT = 1000;
+const BENCHMARK_SAMPLE_BATCHES = 30;
+const BENCHMARK_CONCURRENT_REQUESTS = 20;
+const WARM_P95_SLA_MS = 200;
+const COLD_P95_SLA_MS = 1000;
+
+const playerIds = Array.from({ length: BENCHMARK_PLAYER_COUNT }, () => randomUUID());
 const versionId = randomUUID();
 const rankingRepository = new PlayerRankingRepository();
 const valuationRepository = new ValuationRepository();
 const batchRepository = new BatchJobRepository();
 const criteria = { page: 1, limit: 20 };
-const CONCURRENT_REQUESTS = 20;
-
 function median(samples: number[]): number {
   const sorted = [...samples].sort((left, right) => left - right);
   const middle = Math.floor(sorted.length / 2);
@@ -39,7 +43,7 @@ function percentile95(samples: number[]): number {
 async function measureConcurrent(service: PlayerRankingService, warm: boolean): Promise<number[]> {
   if (warm) await service.getRanking(criteria);
   return Promise.all(
-    Array.from({ length: CONCURRENT_REQUESTS }, async () => {
+    Array.from({ length: BENCHMARK_CONCURRENT_REQUESTS }, async () => {
       const startedAt = performance.now();
       await service.getRanking(criteria);
       return performance.now() - startedAt;
@@ -99,7 +103,7 @@ async function main(): Promise<void> {
     await insertFixtures();
     const coldSamples: number[] = [];
     const warmSamples: number[] = [];
-    for (let index = 0; index < 30; index++) {
+    for (let index = 0; index < BENCHMARK_SAMPLE_BATCHES; index++) {
       const service = new PlayerRankingService(
         rankingRepository,
         valuationRepository,
@@ -108,7 +112,7 @@ async function main(): Promise<void> {
       );
       coldSamples.push(...(await measureConcurrent(service, false)));
     }
-    for (let index = 0; index < 30; index++) {
+    for (let index = 0; index < BENCHMARK_SAMPLE_BATCHES; index++) {
       const service = new PlayerRankingService(
         rankingRepository,
         valuationRepository,
@@ -127,7 +131,8 @@ async function main(): Promise<void> {
         {
           players: playerIds.length,
           samplesPerGroup: coldSamples.length,
-          concurrentRequests: CONCURRENT_REQUESTS,
+          sampleBatches: BENCHMARK_SAMPLE_BATCHES,
+          concurrentRequests: BENCHMARK_CONCURRENT_REQUESTS,
           coldMedianMs,
           warmMedianMs,
           coldP95Ms,
@@ -139,8 +144,10 @@ async function main(): Promise<void> {
       ),
     );
     if (improvementPercent < 25) throw new Error("SC-001 improvement below 25%");
-    if (warmP95Ms > 200) throw new Error("Warm p95 SLA exceeded: expected <= 200 ms");
-    if (coldP95Ms > 1000) throw new Error("Cold p95 SLA exceeded: expected <= 1000 ms");
+    if (warmP95Ms > WARM_P95_SLA_MS)
+      throw new Error(`Warm p95 SLA exceeded: expected <= ${WARM_P95_SLA_MS} ms`);
+    if (coldP95Ms > COLD_P95_SLA_MS)
+      throw new Error(`Cold p95 SLA exceeded: expected <= ${COLD_P95_SLA_MS} ms`);
   } finally {
     await cleanup();
     await closeDatabase();

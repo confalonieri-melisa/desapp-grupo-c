@@ -3,7 +3,7 @@ import type {
   PlayerRankingResponse,
 } from "@/backend/services/player-ranking.types";
 
-const MAX_ENTRIES = 100;
+const PLAYER_RANKING_CACHE_MAX_ENTRIES = 100;
 
 type Entry = {
   response: PlayerRankingResponse;
@@ -45,7 +45,7 @@ export class PlayerRankingCache {
   }
 
   private evictOldestIfFull(): void {
-    if (this.entries.size < MAX_ENTRIES) return;
+    if (this.entries.size < PLAYER_RANKING_CACHE_MAX_ENTRIES) return;
     const oldestKey = this.entries.keys().next().value;
     if (oldestKey !== undefined) this.entries.delete(oldestKey);
   }
