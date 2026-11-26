@@ -8,12 +8,14 @@ const m = vi.hoisted(() => ({
   get: vi.fn(),
   accept: vi.fn(),
   publish: vi.fn(),
+  cancel: vi.fn(),
 }));
 vi.mock("react", () => ({ useState: m.state, useRef: m.ref, useEffect: m.effect }));
 vi.mock("@/frontend/services/client/p2p-offers.service", () => ({
   getP2POffers: m.get,
   acceptP2POffer: m.accept,
   publishP2POffer: m.publish,
+  cancelP2POffer: m.cancel,
 }));
 import { useP2POffers } from "@/frontend/features/profile/hooks/useP2POffers";
 beforeEach(() => vi.clearAllMocks());
@@ -128,5 +130,23 @@ it("keeps published offer locally when refresh fails and reconciles successful G
   m.get.mockResolvedValue([]);
   await h.render().refresh();
   expect(h.render().offers).toEqual([]);
+  h.cleanup();
+});
+
+it("cancels once and removes confirmed offer despite failed refresh", async () => {
+  m.get.mockResolvedValueOnce([offer]).mockRejectedValue(new Error("Offline"));
+  m.cancel.mockResolvedValue(undefined);
+  const h = setup();
+  await flushPromises();
+  h.render().openCancel(offer, offer.sellerId);
+  h.render().cancelConfirmation();
+  expect(m.cancel).not.toHaveBeenCalled();
+  h.render().openCancel(offer, offer.sellerId);
+  const pending = h.render().confirm();
+  h.render().confirm();
+  await pending;
+  expect(m.cancel).toHaveBeenCalledOnce();
+  expect(h.render().offers).toEqual([]);
+  expect(h.render().result.cancelled).toBe(offer.id);
   h.cleanup();
 });

@@ -32,6 +32,14 @@ export default function P2POfferList({
               {o.quantity} tokens ? {formatCredits(o.unitPrice)} por token ? Total{" "}
               {formatCredits(offerTotal(o))}
             </p>
+            {operable && o.sellerId === userId && (
+              <button
+                disabled={p2p.status !== "ready" || p2p.result.status === "submitting"}
+                onClick={() => p2p.openCancel(o, userId)}
+              >
+                Cancelar oferta propia
+              </button>
+            )}
             {operable && o.sellerId !== userId && (
               <button
                 disabled={

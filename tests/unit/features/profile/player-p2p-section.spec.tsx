@@ -65,3 +65,11 @@ it("associates publish fields and errors and describes no reservation", () => {
   expect((screen.getByText("Revisar publicaci?n") as HTMLButtonElement).disabled).toBe(true);
   expect(screen.getByText(/no se reservan/)).toBeTruthy();
 });
+
+it("keeps own cancellation inline in the single mixed list", () => {
+  const p2p = { ...state(), openCancel: vi.fn() };
+  render(<P2POfferList p2p={p2p} userId={investor.id} balance={100} operable />);
+  fireEvent.click(screen.getByText("Cancelar oferta propia"));
+  expect(p2p.openCancel).toHaveBeenCalledWith(ownOffer, investor.id);
+  expect(screen.getAllByRole("list")).toHaveLength(1);
+});

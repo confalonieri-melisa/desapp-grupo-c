@@ -118,3 +118,10 @@ export async function publishP2POffer(
     throw Object.assign(new Error("Publicaci?n no verificable"), { status });
   return body;
 }
+
+export async function cancelP2POffer(token: string, id: string): Promise<void> {
+  const { status } = await p2pRequest(token, `/api/p2p/offers/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+  if (status !== 204) throw Object.assign(new Error("Cancelacion no verificable"), { status });
+}

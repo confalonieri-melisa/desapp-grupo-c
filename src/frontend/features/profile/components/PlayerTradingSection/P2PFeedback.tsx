@@ -4,6 +4,7 @@ export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffe
   const r = p2p.result;
   return (
     <div role="status">
+      {r.cancelled && <p>Cancelacion confirmada de oferta {r.cancelled}</p>}
       {r.published && (
         <p>
           Oferta publicada. Abr? ?Comprar? para verla como oferta propia. Los tokens no se

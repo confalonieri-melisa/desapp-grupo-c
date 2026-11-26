@@ -37,19 +37,27 @@ export default function P2PConfirmationDialog({
     >
       {c && (
         <>
-          <h3 id={id}>Confirmar {c.type === "accept" ? "compra" : "publicaci?n"} P2P</h3>
+          <h3 id={id}>
+            Confirmar{" "}
+            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelacion" : "publicacion"}{" "}
+            P2P
+          </h3>
           <p>
-            {playerName} {c.type === "accept" && `? Oferta ${c.offer.id}`}
+            {playerName} {c.type !== "publish" && `? Oferta ${c.offer.id}`}
           </p>
           <p>
-            {(c.type === "accept" ? c.offer : c).quantity} tokens completos ? Precio fijo{" "}
-            {formatCredits((c.type === "accept" ? c.offer : c).unitPrice)} ? Total{" "}
-            {formatCredits(offerTotal(c.type === "accept" ? c.offer : c))}
+            {(c.type !== "publish" ? c.offer : c).quantity} tokens completos ? Precio fijo{" "}
+            {formatCredits((c.type !== "publish" ? c.offer : c).unitPrice)} ? Total{" "}
+            {formatCredits(offerTotal(c.type !== "publish" ? c.offer : c))}
           </p>
           <button ref={cancel} onClick={p2p.cancelConfirmation}>
             Volver
           </button>
-          <button onClick={() => void p2p.confirm()}>Confirmar compra P2P</button>
+          <button onClick={() => void p2p.confirm()}>
+            Confirmar{" "}
+            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelacion" : "publicacion"}{" "}
+            P2P
+          </button>
         </>
       )}
     </dialog>

@@ -3,17 +3,20 @@ import {
   getP2POffers,
   acceptP2POffer,
   publishP2POffer,
+  cancelP2POffer,
   type P2PReceipt,
   type P2POffer,
 } from "@/frontend/services/client/p2p-offers.service";
 import { canAccept, classifyP2PError, validatePublish } from "../utils/p2p-trading";
 export type P2PConfirmation =
   | { type: "accept"; offer: P2POffer; key: string }
-  | { type: "publish"; quantity: number; unitPrice: number };
+  | { type: "publish"; quantity: number; unitPrice: number }
+  | { type: "cancel"; offer: P2POffer };
 export interface P2PResult {
   status: "idle" | "submitting" | "succeeded" | "rejected" | "uncertain";
   receipt?: P2PReceipt;
   published?: P2POffer;
+  cancelled?: string;
   error?: string;
   portfolioFailed?: boolean;
 }
@@ -141,6 +144,18 @@ export function useP2POffers(
         void refresh();
         return;
       }
+      if (c.type === "cancel") {
+        await cancelP2POffer(token, c.offer.id);
+        if (current.current !== scope) return;
+        setAction({
+          scope,
+          confirmation: null,
+          result: { status: "succeeded", cancelled: c.offer.id },
+        });
+        setState((old) => ({ ...old, offers: old.offers.filter((o) => o.id !== c.offer.id) }));
+        void refresh();
+        return;
+      }
       const receipt = await acceptP2POffer(token, c.offer.id, c.key);
       if (current.current !== scope) return;
       setAction({ scope, confirmation: null, result: { status: "succeeded", receipt } });
@@ -191,6 +206,15 @@ export function useP2POffers(
     refresh,
     confirmation: scoped.confirmation,
     result: scoped.result,
+    openCancel: (offer: P2POffer, userId: string) => {
+      if (
+        !busy.current &&
+        visible.status === "ready" &&
+        offer.sellerId === userId &&
+        visible.offers.some((o) => o.id === offer.id)
+      )
+        setAction({ scope, confirmation: { type: "cancel", offer }, result: { status: "idle" } });
+    },
     openAccept,
     confirm,
     retryAccept,

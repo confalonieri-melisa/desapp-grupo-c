@@ -56,3 +56,14 @@ it("publishes only player, quantity and fixed price", async () => {
   expect(await publishP2POffer("jwt", { playerId, quantity: 2, unitPrice: 12.35 })).toEqual(offer);
   expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ playerId, quantity: 2, unitPrice: 12.35 });
 });
+
+import { cancelP2POffer } from "@/frontend/services/client/p2p-offers.service";
+it("cancels with DELETE and consumes no JSON on 204", async () => {
+  const f = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+  vi.stubGlobal("fetch", f);
+  await expect(cancelP2POffer("jwt", offer.id)).resolves.toBeUndefined();
+  expect(f).toHaveBeenCalledWith(
+    `/api/p2p/offers/${offer.id}`,
+    expect.objectContaining({ method: "DELETE", headers: { Authorization: "Bearer jwt" } }),
+  );
+});
