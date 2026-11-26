@@ -21,10 +21,30 @@ const rankingRepository = new PlayerRankingRepository();
 const valuationRepository = new ValuationRepository();
 const batchRepository = new BatchJobRepository();
 const criteria = { page: 1, limit: 20 };
+const CONCURRENT_REQUESTS = 20;
 
 function median(samples: number[]): number {
   const sorted = [...samples].sort((left, right) => left - right);
-  return (sorted[14] + sorted[15]) / 2;
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[middle - 1] + sorted[middle]) / 2
+    : sorted[middle];
+}
+
+function percentile95(samples: number[]): number {
+  const sorted = [...samples].sort((left, right) => left - right);
+  return sorted[Math.ceil(sorted.length * 0.95) - 1];
+}
+
+async function measureConcurrent(service: PlayerRankingService, warm: boolean): Promise<number[]> {
+  if (warm) await service.getRanking(criteria);
+  return Promise.all(
+    Array.from({ length: CONCURRENT_REQUESTS }, async () => {
+      const startedAt = performance.now();
+      await service.getRanking(criteria);
+      return performance.now() - startedAt;
+    }),
+  );
 }
 
 async function insertFixtures(): Promise<void> {
@@ -86,9 +106,7 @@ async function main(): Promise<void> {
         batchRepository,
         new PlayerRankingCache(),
       );
-      const startedAt = performance.now();
-      await service.getRanking(criteria);
-      coldSamples.push(performance.now() - startedAt);
+      coldSamples.push(...(await measureConcurrent(service, false)));
     }
     for (let index = 0; index < 30; index++) {
       const service = new PlayerRankingService(
@@ -97,21 +115,23 @@ async function main(): Promise<void> {
         batchRepository,
         new PlayerRankingCache(),
       );
-      await service.getRanking(criteria);
-      const startedAt = performance.now();
-      await service.getRanking(criteria);
-      warmSamples.push(performance.now() - startedAt);
+      warmSamples.push(...(await measureConcurrent(service, true)));
     }
     const coldMedianMs = median(coldSamples);
     const warmMedianMs = median(warmSamples);
+    const coldP95Ms = percentile95(coldSamples);
+    const warmP95Ms = percentile95(warmSamples);
     const improvementPercent = ((coldMedianMs - warmMedianMs) / coldMedianMs) * 100;
     console.log(
       JSON.stringify(
         {
           players: playerIds.length,
-          samplesPerGroup: 30,
+          samplesPerGroup: coldSamples.length,
+          concurrentRequests: CONCURRENT_REQUESTS,
           coldMedianMs,
           warmMedianMs,
+          coldP95Ms,
+          warmP95Ms,
           improvementPercent,
         },
         null,
@@ -119,6 +139,8 @@ async function main(): Promise<void> {
       ),
     );
     if (improvementPercent < 25) throw new Error("SC-001 improvement below 25%");
+    if (warmP95Ms > 200) throw new Error("Warm p95 SLA exceeded: expected <= 200 ms");
+    if (coldP95Ms > 1000) throw new Error("Cold p95 SLA exceeded: expected <= 1000 ms");
   } finally {
     await cleanup();
     await closeDatabase();

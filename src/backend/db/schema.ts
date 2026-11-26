@@ -214,6 +214,13 @@ export const playerQuotes = pgTable(
     ),
     check("chk_player_quote_value", sql`${table.quoteValue} >= 1 and ${table.quoteValue} <= 100`),
     index("idx_player_quotes_player_date").on(table.playerId, table.calculatedAt),
+    index("idx_player_quotes_strategy_player_date").using(
+      "btree",
+      table.strategyVersionId,
+      table.playerId,
+      sql`${table.calculatedAt} DESC`,
+      sql`${table.id} DESC`,
+    ),
     uniqueIndex("uq_player_quotes_turn_player")
       .on(table.turnId, table.playerId)
       .where(sql`${table.turnId} is not null`),

@@ -1,14 +1,14 @@
 # Implementation Plan: Caché en memoria del ranking de jugadores
 
-> Actualización 2026-11-24: la implementación final elimina el TTL de 60 segundos y usa la revisión persistida de turnos de recálculo y sincronización. Las referencias al TTL debajo registran el plan original.
+> Actualización 2026-11-26: la implementación final no usa TTL; usa una revisión persistida de turnos de recálculo y sincronización.
 
-**Branch**: `018-player-ranking-cache` (identificador de Spec Kit; checkout Git actual: `feature/017-p2p-fixed-offers`) | **Date**: 2026-11-23 | **Spec**: [spec.md](spec.md)
+**Branch**: `feature/018-player-ranking-cache` | **Date**: 2026-11-23 | **Spec**: [spec.md](spec.md)
 
 **Input**: Especificación de `specs/018-player-ranking-cache/spec.md`. La rama propia `feature/018-player-ranking-cache`, basada en `main`, debe existir antes de implementar esta feature.
 
 ## Summary
 
-Agregar al servicio de lectura del ranking una caché local de respuestas completas, identificadas por versión activa, filtros y paginación. Cada entrada vence a los 60 segundos y la capacidad máxima es 100, con descarte por instante de generación. Antes de servir un acierto, consultar una revisión persistida de publicaciones de cotizaciones que funciona entre la aplicación web y el worker programado. En una falta, leer filas y total en un snapshot coherente; comprobar nuevamente la revisión antes de guardar. Conservar los endpoints, autenticación, errores y formato actuales.
+Agregar al servicio de lectura del ranking una caché local de respuestas completas, identificadas por versión activa, filtros y paginación. La capacidad máxima es 100, con descarte por antigüedad de inserción. Antes de servir un acierto, consultar una revisión persistida de publicaciones de cotizaciones que funciona entre la aplicación web y el worker programado. En una falta, leer filas y total en un snapshot coherente; comprobar nuevamente la revisión antes de guardar. Conservar los endpoints, autenticación, errores y formato actuales.
 
 ## Technical Context
 
@@ -18,8 +18,8 @@ Agregar al servicio de lectura del ranking una caché local de respuestas comple
 **Testing**: Vitest unitario e integración con PostgreSQL; medición controlada de latencia  
 **Target Platform**: Aplicación Next.js con una instancia web y worker programado en otro proceso  
 **Project Type**: Aplicación web con API de ranking autenticada  
-**Performance Goals**: Mediana de 30 consultas repetidas vigentes al menos 25% menor que 30 consultas equivalentes sin entrada, con 1000 jugadores rankeables en el mismo entorno  
-**Constraints**: Vigencia fija <60 segundos; máximo 100 entradas; primer ranking posterior a una publicación visible desde otro proceso debe reflejar cotizaciones nuevas; sin Redis, caché distribuida ni cambio de esquema  
+**Performance Goals**: Bajo una base aislada con 1000 jugadores y 20 solicitudes concurrentes, el p95 de una consulta con entrada vigente debe ser <=200 ms y el p95 de una consulta sin entrada vigente <=1000 ms; además, la mediana vigente debe ser al menos 25% menor.
+**Constraints**: Las entradas son válidas mientras coincidan la versión activa y la revisión persistida; máximo 100 entradas; el primer ranking posterior a una publicación visible desde otro proceso debe reflejar cotizaciones nuevas; sin Redis ni caché distribuida.
 **Scale/Scope**: Solo `GET /api/players/ranking` y los dos caminos productivos de recálculo como origen de la revisión; filtros `league`, `team`, `position`, `page`, `limit`; hasta 100 jugadores por página
 
 ## Constitution Check
@@ -33,13 +33,13 @@ _Gate antes de Phase 0: PASS. Revisión posterior a Phase 1: PASS._
 | III y IV. Capas y validación | PASS: la ruta autentica y el controlador valida antes del servicio. | PASS: caché y coordinación en lectura de servicio, consultas persistidas en repositorios. |
 | V y IX. Verificación | PASS: existen suites unitarias e integración de ranking y recálculo. | PASS: `quickstart.md` cubre aciertos, vencimiento, capacidad, publicación entre procesos, errores y rendimiento; la aprobación formal de entrega seguirá siendo necesaria. |
 | VI. Resiliencia y observabilidad | PASS: una falta usa datos persistidos y la revisión se confirma en la base existente. | PASS: no se sirven entradas si falla la lectura necesaria de revisión; se mantienen observación HTTP y correlation ID actuales. |
-| VIII y X. Simplicidad y GitFlow | PASS para planificación: memoria local y tablas existentes son suficientes. | PASS para diseño: sin Redis ni migraciones; crear rama propia desde `main` antes de la implementación, pues el checkout actual pertenece a otra feature. |
+| VIII y X. Simplicidad y GitFlow | PASS para planificación: memoria local y tablas existentes son suficientes. | PASS para diseño: sin Redis ni caché distribuida; la revisión persistida requiere una tabla singleton y una migración acotada. |
 
 No hay excepciones arquitectónicas ni decisiones pendientes que bloqueen el diseño.
 
 ## Phase 0: Outline & Research
 
-Las decisiones y alternativas están documentadas en [research.md](research.md): revisión persistida basada en turnos que publicaron cotizaciones, clave de consulta validada, TTL fijo, límite de 100 entradas, snapshot consistente para filas y total, y control de carreras entre lectura y publicación. No quedan incógnitas técnicas pendientes.
+Las decisiones y alternativas están documentadas en [research.md](research.md): revisión persistida actualizada dentro de la transacción de publicación, clave de consulta validada, límite de 100 entradas, snapshot consistente para filas y total, y control de carreras entre lectura y publicación. No quedan incógnitas técnicas pendientes.
 
 ## Phase 1: Design & Contracts
 
@@ -47,14 +47,14 @@ Las decisiones y alternativas están documentadas en [research.md](research.md):
 
 1. La ruta conserva `requireAuth`; el controlador conserva la validación de `playerRankingQuerySchema` y entrega criterios normalizados al servicio.
 2. El servicio obtiene la versión activa y la revisión de publicaciones confirmadas. Sin versión activa responde con el mismo `409`; un error de lectura mantiene el error habitual y no consulta una entrada potencialmente obsoleta.
-3. La clave incluye ID de versión activa y todos los criterios normalizados. Un acierto exige revisión idéntica y antigüedad menor que 60 segundos. El acierto no cambia la fecha ni el orden de descarte.
-4. Ante falta, vencimiento o descarte, el repositorio lee filas y total en un único snapshot de `REPEATABLE READ`. El servicio arma el mismo `PlayerRankingResponse` y vuelve a leer versión activa y revisión.
+3. La clave incluye ID de versión activa y todos los criterios normalizados. Un acierto exige revisión idéntica. El acierto no cambia el orden de descarte.
+4. Ante falta o descarte, el repositorio lee filas y total en un único snapshot de `REPEATABLE READ`. El servicio arma el mismo `PlayerRankingResponse` y vuelve a leer versión activa y revisión.
 5. Si ambas señales coinciden, almacena la respuesta completa con la revisión y el momento de generación. Si cambian durante la lectura, descarta el candidato y repite la lectura una vez; si vuelve a haber cambio, devuelve el segundo resultado completo sin guardarlo. Una respuesta fallida o parcial nunca entra en caché.
-6. Antes de agregar una entrada se eliminan las vencidas. Si todavía hay 100, se elimina la de generación más antigua. Reiniciar el proceso vacía la caché sin afectar la consulta persistida.
+6. Si hay 100 entradas, se elimina la de generación más antigua antes de agregar la nueva. Reiniciar el proceso vacía la caché sin afectar la consulta persistida.
 
 ### Publicación y consistencia
 
-Ambos caminos productivos de recálculo pasan por `BatchExecutionService.recalculate`, que confirma `player_quotes` y el estado del turno en una transacción. Una consulta de `COUNT(*)` de turnos `QUOTE_RECALCULATION` en `COMPLETED`/`PARTIAL` con `succeeded_count > 0` es la revisión global: aumenta por cada publicación confirmada y es visible desde el proceso web. No se necesita comunicación directa del worker a la caché. El método directo `QuoteRecalculationService.recalculate()` no tiene llamadores productivos actuales; si se usa como nuevo punto de publicación, deberá participar de la misma revisión.
+Ambos caminos productivos de recálculo pasan por `BatchExecutionService.recalculate`, que confirma `player_quotes`, el estado del turno y el incremento de `ranking_publication_revision` en una transacción. La revisión global se lee desde esa tabla singleton y aumenta por cada publicación confirmada; es visible desde el proceso web sin contar el historial. No se necesita comunicación directa del worker a la caché. El método directo `QuoteRecalculationService.recalculate()` no tiene llamadores productivos actuales; si se usa como nuevo punto de publicación, deberá participar de la misma revisión.
 
 La selección de la versión activa sigue ocurriendo por solicitud. Una versión nueva o la ausencia de versión activa jamás reutiliza una entrada previa. Una consulta que comenzó antes de la confirmación de un lote puede finalizar con el snapshot anterior; no deja esa respuesta vigente para consultas que comiencen después de la confirmación.
 

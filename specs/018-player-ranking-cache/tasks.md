@@ -1,6 +1,6 @@
 # Tasks: Caché en memoria del ranking de jugadores
 
-> Actualización 2026-11-24: estas tareas registran la implementación original. El TTL de 60 segundos fue eliminado y la revisión ahora incluye sincronizaciones de jugadores confirmadas.
+> Actualización 2026-11-26: la revisión se persiste en una tabla singleton y se actualiza dentro de la transacción de publicación.
 
 **Input**: Design documents from `specs/018-player-ranking-cache/`
 
@@ -18,7 +18,7 @@
 
 ## Phase 1: Setup
 
-**Purpose**: Preparar datos de prueba para el comportamiento nuevo. Antes de implementar, crear `feature/018-player-ranking-cache` desde `main` según `plan.md` y la constitución; el checkout actual pertenece a la feature 017.
+**Purpose**: Preparar datos de prueba para el comportamiento nuevo.
 
 - [X] T001 Preparar fixtures de ranking con varias versiones, filtros, páginas, respuestas vacías y 101 criterios distintos en `tests/fixtures/player-ranking-cache.ts` para las suites de esta feature
 
@@ -30,7 +30,7 @@
 
 - [X] T002 [P] Escribir pruebas de integración del conteo de turnos `QUOTE_RECALCULATION` con estado `COMPLETED` o `PARTIAL` y `succeeded_count > 0`, excluyendo turnos fallidos o sin éxitos, y de la visibilidad atómica de cotizaciones y turno confirmado en `tests/integration/batch-job.repository.spec.ts`
 - [X] T003 [P] Escribir pruebas de integración que publiquen cotizaciones entre la lectura de filas y la del total y exijan un mismo snapshot `REPEATABLE READ`, además de verificar orden y filtros existentes, en `tests/integration/player-ranking.repository.spec.ts`
-- [X] T004 Implementar en `src/backend/repositories/batch-job.repository.ts` una lectura de `PublicationRevision` como `COUNT(*)` de turnos confirmados con `process = QUOTE_RECALCULATION`, `status IN (COMPLETED, PARTIAL)` y `succeeded_count > 0`; devolver un entero no negativo y propagar fallas de base de datos
+- [X] T004 Implementar en `src/backend/repositories/batch-job.repository.ts` la lectura de la fila singleton `ranking_publication_revision`; devolver un entero no negativo y propagar fallas de base de datos
 - [X] T005 Cambiar `findRankedPlayers` en `src/backend/repositories/player-ranking.repository.ts` para ejecutar la consulta de filas y la de total dentro de una transacción de solo lectura con aislamiento `repeatable read`, conservando selección de última cotización, filtros, orden, desempates y mapeo actuales
 
 **Checkpoint**: La aplicación web puede leer la revisión publicada por el worker y el repositorio produce filas y total coherentes.
@@ -41,11 +41,11 @@
 
 **Goal**: Reutilizar una respuesta completa `200` reciente, incluso `players: []`, sin cambiar su contenido.
 
-**Independent Test**: Repetir una consulta autenticada idéntica antes de 60 segundos y confirmar igualdad de respuesta y una sola lectura de ranking; a los 60 000 ms, volver a leer datos persistidos. Insertar 101 consultas y verificar el descarte de la más antigua aunque haya recibido un acierto intermedio.
+**Independent Test**: Repetir una consulta autenticada idéntica sin publicaciones nuevas y confirmar igualdad de respuesta y una sola lectura de ranking; publicar una cotización y verificar que la siguiente consulta vuelve a leer datos persistidos. Insertar 101 consultas y verificar el descarte de la más antigua aunque haya recibido un acierto intermedio.
 
 ### Tests for User Story 1
 
-- [X] T006 [P] [US1] Escribir pruebas con reloj controlado de acierto, falta, respuesta vacía, límites de 59 999 y 60 000 ms, plazo fijo, máximo de 100 entradas y descarte por `createdAt` más antiguo con desempate por `insertionOrder` en `tests/unit/services/player-ranking-cache.spec.ts`
+- [X] T006 [P] [US1] Escribir pruebas de acierto, falta, respuesta vacía, revisión persistida, máximo de 100 entradas y descarte de la más antigua en `tests/unit/services/player-ranking-cache.spec.ts`
 - [X] T007 [P] [US1] Ampliar pruebas de `getRanking` para acierto y falta, igualdad de `strategyCode`, `strategyVersion`, `players` con `calculatedAt` y `pagination`, y ausencia de nueva lectura de filas en un acierto en `tests/unit/services/player-ranking.service.spec.ts`
 
 ### Implementation for User Story 1

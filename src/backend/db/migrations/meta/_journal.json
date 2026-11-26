@@ -64,6 +64,13 @@
       "when": 1795600000000,
       "tag": "0009_ranking_publication_revision",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795601000000,
+      "tag": "0010_player_quotes_ranking_index",
+      "breakpoints": true
     }
   ]
 }

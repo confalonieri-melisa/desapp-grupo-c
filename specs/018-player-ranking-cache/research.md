@@ -1,39 +1,39 @@
 # Research: caché del ranking de jugadores
 
-> Actualización 2026-11-24: se reemplazó la decisión de TTL de 60 segundos por invalidación según la revisión persistida de turnos de recálculo y sincronización. El análisis siguiente registra la decisión original.
+> Actualización 2026-11-26: la revisión persistida se almacena en una tabla singleton y se incrementa dentro de la transacción de publicación.
 
 ## Decisión 1: detectar publicaciones entre procesos
 
-**Decision**: Antes de reutilizar un resultado, leer una revisión persistida calculada como la cantidad de turnos de `batch_turns` con `process = QUOTE_RECALCULATION`, `status` en `COMPLETED` o `PARTIAL` y `succeeded_count > 0`. Asociar esa revisión a cada entrada. El recálculo manual de la API y el worker programado usan `BatchExecutionService` y `QuoteRecalculationService.recalculateBatch`; este último guarda cotizaciones y finaliza el turno dentro de la misma transacción.
+**Decision**: Antes de reutilizar un resultado, leer la revisión de la fila única de `ranking_publication_revision` y asociarla a cada entrada. El recálculo manual de la API y el worker programado actualizan cotizaciones, turno y revisión dentro de la misma transacción.
 
-**Rationale**: El conteo aumenta una vez por publicación con al menos una cotización y se hace visible junto con las cotizaciones confirmadas. Funciona aunque el worker y la aplicación web tengan memorias distintas, sin tabla nueva ni sistema externo. Un recálculo fallido sin publicaciones no modifica la revisión.
+**Rationale**: El contador aumenta una vez por publicación con al menos una cotización y se hace visible junto con las cotizaciones confirmadas. Funciona aunque el worker y la aplicación web tengan memorias distintas y evita recorrer el historial de turnos en cada request. Un recálculo fallido sin publicaciones no modifica la revisión.
 
 **Alternatives considered**:
 
 - Invalidación local al terminar el recálculo: sirve para la API manual, pero no llega del worker a la memoria web.
 - Último `finished_at`: puede empatar por resolución de reloj y depende de la hora del proceso.
 - Último UUID de cotización: los UUID son aleatorios y no expresan orden de publicación.
-- `COUNT(*)` de `player_quotes`: detecta publicaciones, pero revisa una tabla mucho mayor que `batch_turns`.
+- Contar turnos en cada request: detecta publicaciones, pero el costo crece con el historial.
 - Notificaciones de PostgreSQL como única señal: perder una notificación durante un reinicio o desconexión permitiría reutilizar datos antiguos.
 
 **Boundary**: El método directo `QuoteRecalculationService.recalculate()` no crea turno, pero no tiene llamadores productivos actuales; el contrato de esta entrega cubre los flujos manual y programado existentes. Si se expone otro flujo de publicación, deberá participar de la misma señal o invalidar de forma equivalente antes de usar esta caché.
 
 ## Decisión 2: identidad y vigencia de cada entrada
 
-**Decision**: Usar una caché local del proceso web para respuestas completas `PlayerRankingResponse`. La clave se forma con `active.id`, `league`, `team`, `position`, `page` y `limit` ya validados; representar ausencias explícitamente y serializar la tupla para evitar colisiones. Conservar el texto `team` recortado según la validación existente; la coincidencia sin distinguir mayúsculas del repositorio permanece intacta aunque dos formas de escribir el mismo equipo ocupen entradas separadas. Cada entrada guarda respuesta, revisión y momento de generación. Se reutiliza solo si tiene menos de 60 segundos y coincide la revisión actual.
+**Decision**: Usar una caché local del proceso web para respuestas completas `PlayerRankingResponse`. La clave se forma con `active.id`, `league`, `team`, `position`, `page` y `limit` ya validados; representar ausencias explícitamente y serializar la tupla para evitar colisiones. Conservar el texto `team` recortado según la validación existente; la coincidencia sin distinguir mayúsculas del repositorio permanece intacta aunque dos formas de escribir el mismo equipo ocupen entradas separadas. Cada entrada guarda respuesta y revisión. Se reutiliza mientras coincida la revisión actual.
 
-**Rationale**: El servicio de ranking ya obtiene la versión activa y recibe criterios validados del controlador; la ruta autentica antes de llamar al controlador. La clave incluye todo lo que cambia el resultado. El plazo fijo desde la respuesta completa cumple el máximo de antigüedad sin renovarse por uso.
+**Rationale**: El servicio de ranking ya obtiene la versión activa y recibe criterios validados del controlador; la ruta autentica antes de llamar al controlador. La clave incluye todo lo que cambia el resultado. La revisión cambia junto con la publicación persistida, por lo que no se sirve una respuesta anterior a una publicación confirmada.
 
 **Alternatives considered**:
 
 - Clave basada en URL cruda: separa solicitudes equivalentes con valores por defecto implícitos y espacios normalizados.
 - Clave sin versión activa: podría devolver un ranking de una estrategia anterior.
 - Normalizar `team` a minúsculas en la clave: puede mejorar aciertos, pero no es necesario para la corrección y añade reglas distintas de la validación actual.
-- Deslizar el vencimiento con cada acierto: permitiría resultados con más de 60 segundos de antigüedad.
+- Invalidación local solamente: no alcanzaría a una aplicación web separada del worker.
 
 ## Decisión 3: capacidad y descarte
 
-**Decision**: Mantener como máximo 100 entradas. Eliminar entradas vencidas al consultarlas o antes de agregar nuevas; si se alcanza la capacidad, descartar la entrada con generación más antigua. Los aciertos no alteran el momento de generación ni la prioridad de descarte. Una entrada descartada recurre a la lectura persistida.
+**Decision**: Mantener como máximo 100 entradas. Si se alcanza la capacidad, descartar la entrada con generación más antigua. Los aciertos no alteran la prioridad de descarte. Una entrada descartada recurre a la lectura persistida.
 
 **Rationale**: La capacidad coincide con la aclaración aceptada y limita el uso de memoria frente a combinaciones arbitrarias de filtros y páginas. La antigüedad de generación ofrece un orden verificable y estable.
 

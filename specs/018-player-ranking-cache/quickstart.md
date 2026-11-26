@@ -33,21 +33,21 @@ La integración debe verificar autenticación y códigos actuales, filas y total
 1. Iniciar `npm run dev` y autenticar un usuario para obtener un JWT. Usar un cliente HTTP con `Authorization: Bearer <JWT>`.
 2. Consultar dos veces `GET http://localhost:3000/api/players/ranking?league=PREMIER_LEAGUE&page=1&limit=20`. Verificar igualdad de `strategyCode`, `strategyVersion`, `players` y `pagination`; el segundo acceso debe usar el resultado vigente.
 3. Cambiar `page`, `limit` o uno de los filtros y verificar el conjunto y los puestos correspondientes. Volver a la combinación original mientras siga vigente.
-4. Esperar más de 60 segundos sin publicaciones. La siguiente consulta debe reutilizar el resultado. Repetir tras reiniciar la aplicación web: la primera consulta del proceso nuevo debe leer datos persistidos.
+4. Sin publicar cambios, repetir la consulta y verificar que reutiliza el resultado mientras coincidan la versión activa y la revisión persistida. Repetir tras reiniciar la aplicación web: la primera consulta del proceso nuevo debe leer datos persistidos.
 5. Como superusuario, ejecutar el recálculo manual existente o dejar que el worker ejecute un turno programado. Si se publica al menos una cotización, consultar inmediatamente el ranking con la misma combinación anterior y contrastar valores, orden y puestos con los datos nuevos.
 6. Probar sin JWT, con `page=0`, con un parámetro desconocido y sin estrategia activa: deben permanecer `401`, `400` y `409` según corresponda. Simular una lectura fallida y repetirla después de restablecer la base: el error no debe quedar guardado.
 7. Ejecutar una sincronización de jugadores mediante el turno manual o programado; comprobar que la siguiente consulta refleja los datos confirmados.
 
 El mismo `x-correlation-id` de observación debe seguir presente en respuestas servidas con y sin resultado vigente. No debe aparecer un campo público que indique el origen de la respuesta.
 
-## Medición de rendimiento (SC-001)
+## Medición de rendimiento y SLA (SC-001)
 
-En el mismo entorno y con al menos 1000 jugadores rankeables, medir solo el tiempo de la consulta del ranking para 30 muestras sin entrada vigente y 30 muestras con entrada vigente de la misma combinación. Preparar una instancia de caché nueva para cada muestra fría fuera del tiempo medido; calentar la entrada una vez antes de medir cada muestra vigente. Mantener iguales datos, filtros, página, límite y entorno entre grupos. Registrar las dos medianas y calcular `(mediana_fría - mediana_vigente) / mediana_fría × 100`; debe ser al menos 25%. No contar preparación, reinicios ni creación de datos dentro de las muestras.
+En el mismo entorno y con al menos 1000 jugadores rankeables, medir 30 muestras frías y 30 vigentes de la misma combinación. Registrar mediana y p95 de cada grupo. El criterio de aceptación es una mejora de mediana de al menos 25%, p95 vigente <=200 ms y p95 frío <=1000 ms. La medición debe documentar que se ejecuta con 20 solicitudes concurrentes; no contar preparación, reinicios ni creación de datos dentro de las muestras.
 
 ## Evidencia esperada
 
 - Respuestas `200` iguales para la misma consulta y estado persistido, con y sin caché.
-- Resultado reutilizable después de 60 segundos sin publicaciones; invalidación tras publicar cotizaciones o jugadores.
+- Resultado reutilizable mientras no haya publicaciones nuevas; invalidación tras publicar cotizaciones o jugadores.
 - Capacidad máxima de 100 entradas; la consulta descartada vuelve a la lectura persistida.
 - Errores y respuestas incompletas ausentes de la caché.
 - Mediana de consultas vigentes al menos 25% menor que la mediana fría en la prueba controlada.
