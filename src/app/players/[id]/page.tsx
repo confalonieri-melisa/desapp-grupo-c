@@ -18,6 +18,7 @@ import {
 import { usePlayerProfile } from "@/frontend/features/profile/hooks/usePlayerProfile";
 import { usePlayerQuotes } from "@/frontend/features/profile/hooks/usePlayerQuotes";
 import { usePlayerTrading } from "@/frontend/features/profile/hooks/usePlayerTrading";
+import { useP2POffers } from "@/frontend/features/profile/hooks/useP2POffers";
 import styles from "./PlayerProfilePage.module.scss";
 
 export default function PlayerProfilePage() {
@@ -50,6 +51,8 @@ export default function PlayerProfilePage() {
     confirmedPlayer?.id ?? "",
     handleUnauthorized,
   );
+
+  const p2p=useP2POffers(confirmedPlayer?token:null,confirmedPlayer?.id??"",handleUnauthorized,trading.refreshPortfolio);
 
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
@@ -100,6 +103,8 @@ export default function PlayerProfilePage() {
               role={user?.role ?? ""}
               quotes={quotes}
               trading={trading}
+              p2p={p2p}
+              userId={user?.id??""}
             />
           </>
         )}

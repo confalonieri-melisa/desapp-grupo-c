@@ -28,3 +28,23 @@ it("preserves real API errors and status", async () => {
     message: "Expired",
   });
 });
+
+import { acceptP2POffer } from "@/frontend/services/client/p2p-offers.service";
+import { receipt } from "../features/profile/fixtures/p2p-ui";
+it("accepts a complete offer using a stable key and no body", async () => {
+  const f = vi.fn().mockResolvedValue(Response.json(receipt, { status: 201 }));
+  vi.stubGlobal("fetch", f);
+  expect(await acceptP2POffer("jwt", offer.id, "key")).toEqual(receipt);
+  expect(f).toHaveBeenCalledWith(
+    `/api/p2p/offers/${offer.id}/accept`,
+    expect.objectContaining({
+      method: "POST",
+      headers: { Authorization: "Bearer jwt", "Idempotency-Key": "key" },
+    }),
+  );
+  expect(f.mock.calls[0][1].body).toBeUndefined();
+});
+it("rejects an unverifiable 201", async () => {
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({}, { status: 201 })));
+  await expect(acceptP2POffer("jwt", offer.id, "key")).rejects.toMatchObject({ status: 201 });
+});

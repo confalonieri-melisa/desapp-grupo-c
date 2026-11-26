@@ -57,3 +57,46 @@ export async function getP2POffers(
     throw Object.assign(new Error("Respuesta de ofertas inv?lida"), { status });
   return body;
 }
+
+export interface P2PReceipt {
+  operation: {
+    id: string;
+    buyerId: string;
+    sellerId: string;
+    offerId: string;
+    playerId: string;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+    createdAt: string;
+  };
+  account: { creditBalance: number };
+  holding: { quantity: number; averagePurchasePrice: number };
+}
+export async function acceptP2POffer(token: string, id: string, key: string): Promise<P2PReceipt> {
+  const { status, body } = await p2pRequest(
+    token,
+    `/api/p2p/offers/${encodeURIComponent(id)}/accept`,
+    { method: "POST", headers: { "Idempotency-Key": key } },
+  );
+  const r = body as P2PReceipt | undefined;
+  const o = r?.operation;
+  if (
+    status !== 201 ||
+    !o ||
+    o.offerId !== id ||
+    ![o.id, o.buyerId, o.sellerId, o.playerId, o.createdAt].every(
+      (x) => typeof x === "string" && x.length > 0,
+    ) ||
+    ![
+      o.quantity,
+      o.unitPrice,
+      o.total,
+      r?.account?.creditBalance,
+      r?.holding?.quantity,
+      r?.holding?.averagePurchasePrice,
+    ].every(Number.isFinite)
+  )
+    throw Object.assign(new Error("Comprobante no verificable"), { status });
+  return r!;
+}

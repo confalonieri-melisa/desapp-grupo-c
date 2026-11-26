@@ -18,6 +18,7 @@ export default defineConfig({
     fileParallelism: false,
     include: [
       "tests/unit/**/*.spec.ts",
+      "tests/unit/**/*.spec.tsx",
       "tests/unit/**/*.test.ts",
       "tests/integration/**/*.spec.ts",
       "tests/integration/**/*.test.ts",

@@ -11,7 +11,14 @@ import PlayerPositionSummary from "./PlayerPositionSummary";
 import TradingOverview from "./TradingOverview";
 import styles from "./PlayerTradingSection.module.scss";
 
+import type { useP2POffers } from "../../hooks/useP2POffers";
+import P2POfferList from "./P2POfferList";
+import P2PConfirmationDialog from "./P2PConfirmationDialog";
+import P2PFeedback from "./P2PFeedback";
+
 export interface PlayerTradingSectionProps {
+  p2p?: ReturnType<typeof useP2POffers>;
+  userId?: string;
   playerId: string;
   playerName: string;
   role: string;
@@ -20,6 +27,8 @@ export interface PlayerTradingSectionProps {
 }
 
 export default function PlayerTradingSection({
+  p2p,
+  userId = "",
   playerId,
   playerName,
   role,
@@ -94,6 +103,18 @@ export default function PlayerTradingSection({
           onOperationTypeChange={setOperationType}
           triggerRef={triggerRef}
         />
+      )}
+      {p2p && (
+        <>
+          <P2POfferList
+            p2p={p2p}
+            userId={userId}
+            balance={snapshot?.creditBalance ?? null}
+            operable={role === "INVESTOR"}
+          />
+          <P2PFeedback p2p={p2p} />
+          {role === "INVESTOR" && <P2PConfirmationDialog p2p={p2p} playerName={playerName} />}
+        </>
       )}
       <PlayerOrderFeedback
         playerId={playerId}

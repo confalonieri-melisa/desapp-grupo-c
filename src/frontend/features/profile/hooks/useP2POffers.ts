@@ -1,5 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import { getP2POffers, type P2POffer } from "@/frontend/services/client/p2p-offers.service";
+import {
+  getP2POffers,
+  acceptP2POffer,
+  type P2PReceipt,
+  type P2POffer,
+} from "@/frontend/services/client/p2p-offers.service";
+import { canAccept, classifyP2PError } from "../utils/p2p-trading";
+export interface P2PConfirmation {
+  type: "accept";
+  offer: P2POffer;
+  key: string;
+}
+export interface P2PResult {
+  status: "idle" | "submitting" | "succeeded" | "rejected" | "uncertain";
+  receipt?: P2PReceipt;
+  error?: string;
+  portfolioFailed?: boolean;
+}
 type Status = "idle" | "loading" | "ready" | "empty" | "error" | "refreshing";
 interface State {
   scope: string;
@@ -7,13 +24,30 @@ interface State {
   status: Status;
   error: string | null;
 }
-export function useP2POffers(token: string | null, playerId: string, onUnauthorized: () => void) {
+export function useP2POffers(
+  token: string | null,
+  playerId: string,
+  onUnauthorized: () => void,
+  refreshPortfolio: () => Promise<boolean | undefined> = async () => true,
+) {
   const scope = JSON.stringify([token, playerId]);
   const [state, setState] = useState<State>({ scope: "", offers: [], status: "idle", error: null });
+  const [action, setAction] = useState<{
+    scope: string;
+    confirmation: P2PConfirmation | null;
+    result: P2PResult;
+  }>({ scope: "", confirmation: null, result: { status: "idle" } });
+  const busy = useRef(false);
+  const intent = useRef<{ scope: string; offer: P2POffer; key: string } | null>(null);
+  const latest = useRef({ userId: "", balance: null as number | null, current: false });
   const current = useRef(scope);
   const generation = useRef(0);
   const callback = useRef(onUnauthorized);
   useEffect(() => {
+    if (current.current !== scope) {
+      busy.current = false;
+      intent.current = null;
+    }
     current.current = scope;
     callback.current = onUnauthorized;
   });
@@ -37,6 +71,8 @@ export function useP2POffers(token: string | null, playerId: string, onUnauthori
       if (current.current !== scope || seq !== generation.current) return false;
       if ((error as { status?: number }).status === 401) {
         setState({ scope, offers: [], status: "idle", error: null });
+        setAction({ scope, confirmation: null, result: { status: "idle" } });
+        intent.current = null;
         callback.current();
       } else
         setState((old) => ({
@@ -54,5 +90,77 @@ export function useP2POffers(token: string | null, playerId: string, onUnauthori
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scope]);
-  return { ...visible, refresh };
+  const scoped: { confirmation: P2PConfirmation | null; result: P2PResult } =
+    action.scope === scope ? action : { confirmation: null, result: { status: "idle" as const } };
+  const openAccept = (
+    offer: P2POffer,
+    userId: string,
+    balance: number | null,
+    portfolioCurrent: boolean,
+  ) => {
+    latest.current = { userId, balance, current: portfolioCurrent };
+    if (
+      busy.current ||
+      visible.status !== "ready" ||
+      !visible.offers.some((o) => o.id === offer.id) ||
+      !canAccept(offer, userId, balance, portfolioCurrent)
+    )
+      return;
+    const value = { type: "accept" as const, offer, key: crypto.randomUUID() };
+    intent.current = { scope, ...value };
+    setAction({ scope, confirmation: value, result: { status: "idle" } });
+  };
+  const confirm = async () => {
+    const c = scoped.confirmation;
+    if (!token || !c || busy.current || current.current !== scope) return;
+    if (
+      !canAccept(c.offer, latest.current.userId, latest.current.balance, latest.current.current) ||
+      visible.status !== "ready"
+    )
+      return;
+    busy.current = true;
+    intent.current = { scope, ...c };
+    setAction({ scope, confirmation: null, result: { status: "submitting" } });
+    try {
+      const receipt = await acceptP2POffer(token, c.offer.id, c.key);
+      if (current.current !== scope) return;
+      setAction({ scope, confirmation: null, result: { status: "succeeded", receipt } });
+      void refresh();
+      const ok = await refreshPortfolio().catch(() => false);
+      if (current.current === scope)
+        setAction((old) => ({ ...old, result: { ...old.result, portfolioFailed: !ok } }));
+    } catch (error) {
+      if (current.current !== scope) return;
+      if ((error as { status?: number }).status === 401) {
+        generation.current++;
+        setState({ scope, offers: [], status: "idle", error: null });
+        setAction({ scope, confirmation: null, result: { status: "idle" } });
+        intent.current = null;
+        callback.current();
+        return;
+      }
+      setAction({ scope, confirmation: null, result: classifyP2PError(error) });
+    } finally {
+      if (current.current === scope) busy.current = false;
+    }
+  };
+  const retryAccept = () => {
+    const i = intent.current;
+    if (i?.scope === scope && scoped.result.status === "uncertain")
+      setAction({
+        scope,
+        confirmation: { type: "accept", offer: i.offer, key: i.key },
+        result: scoped.result,
+      });
+  };
+  return {
+    ...visible,
+    refresh,
+    confirmation: scoped.confirmation,
+    result: scoped.result,
+    openAccept,
+    confirm,
+    retryAccept,
+    cancelConfirmation: () => setAction((old) => ({ ...old, confirmation: null })),
+  };
 }

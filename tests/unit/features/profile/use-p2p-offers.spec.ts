@@ -1,9 +1,18 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import { createHookHarness, deferred, flushPromises } from "./hook-harness";
 import { offer, playerId } from "./fixtures/p2p-ui";
-const m = vi.hoisted(() => ({ state: vi.fn(), ref: vi.fn(), effect: vi.fn(), get: vi.fn() }));
+const m = vi.hoisted(() => ({
+  state: vi.fn(),
+  ref: vi.fn(),
+  effect: vi.fn(),
+  get: vi.fn(),
+  accept: vi.fn(),
+}));
 vi.mock("react", () => ({ useState: m.state, useRef: m.ref, useEffect: m.effect }));
-vi.mock("@/frontend/services/client/p2p-offers.service", () => ({ getP2POffers: m.get }));
+vi.mock("@/frontend/services/client/p2p-offers.service", () => ({
+  getP2POffers: m.get,
+  acceptP2POffer: m.accept,
+}));
 import { useP2POffers } from "@/frontend/features/profile/hooks/useP2POffers";
 beforeEach(() => vi.clearAllMocks());
 function setup() {
@@ -50,5 +59,52 @@ it("ignores late results after player change", async () => {
   late.resolve([offer]);
   await flushPromises();
   expect(h.render("jwt", "other").offers).toEqual([]);
+  h.cleanup();
+});
+
+import { investor, receipt } from "./fixtures/p2p-ui";
+it("confirms once, keeps receipt when refresh fails", async () => {
+  m.get.mockResolvedValueOnce([offer]).mockRejectedValue(new Error("Offline"));
+  m.accept.mockResolvedValue(receipt);
+  const h = setup();
+  await flushPromises();
+  h.render().openAccept(offer, investor.id, 100, true);
+  expect(m.accept).not.toHaveBeenCalled();
+  h.render().confirm();
+  h.render().confirm();
+  await flushPromises();
+  expect(m.accept).toHaveBeenCalledOnce();
+  expect(h.render().result.receipt).toEqual(receipt);
+  h.cleanup();
+});
+
+it.each([401, 403, 404, 409, 422, 500])(
+  "handles acceptance error %i without inventing receipt",
+  async (status) => {
+    m.get.mockResolvedValue([offer]);
+    m.accept.mockRejectedValue(Object.assign(new Error("Failure"), { status }));
+    const h = setup();
+    await flushPromises();
+    h.render().openAccept(offer, investor.id, 100, true);
+    await h.render().confirm();
+    expect(h.render().result.receipt).toBeUndefined();
+    if (status === 401) expect(h.unauthorized).toHaveBeenCalledOnce();
+    else expect(h.render().result.status).toBe(status < 500 ? "rejected" : "uncertain");
+    h.cleanup();
+  },
+);
+it("retains key for manual retry and uses a new one for new intent", async () => {
+  m.get.mockResolvedValue([offer]);
+  m.accept.mockRejectedValue(new Error("Offline"));
+  const h = setup();
+  await flushPromises();
+  h.render().openAccept(offer, investor.id, 100, true);
+  const key = h.render().confirmation!.key;
+  await h.render().confirm();
+  h.render().retryAccept();
+  expect(h.render().confirmation!.key).toBe(key);
+  h.render().cancelConfirmation();
+  h.render().openAccept(offer, investor.id, 100, true);
+  expect(h.render().confirmation!.key).not.toBe(key);
   h.cleanup();
 });

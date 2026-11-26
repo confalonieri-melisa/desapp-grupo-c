@@ -111,7 +111,7 @@ export function usePlayerTrading(
   const request = useRef<RequestSlot>({ generation: 0 });
   const identity = useRef({ token, playerId });
   const loadedIdentity = useRef({ token, playerId });
-  const latestLoad = useRef<() => Promise<void>>(async () => {});
+  const latestLoad = useRef<() => Promise<boolean | undefined>>(async () => false);
   const submission = useRef<{ token: string; sequence: number } | null>(null);
   const sequence = useRef(0);
   useEffect(() => {
@@ -192,6 +192,7 @@ export function usePlayerTrading(
         },
       });
       publishPortfolioUpdate({ token, status: "success", snapshot });
+      return true;
     } catch (error) {
       if (!valid()) return;
       if ((error as { status?: number })?.status === 401) {
@@ -215,6 +216,7 @@ export function usePlayerTrading(
         },
       });
       publishPortfolioUpdate({ token, status: "error", snapshot: null });
+      return false;
     }
   };
 
@@ -383,6 +385,7 @@ export function usePlayerTrading(
 
   return {
     portfolio: visible,
+    refreshPortfolio: load,
     retryPortfolio: () => {
       void load();
     },
