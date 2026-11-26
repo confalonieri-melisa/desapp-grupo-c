@@ -48,3 +48,11 @@ it("rejects an unverifiable 201", async () => {
   vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({}, { status: 201 })));
   await expect(acceptP2POffer("jwt", offer.id, "key")).rejects.toMatchObject({ status: 201 });
 });
+
+import { publishP2POffer } from "@/frontend/services/client/p2p-offers.service";
+it("publishes only player, quantity and fixed price", async () => {
+  const f = vi.fn().mockResolvedValue(Response.json(offer, { status: 201 }));
+  vi.stubGlobal("fetch", f);
+  expect(await publishP2POffer("jwt", { playerId, quantity: 2, unitPrice: 12.35 })).toEqual(offer);
+  expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ playerId, quantity: 2, unitPrice: 12.35 });
+});

@@ -37,13 +37,14 @@ export default function P2PConfirmationDialog({
     >
       {c && (
         <>
-          <h3 id={id}>Confirmar compra P2P</h3>
+          <h3 id={id}>Confirmar {c.type === "accept" ? "compra" : "publicaci?n"} P2P</h3>
           <p>
-            {playerName} ? Oferta {c.offer.id}
+            {playerName} {c.type === "accept" && `? Oferta ${c.offer.id}`}
           </p>
           <p>
-            {c.offer.quantity} tokens completos ? Precio fijo {formatCredits(c.offer.unitPrice)} ?
-            Total {formatCredits(offerTotal(c.offer))}
+            {(c.type === "accept" ? c.offer : c).quantity} tokens completos ? Precio fijo{" "}
+            {formatCredits((c.type === "accept" ? c.offer : c).unitPrice)} ? Total{" "}
+            {formatCredits(offerTotal(c.type === "accept" ? c.offer : c))}
           </p>
           <button ref={cancel} onClick={p2p.cancelConfirmation}>
             Volver

@@ -7,11 +7,13 @@ const m = vi.hoisted(() => ({
   effect: vi.fn(),
   get: vi.fn(),
   accept: vi.fn(),
+  publish: vi.fn(),
 }));
 vi.mock("react", () => ({ useState: m.state, useRef: m.ref, useEffect: m.effect }));
 vi.mock("@/frontend/services/client/p2p-offers.service", () => ({
   getP2POffers: m.get,
   acceptP2POffer: m.accept,
+  publishP2POffer: m.publish,
 }));
 import { useP2POffers } from "@/frontend/features/profile/hooks/useP2POffers";
 beforeEach(() => vi.clearAllMocks());
@@ -99,12 +101,32 @@ it("retains key for manual retry and uses a new one for new intent", async () =>
   const h = setup();
   await flushPromises();
   h.render().openAccept(offer, investor.id, 100, true);
-  const key = h.render().confirmation!.key;
+  const key = (h.render().confirmation as { key: string }).key;
   await h.render().confirm();
   h.render().retryAccept();
-  expect(h.render().confirmation!.key).toBe(key);
+  expect((h.render().confirmation as { key: string }).key).toBe(key);
   h.render().cancelConfirmation();
   h.render().openAccept(offer, investor.id, 100, true);
-  expect(h.render().confirmation!.key).not.toBe(key);
+  expect((h.render().confirmation as { key: string }).key).not.toBe(key);
+  h.cleanup();
+});
+
+it("keeps published offer locally when refresh fails and reconciles successful GET", async () => {
+  m.get.mockResolvedValueOnce([]).mockRejectedValue(new Error("Offline"));
+  m.publish.mockResolvedValue(offer);
+  const h = setup();
+  await flushPromises();
+  h.render().setDraft("2", "12.35");
+  h.render().openPublish(5);
+  h.render().cancelConfirmation();
+  expect(h.render().draft.quantity).toBe("2");
+  expect(m.publish).not.toHaveBeenCalled();
+  h.render().openPublish(5);
+  await h.render().confirm();
+  expect(h.render().offers).toEqual([offer]);
+  expect(h.render().result.published).toEqual(offer);
+  m.get.mockResolvedValue([]);
+  await h.render().refresh();
+  expect(h.render().offers).toEqual([]);
   h.cleanup();
 });

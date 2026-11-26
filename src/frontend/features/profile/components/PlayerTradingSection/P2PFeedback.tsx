@@ -4,6 +4,12 @@ export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffe
   const r = p2p.result;
   return (
     <div role="status">
+      {r.published && (
+        <p>
+          Oferta publicada. Abr? ?Comprar? para verla como oferta propia. Los tokens no se
+          reservaron.
+        </p>
+      )}
       {r.status === "submitting" && <p>Enviando operaci?n P2P?</p>}
       {r.status === "succeeded" && r.receipt && (
         <>

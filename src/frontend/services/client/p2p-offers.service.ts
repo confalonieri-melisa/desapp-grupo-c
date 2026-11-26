@@ -100,3 +100,21 @@ export async function acceptP2POffer(token: string, id: string, key: string): Pr
     throw Object.assign(new Error("Comprobante no verificable"), { status });
   return r!;
 }
+
+export async function publishP2POffer(
+  token: string,
+  input: { playerId: string; quantity: number; unitPrice: number },
+): Promise<P2POffer> {
+  const { status, body } = await p2pRequest(token, "/api/p2p/offers", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      playerId: input.playerId,
+      quantity: input.quantity,
+      unitPrice: input.unitPrice,
+    }),
+  });
+  if (status !== 201 || !isOffer(body) || body.playerId !== input.playerId)
+    throw Object.assign(new Error("Publicaci?n no verificable"), { status });
+  return body;
+}

@@ -2,18 +2,18 @@ import { useEffect, useRef, useState } from "react";
 import {
   getP2POffers,
   acceptP2POffer,
+  publishP2POffer,
   type P2PReceipt,
   type P2POffer,
 } from "@/frontend/services/client/p2p-offers.service";
-import { canAccept, classifyP2PError } from "../utils/p2p-trading";
-export interface P2PConfirmation {
-  type: "accept";
-  offer: P2POffer;
-  key: string;
-}
+import { canAccept, classifyP2PError, validatePublish } from "../utils/p2p-trading";
+export type P2PConfirmation =
+  | { type: "accept"; offer: P2POffer; key: string }
+  | { type: "publish"; quantity: number; unitPrice: number };
 export interface P2PResult {
   status: "idle" | "submitting" | "succeeded" | "rejected" | "uncertain";
   receipt?: P2PReceipt;
+  published?: P2POffer;
   error?: string;
   portfolioFailed?: boolean;
 }
@@ -37,6 +37,7 @@ export function useP2POffers(
     confirmation: P2PConfirmation | null;
     result: P2PResult;
   }>({ scope: "", confirmation: null, result: { status: "idle" } });
+  const [draft, setDraft] = useState({ scope: "", quantity: "", price: "" });
   const busy = useRef(false);
   const intent = useRef<{ scope: string; offer: P2POffer; key: string } | null>(null);
   const latest = useRef({ userId: "", balance: null as number | null, current: false });
@@ -72,6 +73,7 @@ export function useP2POffers(
       if ((error as { status?: number }).status === 401) {
         setState({ scope, offers: [], status: "idle", error: null });
         setAction({ scope, confirmation: null, result: { status: "idle" } });
+        setDraft({ scope, quantity: "", price: "" });
         intent.current = null;
         callback.current();
       } else
@@ -114,14 +116,31 @@ export function useP2POffers(
     const c = scoped.confirmation;
     if (!token || !c || busy.current || current.current !== scope) return;
     if (
-      !canAccept(c.offer, latest.current.userId, latest.current.balance, latest.current.current) ||
-      visible.status !== "ready"
+      c.type === "accept" &&
+      (!canAccept(c.offer, latest.current.userId, latest.current.balance, latest.current.current) ||
+        visible.status !== "ready")
     )
       return;
     busy.current = true;
-    intent.current = { scope, ...c };
+    if (c.type === "accept") intent.current = { scope, ...c };
     setAction({ scope, confirmation: null, result: { status: "submitting" } });
     try {
+      if (c.type === "publish") {
+        const published = await publishP2POffer(token, {
+          playerId,
+          quantity: c.quantity,
+          unitPrice: c.unitPrice,
+        });
+        if (current.current !== scope) return;
+        setAction({ scope, confirmation: null, result: { status: "succeeded", published } });
+        setDraft({ scope, quantity: "", price: "" });
+        setState((old) => ({
+          ...old,
+          offers: [...old.offers.filter((o) => o.id !== published.id), published],
+        }));
+        void refresh();
+        return;
+      }
       const receipt = await acceptP2POffer(token, c.offer.id, c.key);
       if (current.current !== scope) return;
       setAction({ scope, confirmation: null, result: { status: "succeeded", receipt } });
@@ -135,6 +154,7 @@ export function useP2POffers(
         generation.current++;
         setState({ scope, offers: [], status: "idle", error: null });
         setAction({ scope, confirmation: null, result: { status: "idle" } });
+        setDraft({ scope, quantity: "", price: "" });
         intent.current = null;
         callback.current();
         return;
@@ -155,6 +175,19 @@ export function useP2POffers(
   };
   return {
     ...visible,
+    draft: draft.scope === scope ? draft : { scope, quantity: "", price: "" },
+    setDraft: (quantity: string, price: string) => setDraft({ scope, quantity, price }),
+    openPublish: (holding: number | null) => {
+      if (busy.current) return;
+      const d = draft.scope === scope ? draft : { quantity: "", price: "" };
+      const v = validatePublish(d.quantity, d.price, holding);
+      if (!v.error)
+        setAction({
+          scope,
+          confirmation: { type: "publish", quantity: v.quantity, unitPrice: v.unitPrice },
+          result: { status: "idle" },
+        });
+    },
     refresh,
     confirmation: scoped.confirmation,
     result: scoped.result,

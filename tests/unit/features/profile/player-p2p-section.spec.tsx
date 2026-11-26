@@ -51,3 +51,17 @@ it("focuses cancel, handles Escape and returns focus without submitting", () => 
   expect(document.activeElement).toBe(trigger);
   trigger.remove();
 });
+
+import P2PPublishForm from "@/frontend/features/profile/components/PlayerTradingSection/P2PPublishForm";
+it("associates publish fields and errors and describes no reservation", () => {
+  const p2p = {
+    ...state(),
+    draft: { quantity: "2", price: "1.001" },
+    setDraft: vi.fn(),
+    openPublish: vi.fn(),
+  };
+  render(<P2PPublishForm p2p={p2p as unknown as ReturnType<typeof useP2POffers>} holding={5} />);
+  expect(screen.getByLabelText("Precio fijo por token").getAttribute("aria-invalid")).toBe("true");
+  expect((screen.getByText("Revisar publicaci?n") as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.getByText(/no se reservan/)).toBeTruthy();
+});

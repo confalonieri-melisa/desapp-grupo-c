@@ -12,3 +12,22 @@ it("requires current funds", () => {
   expect(canAccept(offer, investor.id, 24, true)).toBe(false);
   expect(canAccept(offer, investor.id, 100, false)).toBe(false);
 });
+
+import { validatePublish } from "@/frontend/features/profile/utils/p2p-trading";
+it.each([
+  ["0", "1"],
+  ["1.5", "1"],
+  ["2147483648", "1"],
+  ["1", "0"],
+  ["1", "1.001"],
+  ["1", "100000000"],
+  ["101", "99999999.99"],
+  ["oops", "2"],
+])("rejects invalid publication %s %s", (q, p) => {
+  expect(validatePublish(q, p, 2147483647).error).toBeTruthy();
+});
+it("accepts exact money boundary and checks current holding", () => {
+  expect(validatePublish("100", "99999999.99", 100).error).toBeNull();
+  expect(validatePublish("2", "1", 1).error).toBeTruthy();
+  expect(validatePublish("1", "1", null).error).toBeTruthy();
+});

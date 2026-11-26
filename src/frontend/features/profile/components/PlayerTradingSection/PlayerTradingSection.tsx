@@ -14,6 +14,7 @@ import styles from "./PlayerTradingSection.module.scss";
 import type { useP2POffers } from "../../hooks/useP2POffers";
 import P2POfferList from "./P2POfferList";
 import P2PConfirmationDialog from "./P2PConfirmationDialog";
+import P2PPublishForm from "./P2PPublishForm";
 import P2PFeedback from "./P2PFeedback";
 
 export interface PlayerTradingSectionProps {
@@ -40,6 +41,7 @@ export default function PlayerTradingSection({
     portfolio.status === "success" || portfolio.status === "empty" ? portfolio.snapshot : null;
   const selected = snapshot ? selectPlayerPosition(snapshot, playerId) : null;
   const quoteValue = quotes.current?.quoteValue;
+  const [view, setView] = useState("buy");
   const [operationType, setOperationType] = useState<"BUY" | "SELL">("BUY");
   const dialogRef = useRef<HTMLDialogElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
@@ -91,6 +93,16 @@ export default function PlayerTradingSection({
         <PlayerPositionSummary playerName={playerName} selected={selected} />
       )}
       {role === "INVESTOR" && (
+        <nav aria-label="Operaci?n">
+          <button aria-pressed={view === "buy"} onClick={() => setView("buy")}>
+            Comprar
+          </button>
+          <button aria-pressed={view === "sell"} onClick={() => setView("sell")}>
+            Vender (P2P)
+          </button>
+        </nav>
+      )}
+      {role === "INVESTOR" && view === "buy" && (
         <PlayerOrderForm
           playerName={playerName}
           inputId={inputId}
@@ -106,12 +118,17 @@ export default function PlayerTradingSection({
       )}
       {p2p && (
         <>
-          <P2POfferList
-            p2p={p2p}
-            userId={userId}
-            balance={snapshot?.creditBalance ?? null}
-            operable={role === "INVESTOR"}
-          />
+          {view === "buy" && (
+            <P2POfferList
+              p2p={p2p}
+              userId={userId}
+              balance={snapshot?.creditBalance ?? null}
+              operable={role === "INVESTOR"}
+            />
+          )}
+          {view === "sell" && role === "INVESTOR" && (
+            <P2PPublishForm p2p={p2p} holding={selected?.quantity ?? null} />
+          )}
           <P2PFeedback p2p={p2p} />
           {role === "INVESTOR" && <P2PConfirmationDialog p2p={p2p} playerName={playerName} />}
         </>
