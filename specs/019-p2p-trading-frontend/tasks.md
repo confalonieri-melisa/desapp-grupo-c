@@ -22,10 +22,10 @@
 
 **Purpose**: Proveer una lectura única de ofertas abiertas y un estado aislado por sesión y jugador para todas las historias.
 
-- [ ] T002 [P] Escribir pruebas de GET /api/p2p/offers?playerId en tests/unit/services/client.p2p-offers.service.spec.ts: Bearer JWT, filtro del jugador, arreglo OPEN, respuesta malformada, 401 y error real en el campo error.
-- [ ] T003 [P] Escribir pruebas de carga inicial, lista vacía, error con reintento, refresco explícito, ausencia de polling y descarte de respuestas tardías al cambiar token o playerId en tests/unit/features/profile/use-p2p-offers.spec.ts; un 401 del GET debe invocar onUnauthorized y limpiar lista, borrador, confirmación y datos protegidos.
-- [ ] T004 Implementar DTO de oferta y lectura tipada de GET /api/p2p/offers?playerId en src/frontend/services/client/p2p-offers.service.ts; preservar status y error de la respuesta, sin esperar nombres públicos ni ofertas cerradas. Depende de T002.
-- [ ] T005 Implementar estado de lista compartida idle/loading/ready/empty/error/refreshing en src/frontend/features/profile/hooks/useP2POffers.ts; aislar por token y playerId, cancelar o ignorar lecturas obsoletas, no habilitar una oferta anterior como vigente durante refreshing y, ante 401 del GET, invocar onUnauthorized y retirar estado protegido. Depende de T003 y T004.
+- [X] T002 [P] Escribir pruebas de GET /api/p2p/offers?playerId en tests/unit/services/client.p2p-offers.service.spec.ts: Bearer JWT, filtro del jugador, arreglo OPEN, respuesta malformada, 401 y error real en el campo error.
+- [X] T003 [P] Escribir pruebas de carga inicial, lista vacía, error con reintento, refresco explícito, ausencia de polling y descarte de respuestas tardías al cambiar token o playerId en tests/unit/features/profile/use-p2p-offers.spec.ts; un 401 del GET debe invocar onUnauthorized y limpiar lista, borrador, confirmación y datos protegidos.
+- [X] T004 Implementar DTO de oferta y lectura tipada de GET /api/p2p/offers?playerId en src/frontend/services/client/p2p-offers.service.ts; preservar status y error de la respuesta, sin esperar nombres públicos ni ofertas cerradas. Depende de T002.
+- [X] T005 Implementar estado de lista compartida idle/loading/ready/empty/error/refreshing en src/frontend/features/profile/hooks/useP2POffers.ts; aislar por token y playerId, cancelar o ignorar lecturas obsoletas, no habilitar una oferta anterior como vigente durante refreshing y, ante 401 del GET, invocar onUnauthorized y retirar estado protegido. Depende de T003 y T004.
 
 **Checkpoint**: Una sola lectura alimenta el listado mixto de «Comprar»; un usuario o jugador nuevo nunca recibe ofertas del contexto anterior.
 
