@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, sql } from "drizzle-orm";
 import { db, databaseForReservedConnection, postgresClient, type Database } from "@/backend/db";
-import { batchTurns } from "@/backend/db/schema";
+import { batchTurns, rankingPublicationRevision } from "@/backend/db/schema";
 import type {
   BatchCounts,
   BatchOccurrence,
@@ -11,10 +11,21 @@ import type {
 
 export type BatchTurnRow = typeof batchTurns.$inferSelect;
 type BatchWriter = Pick<Database, "update">;
-const GLOBAL_LOCK = [83117, 1] as const;
+const RANKING_PUBLICATION_REVISION_ROW_ID = 1;
+const GLOBAL_LOCK_CLASS = 83117;
+const GLOBAL_LOCK_ID = 1;
 
 export class BatchJobRepository {
   constructor(private readonly database: Database = db) {}
+
+  async getRankingPublicationRevision(): Promise<number> {
+    const rows = await this.database
+      .select({ revision: rankingPublicationRevision.revision })
+      .from(rankingPublicationRevision)
+      .where(eq(rankingPublicationRevision.id, RANKING_PUBLICATION_REVISION_ROW_ID));
+    if (!rows[0]) throw new Error("Ranking publication revision is missing");
+    return rows[0].revision;
+  }
 
   async withLock<T>(
     action: (session: Database) => Promise<T>,
@@ -24,14 +35,14 @@ export class BatchJobRepository {
     try {
       const rows = await connection<
         { locked: boolean }[]
-      >`select pg_try_advisory_lock(${GLOBAL_LOCK[0]}, ${GLOBAL_LOCK[1]}) as locked`;
+      >`select pg_try_advisory_lock(${GLOBAL_LOCK_CLASS}, ${GLOBAL_LOCK_ID}) as locked`;
       acquired = rows[0]?.locked === true;
       if (!acquired) return { acquired: false };
       return { acquired: true, value: await action(databaseForReservedConnection(connection)) };
     } finally {
       try {
         if (acquired)
-          await connection`select pg_advisory_unlock(${GLOBAL_LOCK[0]}, ${GLOBAL_LOCK[1]})`;
+          await connection`select pg_advisory_unlock(${GLOBAL_LOCK_CLASS}, ${GLOBAL_LOCK_ID})`;
       } finally {
         connection.release();
       }
@@ -108,9 +119,14 @@ export class BatchJobRepository {
     status: "COMPLETED" | "PARTIAL" | "FAILED",
     counts: BatchCounts,
     reasonCode?: string,
-    writer: BatchWriter = this.database,
+    writer?: BatchWriter,
   ): Promise<void> {
-    await writer
+    if (!writer && status !== "FAILED" && counts.succeeded > 0) {
+      await this.database.transaction((tx) => this.finishTurn(id, status, counts, reasonCode, tx));
+      return;
+    }
+    const executor = writer ?? this.database;
+    const finished = await executor
       .update(batchTurns)
       .set({
         status,
@@ -120,7 +136,26 @@ export class BatchJobRepository {
         rejectedCount: counts.rejected,
         reasonCode,
       })
-      .where(and(eq(batchTurns.id, id), eq(batchTurns.status, "RUNNING")));
+      .where(and(eq(batchTurns.id, id), eq(batchTurns.status, "RUNNING")))
+      .returning({ id: batchTurns.id });
+    if (finished.length > 0 && this.shouldAdvanceRankingRevision(status, counts))
+      await this.advanceRankingPublicationRevision(executor);
+  }
+
+  private shouldAdvanceRankingRevision(
+    status: "COMPLETED" | "PARTIAL" | "FAILED",
+    counts: BatchCounts,
+  ): boolean {
+    return status !== "FAILED" && counts.succeeded > 0;
+  }
+
+  private async advanceRankingPublicationRevision(writer: BatchWriter): Promise<void> {
+    const updated = await writer
+      .update(rankingPublicationRevision)
+      .set({ revision: sql`${rankingPublicationRevision.revision} + 1` })
+      .where(eq(rankingPublicationRevision.id, RANKING_PUBLICATION_REVISION_ROW_ID))
+      .returning({ id: rankingPublicationRevision.id });
+    if (updated.length === 0) throw new Error("Ranking publication revision is missing");
   }
 
   async rejectManualTurn(id: string): Promise<void> {

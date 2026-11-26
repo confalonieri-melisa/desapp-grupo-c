@@ -22,7 +22,8 @@ describe("PlayerRankingRepository", () => {
       .fn()
       .mockResolvedValueOnce([databaseRow])
       .mockResolvedValueOnce([{ total: "3" }]);
-    const repository = new PlayerRankingRepository({ execute } as unknown as Database);
+    const transaction = vi.fn((run) => run({ execute }));
+    const repository = new PlayerRankingRepository({ transaction } as unknown as Database);
 
     await expect(
       repository.findRankedPlayers("version-1", {
@@ -51,6 +52,10 @@ describe("PlayerRankingRepository", () => {
       limit: 10,
     });
     expect(execute).toHaveBeenCalledTimes(2);
+    expect(transaction).toHaveBeenCalledWith(expect.any(Function), {
+      isolationLevel: "repeatable read",
+      accessMode: "read only",
+    });
   });
 
   it("builds the ranking query with the active version, filters and page offset", async () => {
@@ -58,7 +63,9 @@ describe("PlayerRankingRepository", () => {
       .fn()
       .mockResolvedValueOnce([])
       .mockResolvedValueOnce([{ total: 0 }]);
-    const repository = new PlayerRankingRepository({ execute } as unknown as Database);
+    const repository = new PlayerRankingRepository({
+      transaction: (run: (tx: { execute: typeof execute }) => unknown) => run({ execute }),
+    } as unknown as Database);
 
     await repository.findRankedPlayers("version-1", {
       league: League.PREMIER_LEAGUE,
@@ -93,10 +100,34 @@ describe("PlayerRankingRepository", () => {
 
   it("returns an empty result when the count query has no row", async () => {
     const execute = vi.fn().mockResolvedValueOnce([]).mockResolvedValueOnce([]);
-    const repository = new PlayerRankingRepository({ execute } as unknown as Database);
+    const repository = new PlayerRankingRepository({
+      transaction: (run: (tx: { execute: typeof execute }) => unknown) => run({ execute }),
+    } as unknown as Database);
 
     await expect(
       repository.findRankedPlayers("version-1", { page: 1, limit: 20 }),
     ).resolves.toMatchObject({ rows: [], total: 0 });
   });
+
+  it.each(["rows", "total"] as const)(
+    "propagates a %s failure and retries both queries next time",
+    async (failingQuery) => {
+      const execute = vi.fn();
+      if (failingQuery === "rows") {
+        execute.mockRejectedValueOnce(new Error("rows unavailable"));
+      } else {
+        execute.mockResolvedValueOnce([databaseRow]);
+        execute.mockRejectedValueOnce(new Error("total unavailable"));
+      }
+      execute.mockResolvedValueOnce([databaseRow]).mockResolvedValueOnce([{ total: 1 }]);
+      const transaction = vi.fn((run) => run({ execute }));
+      const repository = new PlayerRankingRepository({ transaction } as unknown as Database);
+      await expect(repository.findRankedPlayers("v", { page: 1, limit: 20 })).rejects.toThrow(
+        "unavailable",
+      );
+      const result = await repository.findRankedPlayers("v", { page: 1, limit: 20 });
+      expect(result.total).toBe(1);
+      expect(result.rows).toHaveLength(1);
+    },
+  );
 });

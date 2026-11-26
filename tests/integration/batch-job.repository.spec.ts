@@ -1,18 +1,25 @@
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 import { eq } from "drizzle-orm";
 import { closeDatabase, db } from "@/backend/db";
-import { batchTurns, players } from "@/backend/db/schema";
+import { batchTurns, playerQuotes, players, valuationStrategyVersions } from "@/backend/db/schema";
 import { League, Position } from "@/backend/models/enums";
 import { Player } from "@/backend/models/Player";
 import { BatchJobRepository } from "@/backend/repositories/batch-job.repository";
 import { PlayerRepository } from "@/backend/repositories/player.repository";
 
 const repository = new BatchJobRepository();
+const revisionPlayerId = "00000000-0000-4000-8000-000000000821";
+const revisionVersionId = "00000000-0000-4000-8000-000000000822";
 
 describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch repository", () => {
   afterEach(async () => {
+    await db.delete(playerQuotes).where(eq(playerQuotes.playerId, revisionPlayerId));
     await db.delete(batchTurns);
     await db.delete(players).where(eq(players.externalId, "rollback-player"));
+    await db
+      .delete(valuationStrategyVersions)
+      .where(eq(valuationStrategyVersions.id, revisionVersionId));
+    await db.delete(players).where(eq(players.id, revisionPlayerId));
   });
   afterAll(closeDatabase);
 
@@ -39,6 +46,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
   });
 
   it("rolls back a player write and the run result together", async () => {
+    const beforeRevision = await repository.getRankingPublicationRevision();
     const turn = await repository.createManualTurn("PLAYER_SYNC", "MANUAL_CLI");
     await repository.withLock(async (session) => {
       const batch = new BatchJobRepository(session);
@@ -74,6 +82,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
       await db.select().from(players).where(eq(players.externalId, "rollback-player")),
     ).toHaveLength(0);
     expect((await repository.turnById(turn.id))?.status).toBe("RUNNING");
+    expect(await repository.getRankingPublicationRevision()).toBe(beforeRevision);
   });
 
   it("marks abandoned running turns as failed after taking the lock", async () => {
@@ -86,5 +95,106 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("basic batch re
       status: "FAILED",
       reasonCode: "INTERRUPTED",
     });
+  });
+
+  it("increments the stored revision only for confirmed quote and player sync turns", async () => {
+    const before = await repository.getRankingPublicationRevision();
+    const cases = [
+      { process: "QUOTE_RECALCULATION", status: "COMPLETED", succeededCount: 2, increment: 1 },
+      { process: "QUOTE_RECALCULATION", status: "PARTIAL", succeededCount: 1, increment: 1 },
+      { process: "QUOTE_RECALCULATION", status: "FAILED", succeededCount: 1, increment: 0 },
+      { process: "QUOTE_RECALCULATION", status: "COMPLETED", succeededCount: 0, increment: 0 },
+      { process: "PLAYER_SYNC", status: "COMPLETED", succeededCount: 1, increment: 1 },
+      { process: "PLAYER_SYNC", status: "FAILED", succeededCount: 1, increment: 0 },
+      { process: "PLAYER_SYNC", status: "COMPLETED", succeededCount: 0, increment: 0 },
+    ];
+    let expected = before;
+    for (const [index, item] of cases.entries()) {
+      const turn = await repository.createManualTurn(
+        item.process as "QUOTE_RECALCULATION" | "PLAYER_SYNC",
+        "MANUAL_CLI",
+        `ranking-revision-${index}`,
+      );
+      await repository.setTurnRunning(turn.id);
+      await db.transaction(async (tx) =>
+        repository.finishTurn(
+          turn.id,
+          item.status as "COMPLETED" | "PARTIAL" | "FAILED",
+          { processed: item.succeededCount, succeeded: item.succeededCount, rejected: 0 },
+          undefined,
+          tx,
+        ),
+      );
+      expected += item.increment;
+      expect(await repository.getRankingPublicationRevision()).toBe(expected);
+      await repository.finishTurn(turn.id, "COMPLETED", {
+        processed: 1,
+        succeeded: 1,
+        rejected: 0,
+      });
+      expect(await repository.getRankingPublicationRevision()).toBe(expected);
+    }
+  });
+
+  it("exposes a finished turn only after its transaction commits", async () => {
+    await db.insert(players).values({
+      id: revisionPlayerId,
+      source: "RANKING_CACHE_TEST",
+      externalId: "revision-player",
+      name: "Revision Player",
+      team: "Example FC",
+      league: League.PREMIER_LEAGUE,
+      position: Position.FORWARD,
+      statistics: {},
+    });
+    await db.insert(valuationStrategyVersions).values({
+      id: revisionVersionId,
+      strategyCode: "INDIVIDUAL_PERFORMANCE",
+      version: "ranking-revision-test",
+      configuration: {},
+      isActive: 0,
+    });
+    const turn = await repository.createManualTurn("QUOTE_RECALCULATION", "MANUAL_CLI");
+    await repository.setTurnRunning(turn.id);
+    let release!: () => void;
+    let ready!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const inserted = new Promise<void>((resolve) => {
+      ready = resolve;
+    });
+    const before = await repository.getRankingPublicationRevision();
+    const transaction = db.transaction(async (tx) => {
+      await tx.insert(playerQuotes).values({
+        playerId: revisionPlayerId,
+        strategyVersionId: revisionVersionId,
+        individualScore: "0.900000",
+        finalScore: "0.900000",
+        quoteValue: "90.00",
+        explanation: {},
+        turnId: turn.id,
+      });
+      await new BatchJobRepository(tx as never).finishTurn(
+        turn.id,
+        "COMPLETED",
+        { processed: 1, succeeded: 1, rejected: 0 },
+        undefined,
+        tx,
+      );
+      ready();
+      await held;
+    });
+    await inserted;
+    expect(await repository.getRankingPublicationRevision()).toBe(before);
+    expect(
+      await db.select().from(playerQuotes).where(eq(playerQuotes.playerId, revisionPlayerId)),
+    ).toHaveLength(0);
+    release();
+    await transaction;
+    expect(await repository.getRankingPublicationRevision()).toBe(before + 1);
+    expect(
+      await db.select().from(playerQuotes).where(eq(playerQuotes.playerId, revisionPlayerId)),
+    ).toHaveLength(1);
   });
 });

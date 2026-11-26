@@ -32,4 +32,11 @@ describe("PlayerRankingController", () => {
     await expect(controller.getRanking({ page: "0" })).rejects.toThrow();
     expect(getRanking).not.toHaveBeenCalled();
   });
+
+  it("passes explicit defaults and the maximum page size after validation", async () => {
+    const getRanking = vi.fn().mockResolvedValue({ players: [] });
+    const controller = new PlayerRankingController({ getRanking } as never);
+    await controller.getRanking({ team: " Example ", page: "1", limit: "100" });
+    expect(getRanking).toHaveBeenCalledWith({ team: "Example", page: 1, limit: 100 });
+  });
 });
