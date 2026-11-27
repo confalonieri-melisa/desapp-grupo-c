@@ -22,12 +22,14 @@ export class P2POfferService {
   async publishOffer(auth: AuthTokenPayload, input: CreateP2POfferRequest): Promise<P2POffer> {
     await this.ensureSellerCanPublishOffer(auth.sub, input.playerId, input.quantity);
 
-    return this.offerRepository.publishOffer(
-      new P2POffer({ ...input, sellerId: auth.sub }),
-    );
+    return this.offerRepository.publishOffer(new P2POffer({ ...input, sellerId: auth.sub }));
   }
 
-  private async ensureSellerCanPublishOffer(sellerId: string, playerId: string, quantity: number): Promise<void> {
+  private async ensureSellerCanPublishOffer(
+    sellerId: string,
+    playerId: string,
+    quantity: number,
+  ): Promise<void> {
     const [seller, player] = await Promise.all([
       this.userRepository.findById(sellerId),
       this.playerRepository.findById(playerId),
@@ -42,7 +44,11 @@ export class P2POfferService {
     await this.ensureSellerHasTokensToOffer(sellerId, playerId, quantity);
   }
 
-  private async ensureSellerHasTokensToOffer(sellerId: string, playerId: string, quantity: number): Promise<void> {
+  private async ensureSellerHasTokensToOffer(
+    sellerId: string,
+    playerId: string,
+    quantity: number,
+  ): Promise<void> {
     const positions = await this.portfolioRepository.findPositionsByUserId(sellerId);
     const holding = positions.find((position) => position.playerId === playerId);
 
@@ -51,7 +57,7 @@ export class P2POfferService {
     }
   }
 
-  findAvailableOffers(query: P2POfferQuery): Promise<P2POffer[]> {
+  findAvailableOffers(query: P2POfferQuery): Promise<{ offer: P2POffer; sellerName: string }[]> {
     return this.offerRepository.findAvailableOffers(query.playerId);
   }
 
@@ -70,7 +76,11 @@ export class P2POfferService {
     });
   }
 
-  private async ensureSellerCanCancelOffer(transaction: MarketExecutor, sellerId: string, offerId: string): Promise<P2POffer> {
+  private async ensureSellerCanCancelOffer(
+    transaction: MarketExecutor,
+    sellerId: string,
+    offerId: string,
+  ): Promise<P2POffer> {
     const offer = await this.offerRepository.findOwnedOffer(offerId, sellerId, transaction);
 
     if (!offer) {

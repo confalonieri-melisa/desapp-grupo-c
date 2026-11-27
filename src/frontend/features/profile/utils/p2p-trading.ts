@@ -1,7 +1,7 @@
 import type { P2POffer } from "@/frontend/services/client/p2p-offers.service";
 export const offerTotal = (o: Pick<P2POffer, "quantity" | "unitPrice">) =>
   Math.round(o.quantity * Math.round(o.unitPrice * 100)) / 100;
-export const sellerLabel = (o: P2POffer) => `Vendedor ${o.sellerId.slice(0, 8)}...`;
+export const sellerLabel = (o: P2POffer) => o.sellerName?.trim() || "Vendedor";
 export const canAccept = (o: P2POffer, userId: string, balance: number | null, current: boolean) =>
   current &&
   o.sellerId !== userId &&

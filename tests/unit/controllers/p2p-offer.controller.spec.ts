@@ -14,7 +14,7 @@ describe("P2POfferController", () => {
     };
     const offerService = {
       publishOffer: vi.fn().mockResolvedValue(offer),
-      findAvailableOffers: vi.fn().mockResolvedValue([offer]),
+      findAvailableOffers: vi.fn().mockResolvedValue([{ offer, sellerName: "Seller" }]),
       cancelOffer: vi.fn().mockResolvedValue(undefined),
     };
     const tradeService = {
@@ -23,14 +23,25 @@ describe("P2POfferController", () => {
     const controller = new P2POfferController(offerService as never, tradeService as never);
     const auth = { sub: "buyer-id", email: "buyer@test.local", role: "INVESTOR" };
 
-    await expect(controller.publishOffer(auth, { playerId: "player-id", quantity: 2, unitPrice: 10 })).resolves.toMatchObject({ id: "offer-id" });
-    await expect(controller.findAvailableOffers({})).resolves.toHaveLength(1);
-    await expect(controller.completeOffer(auth, "offer-id", "trade-key", "correlation-id")).resolves.toEqual({ operation: { id: "operation-id" } });
+    await expect(
+      controller.publishOffer(auth, { playerId: "player-id", quantity: 2, unitPrice: 10 }),
+    ).resolves.toMatchObject({ id: "offer-id" });
+    await expect(controller.findAvailableOffers({})).resolves.toEqual([
+      expect.objectContaining({ id: "offer-id", sellerName: "Seller" }),
+    ]);
+    await expect(
+      controller.completeOffer(auth, "offer-id", "trade-key", "correlation-id"),
+    ).resolves.toEqual({ operation: { id: "operation-id" } });
     await expect(controller.cancelOffer(auth, "offer-id")).resolves.toBeUndefined();
 
     expect(offerService.publishOffer).toHaveBeenCalled();
     expect(offerService.findAvailableOffers).toHaveBeenCalledWith({});
-    expect(tradeService.completeOffer).toHaveBeenCalledWith(auth, "offer-id", "trade-key", "correlation-id");
+    expect(tradeService.completeOffer).toHaveBeenCalledWith(
+      auth,
+      "offer-id",
+      "trade-key",
+      "correlation-id",
+    );
     expect(offerService.cancelOffer).toHaveBeenCalledWith(auth, "offer-id");
   });
 });

@@ -32,16 +32,27 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
         .where(eq(marketOperations.offerId, offerId));
       if (operations.length) {
         await db.delete(financialAuditRecords).where(
-          inArray(financialAuditRecords.operationId, operations.map((operation) => operation.id)),
+          inArray(
+            financialAuditRecords.operationId,
+            operations.map((operation) => operation.id),
+          ),
         );
         await db.delete(marketOperations).where(
-          inArray(marketOperations.id, operations.map((operation) => operation.id)),
+          inArray(
+            marketOperations.id,
+            operations.map((operation) => operation.id),
+          ),
         );
       }
       await db.delete(p2pOffers).where(eq(p2pOffers.id, offerId));
-      await db.delete(tokenHoldings).where(
-        and(eq(tokenHoldings.playerId, playerId), inArray(tokenHoldings.userId, [sellerId, buyerOneId, buyerTwoId])),
-      );
+      await db
+        .delete(tokenHoldings)
+        .where(
+          and(
+            eq(tokenHoldings.playerId, playerId),
+            inArray(tokenHoldings.userId, [sellerId, buyerOneId, buyerTwoId]),
+          ),
+        );
       await db.delete(players).where(eq(players.id, playerId));
       await db.delete(users).where(inArray(users.id, [sellerId, buyerOneId, buyerTwoId]));
     });
@@ -52,9 +63,30 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
 
     async function seed() {
       await db.insert(users).values([
-        { id: sellerId, email: `${sellerId}@test.local`, password: "secret", name: "Seller", role: UserRole.INVESTOR, creditBalance: "100.00" },
-        { id: buyerOneId, email: `${buyerOneId}@test.local`, password: "secret", name: "Buyer One", role: UserRole.INVESTOR, creditBalance: "100.00" },
-        { id: buyerTwoId, email: `${buyerTwoId}@test.local`, password: "secret", name: "Buyer Two", role: UserRole.INVESTOR, creditBalance: "100.00" },
+        {
+          id: sellerId,
+          email: `${sellerId}@test.local`,
+          password: "secret",
+          name: "Seller",
+          role: UserRole.INVESTOR,
+          creditBalance: "100.00",
+        },
+        {
+          id: buyerOneId,
+          email: `${buyerOneId}@test.local`,
+          password: "secret",
+          name: "Buyer One",
+          role: UserRole.INVESTOR,
+          creditBalance: "100.00",
+        },
+        {
+          id: buyerTwoId,
+          email: `${buyerTwoId}@test.local`,
+          password: "secret",
+          name: "Buyer Two",
+          role: UserRole.INVESTOR,
+          creditBalance: "100.00",
+        },
       ]);
       await db.insert(players).values({
         id: playerId,
@@ -83,6 +115,17 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       });
     }
 
+    it("lists open offers with the seller name", async () => {
+      await seed();
+      const offers = await new P2POfferRepository().findAvailableOffers(playerId);
+      expect(offers).toEqual([
+        expect.objectContaining({
+          sellerName: "Seller",
+          offer: expect.objectContaining({ id: offerId, sellerId }),
+        }),
+      ]);
+    });
+
     it("allows only one concurrent buyer to consume an offer", async () => {
       await seed();
       const service = new P2PTradeService();
@@ -101,14 +144,16 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
         db.select().from(marketOperations).where(eq(marketOperations.offerId, offerId)),
       ).resolves.toHaveLength(1);
       await expect(
-        db.select({ quantity: tokenHoldings.quantity }).from(tokenHoldings).where(
-          and(eq(tokenHoldings.userId, sellerId), eq(tokenHoldings.playerId, playerId)),
-        ),
+        db
+          .select({ quantity: tokenHoldings.quantity })
+          .from(tokenHoldings)
+          .where(and(eq(tokenHoldings.userId, sellerId), eq(tokenHoldings.playerId, playerId))),
       ).resolves.toMatchObject([{ quantity: 3 }]);
       await expect(
-        db.select({ quantity: tokenHoldings.quantity }).from(tokenHoldings).where(
-          and(eq(tokenHoldings.userId, buyerOneId), eq(tokenHoldings.playerId, playerId)),
-        ),
+        db
+          .select({ quantity: tokenHoldings.quantity })
+          .from(tokenHoldings)
+          .where(and(eq(tokenHoldings.userId, buyerOneId), eq(tokenHoldings.playerId, playerId))),
       ).resolves.toMatchObject([{ quantity: 2 }]);
     });
 
@@ -133,10 +178,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
       vi.spyOn(marketRepository, "recordFinancialTransition").mockRejectedValue(
         new Error("audit persistence failed"),
       );
-      const service = new P2PTradeService(
-        marketRepository,
-        new P2POfferRepository(),
-      );
+      const service = new P2PTradeService(marketRepository, new P2POfferRepository());
 
       await expect(
         service.completeOffer(auth(buyerOneId), offerId, "rollback-key"),
@@ -149,12 +191,16 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
         db.select().from(marketOperations).where(eq(marketOperations.offerId, offerId)),
       ).resolves.toHaveLength(0);
       await expect(
-        db.select({ quantity: tokenHoldings.quantity }).from(tokenHoldings).where(
-          and(eq(tokenHoldings.userId, sellerId), eq(tokenHoldings.playerId, playerId)),
-        ),
+        db
+          .select({ quantity: tokenHoldings.quantity })
+          .from(tokenHoldings)
+          .where(and(eq(tokenHoldings.userId, sellerId), eq(tokenHoldings.playerId, playerId))),
       ).resolves.toMatchObject([{ quantity: 5 }]);
       await expect(
-        db.select({ creditBalance: users.creditBalance }).from(users).where(eq(users.id, buyerOneId)),
+        db
+          .select({ creditBalance: users.creditBalance })
+          .from(users)
+          .where(eq(users.id, buyerOneId)),
       ).resolves.toMatchObject([{ creditBalance: "100.00" }]);
     });
   },

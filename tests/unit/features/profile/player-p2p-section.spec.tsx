@@ -29,6 +29,12 @@ it("does not expose operations to SUPERUSER", () => {
   render(<P2POfferList p2p={state()} userId={investor.id} balance={100} operable={false} />);
   expect(screen.queryByText("Comprar oferta completa")).toBeNull();
 });
+it("shows the seller name on available offers", () => {
+  const p2p = { ...state(), offers: [{ ...offer, sellerName: "María" }] };
+  render(<P2POfferList p2p={p2p} userId={investor.id} balance={100} operable />);
+  expect(screen.getByText("María")).toBeTruthy();
+  expect(screen.queryByText(offer.sellerId)).toBeNull();
+});
 it("focuses cancel, handles Escape and returns focus without submitting", () => {
   HTMLDialogElement.prototype.showModal = function () {
     this.open = true;

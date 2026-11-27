@@ -1,6 +1,7 @@
 export interface P2POffer {
   id: string;
   sellerId: string;
+  sellerName?: string;
   playerId: string;
   quantity: number;
   unitPrice: number;
@@ -15,6 +16,8 @@ export function isOffer(v: unknown): v is P2POffer {
       (x) => typeof x === "string" && x.length > 0,
     ) &&
     o.status === "OPEN" &&
+    (o.sellerName === undefined ||
+      (typeof o.sellerName === "string" && o.sellerName.trim().length > 0)) &&
     Number.isInteger(o.quantity) &&
     o.quantity > 0 &&
     Number.isFinite(o.unitPrice) &&
