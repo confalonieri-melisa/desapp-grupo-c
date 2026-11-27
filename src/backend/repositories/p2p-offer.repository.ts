@@ -1,6 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { db as defaultDatabase, type Database } from "@/backend/db";
-import { p2pOffers, type P2POfferRow } from "@/backend/db/schema";
+import { p2pOffers, users, type P2POfferRow } from "@/backend/db/schema";
 import { P2POffer, type P2POfferStatus } from "@/backend/models/P2POffer";
 import type { MarketExecutor } from "@/backend/repositories/market.repository";
 
@@ -24,24 +24,21 @@ export class P2POfferRepository {
     return toOffer(rows[0]);
   }
 
-  async findAvailableOffers(playerId?: string): Promise<P2POffer[]> {
+  async findAvailableOffers(playerId?: string): Promise<{ offer: P2POffer; sellerName: string }[]> {
     const condition = playerId
       ? and(eq(p2pOffers.status, "OPEN"), eq(p2pOffers.playerId, playerId))
       : eq(p2pOffers.status, "OPEN");
     const rows = await this.database
-      .select()
+      .select({ offer: p2pOffers, sellerName: users.name })
       .from(p2pOffers)
+      .innerJoin(users, eq(p2pOffers.sellerId, users.id))
       .where(condition)
       .orderBy(asc(p2pOffers.createdAt), asc(p2pOffers.id));
-    return rows.map(toOffer);
+    return rows.map(({ offer, sellerName }) => ({ offer: toOffer(offer), sellerName }));
   }
 
   async findOfferForCompletion(id: string, executor: MarketExecutor): Promise<P2POffer | null> {
-    const rows = await executor
-      .select()
-      .from(p2pOffers)
-      .where(eq(p2pOffers.id, id))
-      .for("update");
+    const rows = await executor.select().from(p2pOffers).where(eq(p2pOffers.id, id)).for("update");
     return rows[0] ? toOffer(rows[0]) : null;
   }
 

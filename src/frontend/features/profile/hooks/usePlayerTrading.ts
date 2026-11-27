@@ -97,6 +97,8 @@ export function usePlayerTrading(
   token: string | null,
   playerId: string,
   onUnauthorized: () => void,
+  availableQuantity?: number | null,
+  onBuyConfirmed?: () => Promise<void>,
 ) {
   const [state, setState] = useState<TradingState>(initial);
   const [draft, setDraft] = useState<ScopedDraft>({
@@ -111,7 +113,7 @@ export function usePlayerTrading(
   const request = useRef<RequestSlot>({ generation: 0 });
   const identity = useRef({ token, playerId });
   const loadedIdentity = useRef({ token, playerId });
-  const latestLoad = useRef<() => Promise<void>>(async () => {});
+  const latestLoad = useRef<() => Promise<boolean | undefined>>(async () => false);
   const submission = useRef<{ token: string; sequence: number } | null>(null);
   const sequence = useRef(0);
   useEffect(() => {
@@ -192,6 +194,7 @@ export function usePlayerTrading(
         },
       });
       publishPortfolioUpdate({ token, status: "success", snapshot });
+      return true;
     } catch (error) {
       if (!valid()) return;
       if ((error as { status?: number })?.status === 401) {
@@ -215,6 +218,7 @@ export function usePlayerTrading(
         },
       });
       publishPortfolioUpdate({ token, status: "error", snapshot: null });
+      return false;
     }
   };
 
@@ -249,7 +253,12 @@ export function usePlayerTrading(
     }
     const result =
       type === "BUY"
-        ? validateBuyQuantity(draftQuantity, quoteValue, visible.snapshot?.creditBalance ?? null)
+        ? validateBuyQuantity(
+            draftQuantity,
+            quoteValue,
+            visible.snapshot?.creditBalance ?? null,
+            availableQuantity,
+          )
         : validateSellQuantity(
             draftQuantity,
             quoteValue,
@@ -298,6 +307,7 @@ export function usePlayerTrading(
             String(confirmation.quantity),
             currentQuoteValue ?? null,
             visible.snapshot?.creditBalance ?? null,
+            availableQuantity,
           )
         : validateSellQuantity(
             String(confirmation.quantity),
@@ -353,6 +363,7 @@ export function usePlayerTrading(
           playerName: confirmation.playerName,
         });
         setDraft({ token, playerId, quantity: "", error: null });
+        if (confirmation.type === "BUY") void onBuyConfirmed?.();
         await latestLoad.current();
       } catch (error) {
         if (identity.current.token !== token || submission.current !== key) return;
@@ -383,6 +394,7 @@ export function usePlayerTrading(
 
   return {
     portfolio: visible,
+    refreshPortfolio: load,
     retryPortfolio: () => {
       void load();
     },

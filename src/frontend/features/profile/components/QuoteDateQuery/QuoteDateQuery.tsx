@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { CalendarDays, RefreshCw, Search } from "lucide-react";
 import type { usePlayerQuotes } from "../../hooks/usePlayerQuotes";
 import { formatQuoteDate } from "../../utils/player-quotes";
 import QuoteSummary from "../QuoteSummary/QuoteSummary";
@@ -9,7 +10,9 @@ export default function QuoteDateQuery({ quotes }: { quotes: ReturnType<typeof u
   return (
     <div className={styles.datePanel}>
       <div className={styles.panelHeading}>
-        <h3>Consultar otra fecha</h3>
+        <h3 className={styles.iconHeading}>
+          <CalendarDays size={19} aria-hidden="true" /> Consultar otra fecha
+        </h3>
       </div>
       <p id={`${id}-help`} className={styles.helper}>
         Encontrá el último valor disponible hasta el día elegido, incluso si la cotización se
@@ -33,7 +36,9 @@ export default function QuoteDateQuery({ quotes }: { quotes: ReturnType<typeof u
             aria-invalid={!!quotes.dateError}
             aria-describedby={`${id}-help${quotes.dateError ? ` ${id}-error` : ""}`}
           />
-          <button type="submit">Consultar</button>
+          <button type="submit">
+            <Search size={16} aria-hidden="true" /> Consultar
+          </button>
           {quotes.selectedDate && (
             <button className={styles.clearButton} type="button" onClick={quotes.clearDate}>
               Limpiar
@@ -63,7 +68,7 @@ export default function QuoteDateQuery({ quotes }: { quotes: ReturnType<typeof u
             No se pudo consultar el {formatQuoteDate(quotes.requestedDate)}: {quotes.dated.error}
           </p>
           <button type="button" onClick={quotes.queryDate}>
-            Reintentar consulta
+            <RefreshCw size={16} aria-hidden="true" /> Reintentar consulta
           </button>
         </div>
       )}

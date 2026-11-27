@@ -11,6 +11,38 @@ servers:
     description: Local Development Server
 
 paths:
+  /players/{id}/pool-availability:
+    get:
+      summary: Read current pool token availability
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Read-only availability without pool identity or balance
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [playerId, availableQuantity]
+                properties:
+                  playerId: { type: string, format: uuid }
+                  availableQuantity: { type: integer, minimum: 0 }
+              examples:
+                positive:
+                  value: { playerId: "33333333-3333-4333-8333-333333333333", availableQuantity: 10 }
+                empty:
+                  value: { playerId: "33333333-3333-4333-8333-333333333333", availableQuantity: 0 }
+        "400":
+          description: Invalid UUID or unexpected parameters
+        "401":
+          description: Missing or expired JWT
+        "404":
+          description: Player or pool not found
   /health:
     get:
       summary: Health Check
@@ -600,7 +632,24 @@ paths:
           in: query
           schema: { type: string, format: uuid }
       responses:
-        "200": { description: Ofertas abiertas }
+        "200":
+          description: Ofertas abiertas con el nombre del vendedor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [id, sellerId, sellerName, playerId, quantity, unitPrice, status, createdAt]
+                  properties:
+                    id: { type: string, format: uuid }
+                    sellerId: { type: string, format: uuid }
+                    sellerName: { type: string }
+                    playerId: { type: string, format: uuid }
+                    quantity: { type: integer }
+                    unitPrice: { type: number }
+                    status: { type: string, enum: [OPEN] }
+                    createdAt: { type: string, format: date-time }
         "401": { description: Token ausente o inválido }
     post:
       summary: Publicar una oferta P2P a precio fijo

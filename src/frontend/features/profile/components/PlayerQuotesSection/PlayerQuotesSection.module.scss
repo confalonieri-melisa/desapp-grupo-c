@@ -220,11 +220,24 @@
 
 .section button {
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   background: var(--crimson-violet);
   border-color: var(--crimson-violet);
   color: #fff;
   font-size: 0.83rem;
   font-weight: 700;
+}
+.iconHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.iconHeading svg {
+  flex: none;
+  color: var(--rose-punch);
 }
 
 .section button:hover {
@@ -476,4 +489,13 @@
   .compact .quoteValue {
     display: grid;
   }
+}
+
+.section button {
+  background: var(--rose-punch);
+  border-color: var(--rose-punch);
+  color: #fff;
+}
+.section button:hover {
+  background: #b92f6e;
 }

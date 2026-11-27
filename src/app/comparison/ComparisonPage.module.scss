@@ -790,3 +790,13 @@ input:focus-visible {
     min-height: 170px;
   }
 }
+.iconHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.iconHeading svg {
+  flex: none;
+  color: var(--rose-punch);
+}

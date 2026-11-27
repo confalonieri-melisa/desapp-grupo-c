@@ -41,7 +41,13 @@ paths:
             application/json:
               schema:
                 type: array
-                items: { $ref: '#/components/schemas/Offer' }
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/Offer'
+                    - type: object
+                      required: [sellerName]
+                      properties:
+                        sellerName: { type: string, description: Seller display name }
         '401': { $ref: '#/components/responses/Unauthorized' }
   /p2p/offers/{id}:
     delete:

@@ -80,6 +80,10 @@
   overflow-wrap: anywhere;
 }
 .section button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   min-height: 2.65rem;
   margin-top: 0.7rem;
   padding: 0.55rem 0.8rem;
@@ -124,9 +128,16 @@
   background: #f9f3f7;
 }
 .metrics dt {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
   color: var(--dusty-violet);
   font-size: 0.78rem;
   overflow-wrap: anywhere;
+}
+.metrics dt svg {
+  flex: none;
+  color: var(--rose-punch);
 }
 .metrics dd {
   margin: 0.3rem 0 0;
@@ -326,4 +337,342 @@
   .dialogActions button {
     width: 100%;
   }
+}
+
+.section nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.5rem 0;
+}
+.section nav button[aria-pressed="true"] {
+  background: var(--crimson-violet);
+  color: var(--surface);
+}
+.section :focus-visible {
+  outline: 3px solid var(--rose-punch);
+  outline-offset: 3px;
+}
+.section section[aria-label="Ofertas disponibles"] {
+  margin-top: 1.5rem;
+}
+.section ul {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+.section li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.section li button {
+  margin: 0.5rem 0.5rem 0.25rem 0;
+}
+.section form {
+  display: grid;
+  gap: 0.5rem;
+  max-width: 36rem;
+  padding: 1rem 0;
+}
+.section form input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+.section form p {
+  margin: 0.25rem 0 0.75rem;
+  overflow-wrap: anywhere;
+}
+.confirmDialog {
+  max-width: calc(100vw - 2rem);
+  overflow-wrap: anywhere;
+}
+.confirmDialog button {
+  margin: 0.5rem;
+}
+@media (max-width: 480px) {
+  .section nav button {
+    flex: 1;
+  }
+  .section li button {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+}
+
+/* Trading layout */
+.segmented {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 !important;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #f9f3f7;
+}
+.segmented button {
+  margin: 0;
+  border: 0;
+  background: transparent;
+  color: var(--crimson-violet);
+}
+.segmented button[aria-pressed="true"] {
+  background: var(--rose-punch) !important;
+  color: #fff !important;
+}
+.segmented button:hover {
+  background: #f3dce8;
+}
+.tradingLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 35fr) minmax(0, 65fr);
+  gap: 1rem;
+  align-items: start;
+}
+.tradingLayout > div {
+  min-width: 0;
+}
+.tradePanel,
+.offerPanel,
+.publishPanel {
+  margin: 0;
+  padding: 1.25rem !important;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+}
+.section .publishPanel {
+  max-width: none;
+  gap: 0.4rem;
+}
+.section .publishPanel p {
+  margin: 0;
+}
+.section .publishPanel p:empty {
+  display: none;
+}
+.section .publishPanel input {
+  min-height: 2.65rem;
+  padding: 0.55rem 0.8rem;
+}
+.section .publishPanel .infoBox {
+  margin-top: 0.3rem;
+}
+.publishPanel label {
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+.publishPanel > p,
+.offerHeading p {
+  color: var(--dusty-violet);
+  font-size: 0.85rem;
+}
+.section .availability {
+  color: var(--dusty-violet);
+  font-size: 0.85rem;
+}
+.tradePanel .availability {
+  margin-top: 0.4rem;
+}
+.orderControls {
+  max-width: none;
+}
+.orderControls button,
+.publishPanel button {
+  width: 100%;
+  background: var(--rose-punch);
+  border-color: var(--rose-punch);
+}
+.offerHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.section .outlineButton {
+  margin: 0;
+  background: transparent;
+  border-color: var(--rose-punch);
+  color: var(--rose-punch);
+}
+.section .outlineButton:hover {
+  background: #f9e8f0;
+}
+.tableWrap {
+  overflow-x: auto;
+}
+.offerTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  text-align: left;
+}
+.offerTable th {
+  padding: 0.7rem;
+  background: #f9f3f7;
+  white-space: nowrap;
+}
+.offerTable td {
+  padding: 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+.offerTable button {
+  white-space: nowrap;
+}
+.ownBadge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  background: #f9e8f0;
+  color: var(--crimson-violet);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.emptyOffers {
+  padding: 1rem 0;
+  color: var(--dusty-violet);
+}
+.infoBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background: #f9edf3;
+  color: var(--crimson-violet) !important;
+  font-size: 0.85rem;
+}
+.infoBox svg {
+  flex: none;
+  margin-top: 0.1rem;
+  color: var(--rose-punch);
+}
+.totalBox {
+  padding: 0.8rem !important;
+  border: 0 !important;
+  border-radius: 8px;
+  background: #f9edf3;
+}
+.feedback:not(:empty) {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.metrics {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+@media (max-width: 780px) {
+  .tradingLayout {
+    grid-template-columns: 1fr;
+  }
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .offerTable,
+  .offerTable tbody,
+  .offerTable tr,
+  .offerTable td {
+    display: block;
+  }
+  .offerTable thead {
+    display: none;
+  }
+  .offerTable tr {
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .offerTable td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 0;
+    padding: 0.35rem;
+    text-align: right;
+  }
+  .offerTable td::before {
+    content: attr(data-label);
+    color: var(--dusty-violet);
+    text-align: left;
+  }
+  .metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.section section[aria-label="Ofertas disponibles"] {
+  margin-top: 0;
+}
+.section button:not(.outlineButton),
+.confirmDialog button:not(.secondaryButton) {
+  background: var(--rose-punch);
+  border-color: var(--rose-punch);
+  color: white;
+}
+.section .segmented button[aria-pressed="false"] {
+  background: transparent;
+  color: var(--crimson-violet);
+}
+.confirmDialog .secondaryButton {
+  color: var(--rose-punch);
+  border-color: var(--rose-punch);
+}
+.iconHeading {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.iconHeading svg {
+  color: var(--rose-punch);
+  flex: none;
+}
+
+.section .confirmDialog .secondaryButton {
+  background: #fff;
+  border-color: var(--rose-punch);
+  color: var(--rose-punch);
+}
+
+.section .confirmDialog .secondaryButton:hover {
+  background: #f9e8f0;
+}
+
+.dialogActions > button:last-child {
+  flex: 2 1 12rem;
+}
+
+.dialogActions > .secondaryButton {
+  flex: 1 1 7rem;
+}
+
+.section .deleteButton {
+  width: 2.65rem;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
+  color: var(--rose-punch);
+}
+
+.section .deleteButton:hover:not(:disabled) {
+  border-color: transparent;
+  background: #f9e8f0;
+  color: #b92f6e;
+}
+.segmented button,
+.orderControls button,
+.section .outlineButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
 }

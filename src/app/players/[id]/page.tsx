@@ -18,6 +18,8 @@ import {
 import { usePlayerProfile } from "@/frontend/features/profile/hooks/usePlayerProfile";
 import { usePlayerQuotes } from "@/frontend/features/profile/hooks/usePlayerQuotes";
 import { usePlayerTrading } from "@/frontend/features/profile/hooks/usePlayerTrading";
+import { usePoolAvailability } from "@/frontend/features/profile/hooks/usePoolAvailability";
+import { useP2POffers } from "@/frontend/features/profile/hooks/useP2POffers";
 import styles from "./PlayerProfilePage.module.scss";
 
 export default function PlayerProfilePage() {
@@ -45,10 +47,33 @@ export default function PlayerProfilePage() {
     confirmedPlayer?.id ?? "",
     handleUnauthorized,
   );
+  const pool = usePoolAvailability(
+    confirmedPlayer ? token : null,
+    confirmedPlayer?.id ?? "",
+    handleUnauthorized,
+  );
   const trading = usePlayerTrading(
     confirmedPlayer ? token : null,
     confirmedPlayer?.id ?? "",
     handleUnauthorized,
+    pool.availableQuantity,
+    pool.refresh,
+  );
+
+  const p2p = useP2POffers(
+    confirmedPlayer ? token : null,
+    confirmedPlayer?.id ?? "",
+    handleUnauthorized,
+    trading.refreshPortfolio,
+    {
+      userId: user?.id ?? "",
+      balance: trading.portfolio.snapshot?.creditBalance ?? null,
+      holding: trading.portfolio.snapshot
+        ? (trading.portfolio.snapshot.items.find((p) => p.playerId === confirmedPlayer?.id)
+            ?.quantity ?? 0)
+        : null,
+      operable: user?.role === "INVESTOR",
+    },
   );
 
   useEffect(() => {
@@ -100,6 +125,9 @@ export default function PlayerProfilePage() {
               role={user?.role ?? ""}
               quotes={quotes}
               trading={trading}
+              pool={pool}
+              p2p={p2p}
+              userId={user?.id ?? ""}
             />
           </>
         )}

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { History, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import type { usePlayerQuotes } from "../../hooks/usePlayerQuotes";
 import QuoteSummary from "../QuoteSummary/QuoteSummary";
@@ -50,7 +51,7 @@ export default function PlayerQuotesSection({
             <div className={styles.state} role="alert">
               <p>{quotes.history.error}</p>
               <button type="button" onClick={quotes.retryHistory}>
-                Reintentar historial
+                <RefreshCw size={16} aria-hidden="true" /> Reintentar historial
               </button>
             </div>
           )}
@@ -67,7 +68,9 @@ export default function PlayerQuotesSection({
           <div className={styles.subsectionHeading}>
             <div>
               <p className={styles.eyebrow}>Evolución</p>
-              <h3>Historial de cotizaciones</h3>
+              <h3 className={styles.iconHeading}>
+                <History size={19} aria-hidden="true" /> Historial de cotizaciones
+              </h3>
             </div>
             {quotes.history.items.length > 0 && (
               <span className={styles.count}>

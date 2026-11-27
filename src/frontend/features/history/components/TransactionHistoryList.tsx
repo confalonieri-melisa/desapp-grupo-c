@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowDownLeft, ArrowUpRight, Globe2, Shield, UserRound } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Globe2, RefreshCw, Shield, UserRound } from "lucide-react";
 import { getPlayerImage } from "@/frontend/utils/image-mapper";
 import { formatEnumLabel, leagueLabels } from "@/frontend/utils/player-labels";
 import {
@@ -131,7 +131,7 @@ export default function TransactionHistoryList({
         <div className={styles.error} role="alert">
           <p>{error}</p>
           <button type="button" onClick={onRetry}>
-            Reintentar
+            <RefreshCw size={16} aria-hidden="true" /> Reintentar
           </button>
         </div>
       )}

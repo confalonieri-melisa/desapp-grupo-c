@@ -21,26 +21,37 @@ export default function PlayerPositionSummary({
       </div>
       <dl className={styles.metrics}>
         <div>
-          <dt>Cantidad</dt>
+          <dt>
+            <Coins size={16} aria-hidden="true" /> Cantidad
+          </dt>
           <dd>{formatTradingNumber(selected.quantity)} tokens</dd>
         </div>
         <div>
-          <dt>Precio promedio de compra</dt>
+          <dt>
+            <ChartColumn size={16} aria-hidden="true" /> Precio promedio de compra
+          </dt>
           <dd>{position ? formatCredits(position.averagePurchasePrice) : "No disponible"}</dd>
         </div>
         <div>
-          <dt>Cotización actual de la posición</dt>
+          <dt>
+            <CircleDollarSign size={16} aria-hidden="true" /> Cotización actual de la posición
+          </dt>
           <dd>{position ? formatCredits(position.currentQuoteValue) : "No disponible"}</dd>
         </div>
         <div>
-          <dt>Valor actual</dt>
+          <dt>
+            <Wallet size={16} aria-hidden="true" /> Valor actual
+          </dt>
           <dd>{position ? formatCredits(position.currentValue) : "No disponible"}</dd>
         </div>
         <div>
-          <dt>PnL no realizado</dt>
+          <dt>
+            <TrendingUp size={16} aria-hidden="true" /> PnL no realizado
+          </dt>
           <dd>{position ? formatCredits(position.unrealizedPnl) : "No disponible"}</dd>
         </div>
       </dl>
     </div>
   );
 }
+import { ChartColumn, Coins, TrendingUp, Wallet, CircleDollarSign } from "lucide-react";

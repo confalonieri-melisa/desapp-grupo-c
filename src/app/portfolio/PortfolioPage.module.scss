@@ -487,6 +487,9 @@
 }
 
 .notice button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   padding: 0.6rem 1rem;
   color: white;
   background: #4d1838;

@@ -797,3 +797,5 @@ describe("usePlayerTrading SELL", () => {
     h.cleanup();
   });
 });
+
+it("returns explicit success and failure from portfolio refresh",async()=>{mocks.get.mockResolvedValue(snapshot);const h=setup();await flushPromises();expect(await h.render().refreshPortfolio()).toBe(true);mocks.get.mockRejectedValue(new Error("Offline"));expect(await h.render().refreshPortfolio()).toBe(false);h.cleanup();});

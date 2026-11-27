@@ -14,10 +14,19 @@ export class P2POfferController {
   }
 
   findAvailableOffers(query: P2POfferQuery) {
-    return this.offerService.findAvailableOffers(query).then((offers) => offers.map(toOfferResponse));
+    return this.offerService
+      .findAvailableOffers(query)
+      .then((offers) =>
+        offers.map(({ offer, sellerName }) => ({ ...toOfferResponse(offer), sellerName })),
+      );
   }
 
-  completeOffer(auth: AuthTokenPayload, offerId: string, idempotencyKey: string, correlationId?: string) {
+  completeOffer(
+    auth: AuthTokenPayload,
+    offerId: string,
+    idempotencyKey: string,
+    correlationId?: string,
+  ) {
     return this.tradeService.completeOffer(auth, offerId, idempotencyKey, correlationId);
   }
 
