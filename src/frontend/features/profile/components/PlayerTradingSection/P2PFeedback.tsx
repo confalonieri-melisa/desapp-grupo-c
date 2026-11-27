@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import styles from "./PlayerTradingSection.module.scss";
 import type { useP2POffers } from "../../hooks/useP2POffers";
-import { formatP2PCredits as formatCredits } from "../../utils/p2p-trading";
 export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffers> }) {
   const r = p2p.result;
   const receipt = r.receipt;
@@ -11,22 +10,17 @@ export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffe
   useEffect(() => {
     if (!receipt) return;
     const op = receipt.operation;
-    toast.success(
-      `Compra confirmada: ${op.quantity} tokens · Total ${formatCredits(op.total)}`,
-      {
-        toastId: `p2p-buy-${op.id}`,
-      },
-    );
+    toast.success("Compra confirmada", { toastId: `p2p-buy-${op.id}` });
   }, [receipt]);
   useEffect(() => {
     if (publication)
-      toast.success("Oferta publicada. Los tokens no se reservaron ni se transfirieron.", {
+      toast.success("Oferta publicada", {
         toastId: `p2p-publish-${publication.id}`,
       });
   }, [publication]);
   useEffect(() => {
     if (cancelled)
-      toast.success("Cancelación confirmada de la oferta", { toastId: `p2p-cancel-${cancelled}` });
+      toast.success("Oferta cancelada", { toastId: `p2p-cancel-${cancelled}` });
   }, [cancelled]);
   return (
     <div role="status" className={styles.feedback}>

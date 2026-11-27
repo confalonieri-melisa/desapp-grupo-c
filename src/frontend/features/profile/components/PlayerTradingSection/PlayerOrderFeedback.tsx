@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { toast } from "react-toastify";
 import type { usePlayerTrading } from "../../hooks/usePlayerTrading";
-import { formatCredits, formatTradingNumber } from "../../utils/player-trading";
 import styles from "./PlayerTradingSection.module.scss";
 
 interface PlayerOrderFeedbackProps {
@@ -28,10 +27,10 @@ export default function PlayerOrderFeedback({
     if (!receipt) return;
     const op = receipt.operation;
     toast.success(
-      `${op.type === "BUY" ? "Compra" : "Venta"} confirmada de ${order.playerName ?? playerName}: ${formatTradingNumber(op.quantity)} tokens · Total ${formatCredits(op.total)}`,
+      `${op.type === "BUY" ? "Compra" : "Venta"} confirmada`,
       { toastId: `pool-${op.id}` },
     );
-  }, [receipt, order.playerName, playerName]);
+  }, [receipt]);
   return (
     <>
       {order.status === "submitting" && (

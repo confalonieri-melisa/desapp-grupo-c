@@ -196,7 +196,7 @@ const id = "33333333-3333-4333-8333-333333333333",
     .getByRole("dialog")
     .getByRole("button", { name: /Confirmar cancelaci/ })
     .click();
-  await page.getByText(/Cancelaci.*confirmada/).waitFor();
+  await page.getByText("Oferta cancelada").waitFor();
   assert.equal(cancels, 1);
   await page.getByLabel("Cantidad de tokens").fill("1");
   await page.getByText("Ver detalle de la compra").click();
