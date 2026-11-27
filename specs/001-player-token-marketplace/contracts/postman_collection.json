@@ -70,8 +70,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health",
-              "host": ["{{baseUrl}}"],
-              "path": ["health"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
             }
           }
         },
@@ -82,8 +86,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health/live",
-              "host": ["{{baseUrl}}"],
-              "path": ["health", "live"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health",
+                "live"
+              ]
             }
           }
         },
@@ -94,8 +103,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/health/ready",
-              "host": ["{{baseUrl}}"],
-              "path": ["health", "ready"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health",
+                "ready"
+              ]
             }
           }
         },
@@ -106,8 +120,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/metrics",
-              "host": ["{{baseUrl}}"],
-              "path": ["metrics"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "metrics"
+              ]
             }
           }
         },
@@ -118,8 +136,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/metrics/advanced",
-              "host": ["{{baseUrl}}"],
-              "path": ["metrics", "advanced"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "metrics",
+                "advanced"
+              ]
             }
           }
         }
@@ -163,8 +186,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -197,8 +225,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -231,8 +264,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -267,8 +305,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -301,8 +344,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -335,8 +383,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           }
         },
@@ -369,8 +422,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           }
         }
@@ -399,8 +457,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players",
-              "host": ["{{baseUrl}}"],
-              "path": ["players"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players"
+              ]
             }
           }
         },
@@ -450,8 +512,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players?page=1&limit=20",
-              "host": ["{{baseUrl}}"],
-              "path": ["players"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players"
+              ],
               "query": [
                 {
                   "key": "page",
@@ -509,8 +575,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players?league=LA_LIGA&team=Real&position=FORWARD&page=1&limit=10",
-              "host": ["{{baseUrl}}"],
-              "path": ["players"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players"
+              ],
               "query": [
                 {
                   "key": "league",
@@ -557,18 +627,37 @@
           "request": {
             "auth": {
               "type": "bearer",
-              "bearer": [{ "key": "token", "value": "{{authToken}}", "type": "string" }]
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{authToken}}",
+                  "type": "string"
+                }
+              ]
             },
             "method": "GET",
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players?name=Mbapp&page=1&limit=12",
-              "host": ["{{baseUrl}}"],
-              "path": ["players"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players"
+              ],
               "query": [
-                { "key": "name", "value": "Mbapp" },
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "12" }
+                {
+                  "key": "name",
+                  "value": "Mbapp"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "12"
+                }
               ]
             }
           }
@@ -611,8 +700,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players/{{playerId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["players", "{{playerId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players",
+                "{{playerId}}"
+              ]
             }
           }
         },
@@ -636,8 +730,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players/{{playerId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["players", "{{playerId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players",
+                "{{playerId}}"
+              ]
             }
           }
         },
@@ -671,8 +770,13 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players/00000000-0000-0000-0000-000000000099",
-              "host": ["{{baseUrl}}"],
-              "path": ["players", "00000000-0000-0000-0000-000000000099"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players",
+                "00000000-0000-0000-0000-000000000099"
+              ]
             }
           }
         },
@@ -710,8 +814,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players/{{playerId}}/quotes",
-              "host": ["{{baseUrl}}"],
-              "path": ["players", "{{playerId}}", "quotes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players",
+                "{{playerId}}",
+                "quotes"
+              ]
             }
           }
         },
@@ -749,8 +859,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/players/{{playerId}}/quotes?date=2026-10-20",
-              "host": ["{{baseUrl}}"],
-              "path": ["players", "{{playerId}}", "quotes"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "players",
+                "{{playerId}}",
+                "quotes"
+              ],
               "query": [
                 {
                   "key": "date",
@@ -800,8 +916,14 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/users/{{userId}}/transactions?limit=50&offset=0",
-              "host": ["{{baseUrl}}"],
-              "path": ["users", "{{userId}}", "transactions"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "{{userId}}",
+                "transactions"
+              ],
               "query": [
                 {
                   "key": "limit",
@@ -850,8 +972,12 @@
             "header": [],
             "url": {
               "raw": "{{baseUrl}}/portfolio",
-              "host": ["{{baseUrl}}"],
-              "path": ["portfolio"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio"
+              ]
             }
           }
         },
@@ -897,8 +1023,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/orders/buy",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "buy"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "buy"
+              ]
             }
           }
         },
@@ -944,9 +1075,48 @@
             },
             "url": {
               "raw": "{{baseUrl}}/orders/sell",
-              "host": ["{{baseUrl}}"],
-              "path": ["orders", "sell"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "sell"
+              ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pool availability (read only)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{authToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/players/{{playerId}}/pool-availability",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "players",
+            "{{playerId}}",
+            "pool-availability"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Availability is non-negative\", () => { pm.response.to.have.status(200); const b=pm.response.json(); pm.expect(Object.keys(b).sort()).to.eql([\"availableQuantity\",\"playerId\"]); pm.expect(b.availableQuantity).to.be.at.least(0); });"
+            ]
           }
         }
       ]

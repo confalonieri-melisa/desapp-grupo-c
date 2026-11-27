@@ -97,6 +97,8 @@ export function usePlayerTrading(
   token: string | null,
   playerId: string,
   onUnauthorized: () => void,
+  availableQuantity?: number | null,
+  onBuyConfirmed?: () => Promise<void>,
 ) {
   const [state, setState] = useState<TradingState>(initial);
   const [draft, setDraft] = useState<ScopedDraft>({
@@ -251,7 +253,12 @@ export function usePlayerTrading(
     }
     const result =
       type === "BUY"
-        ? validateBuyQuantity(draftQuantity, quoteValue, visible.snapshot?.creditBalance ?? null)
+        ? validateBuyQuantity(
+            draftQuantity,
+            quoteValue,
+            visible.snapshot?.creditBalance ?? null,
+            availableQuantity,
+          )
         : validateSellQuantity(
             draftQuantity,
             quoteValue,
@@ -300,6 +307,7 @@ export function usePlayerTrading(
             String(confirmation.quantity),
             currentQuoteValue ?? null,
             visible.snapshot?.creditBalance ?? null,
+            availableQuantity,
           )
         : validateSellQuantity(
             String(confirmation.quantity),
@@ -355,6 +363,7 @@ export function usePlayerTrading(
           playerName: confirmation.playerName,
         });
         setDraft({ token, playerId, quantity: "", error: null });
+        if (confirmation.type === "BUY") void onBuyConfirmed?.();
         await latestLoad.current();
       } catch (error) {
         if (identity.current.token !== token || submission.current !== key) return;

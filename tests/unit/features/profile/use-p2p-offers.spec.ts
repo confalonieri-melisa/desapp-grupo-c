@@ -108,6 +108,7 @@ it("retains key for manual retry and uses a new one for new intent", async () =>
   h.render().retryAccept();
   expect((h.render().confirmation as { key: string }).key).toBe(key);
   h.render().cancelConfirmation();
+  await h.render().refresh();
   h.render().openAccept(offer, investor.id, 100, true);
   expect((h.render().confirmation as { key: string }).key).not.toBe(key);
   h.cleanup();

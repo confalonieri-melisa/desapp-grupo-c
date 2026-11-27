@@ -73,3 +73,33 @@ it("keeps own cancellation inline in the single mixed list", () => {
   expect(p2p.openCancel).toHaveBeenCalledWith(ownOffer, investor.id);
   expect(screen.getAllByRole("list")).toHaveLength(1);
 });
+
+import PlayerTradingSection, {
+  type PlayerTradingSectionProps,
+} from "@/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection";
+it.each([
+  ["success", 5, true],
+  ["success", 0, false],
+  ["loading", null, false],
+  ["error", null, false],
+])("shows pool only for confirmed positive stock %s %s", (status, availableQuantity, visible) => {
+  const props = {
+    playerId: offer.playerId,
+    playerName: "Jugador",
+    role: "INVESTOR",
+    userId: investor.id,
+    p2p: state(),
+    pool: { status, availableQuantity, refresh: vi.fn() },
+    quotes: { history: { status: "empty" }, current: null },
+    trading: {
+      portfolio: { status: "empty", snapshot: { creditBalance: 100, items: [] } },
+      order: { status: "idle" },
+      draftQuantity: "",
+      retryPortfolio: vi.fn(),
+    },
+  } as unknown as PlayerTradingSectionProps;
+  render(<PlayerTradingSection {...props} />);
+  expect(!!screen.queryByText("Comprar al pool")).toBe(visible);
+  expect(screen.getByText("Ofertas P2P a precio fijo")).toBeTruthy();
+  expect(screen.queryByText("Vender")).toBeNull();
+});

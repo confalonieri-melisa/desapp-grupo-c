@@ -55,6 +55,7 @@ export function validateBuyQuantity(
   text: string,
   quoteValue: number | null,
   creditBalance: number | null,
+  availableQuantity?: number | null,
 ): BuyQuantityValidation {
   const quantity = parseTokenQuantity(text);
   if (quantity === null)
@@ -69,6 +70,15 @@ export function validateBuyQuantity(
   if (creditBalance === null || !Number.isFinite(creditBalance)) {
     return { quantity, estimatedTotal: null, error: "No hay saldo vigente disponible" };
   }
+  if (
+    availableQuantity !== undefined &&
+    (availableQuantity === null || quantity > availableQuantity)
+  )
+    return {
+      quantity,
+      estimatedTotal: null,
+      error: "Cantidad superior a disponibilidad confirmada del pool",
+    };
   const estimatedTotal = estimatedOrderTotal(quantity, quoteValue);
   if (!Number.isFinite(estimatedTotal) || estimatedTotal > creditBalance) {
     return { quantity, estimatedTotal, error: "El saldo disponible no alcanza para esta compra" };

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+  pool:vi.fn(),p2p:vi.fn(),
   auth: vi.fn(),
   params: vi.fn(),
   replace: vi.fn(),
@@ -47,6 +48,8 @@ vi.mock("@/frontend/components/ui/PageContainer/PageContainer", () => ({
   default: function PageContainer() {},
 }));
 
+vi.mock("@/frontend/features/profile/hooks/usePoolAvailability",()=>({usePoolAvailability:mocks.pool}));
+vi.mock("@/frontend/features/profile/hooks/useP2POffers",()=>({useP2POffers:mocks.p2p}));
 import PlayerProfilePage from "@/app/players/[id]/page";
 import PlayerQuotesSection from "@/frontend/features/profile/components/PlayerQuotesSection/PlayerQuotesSection";
 import PlayerTradingSection from "@/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection";
@@ -63,6 +66,8 @@ function elements(node: unknown): ElementNode[] {
 describe("player profile quote ownership", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.pool.mockReturnValue({status:"success",availableQuantity:5,refresh:vi.fn()});
+    mocks.p2p.mockReturnValue({});
     mocks.params.mockReturnValue({ id: "player-a" });
     mocks.auth.mockReturnValue({
       isAuthenticated: true,
@@ -100,7 +105,7 @@ describe("player profile quote ownership", () => {
     });
     const tradingSection = elements(tree).find((element) => element.type === PlayerTradingSection);
     expect(mocks.trading).toHaveBeenCalledOnce();
-    expect(mocks.trading).toHaveBeenCalledWith("token-a", "player-a", expect.any(Function));
+    expect(mocks.trading).toHaveBeenCalledWith("token-a", "player-a", expect.any(Function),5,expect.any(Function));
     expect(tradingSection?.props).toMatchObject({
       playerId: "player-a",
       playerName: "Jugador A",
@@ -115,7 +120,7 @@ describe("player profile quote ownership", () => {
     const tree = PlayerProfilePage();
     expect(mocks.quotes).toHaveBeenCalledOnce();
     expect(mocks.quotes).toHaveBeenCalledWith(null, "", expect.any(Function));
-    expect(mocks.trading).toHaveBeenCalledWith(null, "", expect.any(Function));
+    expect(mocks.trading).toHaveBeenCalledWith(null, "", expect.any(Function),5,expect.any(Function));
     expect(elements(tree).some((element) => element.type === PlayerQuotesSection)).toBe(false);
     expect(elements(tree).some((element) => element.type === PlayerTradingSection)).toBe(false);
   });
@@ -130,7 +135,7 @@ describe("player profile quote ownership", () => {
     expect(PlayerProfilePage()).toBeNull();
     expect(mocks.quotes).toHaveBeenCalledWith(null, "", expect.any(Function));
     expect(mocks.quotes).toHaveBeenCalledOnce();
-    expect(mocks.trading).toHaveBeenCalledWith(null, "", expect.any(Function));
+    expect(mocks.trading).toHaveBeenCalledWith(null, "", expect.any(Function),5,expect.any(Function));
     expect(
       elements(PlayerProfilePage()).some((element) => element.type === PlayerTradingSection),
     ).toBe(false);

@@ -18,6 +18,7 @@ import P2PPublishForm from "./P2PPublishForm";
 import P2PFeedback from "./P2PFeedback";
 
 export interface PlayerTradingSectionProps {
+  pool?: { status: string; availableQuantity: number | null; refresh: () => Promise<void> };
   p2p?: ReturnType<typeof useP2POffers>;
   userId?: string;
   playerId: string;
@@ -28,6 +29,7 @@ export interface PlayerTradingSectionProps {
 }
 
 export default function PlayerTradingSection({
+  pool,
   p2p,
   userId = "",
   playerId,
@@ -102,20 +104,30 @@ export default function PlayerTradingSection({
           </button>
         </nav>
       )}
-      {role === "INVESTOR" && view === "buy" && (
-        <PlayerOrderForm
-          playerName={playerName}
-          inputId={inputId}
-          quoteValue={quoteValue}
-          portfolio={portfolio}
-          snapshot={snapshot}
-          selected={selected}
-          trading={trading}
-          operationType={operationType}
-          onOperationTypeChange={setOperationType}
-          triggerRef={triggerRef}
-        />
+      {role === "INVESTOR" && view === "buy" && pool && pool.status !== "success" && (
+        <p role="status">
+          Disponibilidad del pool no confirmada.{" "}
+          <button onClick={() => void pool.refresh()}>Reintentar disponibilidad</button>
+        </p>
       )}
+      {role === "INVESTOR" &&
+        view === "buy" &&
+        pool?.status === "success" &&
+        (pool.availableQuantity ?? 0) > 0 && (
+          <PlayerOrderForm
+            availableQuantity={pool?.availableQuantity}
+            playerName={playerName}
+            inputId={inputId}
+            quoteValue={quoteValue}
+            portfolio={portfolio}
+            snapshot={snapshot}
+            selected={selected}
+            trading={trading}
+            operationType={operationType}
+            onOperationTypeChange={setOperationType}
+            triggerRef={triggerRef}
+          />
+        )}
       {p2p && (
         <>
           {view === "buy" && (
@@ -123,10 +135,10 @@ export default function PlayerTradingSection({
               p2p={p2p}
               userId={userId}
               balance={snapshot?.creditBalance ?? null}
-              operable={role === "INVESTOR"}
+              operable={role === "INVESTOR" && !p2p.forbidden}
             />
           )}
-          {view === "sell" && role === "INVESTOR" && (
+          {view === "sell" && role === "INVESTOR" && !p2p.forbidden && (
             <P2PPublishForm p2p={p2p} holding={selected?.quantity ?? null} />
           )}
           <P2PFeedback p2p={p2p} />

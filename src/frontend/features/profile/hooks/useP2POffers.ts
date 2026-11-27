@@ -32,6 +32,7 @@ export function useP2POffers(
   playerId: string,
   onUnauthorized: () => void,
   refreshPortfolio: () => Promise<boolean | undefined> = async () => true,
+  finance?: { userId: string; balance: number | null; holding: number | null; operable: boolean },
 ) {
   const scope = JSON.stringify([token, playerId]);
   const [state, setState] = useState<State>({ scope: "", offers: [], status: "idle", error: null });
@@ -42,6 +43,8 @@ export function useP2POffers(
   }>({ scope: "", confirmation: null, result: { status: "idle" } });
   const [draft, setDraft] = useState({ scope: "", quantity: "", price: "" });
   const busy = useRef(false);
+  const epoch = useRef(0);
+  const [forbidden, setForbidden] = useState("");
   const intent = useRef<{ scope: string; offer: P2POffer; key: string } | null>(null);
   const latest = useRef({ userId: "", balance: null as number | null, current: false });
   const current = useRef(scope);
@@ -51,10 +54,12 @@ export function useP2POffers(
     if (current.current !== scope) {
       busy.current = false;
       intent.current = null;
+      setAction({ scope, confirmation: null, result: { status: "idle" } });
+      setDraft({ scope, quantity: "", price: "" });
     }
     current.current = scope;
     callback.current = onUnauthorized;
-  });
+  },[scope,onUnauthorized]);
   const visible =
     state.scope === scope ? state : { scope, offers: [], status: "idle" as Status, error: null };
   const refresh = async () => {
@@ -74,6 +79,7 @@ export function useP2POffers(
     } catch (error) {
       if (current.current !== scope || seq !== generation.current) return false;
       if ((error as { status?: number }).status === 401) {
+        epoch.current++;
         setState({ scope, offers: [], status: "idle", error: null });
         setAction({ scope, confirmation: null, result: { status: "idle" } });
         setDraft({ scope, quantity: "", price: "" });
@@ -91,6 +97,7 @@ export function useP2POffers(
   useEffect(() => {
     void refresh();
     return () => {
+      epoch.current++;
       generation.current++;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,6 +124,19 @@ export function useP2POffers(
   };
   const confirm = async () => {
     const c = scoped.confirmation;
+    if (finance && !finance.operable) return;
+    if (finance)
+      latest.current = {
+        userId: finance.userId,
+        balance: finance.balance,
+        current: finance.balance !== null,
+      };
+    if (
+      c?.type === "publish" &&
+      finance &&
+      validatePublish(String(c.quantity), String(c.unitPrice), finance.holding).error
+    )
+      return;
     if (!token || !c || busy.current || current.current !== scope) return;
     if (
       c.type === "accept" &&
@@ -124,6 +144,7 @@ export function useP2POffers(
         visible.status !== "ready")
     )
       return;
+    const actionEpoch = epoch.current;
     busy.current = true;
     if (c.type === "accept") intent.current = { scope, ...c };
     setAction({ scope, confirmation: null, result: { status: "submitting" } });
@@ -134,7 +155,7 @@ export function useP2POffers(
           quantity: c.quantity,
           unitPrice: c.unitPrice,
         });
-        if (current.current !== scope) return;
+        if (current.current !== scope || epoch.current !== actionEpoch) return;
         setAction({ scope, confirmation: null, result: { status: "succeeded", published } });
         setDraft({ scope, quantity: "", price: "" });
         setState((old) => ({
@@ -146,7 +167,7 @@ export function useP2POffers(
       }
       if (c.type === "cancel") {
         await cancelP2POffer(token, c.offer.id);
-        if (current.current !== scope) return;
+        if (current.current !== scope || epoch.current !== actionEpoch) return;
         setAction({
           scope,
           confirmation: null,
@@ -157,15 +178,16 @@ export function useP2POffers(
         return;
       }
       const receipt = await acceptP2POffer(token, c.offer.id, c.key);
-      if (current.current !== scope) return;
+      if (current.current !== scope || epoch.current !== actionEpoch) return;
       setAction({ scope, confirmation: null, result: { status: "succeeded", receipt } });
       void refresh();
       const ok = await refreshPortfolio().catch(() => false);
-      if (current.current === scope)
+      if (current.current === scope && epoch.current === actionEpoch)
         setAction((old) => ({ ...old, result: { ...old.result, portfolioFailed: !ok } }));
     } catch (error) {
-      if (current.current !== scope) return;
+      if (current.current !== scope || epoch.current !== actionEpoch) return;
       if ((error as { status?: number }).status === 401) {
+        epoch.current++;
         generation.current++;
         setState({ scope, offers: [], status: "idle", error: null });
         setAction({ scope, confirmation: null, result: { status: "idle" } });
@@ -174,9 +196,17 @@ export function useP2POffers(
         callback.current();
         return;
       }
-      setAction({ scope, confirmation: null, result: classifyP2PError(error) });
+      if ((error as { status?: number }).status === 403) setForbidden(scope);
+      const failure = classifyP2PError(error);
+      if (failure.status === "uncertain")
+        setState((old) => ({
+          ...old,
+          status: "error",
+          error: "Resultado incierto. Actualiza la lista antes de otro intento.",
+        }));
+      setAction({ scope, confirmation: null, result: failure });
     } finally {
-      if (current.current === scope) busy.current = false;
+      if (current.current === scope && epoch.current === actionEpoch) busy.current = false;
     }
   };
   const retryAccept = () => {
@@ -190,10 +220,18 @@ export function useP2POffers(
   };
   return {
     ...visible,
+    forbidden: forbidden === scope,
     draft: draft.scope === scope ? draft : { scope, quantity: "", price: "" },
     setDraft: (quantity: string, price: string) => setDraft({ scope, quantity, price }),
     openPublish: (holding: number | null) => {
-      if (busy.current) return;
+      if (
+        busy.current ||
+        forbidden === scope ||
+        (scoped.result.status === "uncertain" &&
+          visible.status !== "ready" &&
+          visible.status !== "empty")
+      )
+        return;
       const d = draft.scope === scope ? draft : { quantity: "", price: "" };
       const v = validatePublish(d.quantity, d.price, holding);
       if (!v.error)

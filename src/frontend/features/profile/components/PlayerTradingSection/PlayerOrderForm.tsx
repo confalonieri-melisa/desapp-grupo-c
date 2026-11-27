@@ -9,6 +9,7 @@ import {
 import styles from "./PlayerTradingSection.module.scss";
 
 interface PlayerOrderFormProps {
+  availableQuantity?: number | null;
   playerName: string;
   inputId: string;
   quoteValue?: number;
@@ -22,6 +23,7 @@ interface PlayerOrderFormProps {
 }
 
 export default function PlayerOrderForm({
+  availableQuantity,
   playerName,
   inputId,
   quoteValue,
@@ -30,7 +32,6 @@ export default function PlayerOrderForm({
   selected,
   trading,
   operationType,
-  onOperationTypeChange,
   triggerRef,
 }: PlayerOrderFormProps) {
   const isSubmitting = trading.order.status === "submitting";
@@ -40,11 +41,16 @@ export default function PlayerOrderForm({
           trading.draftQuantity,
           quoteValue ?? null,
           snapshot?.creditBalance ?? null,
+          availableQuantity,
         )
       : validateSellQuantity(trading.draftQuantity, quoteValue ?? null, selected?.quantity ?? null);
   const inputError = trading.draftError ?? (trading.draftQuantity ? validation.error : null);
   const canSubmit = Boolean(
-    quoteValue && snapshot && !isSubmitting && (operationType === "BUY" || selected?.quantity),
+    !validation.error &&
+    quoteValue &&
+    snapshot &&
+    !isSubmitting &&
+    (operationType === "BUY" || selected?.quantity),
   );
 
   return (
@@ -52,33 +58,8 @@ export default function PlayerOrderForm({
       <div className={styles.positionHeading}>
         <h3>Operar tokens de {playerName}</h3>
       </div>
-      <fieldset className={styles.operationChoice} disabled={isSubmitting}>
-        <legend>Tipo de operación</legend>
-        <label>
-          <input
-            type="radio"
-            name={`${inputId}-operation`}
-            checked={operationType === "BUY"}
-            onChange={() => {
-              onOperationTypeChange("BUY");
-              trading.setDraftQuantity(trading.draftQuantity);
-            }}
-          />{" "}
-          Comprar
-        </label>
-        <label>
-          <input
-            type="radio"
-            name={`${inputId}-operation`}
-            checked={operationType === "SELL"}
-            onChange={() => {
-              onOperationTypeChange("SELL");
-              trading.setDraftQuantity(trading.draftQuantity);
-            }}
-          />{" "}
-          Vender
-        </label>
-      </fieldset>
+      <h4>Comprar al pool</h4>
+      <p>Disponibles: {availableQuantity} tokens</p>
       {!quoteValue && (
         <p className={styles.guidance} role="status">
           No hay cotización vigente disponible para operar.
