@@ -3,7 +3,6 @@ import { ConflictError, ForbiddenError, NotFoundError } from "@/backend/errors/h
 import { OfferNotOpenError } from "@/backend/models/errors";
 import { P2POffer } from "@/backend/models/P2POffer";
 import { PlayerRepository } from "@/backend/repositories/player.repository";
-import { PortfolioRepository } from "@/backend/repositories/portfolio.repository";
 import { P2POfferRepository } from "@/backend/repositories/p2p-offer.repository";
 import { MarketRepository, type MarketExecutor } from "@/backend/repositories/market.repository";
 import { UserRepository } from "@/backend/repositories/user.repository";
@@ -14,21 +13,28 @@ export class P2POfferService {
   constructor(
     private readonly offerRepository = new P2POfferRepository(),
     private readonly playerRepository = new PlayerRepository(),
-    private readonly portfolioRepository = new PortfolioRepository(),
     private readonly userRepository = new UserRepository(),
     private readonly marketRepository = new MarketRepository(),
   ) {}
 
   async publishOffer(auth: AuthTokenPayload, input: CreateP2POfferRequest): Promise<P2POffer> {
-    await this.ensureSellerCanPublishOffer(auth.sub, input.playerId, input.quantity);
+    await this.ensureSellerCanPublishOffer(auth.sub, input.playerId);
+    const offer = new P2POffer({ ...input, sellerId: auth.sub });
 
-    return this.offerRepository.publishOffer(new P2POffer({ ...input, sellerId: auth.sub }));
+    return this.marketRepository.withTransaction(async (transaction) => {
+      await this.marketRepository.reserveTokensForOffer(
+        transaction,
+        offer.sellerId,
+        offer.playerId,
+        offer.quantity,
+      );
+      return this.offerRepository.publishOffer(offer, transaction);
+    });
   }
 
   private async ensureSellerCanPublishOffer(
     sellerId: string,
     playerId: string,
-    quantity: number,
   ): Promise<void> {
     const [seller, player] = await Promise.all([
       this.userRepository.findById(sellerId),
@@ -41,20 +47,6 @@ export class P2POfferService {
     }
     if (!player) throw new NotFoundError("Player not found");
 
-    await this.ensureSellerHasTokensToOffer(sellerId, playerId, quantity);
-  }
-
-  private async ensureSellerHasTokensToOffer(
-    sellerId: string,
-    playerId: string,
-    quantity: number,
-  ): Promise<void> {
-    const positions = await this.portfolioRepository.findPositionsByUserId(sellerId);
-    const holding = positions.find((position) => position.playerId === playerId);
-
-    if (!holding || !holding.canSell(quantity)) {
-      throw new ConflictError("Insufficient token holding");
-    }
   }
 
   findAvailableOffers(query: P2POfferQuery): Promise<{ offer: P2POffer; sellerName: string }[]> {
@@ -67,6 +59,12 @@ export class P2POfferService {
 
       try {
         await this.offerRepository.cancelOffer(offer.cancel(), transaction);
+        await this.marketRepository.releaseReservedTokens(
+          transaction,
+          offer.sellerId,
+          offer.playerId,
+          offer.quantity,
+        );
       } catch (error) {
         if (error instanceof OfferNotOpenError) {
           throw new ConflictError(error.message);

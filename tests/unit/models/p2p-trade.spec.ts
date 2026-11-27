@@ -16,7 +16,7 @@ describe("P2PTrade", () => {
       user("buyer-id", 100),
       user("seller-id", 50),
       new TokenHolding({ userId: "buyer-id", playerId: "player-id", quantity: 0, averagePurchasePrice: 0 }),
-      new TokenHolding({ userId: "seller-id", playerId: "player-id", quantity: 5, averagePurchasePrice: 10 }),
+      new TokenHolding({ userId: "seller-id", playerId: "player-id", quantity: 5, reservedQuantity: 3, averagePurchasePrice: 10 }),
     );
 
     expect(result.operation.total).toBe(37.5);
@@ -34,9 +34,9 @@ describe("P2PTrade", () => {
 
   it("rejects insufficient balance and self-trades", () => {
     const offer = new P2POffer({ sellerId: "seller-id", playerId: "player-id", quantity: 3, unitPrice: 12.5 });
-    const holding = new TokenHolding({ userId: "seller-id", playerId: "player-id", quantity: 5, averagePurchasePrice: 10 });
+    const holding = new TokenHolding({ userId: "seller-id", playerId: "player-id", quantity: 5, reservedQuantity: 3, averagePurchasePrice: 10 });
     expect(() => new P2PTrade().complete(offer, user("buyer-id", 1), user("seller-id"), new TokenHolding({ userId: "buyer-id", playerId: "player-id", quantity: 0, averagePurchasePrice: 0 }), holding)).toThrow(ConflictError);
-    expect(() => new P2PTrade().complete(offer, user("buyer-id"), user("seller-id"), new TokenHolding({ userId: "buyer-id", playerId: "player-id", quantity: 0, averagePurchasePrice: 0 }), new TokenHolding({ userId: "seller-id", playerId: "player-id", quantity: 1, averagePurchasePrice: 10 }))).toThrow(InsufficientTokenHoldingError);
+    expect(() => new P2PTrade().complete(offer, user("buyer-id"), user("seller-id"), new TokenHolding({ userId: "buyer-id", playerId: "player-id", quantity: 0, averagePurchasePrice: 0 }), new TokenHolding({ userId: "seller-id", playerId: "player-id", quantity: 1, reservedQuantity: 3, averagePurchasePrice: 10 }))).toThrow(InsufficientTokenHoldingError);
     expect(() => new P2PTrade().complete(offer, user("seller-id"), user("seller-id"), holding, holding)).toThrow(ConflictError);
   });
 });

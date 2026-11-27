@@ -172,6 +172,30 @@ describe("MarketTrade", () => {
     ).toThrow(new ConflictError("Insufficient token holding"));
   });
 
+  it("does not allow a central-pool sale to spend reserved tokens", () => {
+    const state = createState();
+    state.investorHolding = new TokenHolding({
+      userId: "investor-id",
+      playerId: "player-id",
+      quantity: 3,
+      reservedQuantity: 2,
+      averagePurchasePrice: 10,
+    });
+    state.investorHoldingExists = true;
+
+    expect(() =>
+      marketTrade.sell(
+        {
+          type: "SELL",
+          investorId: "investor-id",
+          playerId: "player-id",
+          quantity: 2,
+        },
+        state,
+      ),
+    ).toThrow(new ConflictError("Insufficient token holding"));
+  });
+
   it("rejects a sale when the pool has insufficient credits", () => {
     const state = createState();
     state.pool = new User({

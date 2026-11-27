@@ -67,6 +67,7 @@ export const tokenHoldings = pgTable(
       .notNull()
       .references(() => players.id),
     quantity: integer("quantity").notNull().default(0),
+    reservedQuantity: integer("reserved_quantity").notNull().default(0),
     averagePurchasePrice: numeric("average_purchase_price", {
       precision: 10,
       scale: 2,
@@ -78,6 +79,7 @@ export const tokenHoldings = pgTable(
   (table) => [
     uniqueIndex("uq_user_player_holding").on(table.userId, table.playerId),
     check("chk_token_holdings_quantity_non_negative", sql`${table.quantity} >= 0`),
+    check("chk_token_holdings_reserved_quantity_non_negative", sql`${table.reservedQuantity} >= 0`),
   ],
 );
 

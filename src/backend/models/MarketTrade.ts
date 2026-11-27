@@ -177,7 +177,7 @@ export class MarketTrade {
     state: MarketTradeState,
     total: number,
   ): void {
-    if (!state.investorHoldingExists || state.investorHolding.quantity < request.quantity) {
+    if (!state.investorHoldingExists || state.investorHolding.availableQuantity() < request.quantity) {
       throw new ConflictError("Insufficient token holding");
     }
     if (state.pool.creditBalance < total) {

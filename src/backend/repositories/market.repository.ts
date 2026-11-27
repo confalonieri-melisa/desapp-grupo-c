@@ -111,6 +111,34 @@ export class MarketRepository {
     }
   }
 
+  async reserveTokensForOffer(
+    transaction: MarketExecutor,
+    sellerId: string,
+    playerId: string,
+    quantity: number,
+  ): Promise<void> {
+    const holding = await this.lockAvailableHolding(
+      transaction,
+      sellerId,
+      playerId,
+      quantity,
+    );
+
+    await saveTokenPosition(transaction, holding.reserve(quantity), true);
+  }
+
+  async releaseReservedTokens(
+    transaction: MarketExecutor,
+    sellerId: string,
+    playerId: string,
+    quantity: number,
+  ): Promise<void> {
+    const holding = await this.lockHolding(transaction, sellerId, playerId);
+    if (!holding) throw new ConflictError("Insufficient token holding");
+
+    await saveTokenPosition(transaction, holding.releaseReservation(quantity), true);
+  }
+
   async findP2PReplay(
     transaction: MarketExecutor,
     buyerId: string,
@@ -367,6 +395,32 @@ export class MarketRepository {
       .for("update");
   }
 
+  private async lockHolding(
+    tx: MarketExecutor,
+    userId: string,
+    playerId: string,
+  ): Promise<TokenHolding | null> {
+    const rows = await tx
+      .select()
+      .from(tokenHoldings)
+      .where(and(eq(tokenHoldings.userId, userId), eq(tokenHoldings.playerId, playerId)))
+      .for("update");
+    return rows[0] ? toHolding(rows[0]) : null;
+  }
+
+  private async lockAvailableHolding(
+    tx: MarketExecutor,
+    userId: string,
+    playerId: string,
+    quantity: number,
+  ): Promise<TokenHolding> {
+    const holding = await this.lockHolding(tx, userId, playerId);
+    if (!holding || !holding.canSell(quantity)) {
+      throw new ConflictError("Insufficient token holding");
+    }
+    return holding;
+  }
+
   private findPositionForUser(positions: TokenHoldingRow[], userId: string) {
     return positions.find((position) => position.userId === userId);
   }
@@ -389,6 +443,7 @@ async function saveTokenPosition(
 ): Promise<void> {
   const values = {
     quantity: holding.quantity,
+    reservedQuantity: holding.reservedQuantity,
     averagePurchasePrice: holding.averagePurchasePrice.toFixed(2),
     updatedAt: new Date(),
   };
@@ -453,6 +508,7 @@ function toHolding(row: TokenHoldingRow): TokenHolding {
     userId: row.userId,
     playerId: row.playerId,
     quantity: row.quantity,
+    reservedQuantity: row.reservedQuantity,
     averagePurchasePrice: Number(row.averagePurchasePrice),
     updatedAt: row.updatedAt,
   });

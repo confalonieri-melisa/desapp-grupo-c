@@ -8,6 +8,7 @@ export interface TokenHoldingProps {
   userId: string;
   playerId: string;
   quantity?: number;
+  reservedQuantity?: number;
   averagePurchasePrice?: number;
   updatedAt?: Date;
 }
@@ -18,20 +19,24 @@ export class TokenHolding {
   readonly userId: string;
   readonly playerId: string;
   readonly quantity: number;
+  readonly reservedQuantity: number;
   readonly averagePurchasePrice: number;
   readonly updatedAt: Date;
 
   constructor(props: TokenHoldingProps) {
     const quantity = props.quantity ?? 0;
+    const reservedQuantity = props.reservedQuantity ?? 0;
     const averagePurchasePrice = props.averagePurchasePrice ?? INITIAL_TOKEN_PRICE;
 
     TokenHolding.validateQuantity(quantity);
+    TokenHolding.validateQuantity(reservedQuantity);
     TokenHolding.validatePrice(averagePurchasePrice);
 
     this.id = props.id ?? crypto.randomUUID();
     this.userId = props.userId;
     this.playerId = props.playerId;
     this.quantity = quantity;
+    this.reservedQuantity = reservedQuantity;
     this.averagePurchasePrice = averagePurchasePrice;
     this.updatedAt = props.updatedAt ?? new Date();
   }
@@ -64,13 +69,59 @@ export class TokenHolding {
       userId: this.userId,
       playerId: this.playerId,
       quantity: nextQuantity,
+      reservedQuantity: this.reservedQuantity,
       averagePurchasePrice: nextAverage,
     });
   }
 
   sell(quantity: number): TokenHolding {
+    this.ensureAvailableQuantity(quantity);
+
+    const nextQuantity = this.quantity - quantity;
+    return new TokenHolding({
+      id: this.id,
+      userId: this.userId,
+      playerId: this.playerId,
+      quantity: nextQuantity,
+      reservedQuantity: this.reservedQuantity,
+      averagePurchasePrice: nextQuantity === 0 ? 0 : this.averagePurchasePrice,
+    });
+  }
+
+  canSell(quantity: number): boolean {
+    return Number.isInteger(quantity) && quantity > 0 && quantity <= this.availableQuantity();
+  }
+
+  reserve(quantity: number): TokenHolding {
+    this.ensureAvailableQuantity(quantity);
+
+    return new TokenHolding({
+      id: this.id,
+      userId: this.userId,
+      playerId: this.playerId,
+      quantity: this.quantity,
+      reservedQuantity: this.reservedQuantity + quantity,
+      averagePurchasePrice: this.averagePurchasePrice,
+    });
+  }
+
+  releaseReservation(quantity: number): TokenHolding {
     TokenHolding.validateQuantity(quantity, false);
-    if (quantity > this.quantity) {
+    if (quantity > this.reservedQuantity) throw new InsufficientTokenHoldingError();
+
+    return new TokenHolding({
+      id: this.id,
+      userId: this.userId,
+      playerId: this.playerId,
+      quantity: this.quantity,
+      reservedQuantity: this.reservedQuantity - quantity,
+      averagePurchasePrice: this.averagePurchasePrice,
+    });
+  }
+
+  sellReserved(quantity: number): TokenHolding {
+    TokenHolding.validateQuantity(quantity, false);
+    if (quantity > this.quantity || quantity > this.reservedQuantity) {
       throw new InsufficientTokenHoldingError();
     }
 
@@ -80,12 +131,13 @@ export class TokenHolding {
       userId: this.userId,
       playerId: this.playerId,
       quantity: nextQuantity,
+      reservedQuantity: this.reservedQuantity - quantity,
       averagePurchasePrice: nextQuantity === 0 ? 0 : this.averagePurchasePrice,
     });
   }
 
-  canSell(quantity: number): boolean {
-    return Number.isInteger(quantity) && quantity > 0 && quantity <= this.quantity;
+  availableQuantity(): number {
+    return Math.max(0, this.quantity - this.reservedQuantity);
   }
 
   currentValueAt(price: number): number {
@@ -107,6 +159,13 @@ export class TokenHolding {
           ? "Token quantity must be a non-negative integer"
           : "Token quantity must be a positive integer",
       );
+    }
+  }
+
+  private ensureAvailableQuantity(quantity: number): void {
+    TokenHolding.validateQuantity(quantity, false);
+    if (quantity > this.availableQuantity()) {
+      throw new InsufficientTokenHoldingError();
     }
   }
 
