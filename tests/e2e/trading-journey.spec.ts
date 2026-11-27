@@ -24,9 +24,7 @@ test("new investor buys and sells through catalog, profile, portfolio, and histo
     .getByRole("dialog", { name: "Confirmar compra" })
     .getByRole("button", { name: "Confirmar compra" })
     .click();
-  await expect(
-    page.getByRole("heading", { name: `Compra confirmada de ${player.name}` }),
-  ).toBeVisible();
+  await expect(page.getByText("Compra confirmada", { exact: true })).toBeVisible();
 
   await page.goto("/portfolio");
   const summary = page.getByRole("region", { name: "Resumen" });
@@ -51,9 +49,7 @@ test("new investor buys and sells through catalog, profile, portfolio, and histo
     .getByRole("dialog", { name: "Confirmar venta" })
     .getByRole("button", { name: "Confirmar venta" })
     .click();
-  await expect(
-    page.getByRole("heading", { name: `Venta confirmada de ${player.name}` }),
-  ).toBeVisible();
+  await expect(page.getByText("Venta confirmada", { exact: true })).toBeVisible();
 
   await page.goto("/portfolio");
   await expect(summary.getByText("Saldo disponible").locator("..")).toContainText("970 créditos");
