@@ -42,7 +42,7 @@ test("new investor buys and sells through catalog, profile, portfolio, and histo
   await operations.first().getByRole("link", { name: player.name }).click();
   await expect(page).toHaveURL(new RegExp(`/players/${player.id}$`));
 
-  await page.getByRole("radio", { name: "Vender" }).check();
+  await page.getByRole("button", { name: "Vender", exact: true }).click();
   await page.getByRole("textbox", { name: "Cantidad de tokens" }).fill("1");
   await page.getByRole("button", { name: "Ver detalle de la venta" }).click();
   await page
