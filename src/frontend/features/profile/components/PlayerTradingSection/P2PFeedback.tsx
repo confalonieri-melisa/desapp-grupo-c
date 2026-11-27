@@ -19,8 +19,7 @@ export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffe
       });
   }, [publication]);
   useEffect(() => {
-    if (cancelled)
-      toast.success("Oferta cancelada", { toastId: `p2p-cancel-${cancelled}` });
+    if (cancelled) toast.success("Oferta cancelada", { toastId: `p2p-cancel-${cancelled}` });
   }, [cancelled]);
   return (
     <div role="status" className={styles.feedback}>
@@ -33,7 +32,9 @@ export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffe
             Resultado incierto: {r.error}. Actualizá los datos antes de decidir otro intento.
           </p>
           {r.kind === "accept" && (
-            <button onClick={p2p.retryAccept}>Revisar reintento de la misma aceptación</button>
+            <button type="button" onClick={p2p.retryAccept}>
+              Revisar reintento de la misma aceptación
+            </button>
           )}
         </>
       )}

@@ -97,10 +97,10 @@ export default function PlayerTradingSection({
       )}
       {role === "INVESTOR" && (
         <nav className={styles.segmented} aria-label="Operación">
-          <button aria-pressed={view === "buy"} onClick={() => setView("buy")}>
+          <button type="button" aria-pressed={view === "buy"} onClick={() => setView("buy")}>
             <ShoppingCart size={18} aria-hidden="true" /> Comprar
           </button>
-          <button aria-pressed={view === "sell"} onClick={() => setView("sell")}>
+          <button type="button" aria-pressed={view === "sell"} onClick={() => setView("sell")}>
             <Tag size={18} aria-hidden="true" /> Vender
           </button>
         </nav>
@@ -110,7 +110,9 @@ export default function PlayerTradingSection({
           {role === "INVESTOR" && view === "buy" && pool && pool.status !== "success" && (
             <p role="status">
               Disponibilidad del pool no confirmada.{" "}
-              <button onClick={() => void pool.refresh()}>Reintentar disponibilidad</button>
+              <button type="button" onClick={() => void pool.refresh()}>
+                Reintentar disponibilidad
+              </button>
             </p>
           )}
           {role === "INVESTOR" &&

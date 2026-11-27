@@ -51,7 +51,7 @@ export default function P2PPublishForm({
         <Info size={18} aria-hidden="true" />
         <span>Los tokens no se reservan ni se transfieren al publicar.</span>
       </p>
-      <button disabled={!!v.error || p2p.result.status === "submitting"}>
+      <button type="submit" disabled={!!v.error || p2p.result.status === "submitting"}>
         Revisar publicación
       </button>
     </form>

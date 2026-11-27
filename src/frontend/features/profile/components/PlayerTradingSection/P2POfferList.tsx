@@ -93,6 +93,7 @@ export default function P2POfferList({
                       ) : (
                         <button
                           className={styles.outlineButton}
+                          type="button"
                           disabled={
                             p2p.result.status === "submitting" ||
                             !canAccept(o, userId, balance, p2p.status === "ready")

@@ -67,13 +67,14 @@ export default function P2PConfirmationDialog({
           )}
           <div className={styles.dialogActions}>
             <button
+              type="button"
               ref={cancel}
               className={styles.secondaryButton}
               onClick={p2p.cancelConfirmation}
             >
               Volver
             </button>
-            <button onClick={() => void p2p.confirm()}>
+            <button type="button" onClick={() => void p2p.confirm()}>
               Confirmar{" "}
               {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}
             </button>
