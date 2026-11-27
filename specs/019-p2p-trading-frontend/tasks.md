@@ -142,9 +142,9 @@
 
 **Purpose**: Terminar presentación, accesibilidad y validación integral sin ampliar el alcance.
 
-- [ ] T049 Ajustar src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.module.scss para jerarquía visual inspirada vagamente en el mockup, foco visible y anchos de 360/1280 px sin recortes; omitir cifras, porcentajes y gráficos no sustentados por datos reales.
-- [ ] T050 Ejecutar los tests conductuales de frontend, servicio de disponibilidad y rutas/repositorio de lectura con PostgreSQL, además de npm run build; corregir solo fallos atribuibles a esta feature en sus archivos modificados y documentar límites reales en specs/019-p2p-trading-frontend/quickstart.md.
-- [ ] T051 Recorrer la matriz manual de specs/019-p2p-trading-frontend/quickstart.md con dos inversores y SUPERUSER: ejecutar el nuevo GET desde specs/001-player-token-marketplace/contracts/postman_collection.json con disponibilidad positiva/cero, compra P2P, publicación, cancelación, compra al pool con disponibilidad positiva/cero/loading/error, compra central que agota existencias y oculta la acción, ausencia de venta central visible, cotización ausente, rechazo, red incierta, foco/Escape, sesión/jugador y anchos 360/1280; registrar resultados verificables en el mismo archivo.
+- [X] T049 Ajustar src/frontend/features/profile/components/PlayerTradingSection/PlayerTradingSection.module.scss para jerarquía visual inspirada vagamente en el mockup, foco visible y anchos de 360/1280 px sin recortes; omitir cifras, porcentajes y gráficos no sustentados por datos reales.
+- [X] T050 Ejecutar los tests conductuales de frontend, servicio de disponibilidad y rutas/repositorio de lectura con PostgreSQL, además de npm run build; corregir solo fallos atribuibles a esta feature en sus archivos modificados y documentar límites reales en specs/019-p2p-trading-frontend/quickstart.md.
+- [X] T051 Recorrer la matriz manual de specs/019-p2p-trading-frontend/quickstart.md con dos inversores y SUPERUSER: ejecutar el nuevo GET desde specs/001-player-token-marketplace/contracts/postman_collection.json con disponibilidad positiva/cero, compra P2P, publicación, cancelación, compra al pool con disponibilidad positiva/cero/loading/error, compra central que agota existencias y oculta la acción, ausencia de venta central visible, cotización ausente, rechazo, red incierta, foco/Escape, sesión/jugador y anchos 360/1280; registrar resultados verificables en el mismo archivo.
 
 ---
 

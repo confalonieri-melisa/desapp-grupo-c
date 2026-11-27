@@ -1,7 +1,7 @@
 import type { P2POffer } from "@/frontend/services/client/p2p-offers.service";
 export const offerTotal = (o: Pick<P2POffer, "quantity" | "unitPrice">) =>
   Math.round(o.quantity * Math.round(o.unitPrice * 100)) / 100;
-export const sellerLabel = (o: P2POffer) => `Vendedor ${o.sellerId.slice(0, 8)}?`;
+export const sellerLabel = (o: P2POffer) => `Vendedor ${o.sellerId.slice(0, 8)}...`;
 export const canAccept = (o: P2POffer, userId: string, balance: number | null, current: boolean) =>
   current &&
   o.sellerId !== userId &&
@@ -15,7 +15,7 @@ export function classifyP2PError(error: unknown) {
       e.status && e.status >= 400 && e.status < 500
         ? ("rejected" as const)
         : ("uncertain" as const),
-    error: e.message ?? "Resultado incierto. Actualiz? los datos antes de decidir otro intento.",
+    error: e.message ?? "Resultado incierto. Actualizá los datos antes de decidir otro intento.",
   };
 }
 
@@ -30,7 +30,7 @@ export function validatePublish(quantityText: string, priceText: string, holding
     quantity <= 0 ||
     quantity > 2147483647
   )
-    quantityError = "Ingres? una cantidad entera positiva hasta 2.147.483.647";
+    quantityError = "Ingresá una cantidad entera positiva hasta 2.147.483.647";
   else if (holding === null || quantity > holding)
     quantityError = "Tenencia no disponible o insuficiente";
   if (
@@ -39,7 +39,7 @@ export function validatePublish(quantityText: string, priceText: string, holding
     unitPrice <= 0 ||
     unitPrice > 99999999.99
   )
-    priceError = "Ingres? un precio positivo de hasta dos decimales y 99.999.999,99";
+    priceError = "Ingresá un precio positivo de hasta dos decimales y 99.999.999,99";
   const total = offerTotal({ quantity, unitPrice });
   if (!quantityError && !priceError && total > 9999999999.99)
     priceError = "El total supera 9.999.999.999,99";
@@ -52,3 +52,6 @@ export function validatePublish(quantityText: string, priceText: string, holding
     error: quantityError ?? priceError,
   };
 }
+
+export const formatP2PCredits = (value: number) =>
+  `${new Intl.NumberFormat("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value)} cr\u00e9ditos`;

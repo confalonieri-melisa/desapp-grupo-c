@@ -4,7 +4,7 @@ import { db, closeDatabase } from "@/backend/db";
 import { players, users, tokenHoldings } from "@/backend/db/schema";
 import { League, Position, UserRole } from "@/backend/models/enums";
 import { PoolAvailabilityRepository } from "@/backend/repositories/pool-availability.repository";
-const id = "77777777-7777-4777-8777-777777777777";
+const id = "00000000-0000-4000-8000-000000019001";
 describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")("pool read repository", () => {
   afterAll(closeDatabase);
   it("reads canonical pool without changing holdings", async () => {

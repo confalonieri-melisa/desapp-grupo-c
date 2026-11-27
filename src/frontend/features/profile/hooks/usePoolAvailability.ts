@@ -49,6 +49,7 @@ export function usePoolAvailability(
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void refresh();
     return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       generation.current++;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

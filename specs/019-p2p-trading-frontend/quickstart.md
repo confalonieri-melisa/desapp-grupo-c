@@ -37,3 +37,25 @@ Al terminar la implementación, ejecutar los tests conductuales previstos del cl
 | Accesibilidad | Repetir acciones con teclado, Escape y anchos de 360 y 1280 px | Foco visible y retornado tras diálogos; mensajes perceptibles; sin controles ni importes recortados. |
 
 Comprobar el nuevo GET con JWT válido e inválido, jugador existente e inexistente y cantidad cero/positiva; su respuesta solo incluye `playerId` y `availableQuantity`, no datos del SUPERUSER, y no modifica tenencias. Confirmar que OpenAPI/Swagger y Postman describen el endpoint. La consulta de ofertas solo muestra abiertas. «Comprar» no incluye un historial de ofertas completadas o canceladas ni una sección propia separada. El nombre del vendedor del mockup no es verificable: la API solo proporciona `sellerId`.
+
+
+## Resultados de implementacion (2026-11-26)
+
+- Pruebas de perfil, clientes P2P/pool y servicio: suite dirigida ejecutada con Vitest (verificacion final registrada abajo).
+- Integracion: ruta y repositorio ejecutados contra PostgreSQL 17 local, en `desapp_p2p_test`, con migraciones existentes. No se usaron datos productivos ni se modificaron esquemas del proyecto.
+- Build de Next.js y chequeo TypeScript ejecutados correctamente.
+- Chrome local, 360 y 1280 px: capturas inspeccionadas y comprobacion automatica de ausencia de desborde horizontal; foco inicial, Escape y regreso al disparador cubiertos ademas por pruebas de componentes.
+- Recorrido real en servidor local de prueba (3101), dos inversores y SUPERUSER: publicacion, aceptacion completa a 12,35 por 2 tokens, comprobante, saldo comprador 975,30 desde 1000 y tenencia 2; nueva publicacion y cancelacion; compra central del ultimo token y ocultamiento de la accion; SUPERUSER sin controles operativos. Se ejecuto la URL/parametros del nuevo item de Postman con JWT: disponibilidad 1 y luego 0. La prueba comprueba la misma consulta definida en la coleccion mediante HTTP; no utiliza el runner de Postman.
+- Recorrido con respuestas HTTP controladas: P2P sin cotizacion, rechazo 409 sin comprobante, 500 incierto sin reenvio automatico, error/reintento de disponibilidad, 401 con redireccion a login; compra, publicacion, cancelacion y agotamiento tambien recorridos en navegador.
+- Aislamiento por token/jugador, respuestas tardias, refresco fallido tras exito, precision y limites financieros, doble envio y reutilizacion de clave se verifican en las pruebas de hooks/clientes. Estos casos usan respuestas controladas, no interrupciones reales de una transferencia financiera.
+
+### Repetir la comprobacion en navegador
+
+Con el servidor de desarrollo activo, ejecutar `node tests/e2e/p2p-profile.smoke.mjs`. El recorrido intercepta las API en el navegador y no escribe en la base. Usa Chrome instalado; `P2P_BROWSER_PATH` permite seleccionar otro ejecutable Chromium y `P2P_BASE_URL` cambia el servidor (por defecto http://localhost:3000). Las capturas se guardan en `.tmp/p2p-360.png` y `.tmp/p2p-1280.png`. Crear `.tmp/` si no existe.
+
+La descarga del Chromium de Playwright fallo por certificado local; se uso Chrome instalado. La aprobacion formal de entrega por la Project Owner sigue siendo una revision humana y no se atribuye a estas verificaciones.
+
+
+### Cierre de verificacion
+
+229 pruebas dirigidas de perfil/clientes/servicio pasaron (228 en la suite completa y una prueba adicional de recuperacion de replay, con las 17 pruebas del hook nuevamente en verde). Las 4 pruebas de integracion de ruta/repositorio pasaron contra PostgreSQL. ESLint de los archivos de la feature paso sin errores ni advertencias. El smoke de navegador versionado paso despues del pulido. Build final de Next.js completado correctamente.

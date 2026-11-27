@@ -151,3 +151,52 @@ it("cancels once and removes confirmed offer despite failed refresh", async () =
   expect(h.render().result.cancelled).toBe(offer.id);
   h.cleanup();
 });
+
+it.each(["publish", "cancel"] as const)("clears protected state on %s 401", async (kind) => {
+  m.get.mockResolvedValue([offer]);
+  m.publish.mockRejectedValue(Object.assign(new Error("Expired"), { status: 401 }));
+  m.cancel.mockRejectedValue(Object.assign(new Error("Expired"), { status: 401 }));
+  const h = setup();
+  await flushPromises();
+  if (kind === "publish") {
+    h.render().setDraft("2", "12.35");
+    h.render().openPublish(5);
+  } else h.render().openCancel(offer, offer.sellerId);
+  await h.render().confirm();
+  expect(h.unauthorized).toHaveBeenCalledOnce();
+  expect(h.render().offers).toEqual([]);
+  expect(h.render().draft.quantity).toBe("");
+  expect(h.render().confirmation).toBeNull();
+  h.cleanup();
+});
+it("discards late mutation after session change", async () => {
+  const d = deferred<typeof receipt>();
+  m.get.mockResolvedValue([offer]);
+  m.accept.mockReturnValue(d.promise);
+  const h = setup();
+  await flushPromises();
+  h.render().openAccept(offer, investor.id, 100, true);
+  const pending = h.render().confirm();
+  h.render("new-session");
+  h.commit();
+  d.resolve(receipt);
+  await pending;
+  expect(h.render("new-session").result.receipt).toBeUndefined();
+  h.cleanup();
+});
+
+it("can recover a replay receipt after the accepted offer disappeared", async () => {
+  m.get.mockResolvedValueOnce([offer]).mockResolvedValue([]);
+  m.accept.mockRejectedValueOnce(new Error("Lost response")).mockResolvedValue(receipt);
+  const h = setup();
+  await flushPromises();
+  h.render().openAccept(offer, investor.id, 100, true);
+  await h.render().confirm();
+  const key = m.accept.mock.calls.at(-1)![2];
+  await h.render().refresh();
+  h.render().retryAccept();
+  await h.render().confirm();
+  expect(m.accept.mock.calls.at(-1)![2]).toBe(key);
+  expect(h.render().result.receipt).toEqual(receipt);
+  h.cleanup();
+});

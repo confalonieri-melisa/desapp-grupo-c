@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef } from "react";
 import type { useP2POffers } from "../../hooks/useP2POffers";
 import { offerTotal } from "../../utils/p2p-trading";
-import { formatCredits } from "../../utils/player-trading";
+import { formatP2PCredits as formatCredits } from "../../utils/p2p-trading";
 import styles from "./PlayerTradingSection.module.scss";
 export default function P2PConfirmationDialog({
   p2p,
@@ -39,23 +39,24 @@ export default function P2PConfirmationDialog({
         <>
           <h3 id={id}>
             Confirmar{" "}
-            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelacion" : "publicacion"}{" "}
+            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}{" "}
             P2P
           </h3>
           <p>
-            {playerName} {c.type !== "publish" && `? Oferta ${c.offer.id}`}
+            {playerName} {c.type !== "publish" && `· Oferta ${c.offer.id}`}
           </p>
           <p>
-            {(c.type !== "publish" ? c.offer : c).quantity} tokens completos ? Precio fijo{" "}
-            {formatCredits((c.type !== "publish" ? c.offer : c).unitPrice)} ? Total{" "}
+            {(c.type !== "publish" ? c.offer : c).quantity} tokens completos · Precio fijo{" "}
+            {formatCredits((c.type !== "publish" ? c.offer : c).unitPrice)} · Total{" "}
             {formatCredits(offerTotal(c.type !== "publish" ? c.offer : c))}
           </p>
+          {c.type === "publish" && <p>Los tokens no se reservan ni se transfieren al publicar.</p>}
           <button ref={cancel} onClick={p2p.cancelConfirmation}>
             Volver
           </button>
           <button onClick={() => void p2p.confirm()}>
             Confirmar{" "}
-            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelacion" : "publicacion"}{" "}
+            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}{" "}
             P2P
           </button>
         </>

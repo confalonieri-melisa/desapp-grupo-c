@@ -9,7 +9,7 @@ import {
 } from "@/frontend/services/client/p2p-offers.service";
 import { canAccept, classifyP2PError, validatePublish } from "../utils/p2p-trading";
 export type P2PConfirmation =
-  | { type: "accept"; offer: P2POffer; key: string }
+  | { type: "accept"; offer: P2POffer; key: string; replay?: boolean }
   | { type: "publish"; quantity: number; unitPrice: number }
   | { type: "cancel"; offer: P2POffer };
 export interface P2PResult {
@@ -17,6 +17,7 @@ export interface P2PResult {
   receipt?: P2PReceipt;
   published?: P2POffer;
   cancelled?: string;
+  kind?: "accept" | "publish" | "cancel";
   error?: string;
   portfolioFailed?: boolean;
 }
@@ -59,7 +60,7 @@ export function useP2POffers(
     }
     current.current = scope;
     callback.current = onUnauthorized;
-  },[scope,onUnauthorized]);
+  }, [scope, onUnauthorized]);
   const visible =
     state.scope === scope ? state : { scope, offers: [], status: "idle" as Status, error: null };
   const refresh = async () => {
@@ -79,6 +80,8 @@ export function useP2POffers(
     } catch (error) {
       if (current.current !== scope || seq !== generation.current) return false;
       if ((error as { status?: number }).status === 401) {
+        // Invalidate async work; these refs are sequence counters, not DOM nodes.
+
         epoch.current++;
         setState({ scope, offers: [], status: "idle", error: null });
         setAction({ scope, confirmation: null, result: { status: "idle" } });
@@ -97,7 +100,10 @@ export function useP2POffers(
   useEffect(() => {
     void refresh();
     return () => {
+      // Invalidate async work; these refs are sequence counters, not DOM nodes.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       epoch.current++;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       generation.current++;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -124,6 +130,11 @@ export function useP2POffers(
   };
   const confirm = async () => {
     const c = scoped.confirmation;
+    if (
+      c?.type === "cancel" &&
+      (visible.status !== "ready" || !visible.offers.some((o) => o.id === c.offer.id))
+    )
+      return;
     if (finance && !finance.operable) return;
     if (finance)
       latest.current = {
@@ -140,6 +151,7 @@ export function useP2POffers(
     if (!token || !c || busy.current || current.current !== scope) return;
     if (
       c.type === "accept" &&
+      !c.replay &&
       (!canAccept(c.offer, latest.current.userId, latest.current.balance, latest.current.current) ||
         visible.status !== "ready")
     )
@@ -187,7 +199,10 @@ export function useP2POffers(
     } catch (error) {
       if (current.current !== scope || epoch.current !== actionEpoch) return;
       if ((error as { status?: number }).status === 401) {
+        // Invalidate async work; these refs are sequence counters, not DOM nodes.
+
         epoch.current++;
+
         generation.current++;
         setState({ scope, offers: [], status: "idle", error: null });
         setAction({ scope, confirmation: null, result: { status: "idle" } });
@@ -204,7 +219,7 @@ export function useP2POffers(
           status: "error",
           error: "Resultado incierto. Actualiza la lista antes de otro intento.",
         }));
-      setAction({ scope, confirmation: null, result: failure });
+      setAction({ scope, confirmation: null, result: { ...failure, kind: c.type } });
     } finally {
       if (current.current === scope && epoch.current === actionEpoch) busy.current = false;
     }
@@ -214,7 +229,7 @@ export function useP2POffers(
     if (i?.scope === scope && scoped.result.status === "uncertain")
       setAction({
         scope,
-        confirmation: { type: "accept", offer: i.offer, key: i.key },
+        confirmation: { type: "accept", offer: i.offer, key: i.key, replay: true },
         result: scoped.result,
       });
   };

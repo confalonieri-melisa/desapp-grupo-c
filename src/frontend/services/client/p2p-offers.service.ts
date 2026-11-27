@@ -54,7 +54,7 @@ export async function getP2POffers(
     !Array.isArray(body) ||
     !body.every((o) => isOffer(o) && o.playerId === playerId)
   )
-    throw Object.assign(new Error("Respuesta de ofertas inv?lida"), { status });
+    throw Object.assign(new Error("Respuesta de ofertas inválida"), { status });
   return body;
 }
 
@@ -115,7 +115,7 @@ export async function publishP2POffer(
     }),
   });
   if (status !== 201 || !isOffer(body) || body.playerId !== input.playerId)
-    throw Object.assign(new Error("Publicaci?n no verificable"), { status });
+    throw Object.assign(new Error("Publicación no verificable"), { status });
   return body;
 }
 
@@ -123,5 +123,5 @@ export async function cancelP2POffer(token: string, id: string): Promise<void> {
   const { status } = await p2pRequest(token, `/api/p2p/offers/${encodeURIComponent(id)}`, {
     method: "DELETE",
   });
-  if (status !== 204) throw Object.assign(new Error("Cancelacion no verificable"), { status });
+  if (status !== 204) throw Object.assign(new Error("Cancelación no verificable"), { status });
 }

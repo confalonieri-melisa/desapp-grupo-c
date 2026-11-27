@@ -1,7 +1,7 @@
 import { useId } from "react";
 import type { useP2POffers } from "../../hooks/useP2POffers";
 import { validatePublish } from "../../utils/p2p-trading";
-import { formatCredits } from "../../utils/player-trading";
+import { formatP2PCredits as formatCredits } from "../../utils/p2p-trading";
 export default function P2PPublishForm({
   p2p,
   holding,
@@ -44,7 +44,7 @@ export default function P2PPublishForm({
       {!v.error && <p>Total {formatCredits(v.total)}</p>}
       <p>Los tokens no se reservan ni se transfieren al publicar.</p>
       <button disabled={!!v.error || p2p.result.status === "submitting"}>
-        Revisar publicaci?n
+        Revisar publicación
       </button>
     </form>
   );
