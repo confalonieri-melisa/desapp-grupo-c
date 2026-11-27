@@ -103,4 +103,33 @@ describe("TokenHolding", () => {
     expect(holding.canSell(2)).toBe(false);
     expect(() => holding.sell(2)).toThrow(InsufficientTokenHoldingError);
   });
+
+  it("reserves tokens and exposes only the unreserved quantity as sellable", () => {
+    const holding = new TokenHolding({
+      userId: "investor-id",
+      playerId: "player-id",
+      quantity: 5,
+    });
+
+    const reserved = holding.reserve(4);
+
+    expect(reserved.reservedQuantity).toBe(4);
+    expect(reserved.availableQuantity()).toBe(1);
+    expect(reserved.canSell(2)).toBe(false);
+    expect(() => reserved.sell(2)).toThrow(InsufficientTokenHoldingError);
+  });
+
+  it("releases reservations and consumes them when a reserved sale completes", () => {
+    const holding = new TokenHolding({
+      userId: "investor-id",
+      playerId: "player-id",
+      quantity: 5,
+      reservedQuantity: 4,
+    });
+
+    expect(holding.releaseReservation(2).reservedQuantity).toBe(2);
+    const sold = holding.sellReserved(4);
+    expect(sold.quantity).toBe(1);
+    expect(sold.reservedQuantity).toBe(0);
+  });
 });

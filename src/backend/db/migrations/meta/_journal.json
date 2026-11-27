@@ -57,6 +57,13 @@
       "when": 1795450000000,
       "tag": "0008_p2p_fixed_offers",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1795451000000,
+      "tag": "0009_p2p_token_reservations",
+      "breakpoints": true
     }
   ]
 }

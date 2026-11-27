@@ -103,6 +103,7 @@ describe.skipIf(process.env.RUN_DB_INTEGRATION_TESTS !== "true")(
         userId: sellerId,
         playerId,
         quantity: 5,
+        reservedQuantity: 2,
         averagePurchasePrice: "8.00",
       });
       await db.insert(p2pOffers).values({

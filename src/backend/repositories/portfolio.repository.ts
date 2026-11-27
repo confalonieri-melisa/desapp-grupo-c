@@ -25,6 +25,7 @@ function toHolding(row: typeof tokenHoldings.$inferSelect): TokenHolding {
     userId: row.userId,
     playerId: row.playerId,
     quantity: row.quantity,
+    reservedQuantity: row.reservedQuantity,
     averagePurchasePrice: Number(row.averagePurchasePrice),
     updatedAt: row.updatedAt,
   });

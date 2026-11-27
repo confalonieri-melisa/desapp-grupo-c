@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
-import { ConflictError, ForbiddenError, NotFoundError } from "@/backend/errors/http.error";
+import { ForbiddenError, NotFoundError } from "@/backend/errors/http.error";
 import { P2POffer } from "@/backend/models/P2POffer";
-import { TokenHolding } from "@/backend/models/TokenHolding";
 import { User } from "@/backend/models/User";
 import { UserRole } from "@/backend/models/enums";
 import { P2POfferService } from "@/backend/services/p2p-offer.service";
@@ -26,32 +25,25 @@ function dependencies() {
       cancelOffer: vi.fn(),
     },
     playerRepository: { findById: vi.fn().mockResolvedValue({ id: "player-id" }) },
-    portfolioRepository: {
-      findPositionsByUserId: vi
-        .fn()
-        .mockResolvedValue([
-          new TokenHolding({
-            userId: "seller-id",
-            playerId: "player-id",
-            quantity: 3,
-            averagePurchasePrice: 8,
-          }),
-        ]),
-    },
     userRepository: { findById: vi.fn().mockResolvedValue(seller) },
-    marketRepository: { withTransaction: vi.fn() },
+    marketRepository: {
+      withTransaction: vi.fn(async (work: (value: never) => Promise<unknown>) =>
+        work(transaction),
+      ),
+      reserveTokensForOffer: vi.fn(),
+      releaseReservedTokens: vi.fn(),
+    },
     seller,
     offer,
   };
 }
 
 describe("P2POfferService", () => {
-  it("validates the seller, player and holding before publishing", async () => {
+  it("validates the seller and reserves the holding before publishing", async () => {
     const set = dependencies();
     const service = new P2POfferService(
       set.offerRepository as never,
       set.playerRepository as never,
-      set.portfolioRepository as never,
       set.userRepository as never,
       set.marketRepository as never,
     );
@@ -59,6 +51,13 @@ describe("P2POfferService", () => {
     await expect(service.publishOffer(auth, input)).resolves.toBe(set.offer);
     expect(set.offerRepository.publishOffer).toHaveBeenCalledWith(
       expect.objectContaining({ sellerId: "seller-id", playerId: "player-id", quantity: 2 }),
+      transaction,
+    );
+    expect(set.marketRepository.reserveTokensForOffer).toHaveBeenCalledWith(
+      transaction,
+      "seller-id",
+      "player-id",
+      2,
     );
   });
 
@@ -76,39 +75,23 @@ describe("P2POfferService", () => {
     const service = new P2POfferService(
       set.offerRepository as never,
       set.playerRepository as never,
-      set.portfolioRepository as never,
       set.userRepository as never,
       set.marketRepository as never,
     );
 
     await expect(service.publishOffer(auth, input)).rejects.toBeInstanceOf(ForbiddenError);
-    expect(set.portfolioRepository.findPositionsByUserId).not.toHaveBeenCalled();
   });
 
-  it("rejects a missing seller or insufficient holding", async () => {
+  it("rejects a missing seller", async () => {
     const set = dependencies();
     set.userRepository.findById.mockResolvedValueOnce(null);
     const service = new P2POfferService(
       set.offerRepository as never,
       set.playerRepository as never,
-      set.portfolioRepository as never,
       set.userRepository as never,
       set.marketRepository as never,
     );
     await expect(service.publishOffer(auth, input)).rejects.toBeInstanceOf(NotFoundError);
-
-    const insufficient = dependencies();
-    insufficient.portfolioRepository.findPositionsByUserId.mockResolvedValueOnce([]);
-    const insufficientService = new P2POfferService(
-      insufficient.offerRepository as never,
-      insufficient.playerRepository as never,
-      insufficient.portfolioRepository as never,
-      insufficient.userRepository as never,
-      insufficient.marketRepository as never,
-    );
-    await expect(insufficientService.publishOffer(auth, input)).rejects.toBeInstanceOf(
-      ConflictError,
-    );
   });
 
   it("lists available offers and cancels an owned open offer", async () => {
@@ -124,7 +107,6 @@ describe("P2POfferService", () => {
     const service = new P2POfferService(
       set.offerRepository as never,
       set.playerRepository as never,
-      set.portfolioRepository as never,
       set.userRepository as never,
       set.marketRepository as never,
     );
@@ -136,6 +118,12 @@ describe("P2POfferService", () => {
     expect(set.offerRepository.cancelOffer).toHaveBeenCalledWith(
       expect.objectContaining({ status: "CANCELLED" }),
       transaction,
+    );
+    expect(set.marketRepository.releaseReservedTokens).toHaveBeenCalledWith(
+      transaction,
+      "seller-id",
+      "player-id",
+      input.quantity,
     );
   });
 });

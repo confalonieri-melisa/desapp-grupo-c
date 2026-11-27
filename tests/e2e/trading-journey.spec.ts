@@ -5,7 +5,7 @@ import { E2E_EMAIL_DOMAIN, E2E_PASSWORD, E2E_PLAYERS } from "./fixtures/data";
 
 test.use({ storageState: ANONYMOUS_STATE });
 
-test("new investor buys and sells through catalog, profile, portfolio, and history", async ({
+test("new investor buys and manages a P2P offer through catalog, profile, portfolio, and history", async ({
   page,
 }) => {
   const player = E2E_PLAYERS[0];
@@ -24,9 +24,7 @@ test("new investor buys and sells through catalog, profile, portfolio, and histo
     .getByRole("dialog", { name: "Confirmar compra" })
     .getByRole("button", { name: "Confirmar compra" })
     .click();
-  await expect(
-    page.getByRole("heading", { name: `Compra confirmada de ${player.name}` }),
-  ).toBeVisible();
+  await expect(page.getByText("Compra confirmada", { exact: true })).toBeVisible();
 
   await page.goto("/portfolio");
   const summary = page.getByRole("region", { name: "Resumen" });
@@ -44,23 +42,27 @@ test("new investor buys and sells through catalog, profile, portfolio, and histo
   await operations.first().getByRole("link", { name: player.name }).click();
   await expect(page).toHaveURL(new RegExp(`/players/${player.id}$`));
 
-  await page.getByRole("radio", { name: "Vender" }).check();
-  await page.getByRole("textbox", { name: "Cantidad de tokens" }).fill("1");
-  await page.getByRole("button", { name: "Ver detalle de la venta" }).click();
+  await page.getByRole("button", { name: "Vender", exact: true }).click();
+  await page.getByLabel("Cantidad completa").fill("1");
+  await page.getByLabel("Precio fijo por token").fill("30");
+  await page.getByRole("button", { name: "Revisar publicación" }).click();
   await page
-    .getByRole("dialog", { name: "Confirmar venta" })
-    .getByRole("button", { name: "Confirmar venta" })
+    .getByRole("dialog", { name: "Confirmar publicación" })
+    .getByRole("button", { name: "Confirmar publicación" })
     .click();
-  await expect(
-    page.getByRole("heading", { name: `Venta confirmada de ${player.name}` }),
-  ).toBeVisible();
+  await expect(page.getByText("Oferta publicada", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Cancelar oferta propia" }).click();
+  await page
+    .getByRole("dialog", { name: "Confirmar cancelación" })
+    .getByRole("button", { name: "Confirmar cancelación" })
+    .click();
+  await expect(page.getByText("Oferta cancelada", { exact: true })).toBeVisible();
 
   await page.goto("/portfolio");
-  await expect(summary.getByText("Saldo disponible").locator("..")).toContainText("970 créditos");
-  await expect(row).toContainText("1 token");
-  await expect(row).toContainText("30 créditos");
+  await expect(summary.getByText("Saldo disponible").locator("..")).toContainText("940 créditos");
+  await expect(row).toContainText("2 tokens");
+  await expect(row).toContainText("60 créditos");
   await page.goto("/transactions");
-  await expect(operations).toHaveCount(2);
-  await expect(operations.first()).toContainText("Venta");
-  await expect(operations.last()).toContainText("Compra");
+  await expect(operations).toHaveCount(1);
+  await expect(operations.first()).toContainText("Compra");
 });

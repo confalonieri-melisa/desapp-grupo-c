@@ -17,6 +17,6 @@ export function createP2PFixture() {
     seller,
     offer,
     buyerHolding: new TokenHolding({ userId: buyer.id, playerId: p2pFixture.playerId, quantity: 0, averagePurchasePrice: 0 }),
-    sellerHolding: new TokenHolding({ userId: seller.id, playerId: p2pFixture.playerId, quantity: 10, averagePurchasePrice: 8 }),
+    sellerHolding: new TokenHolding({ userId: seller.id, playerId: p2pFixture.playerId, quantity: 10, reservedQuantity: offer.quantity, averagePurchasePrice: 8 }),
   };
 }

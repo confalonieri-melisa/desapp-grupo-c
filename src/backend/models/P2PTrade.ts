@@ -62,7 +62,9 @@ export class P2PTrade {
   ): void {
     if (buyer.id === seller.id) throw new ConflictError("Cannot accept your own offer");
 
-    if (!sellerHolding.canSell(offer.quantity)) throw new InsufficientTokenHoldingError();
+    if (offer.quantity > sellerHolding.reservedQuantity || offer.quantity > sellerHolding.quantity) {
+      throw new InsufficientTokenHoldingError();
+    }
 
     if (!buyer.hasSufficientBalance(total)) {
       throw new ConflictError("Insufficient credit balance");
@@ -81,7 +83,7 @@ export class P2PTrade {
   ): { buyer: TokenHolding; seller: TokenHolding } {
     return {
       buyer: buyerHolding.buy(offer.quantity, offer.unitPrice),
-      seller: sellerHolding.sell(offer.quantity),
+      seller: sellerHolding.sellReserved(offer.quantity),
     };
   }
 

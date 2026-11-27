@@ -24,7 +24,7 @@ function dependencies() {
   const participants = users();
   const holdings = {
     buyer: new TokenHolding({ userId: "buyer-id", playerId: "player-id", quantity: 0, averagePurchasePrice: 0 }),
-    seller: new TokenHolding({ userId: "seller-id", playerId: "player-id", quantity: 5, averagePurchasePrice: 8 }),
+    seller: new TokenHolding({ userId: "seller-id", playerId: "player-id", quantity: 5, reservedQuantity: 2, averagePurchasePrice: 8 }),
   };
   const marketRepository = {
     withTransaction: vi.fn(async (work: (value: never) => Promise<unknown>) => work(transaction)),

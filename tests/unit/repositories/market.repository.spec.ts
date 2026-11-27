@@ -76,6 +76,94 @@ function tradeDatabase(existingOperation?: Record<string, unknown>) {
 }
 
 describe("MarketRepository", () => {
+  it("reserves only the available part of a holding", async () => {
+    const updateWhere = vi.fn(async () => []);
+    const update = vi.fn(() => ({
+      set: vi.fn(() => ({ where: updateWhere })),
+    }));
+    const transaction = {
+      select: vi.fn(() =>
+        query([
+          {
+            id: "holding-id",
+            userId: investorId,
+            playerId,
+            quantity: 5,
+            reservedQuantity: 0,
+            averagePurchasePrice: "10.00",
+            updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+          },
+        ]),
+      ),
+      update,
+    } as unknown as Database;
+    const repository = new MarketRepository({} as Database);
+
+    await repository.reserveTokensForOffer(transaction, investorId, playerId, 4);
+
+    expect(update).toHaveBeenCalledOnce();
+    expect(update.mock.results[0].value.set).toHaveBeenCalledWith(
+      expect.objectContaining({ quantity: 5, reservedQuantity: 4 }),
+    );
+  });
+
+  it("rejects a reservation beyond the available quantity", async () => {
+    const update = vi.fn();
+    const transaction = {
+      select: vi.fn(() =>
+        query([
+          {
+            id: "holding-id",
+            userId: investorId,
+            playerId,
+            quantity: 5,
+            reservedQuantity: 4,
+            averagePurchasePrice: "10.00",
+            updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+          },
+        ]),
+      ),
+      update,
+    } as unknown as Database;
+    const repository = new MarketRepository({} as Database);
+
+    await expect(
+      repository.reserveTokensForOffer(transaction, investorId, playerId, 2),
+    ).rejects.toMatchObject({ status: 409 });
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("releases a reservation from the locked holding", async () => {
+    const updateWhere = vi.fn(async () => []);
+    const update = vi.fn(() => ({
+      set: vi.fn(() => ({ where: updateWhere })),
+    }));
+    const transaction = {
+      select: vi.fn(() =>
+        query([
+          {
+            id: "holding-id",
+            userId: investorId,
+            playerId,
+            quantity: 5,
+            reservedQuantity: 4,
+            averagePurchasePrice: "10.00",
+            updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+          },
+        ]),
+      ),
+      update,
+    } as unknown as Database;
+    const repository = new MarketRepository({} as Database);
+
+    await repository.releaseReservedTokens(transaction, investorId, playerId, 4);
+
+    expect(update).toHaveBeenCalledOnce();
+    expect(update.mock.results[0].value.set).toHaveBeenCalledWith(
+      expect.objectContaining({ quantity: 5, reservedQuantity: 0 }),
+    );
+  });
+
   it("loads the locked trade state and persists the complete operation in one transaction", async () => {
     const fake = tradeDatabase();
     const repository = new MarketRepository(fake.database, {
