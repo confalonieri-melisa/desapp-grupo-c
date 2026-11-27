@@ -40,8 +40,7 @@ export default function P2PConfirmationDialog({
         <>
           <h3 id={id}>
             Confirmar{" "}
-            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}{" "}
-            P2P
+            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}
           </h3>
           <p>
             {playerName} {c.type !== "publish" && `· Oferta ${c.offer.id}`}
@@ -76,8 +75,7 @@ export default function P2PConfirmationDialog({
             </button>
             <button onClick={() => void p2p.confirm()}>
               Confirmar{" "}
-              {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}{" "}
-              P2P
+              {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}
             </button>
           </div>
         </>

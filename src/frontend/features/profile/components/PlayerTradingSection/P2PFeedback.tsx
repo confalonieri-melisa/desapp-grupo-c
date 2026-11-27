@@ -12,7 +12,7 @@ export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffe
     if (!receipt) return;
     const op = receipt.operation;
     toast.success(
-      `Compra P2P confirmada: ${op.quantity} tokens · Total ${formatCredits(op.total)}`,
+      `Compra confirmada: ${op.quantity} tokens · Total ${formatCredits(op.total)}`,
       {
         toastId: `p2p-buy-${op.id}`,
       },
@@ -30,7 +30,7 @@ export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffe
   }, [cancelled]);
   return (
     <div role="status" className={styles.feedback}>
-      {r.status === "submitting" && <p>Enviando operación P2P...</p>}
+      {r.status === "submitting" && <p>Enviando operación...</p>}
       {r.portfolioFailed && <p role="alert">Portfolio no actualizado. Reintentá su consulta.</p>}
       {r.status === "rejected" && <p role="alert">Operación rechazada: {r.error}</p>}
       {r.status === "uncertain" && (

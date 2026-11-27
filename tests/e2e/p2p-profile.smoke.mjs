@@ -174,10 +174,13 @@ const id = "33333333-3333-4333-8333-333333333333",
   await page.keyboard.press("Escape");
   assert.equal(accepts, 0);
   await page.getByText("Comprar oferta completa").click();
-  await page.getByRole("button", { name: "Confirmar compra P2P", exact: true }).click();
-  await page.getByText(/Compra P2P confirmada/).waitFor();
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Confirmar compra", exact: true })
+    .click();
+  await page.getByText(/Compra confirmada/).waitFor();
   assert.equal(accepts, 1);
-  await page.getByRole("button", { name: "Vender (P2P)", exact: true }).click();
+  await page.getByRole("button", { name: "Vender", exact: true }).click();
   await page.getByLabel("Cantidad completa").fill("2");
   await page.getByLabel("Precio fijo por token").fill("12.35");
   await page.getByText(/Revisar publicaci/).click();
@@ -222,16 +225,16 @@ const id = "33333333-3333-4333-8333-333333333333",
   await page.getByText("Comprar oferta completa").click();
   await page
     .getByRole("dialog")
-    .getByRole("button", { name: "Confirmar compra P2P", exact: true })
+    .getByRole("button", { name: "Confirmar compra", exact: true })
     .click();
   await page.getByText(/Operaci.*rechazada/).waitFor();
-  assert.equal(await page.getByText(/Compra P2P confirmada/).count(), 0);
+  assert.equal(await page.getByText(/Compra confirmada/).count(), 0);
   failure = 500;
   await page.reload();
   await page.getByText("Comprar oferta completa").click();
   await page
     .getByRole("dialog")
-    .getByRole("button", { name: "Confirmar compra P2P", exact: true })
+    .getByRole("button", { name: "Confirmar compra", exact: true })
     .click();
   await page.getByText(/Resultado incierto:/).waitFor();
   const count = accepts;

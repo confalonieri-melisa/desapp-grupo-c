@@ -100,6 +100,6 @@ it.each([
   } as unknown as PlayerTradingSectionProps;
   render(<PlayerTradingSection {...props} />);
   expect(!!screen.queryByText("Comprar al pool")).toBe(visible);
-  expect(screen.getByText("Ofertas P2P disponibles")).toBeTruthy();
-  expect(screen.queryByText("Vender")).toBeNull();
+  expect(screen.getByText("Ofertas disponibles")).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Vender" })).toBeTruthy();
 });

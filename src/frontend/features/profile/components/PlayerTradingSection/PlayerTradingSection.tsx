@@ -101,7 +101,7 @@ export default function PlayerTradingSection({
             <ShoppingCart size={18} aria-hidden="true" /> Comprar
           </button>
           <button aria-pressed={view === "sell"} onClick={() => setView("sell")}>
-            <Tag size={18} aria-hidden="true" /> Vender (P2P)
+            <Tag size={18} aria-hidden="true" /> Vender
           </button>
         </nav>
       )}

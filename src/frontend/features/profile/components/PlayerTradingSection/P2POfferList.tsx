@@ -18,12 +18,15 @@ export default function P2POfferList({
 }) {
   const offers = ownOnly ? p2p.offers.filter((o) => o.sellerId === userId) : p2p.offers;
   return (
-    <section className={styles.offerPanel} aria-label={ownOnly ? "Mis ofertas P2P" : "Ofertas P2P"}>
+    <section
+      className={styles.offerPanel}
+      aria-label={ownOnly ? "Mis ofertas" : "Ofertas disponibles"}
+    >
       <div className={styles.offerHeading}>
         <div>
           <h3 className={styles.iconHeading}>
             <Users size={20} aria-hidden="true" />
-            {ownOnly ? "Mis ofertas P2P" : "Ofertas P2P disponibles"}
+            {ownOnly ? "Mis ofertas" : "Ofertas disponibles"}
           </h3>
           <p>
             {ownOnly

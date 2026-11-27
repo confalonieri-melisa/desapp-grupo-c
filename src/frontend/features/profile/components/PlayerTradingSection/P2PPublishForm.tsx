@@ -23,7 +23,7 @@ export default function P2PPublishForm({
       }}
     >
       <h3 className={styles.iconHeading}>
-        <Tag size={20} aria-hidden="true" /> Publicar oferta P2P
+        <Tag size={20} aria-hidden="true" /> Publicar oferta
       </h3>
       <p className={styles.availability}>Tenencia disponible: {holding ?? "No confirmada"}</p>
       <label htmlFor={id + "q"}>Cantidad completa</label>
