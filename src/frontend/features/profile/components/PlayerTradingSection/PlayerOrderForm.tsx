@@ -1,3 +1,4 @@
+import { ShoppingCart, Zap } from "lucide-react";
 import type { usePlayerTrading } from "../../hooks/usePlayerTrading";
 import type { PlayerPositionSelection } from "../../utils/player-trading";
 import {
@@ -55,11 +56,10 @@ export default function PlayerOrderForm({
 
   return (
     <div className={styles.tradePanel}>
-      <div className={styles.positionHeading}>
-        <h3>Operar tokens de {playerName}</h3>
-      </div>
-      <h4>Comprar al pool</h4>
-      <p>Disponibles: {availableQuantity} tokens</p>
+      <h3 className={styles.iconHeading}>
+        <Zap size={20} aria-hidden="true" /> Comprar al pool
+      </h3>
+      <p className={styles.availability}>Disponibles: {availableQuantity} tokens</p>
       {!quoteValue && (
         <p className={styles.guidance} role="status">
           No hay cotización vigente disponible para operar.
@@ -125,7 +125,8 @@ export default function PlayerOrderForm({
             else trading.openSellConfirmation(playerName, quoteValue);
           }}
         >
-          Ver detalle de la {operationType === "BUY" ? "compra" : "venta"}
+          <ShoppingCart size={17} aria-hidden="true" /> Ver detalle de la{" "}
+          {operationType === "BUY" ? "compra" : "venta"}
         </button>
       </div>
     </div>

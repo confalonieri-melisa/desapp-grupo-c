@@ -173,6 +173,9 @@
   background: rgb(219 4 40 / 8%);
 }
 .error button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   cursor: pointer;
   border: 0;
   border-radius: var(--radius);

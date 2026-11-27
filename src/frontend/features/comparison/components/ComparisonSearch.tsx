@@ -1,6 +1,6 @@
 "use client";
 
-import { UserPlus } from "lucide-react";
+import { RefreshCw, UserPlus } from "lucide-react";
 import type { CatalogPlayer } from "@/frontend/features/catalog/player-catalog";
 import PlayerCardImage from "@/frontend/features/catalog/components/PlayerCardImage/PlayerCardImage";
 import PlayerNameSearch from "@/frontend/features/catalog/components/PlayerNameSearch/PlayerNameSearch";
@@ -30,7 +30,7 @@ export default function ComparisonSearch({ state, selectedIds, onSearch, onAdd, 
         <p className={styles.searchError} role="alert">
           {state.error}
           <button type="button" onClick={() => onSearch(state.query)}>
-            Reintentar
+            <RefreshCw size={16} aria-hidden="true" /> Reintentar
           </button>
         </p>
       )}

@@ -1,27 +1,37 @@
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+import styles from "./PlayerTradingSection.module.scss";
 import type { useP2POffers } from "../../hooks/useP2POffers";
 import { formatP2PCredits as formatCredits } from "../../utils/p2p-trading";
 export default function P2PFeedback({ p2p }: { p2p: ReturnType<typeof useP2POffers> }) {
   const r = p2p.result;
+  const receipt = r.receipt;
+  const publication = r.published;
+  const cancelled = r.cancelled;
+  useEffect(() => {
+    if (!receipt) return;
+    const op = receipt.operation;
+    toast.success(
+      `Compra P2P confirmada: ${op.quantity} tokens · Total ${formatCredits(op.total)}`,
+      {
+        toastId: `p2p-buy-${op.id}`,
+      },
+    );
+  }, [receipt]);
+  useEffect(() => {
+    if (publication)
+      toast.success("Oferta publicada. Los tokens no se reservaron ni se transfirieron.", {
+        toastId: `p2p-publish-${publication.id}`,
+      });
+  }, [publication]);
+  useEffect(() => {
+    if (cancelled)
+      toast.success("Cancelación confirmada de la oferta", { toastId: `p2p-cancel-${cancelled}` });
+  }, [cancelled]);
   return (
-    <div role="status">
-      {r.cancelled && <p>Cancelación confirmada de oferta {r.cancelled}</p>}
-      {r.published && (
-        <p>
-          Oferta publicada. Abrí «Comprar» para verla como oferta propia. Los tokens no se
-          reservaron.
-        </p>
-      )}
+    <div role="status" className={styles.feedback}>
       {r.status === "submitting" && <p>Enviando operación P2P...</p>}
-      {r.status === "succeeded" && r.receipt && (
-        <>
-          <p>Compra P2P confirmada · Comprobante {r.receipt.operation.id}</p>
-          <p>
-            {r.receipt.operation.quantity} tokens · {formatCredits(r.receipt.operation.unitPrice)}{" "}
-            por token · Total ejecutado {formatCredits(r.receipt.operation.total)}
-          </p>
-          {r.portfolioFailed && <p>Portfolio no actualizado. Reintentá su consulta.</p>}
-        </>
-      )}
+      {r.portfolioFailed && <p role="alert">Portfolio no actualizado. Reintentá su consulta.</p>}
       {r.status === "rejected" && <p role="alert">Operación rechazada: {r.error}</p>}
       {r.status === "uncertain" && (
         <>

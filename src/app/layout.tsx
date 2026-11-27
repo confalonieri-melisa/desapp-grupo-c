@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Poppins } from "next/font/google";
 import "./globals.scss";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "@/frontend/context/AuthContext";
 import AppShell from "@/frontend/components/AppShell";
 
@@ -29,6 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthProvider>
           <AppShell>{children}</AppShell>
+          <ToastContainer position="bottom-right" autoClose={5000} />
         </AuthProvider>
       </body>
     </html>

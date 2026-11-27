@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from "react";
+import { Info } from "lucide-react";
 import type { useP2POffers } from "../../hooks/useP2POffers";
 import { offerTotal } from "../../utils/p2p-trading";
 import { formatP2PCredits as formatCredits } from "../../utils/p2p-trading";
@@ -45,20 +46,40 @@ export default function P2PConfirmationDialog({
           <p>
             {playerName} {c.type !== "publish" && `· Oferta ${c.offer.id}`}
           </p>
-          <p>
-            {(c.type !== "publish" ? c.offer : c).quantity} tokens completos · Precio fijo{" "}
-            {formatCredits((c.type !== "publish" ? c.offer : c).unitPrice)} · Total{" "}
-            {formatCredits(offerTotal(c.type !== "publish" ? c.offer : c))}
-          </p>
-          {c.type === "publish" && <p>Los tokens no se reservan ni se transfieren al publicar.</p>}
-          <button ref={cancel} onClick={p2p.cancelConfirmation}>
-            Volver
-          </button>
-          <button onClick={() => void p2p.confirm()}>
-            Confirmar{" "}
-            {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}{" "}
-            P2P
-          </button>
+          <dl className={styles.confirmMetrics}>
+            <div>
+              <dt>Cantidad de tokens</dt>
+              <dd>{(c.type !== "publish" ? c.offer : c).quantity} tokens</dd>
+            </div>
+            <div>
+              <dt>Precio fijo por token</dt>
+              <dd>{formatCredits((c.type !== "publish" ? c.offer : c).unitPrice)}</dd>
+            </div>
+            <div className={styles.totalBox}>
+              <dt>Importe total</dt>
+              <dd>{formatCredits(offerTotal(c.type !== "publish" ? c.offer : c))}</dd>
+            </div>
+          </dl>
+          {c.type === "publish" && (
+            <p className={styles.infoBox}>
+              <Info size={18} aria-hidden="true" />
+              <span>Los tokens no se reservan ni se transfieren al publicar.</span>
+            </p>
+          )}
+          <div className={styles.dialogActions}>
+            <button
+              ref={cancel}
+              className={styles.secondaryButton}
+              onClick={p2p.cancelConfirmation}
+            >
+              Volver
+            </button>
+            <button onClick={() => void p2p.confirm()}>
+              Confirmar{" "}
+              {c.type === "accept" ? "compra" : c.type === "cancel" ? "cancelación" : "publicación"}{" "}
+              P2P
+            </button>
+          </div>
         </>
       )}
     </dialog>

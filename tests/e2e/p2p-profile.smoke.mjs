@@ -188,7 +188,7 @@ const id = "33333333-3333-4333-8333-333333333333",
   await page.getByText(/Oferta publicada/).waitFor();
   assert.equal(publishes, 1);
   await page.getByRole("button", { name: "Comprar", exact: true }).click();
-  await page.getByText("Cancelar oferta propia").click();
+  await page.getByRole("button", { name: "Cancelar oferta propia" }).click();
   await page
     .getByRole("dialog")
     .getByRole("button", { name: /Confirmar cancelaci/ })

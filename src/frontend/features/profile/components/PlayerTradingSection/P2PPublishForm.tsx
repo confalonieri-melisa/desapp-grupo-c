@@ -1,3 +1,5 @@
+import { Info, Tag } from "lucide-react";
+import styles from "./PlayerTradingSection.module.scss";
 import { useId } from "react";
 import type { useP2POffers } from "../../hooks/useP2POffers";
 import { validatePublish } from "../../utils/p2p-trading";
@@ -14,13 +16,16 @@ export default function P2PPublishForm({
   const v = validatePublish(d.quantity, d.price, holding);
   return (
     <form
+      className={styles.publishPanel}
       onSubmit={(e) => {
         e.preventDefault();
         p2p.openPublish(holding);
       }}
     >
-      <h3>Publicar oferta P2P</h3>
-      <p>Tenencia disponible: {holding ?? "No confirmada"}</p>
+      <h3 className={styles.iconHeading}>
+        <Tag size={20} aria-hidden="true" /> Publicar oferta P2P
+      </h3>
+      <p className={styles.availability}>Tenencia disponible: {holding ?? "No confirmada"}</p>
       <label htmlFor={id + "q"}>Cantidad completa</label>
       <input
         id={id + "q"}
@@ -42,7 +47,10 @@ export default function P2PPublishForm({
       />
       <p id={id + "pe"}>{d.price && v.priceError}</p>
       {!v.error && <p>Total {formatCredits(v.total)}</p>}
-      <p>Los tokens no se reservan ni se transfieren al publicar.</p>
+      <p className={styles.infoBox}>
+        <Info size={18} aria-hidden="true" />
+        <span>Los tokens no se reservan ni se transfieren al publicar.</span>
+      </p>
       <button disabled={!!v.error || p2p.result.status === "submitting"}>
         Revisar publicación
       </button>

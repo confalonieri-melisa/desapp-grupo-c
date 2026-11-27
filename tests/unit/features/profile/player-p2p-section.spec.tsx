@@ -22,7 +22,7 @@ it("offers full purchase only for another seller and preserves full identity", (
   render(<P2POfferList p2p={p2p} userId={investor.id} balance={100} operable />);
   fireEvent.click(screen.getByText("Comprar oferta completa"));
   expect(p2p.openAccept).toHaveBeenCalledWith(offer, investor.id, 100, true);
-  expect(screen.getByTitle(offer.sellerId)).toBeTruthy();
+  expect(screen.queryByText(offer.sellerId)).toBeNull();
   expect(screen.queryByRole("textbox")).toBeNull();
 });
 it("does not expose operations to SUPERUSER", () => {
@@ -69,9 +69,9 @@ it("associates publish fields and errors and describes no reservation", () => {
 it("keeps own cancellation inline in the single mixed list", () => {
   const p2p = { ...state(), openCancel: vi.fn() };
   render(<P2POfferList p2p={p2p} userId={investor.id} balance={100} operable />);
-  fireEvent.click(screen.getByText("Cancelar oferta propia"));
+  fireEvent.click(screen.getByRole("button", { name: "Cancelar oferta propia" }));
   expect(p2p.openCancel).toHaveBeenCalledWith(ownOffer, investor.id);
-  expect(screen.getAllByRole("list")).toHaveLength(1);
+  expect(screen.getAllByRole("table")).toHaveLength(1);
 });
 
 import PlayerTradingSection, {
@@ -100,6 +100,6 @@ it.each([
   } as unknown as PlayerTradingSectionProps;
   render(<PlayerTradingSection {...props} />);
   expect(!!screen.queryByText("Comprar al pool")).toBe(visible);
-  expect(screen.getByText("Ofertas P2P a precio fijo")).toBeTruthy();
+  expect(screen.getByText("Ofertas P2P disponibles")).toBeTruthy();
   expect(screen.queryByText("Vender")).toBeNull();
 });

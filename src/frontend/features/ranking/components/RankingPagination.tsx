@@ -21,16 +21,17 @@ export default function RankingPagination({ pagination, disabled = false, onPage
           disabled={disabled || page <= 1}
           onClick={() => onPageChange(page - 1)}
         >
-          Anterior
+          <ChevronLeft size={18} aria-hidden="true" /> Anterior
         </button>
         <button
           type="button"
           disabled={disabled || page >= totalPages}
           onClick={() => onPageChange(page + 1)}
         >
-          Siguiente
+          Siguiente <ChevronRight size={18} aria-hidden="true" />
         </button>
       </div>
     </nav>
   );
 }
+import { ChevronLeft, ChevronRight } from "lucide-react";

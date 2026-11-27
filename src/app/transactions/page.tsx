@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BarChart3, RotateCcw, Search, ShoppingCart, Tag } from "lucide-react";
+import { BarChart3, RefreshCw, RotateCcw, Search, ShoppingCart, Tag } from "lucide-react";
 import { useAuth } from "@/frontend/context/AuthContext";
 import PageContainer from "@/frontend/components/ui/PageContainer/PageContainer";
 import TransactionHistoryList from "@/frontend/features/history/components/TransactionHistoryList";
@@ -77,7 +77,7 @@ export default function TransactionsPage() {
           <div className={styles.error} role="alert">
             <p>{error}</p>
             <button type="button" onClick={retry}>
-              Reintentar
+              <RefreshCw size={16} aria-hidden="true" /> Reintentar
             </button>
           </div>
         )}

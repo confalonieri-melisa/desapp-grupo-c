@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
+import { RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PageContainer from "@/frontend/components/ui/PageContainer/PageContainer";
 import { useAuth } from "@/frontend/context/AuthContext";
@@ -39,7 +40,7 @@ export default function PortfolioPage() {
           <div className={styles.notice} role="alert">
             <p>{error}</p>
             <button type="button" onClick={retry}>
-              Reintentar
+              <RefreshCw size={16} aria-hidden="true" /> Reintentar
             </button>
           </div>
         )}
@@ -57,7 +58,7 @@ export default function PortfolioPage() {
                   {error}
                 </p>
                 <button type="button" onClick={retry}>
-                  Reintentar
+                  <RefreshCw size={16} aria-hidden="true" /> Reintentar
                 </button>
               </div>
             )}

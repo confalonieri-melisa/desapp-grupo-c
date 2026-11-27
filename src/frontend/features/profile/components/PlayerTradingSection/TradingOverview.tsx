@@ -19,7 +19,9 @@ export default function TradingOverview({
   return (
     <div className={styles.grid}>
       <div className={styles.panel}>
-        <h3>Precio actual</h3>
+        <h3 className={styles.iconHeading}>
+          <Coins size={20} aria-hidden="true" /> Precio actual
+        </h3>
         {quotes.history.status === "loading" && (
           <p role="status" className={styles.state}>
             Cargando cotización…
@@ -43,7 +45,9 @@ export default function TradingOverview({
         )}
       </div>
       <div className={styles.panel}>
-        <h3>Saldo disponible</h3>
+        <h3 className={styles.iconHeading}>
+          <Wallet size={20} aria-hidden="true" /> Saldo disponible
+        </h3>
         {(portfolio.status === "idle" || portfolio.status === "loading") && (
           <p role="status" className={styles.state}>
             Cargando portfolio…
@@ -58,7 +62,7 @@ export default function TradingOverview({
           <div role="alert" className={styles.state}>
             <p>No se pudo cargar el portfolio{portfolio.error ? `: ${portfolio.error}` : "."}</p>
             <button type="button" onClick={retryPortfolio}>
-              Reintentar portfolio
+              <RefreshCw size={16} aria-hidden="true" /> Reintentar portfolio
             </button>
           </div>
         )}
@@ -71,3 +75,4 @@ export default function TradingOverview({
     </div>
   );
 }
+import { Coins, RefreshCw, Wallet } from "lucide-react";

@@ -1,5 +1,6 @@
 "use client";
 
+import { ShoppingCart, Tag } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import type { usePlayerQuotes } from "../../hooks/usePlayerQuotes";
 import type { usePlayerTrading } from "../../hooks/usePlayerTrading";
@@ -71,7 +72,7 @@ export default function PlayerTradingSection({
     const status = trading.order.status;
     if (
       status !== previousOrderStatus.current &&
-      (status === "succeeded" || status === "rejected" || status === "uncertain")
+      (status === "rejected" || status === "uncertain")
     ) {
       resultRef.current?.focus();
     }
@@ -95,52 +96,69 @@ export default function PlayerTradingSection({
         <PlayerPositionSummary playerName={playerName} selected={selected} />
       )}
       {role === "INVESTOR" && (
-        <nav aria-label="Operaci?n">
+        <nav className={styles.segmented} aria-label="Operación">
           <button aria-pressed={view === "buy"} onClick={() => setView("buy")}>
-            Comprar
+            <ShoppingCart size={18} aria-hidden="true" /> Comprar
           </button>
           <button aria-pressed={view === "sell"} onClick={() => setView("sell")}>
-            Vender (P2P)
+            <Tag size={18} aria-hidden="true" /> Vender (P2P)
           </button>
         </nav>
       )}
-      {role === "INVESTOR" && view === "buy" && pool && pool.status !== "success" && (
-        <p role="status">
-          Disponibilidad del pool no confirmada.{" "}
-          <button onClick={() => void pool.refresh()}>Reintentar disponibilidad</button>
-        </p>
-      )}
-      {role === "INVESTOR" &&
-        view === "buy" &&
-        pool?.status === "success" &&
-        (pool.availableQuantity ?? 0) > 0 && (
-          <PlayerOrderForm
-            availableQuantity={pool?.availableQuantity}
-            playerName={playerName}
-            inputId={inputId}
-            quoteValue={quoteValue}
-            portfolio={portfolio}
-            snapshot={snapshot}
-            selected={selected}
-            trading={trading}
-            operationType={operationType}
-            onOperationTypeChange={setOperationType}
-            triggerRef={triggerRef}
-          />
-        )}
-      {p2p && (
-        <>
-          {view === "buy" && (
-            <P2POfferList
-              p2p={p2p}
-              userId={userId}
-              balance={snapshot?.creditBalance ?? null}
-              operable={role === "INVESTOR" && !p2p.forbidden}
-            />
+      <div className={styles.tradingLayout}>
+        <div>
+          {role === "INVESTOR" && view === "buy" && pool && pool.status !== "success" && (
+            <p role="status">
+              Disponibilidad del pool no confirmada.{" "}
+              <button onClick={() => void pool.refresh()}>Reintentar disponibilidad</button>
+            </p>
           )}
-          {view === "sell" && role === "INVESTOR" && !p2p.forbidden && (
+          {role === "INVESTOR" &&
+            view === "buy" &&
+            pool?.status === "success" &&
+            (pool.availableQuantity ?? 0) > 0 && (
+              <PlayerOrderForm
+                availableQuantity={pool?.availableQuantity}
+                playerName={playerName}
+                inputId={inputId}
+                quoteValue={quoteValue}
+                portfolio={portfolio}
+                snapshot={snapshot}
+                selected={selected}
+                trading={trading}
+                operationType={operationType}
+                onOperationTypeChange={setOperationType}
+                triggerRef={triggerRef}
+              />
+            )}
+          {p2p && view === "sell" && role === "INVESTOR" && !p2p.forbidden && (
             <P2PPublishForm p2p={p2p} holding={selected?.quantity ?? null} />
           )}
+        </div>
+        {p2p && (
+          <>
+            {view === "buy" && (
+              <P2POfferList
+                p2p={p2p}
+                userId={userId}
+                balance={snapshot?.creditBalance ?? null}
+                operable={role === "INVESTOR" && !p2p.forbidden}
+              />
+            )}
+            {view === "sell" && role === "INVESTOR" && (
+              <P2POfferList
+                p2p={p2p}
+                userId={userId}
+                balance={snapshot?.creditBalance ?? null}
+                operable={!p2p.forbidden}
+                ownOnly
+              />
+            )}
+          </>
+        )}
+      </div>
+      {p2p && (
+        <>
           <P2PFeedback p2p={p2p} />
           {role === "INVESTOR" && <P2PConfirmationDialog p2p={p2p} playerName={playerName} />}
         </>

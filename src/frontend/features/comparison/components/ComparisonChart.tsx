@@ -1,5 +1,6 @@
 "use client";
 
+import { ChartNoAxesCombined } from "lucide-react";
 import {
   CartesianGrid,
   Legend,
@@ -46,7 +47,9 @@ export default function ComparisonChart({ players }: { players: readonly Compari
 
   return (
     <section className={styles.chart} aria-labelledby="comparison-chart-title">
-      <h2 id="comparison-chart-title">Evolución de cotizaciones</h2>
+      <h2 id="comparison-chart-title" className={styles.iconHeading}>
+        <ChartNoAxesCombined size={21} aria-hidden="true" /> Evolución de cotizaciones
+      </h2>
 
       {ready.length === 0 && (
         <p role="status">No hay suficientes cotizaciones históricas para mostrar una evolución.</p>

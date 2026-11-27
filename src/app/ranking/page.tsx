@@ -17,7 +17,7 @@ import {
   formatQuoteTimestampDisplay,
   formatStrategy,
 } from "@/frontend/features/profile/utils/player-quotes";
-import { ListFilter } from "lucide-react";
+import { ListFilter, RefreshCw } from "lucide-react";
 import styles from "./RankingPage.module.scss";
 
 function RankingPageContent() {
@@ -83,7 +83,7 @@ function RankingPageContent() {
           <div className={styles.error} role="alert">
             <p>{ranking.error}</p>
             <button type="button" onClick={ranking.retry}>
-              Reintentar
+              <RefreshCw size={16} aria-hidden="true" /> Reintentar
             </button>
           </div>
         )}
@@ -91,7 +91,7 @@ function RankingPageContent() {
           <div className={styles.error} role="alert">
             <p>{ranking.error ?? "No hay una estrategia de valuación activa."}</p>
             <button type="button" onClick={ranking.retry}>
-              Actualizar ranking
+              <RefreshCw size={16} aria-hidden="true" /> Actualizar ranking
             </button>
           </div>
         )}
